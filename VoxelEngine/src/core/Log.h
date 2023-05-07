@@ -7,12 +7,12 @@ namespace VoxelEngine
 	static class VOXEL_API Log
 	{
 	private:
-		inline static std::shared_ptr<spdlog::logger> _coreLogger;
-		inline static std::shared_ptr<spdlog::logger> _clientLogger;
+		inline static SharedRef<spdlog::logger> _coreLogger;
+		inline static SharedRef<spdlog::logger> _clientLogger;
 	public:
 		static void init();
-		inline static std::shared_ptr<spdlog::logger>& getCoreLogger();
-		inline static std::shared_ptr<spdlog::logger>& getClientLogger();
+		inline static SharedRef<spdlog::logger>& getCoreLogger();
+		inline static SharedRef<spdlog::logger>& getClientLogger();
 	};
 
 #define VOXEL_CORE_TRACE(...)		::VoxelEngine::Log::getCoreLogger()->trace(__VA_ARGS__);

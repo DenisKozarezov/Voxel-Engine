@@ -17,14 +17,17 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
 #include <optional>
+#include <ostream>
 #include <array>
 #include <iostream>
 #include <stdexcept>
+#include <functional>
 #include <map>
 #include <set>
 #include <limits>
 #include <algorithm>
 #include <fstream>
 #include <chrono>
+#include <concepts>
 
 #endif //PCH_H

@@ -1,75 +1,79 @@
 #include "Application.h"
-#include "Log.h"
-#include "Assert.h"
+#include "input/events/EventBus.h"
 
 namespace VoxelEngine
 {
 	Application* Application::_instance = 0;
 
-	GLFWwindow* const Application::createWindow(const int& width, const int& height, const string& title) const noexcept
-	{
-		glfwInit();
-		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-		return glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
-	}
-
-	Application::Application()
+	Application::Application(const ApplicationSpecification& spec) : _specification(spec)
 	{
 		VOXEL_CORE_ASSERT(!_instance, "Application already exists!")
 
 		_instance = this;
 
-		_window = createWindow(800, 600, "Voxel Editor");
+		VOXEL_CORE_WARN("Application Name: " + spec.ApplicationName)
+		VOXEL_CORE_WARN("Version: " + spec.Version)
+		VOXEL_CORE_WARN("Working Directory: " + spec.WorkingDirectory)
+		VOXEL_CORE_WARN("Command Line Args: " + spec.CommandLineArgs.toString())
+		
+		string name = spec.ApplicationName + " " + spec.Version + " (" + spec.GraphicsAPI + ")";
+		_window = Window::Create({ name, 1920, 1080 });
+		_window->setEventCallback(BIND_CALLBACK(onEvent));
 	}
 
-	inline std::unique_ptr<Application>& Application::getInstance()
+	inline UniqueRef<Application>& Application::getInstance()
 	{
-		static std::unique_ptr<Application> ptr = std::unique_ptr<Application>(_instance);
+		static UniqueRef<Application> ptr = UniqueRef<Application>(_instance);
 		return ptr;
 	}
 
 	const void Application::init()
 	{
-		_renderer.setGLFWwindow(_window);
-
-		try
-		{
-			_renderer.init();
-		}
-		catch (const std::exception& e)
-		{
-			VOXEL_CORE_CRITICAL(e.what())
-		}
+	//	try
+	//	{
+	//		_renderer.init();
+	//		_renderer.setGLFWwindow(_window);
+	//	}
+	//	catch (const std::exception& e)
+	//	{
+	//		VOXEL_CORE_CRITICAL(e.what())
+	//	}
 	}
 	const void Application::run()
 	{
+		VOXEL_CORE_WARN("Running Voxel Engine...")
+
 		_running = true;
 
-		while (!glfwWindowShouldClose(_window))
+		while (_running)
 		{
-			glfwPollEvents();
-			_renderer.renderFrame();
+			_window->onUpdate();
+			//_renderer.renderFrame();
 		}
-		_renderer.deviceWaitIdle();
+		//_renderer.deviceWaitIdle();
 	}
 	const void Application::shutdown()
 	{
 		_running = false;
-
-		_renderer.cleanup();
-
-		glfwDestroyWindow(_window);
-		glfwTerminate();
 	}
 
-	void Application::onEvent(const input::Event& e)
+	void Application::onEvent(input::Event& e)
 	{
+		input::EventBus dispatcher(e);
+		dispatcher.Fire<input::WindowCloseEvent>(BIND_CALLBACK(onWindowClose));
+		dispatcher.Fire<input::WindowResizeEvent>(BIND_CALLBACK(onWindowResize));
 	}
-	void Application::onWindowClosed(const input::WindowCloseEvent& e)
+	bool Application::onWindowClose(const input::WindowCloseEvent& e)
 	{
 		shutdown();
+		return true;
 	}
-	void Application::onWindowResized(const input::WindowResizeEvent& e)
+	bool Application::onWindowResize(const input::WindowResizeEvent& e)
 	{
+		if (e.getWidth() == 0 || e.getHeight() == 0)
+		{
+			return false;
+		}
+		return false;
 	}
 }

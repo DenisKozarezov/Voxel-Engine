@@ -71,7 +71,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>$(ProjectDir)vendor\glfw-3.3.8\lib-vc2022;$(ProjectDir)vendor\vulkan\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3_mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -117,6 +117,7 @@
     <ClInclude Include="src\core\Base.h" />
     <ClInclude Include="src\core\input\events\ApplicationEvent.h" />
     <ClInclude Include="src\core\input\events\Event.h" />
+    <ClInclude Include="src\core\input\events\EventBus.h" />
     <ClInclude Include="src\core\input\events\KeyboardEvent.h" />
     <ClInclude Include="src\core\input\events\KeyCode.h" />
     <ClInclude Include="src\core\input\events\MouseCode.h" />
@@ -124,6 +125,7 @@
     <ClInclude Include="src\core\Log.h" />
     <ClInclude Include="src\core\PlatformDetection.h" />
     <ClInclude Include="src\core\PrimitiveTypes.h" />
+    <ClInclude Include="src\core\Window.h" />
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\core\Application.h" />
     <ClInclude Include="src\core\renderer\Texture.h" />
@@ -446,6 +448,7 @@
     <ClInclude Include="vendor\vulkan\vulkan_xcb.h" />
     <ClInclude Include="vendor\vulkan\vulkan_xlib.h" />
     <ClInclude Include="vendor\vulkan\vulkan_xlib_xrandr.h" />
+    <ClInclude Include="src\platform\Windows\WindowsWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\core\Log.cpp" />
@@ -454,6 +457,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\core\Application.cpp" />
+    <ClCompile Include="src\platform\Windows\WindowsWindow.cpp" />
     <ClInclude Include="src\core\EntryPoint.h" />
     <ClCompile Include="src\core\renderer\Texture.cpp" />
     <ClCompile Include="src\core\renderer\Renderer.cpp" />

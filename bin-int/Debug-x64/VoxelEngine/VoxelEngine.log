@@ -1,44 +1,15 @@
-﻿  pch.cpp
+﻿  Application.cpp
 C:\Program Files\Microsoft Visual Studio\2022\Preview\VC\Tools\MSVC\14.36.32323\include\chrono(2316,9): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
-  Log.cpp
-  Application.cpp
-  Texture.cpp
-  Renderer.cpp
-  glm.cpp
-C:\dev\VulkanProject\VoxelEngine\vendor\glm\detail\type_quat.hpp(48): warning C4201: nonstandard extension used: nameless struct/union (compiling source file vendor\glm\detail\glm.cpp)
-C:\dev\VulkanProject\VoxelEngine\vendor\glm\detail\type_quat.hpp(133,3): message : see reference to class template instantiation 'glm::qua<T,Q>' being compiled (compiling source file vendor\glm\detail\glm.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Preview\VC\Tools\MSVC\14.36.32323\include\chrono(2316,9): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc (compiling source file src\core\Log.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Preview\VC\Tools\MSVC\14.36.32323\include\chrono(2316,9): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc (compiling source file src\core\Application.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Preview\VC\Tools\MSVC\14.36.32323\include\chrono(2316,9): warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc (compiling source file src\core\renderer\Renderer.cpp)
-C:\dev\VulkanProject\VoxelEngine\src\core\Log.h(10,49): warning C4251: 'VoxelEngine::Log::_coreLogger': class 'std::shared_ptr<spdlog::logger>' needs to have dll-interface to be used by clients of class 'VoxelEngine::Log' (compiling source file src\core\Log.cpp)
-C:\dev\VulkanProject\VoxelEngine\vendor\spdlog\include\spdlog\details\registry.h(34,31): message : see declaration of 'std::shared_ptr<spdlog::logger>' (compiling source file src\core\Log.cpp)
-C:\dev\VulkanProject\VoxelEngine\src\core\Log.h(11,49): warning C4251: 'VoxelEngine::Log::_clientLogger': class 'std::shared_ptr<spdlog::logger>' needs to have dll-interface to be used by clients of class 'VoxelEngine::Log' (compiling source file src\core\Log.cpp)
-C:\dev\VulkanProject\VoxelEngine\vendor\spdlog\include\spdlog\details\registry.h(34,31): message : see declaration of 'std::shared_ptr<spdlog::logger>' (compiling source file src\core\Log.cpp)
-C:\dev\VulkanProject\VoxelEngine\src\core\Log.h(16,3): warning C4091: 'static ': ignored on left of 'VoxelEngine::Log' when no variable is declared (compiling source file src\core\Log.cpp)
-C:\dev\VulkanProject\VoxelEngine\src\core\Application.h(11,22): warning C4251: 'VoxelEngine::Application::_renderer': class 'VoxelEngine::renderer::Renderer' needs to have dll-interface to be used by clients of class 'VoxelEngine::Application' (compiling source file src\core\Application.cpp)
-C:\dev\VulkanProject\VoxelEngine\src\core\renderer\Renderer.h(92,8): message : see declaration of 'VoxelEngine::renderer::Renderer' (compiling source file src\core\Application.cpp)
-C:\dev\VulkanProject\VoxelEngine\src\core\renderer\Renderer.cpp(18,9): warning C4100: 'pUserData': unreferenced formal parameter
-C:\dev\VulkanProject\VoxelEngine\src\core\renderer\Renderer.cpp(16,35): warning C4100: 'messageType': unreferenced formal parameter
-C:\dev\VulkanProject\VoxelEngine\src\core\renderer\Renderer.cpp(15,42): warning C4100: 'messageSeverity': unreferenced formal parameter
-C:\dev\VulkanProject\VoxelEngine\src\core\renderer\Renderer.cpp(135,22): warning C4459: declaration of 'indices' hides global declaration
-C:\dev\VulkanProject\VoxelEngine\src\core\renderer\Renderer.h(86,30): message : see declaration of 'VoxelEngine::renderer::indices' (compiling source file src\core\renderer\Renderer.cpp)
-C:\dev\VulkanProject\VoxelEngine\src\core\renderer\Renderer.cpp(388,22): warning C4459: declaration of 'indices' hides global declaration
-C:\dev\VulkanProject\VoxelEngine\src\core\renderer\Renderer.h(86,30): message : see declaration of 'VoxelEngine::renderer::indices' (compiling source file src\core\renderer\Renderer.cpp)
-C:\dev\VulkanProject\VoxelEngine\src\core\renderer\Renderer.cpp(458,22): warning C4459: declaration of 'indices' hides global declaration
-C:\dev\VulkanProject\VoxelEngine\src\core\renderer\Renderer.h(86,30): message : see declaration of 'VoxelEngine::renderer::indices' (compiling source file src\core\renderer\Renderer.cpp)
-C:\dev\VulkanProject\VoxelEngine\src\core\renderer\Renderer.cpp(1102,83): warning C4100: 'format': unreferenced formal parameter
-C:\dev\VulkanProject\VoxelEngine\src\core\Log.h(10,49): warning C4251: 'VoxelEngine::Log::_coreLogger': class 'std::shared_ptr<spdlog::logger>' needs to have dll-interface to be used by clients of class 'VoxelEngine::Log' (compiling source file src\core\Application.cpp)
-C:\dev\VulkanProject\VoxelEngine\vendor\spdlog\include\spdlog\details\registry.h(34,31): message : see declaration of 'std::shared_ptr<spdlog::logger>' (compiling source file src\core\Application.cpp)
-C:\dev\VulkanProject\VoxelEngine\src\core\Log.h(11,49): warning C4251: 'VoxelEngine::Log::_clientLogger': class 'std::shared_ptr<spdlog::logger>' needs to have dll-interface to be used by clients of class 'VoxelEngine::Log' (compiling source file src\core\Application.cpp)
-C:\dev\VulkanProject\VoxelEngine\vendor\spdlog\include\spdlog\details\registry.h(34,31): message : see declaration of 'std::shared_ptr<spdlog::logger>' (compiling source file src\core\Application.cpp)
-C:\dev\VulkanProject\VoxelEngine\src\core\Log.h(16,3): warning C4091: 'static ': ignored on left of 'VoxelEngine::Log' when no variable is declared (compiling source file src\core\Application.cpp)
-C:\dev\VulkanProject\VoxelEngine\src\core\Application.cpp(65,48): warning C4100: 'e': unreferenced formal parameter
-C:\dev\VulkanProject\VoxelEngine\src\core\Application.cpp(68,66): warning C4100: 'e': unreferenced formal parameter
-C:\dev\VulkanProject\VoxelEngine\src\core\Application.cpp(72,68): warning C4100: 'e': unreferenced formal parameter
-C:\dev\VulkanProject\VoxelEngine\src\core\renderer\Renderer.cpp(50): warning C4702: unreachable code
-C:\dev\VulkanProject\VoxelEngine\src\core\renderer\Renderer.cpp(61): warning C4715: 'VoxelEngine::renderer::Renderer::checkValidationLayerSupport': not all control paths return a value
-C:\dev\VulkanProject\VoxelEngine\src\core\renderer\Renderer.cpp(208): warning C4172: returning address of local variable or temporary
-C:\dev\VulkanProject\VoxelEngine\src\core\renderer\Renderer.cpp(262): warning C4172: returning address of local variable or temporary
-C:\dev\VulkanProject\VoxelEngine\src\core\Application.cpp(76,1): warning C4506: no definition for inline function 'std::shared_ptr<spdlog::logger> &VoxelEngine::Log::getCoreLogger(void)'
-     Creating library ..\bin\Debug-x64\VoxelEngine\VoxelEngine.lib and object ..\bin\Debug-x64\VoxelEngine\VoxelEngine.exp
+C:\dev\VulkanProject\VoxelEngine\src\core\Log.h(10,43): warning C4251: 'VoxelEngine::Log::_coreLogger': class 'std::shared_ptr<spdlog::logger>' needs to have dll-interface to be used by clients of class 'VoxelEngine::Log'
+C:\dev\VulkanProject\VoxelEngine\vendor\spdlog\include\spdlog\details\registry.h(34,31): message : see declaration of 'std::shared_ptr<spdlog::logger>'
+C:\dev\VulkanProject\VoxelEngine\src\core\Log.h(11,43): warning C4251: 'VoxelEngine::Log::_clientLogger': class 'std::shared_ptr<spdlog::logger>' needs to have dll-interface to be used by clients of class 'VoxelEngine::Log'
+C:\dev\VulkanProject\VoxelEngine\vendor\spdlog\include\spdlog\details\registry.h(34,31): message : see declaration of 'std::shared_ptr<spdlog::logger>'
+C:\dev\VulkanProject\VoxelEngine\src\core\Log.h(16,3): warning C4091: 'static ': ignored on left of 'VoxelEngine::Log' when no variable is declared
+C:\dev\VulkanProject\VoxelEngine\src\core\Application.h(15,3): warning C4804: '<': unsafe use of type 'bool' in operation
+C:\dev\VulkanProject\VoxelEngine\src\core\Application.h(46,21): warning C4251: 'VoxelEngine::Application::_window': class 'std::unique_ptr<VoxelEngine::Window,std::default_delete<VoxelEngine::Window>>' needs to have dll-interface to be used by clients of class 'VoxelEngine::Application'
+C:\dev\VulkanProject\VoxelEngine\src\core\Base.h(30,25): message : see declaration of 'std::unique_ptr<VoxelEngine::Window,std::default_delete<VoxelEngine::Window>>'
+C:\dev\VulkanProject\VoxelEngine\src\core\Application.h(47,22): warning C4251: 'VoxelEngine::Application::_renderer': class 'VoxelEngine::renderer::Renderer' needs to have dll-interface to be used by clients of class 'VoxelEngine::Application'
+C:\dev\VulkanProject\VoxelEngine\src\core\renderer\Renderer.h(92,8): message : see declaration of 'VoxelEngine::renderer::Renderer'
+C:\dev\VulkanProject\VoxelEngine\src\core\Application.cpp(66,65): warning C4100: 'e': unreferenced formal parameter
+C:\dev\VulkanProject\VoxelEngine\src\core\Application.cpp(80,1): warning C4506: no definition for inline function 'std::shared_ptr<spdlog::logger> &VoxelEngine::Log::getCoreLogger(void)'
   VoxelEngine.vcxproj -> C:\dev\VulkanProject\bin\Debug-x64\VoxelEngine\VoxelEngine.dll

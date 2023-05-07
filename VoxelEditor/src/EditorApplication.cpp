@@ -2,7 +2,8 @@
 
 namespace VoxelEditor
 {
-	EditorApplication::EditorApplication()
+	EditorApplication::EditorApplication(const ApplicationSpecification& spec) 
+		: VoxelEngine::Application(spec)
 	{
 
 	}

@@ -1,7 +1,11 @@
 #include "Application.h"
+#include "Log.h"
+#include "Assert.h"
 
 namespace VoxelEngine
 {
+	Application* Application::_instance = 0;
+
 	GLFWwindow* const Application::createWindow(const int& width, const int& height, const string& title) const noexcept
 	{
 		glfwInit();
@@ -9,9 +13,19 @@ namespace VoxelEngine
 		return glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
 	}
 
-	Application::Application(const unsigned int& width, const unsigned int& height, const string& title)
+	Application::Application()
 	{
-		_window = createWindow(width, height, title);
+		VOXEL_CORE_ASSERT(!_instance, "Application already exists!")
+
+		_instance = this;
+
+		_window = createWindow(800, 600, "Voxel Editor");
+	}
+
+	inline std::unique_ptr<Application>& Application::getInstance()
+	{
+		static std::unique_ptr<Application> ptr = std::unique_ptr<Application>(_instance);
+		return ptr;
 	}
 
 	const void Application::init()
@@ -24,7 +38,7 @@ namespace VoxelEngine
 		}
 		catch (const std::exception& e)
 		{
-			std::cerr << e.what();
+			VOXEL_CORE_CRITICAL(e.what())
 		}
 	}
 	const void Application::run()

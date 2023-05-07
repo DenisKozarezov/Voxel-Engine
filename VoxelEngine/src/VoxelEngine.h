@@ -7,4 +7,4 @@
 #include "core/Log.h"
 
 // ------------- Entry point --------------
-#include "EntryPoint.h"
+#include "core/EntryPoint.h"

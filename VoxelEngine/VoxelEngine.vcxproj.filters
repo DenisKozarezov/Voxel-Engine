@@ -1014,6 +1014,9 @@
     <ClInclude Include="src\core\PlatformDetection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\core\EntryPoint.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\pch.cpp">
@@ -1029,9 +1032,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\core\Application.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\EntryPoint.h">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\core\Log.cpp">

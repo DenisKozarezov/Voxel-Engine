@@ -2,8 +2,6 @@
 #include "renderer/Renderer.h"
 #include "input/events/ApplicationEvent.h"
 
-int main(int argc, char** argv);
-
 namespace VoxelEngine
 {
 	class VOXEL_API Application
@@ -12,16 +10,18 @@ namespace VoxelEngine
 		GLFWwindow* _window = nullptr;
 		renderer::Renderer _renderer;
 		bool _running = false;
+		static Application* _instance;
 
-		friend int ::main(int argc, char** argv);
 		GLFWwindow* const createWindow(const int& width, const int& height, const string& title) const noexcept;
+	protected:
+		Application();
 	public:
-		Application() = default;
 		Application(const Application&) = delete;
 		Application(const std::shared_ptr<Application>&) = delete;
 		Application(const std::unique_ptr<Application>&) = delete;
-		Application(const unsigned int& width, const unsigned int& height, const string& title);
 		const Application& operator=(const Application&) = delete;
+
+		inline static std::unique_ptr<Application>& getInstance();
 
 		const void init();
 		const void run();

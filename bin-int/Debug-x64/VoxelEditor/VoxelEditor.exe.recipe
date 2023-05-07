@@ -2,6 +2,9 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
+      <FullPath>C:\dev\VulkanProject\bin\Debug-x64\VoxelEngine\VoxelEngine.dll</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
       <FullPath>C:\dev\VulkanProject\bin\Debug-x64\VoxelEditor\VoxelEditor.exe</FullPath>
     </ProjectOutput>
   </ProjectOutputs>

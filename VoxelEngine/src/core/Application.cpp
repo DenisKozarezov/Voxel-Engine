@@ -1,5 +1,6 @@
 #include "Application.h"
 #include "input/events/EventBus.h"
+#include "Timestep.h"
 
 namespace VoxelEngine
 {
@@ -15,9 +16,10 @@ namespace VoxelEngine
 		VOXEL_CORE_WARN("Version: " + spec.Version)
 		VOXEL_CORE_WARN("Working Directory: " + spec.WorkingDirectory)
 		VOXEL_CORE_WARN("Command Line Args: " + spec.CommandLineArgs.toString())
-		
-		string name = spec.ApplicationName + " " + spec.Version + " (" + spec.GraphicsAPI + ")";
-		_window = Window::Create({ name, 1920, 1080 });
+
+		std::stringstream name;
+		name << spec.ApplicationName << " " << spec.Version << " (" << spec.GraphicsAPI << ")";
+		_window = Window::Create({ name.str(), 1920, 1080 });
 		_window->setEventCallback(BIND_CALLBACK(onEvent));
 	}
 
@@ -47,6 +49,14 @@ namespace VoxelEngine
 
 		while (_running)
 		{
+			const float time = (float)glfwGetTime();
+			const Timestep deltaTime = time - _lastFrameTime;
+			_lastFrameTime = time;
+
+			if (!_minimized)
+			{
+
+			}
 			_window->onUpdate();
 			//_renderer.renderFrame();
 		}
@@ -72,8 +82,10 @@ namespace VoxelEngine
 	{
 		if (e.getWidth() == 0 || e.getHeight() == 0)
 		{
+			_minimized = true;
 			return false;
 		}
+		_minimized = false;
 		return false;
 	}
 }

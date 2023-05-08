@@ -25,9 +25,6 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="lib\VoxelEngine.lib" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="src\EditorApplication.h">
       <Filter>Header Files</Filter>
     </ClInclude>

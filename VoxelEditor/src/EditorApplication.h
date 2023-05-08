@@ -13,7 +13,7 @@ namespace VoxelEditor
 }
 
 VoxelEngine::UniqueRef<VoxelEngine::Application> CreateApplication(ApplicationCommandLineArgs args)
-{
+{	
 	ApplicationSpecification spec;
 	spec.ApplicationName = "Voxel Editor";
 	spec.Version = "v0.0.1";

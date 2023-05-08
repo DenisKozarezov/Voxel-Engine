@@ -10,6 +10,7 @@ namespace VoxelEngine::input
         KeyCode _keyCode;
     public:
         KeyboardEvent() = delete;
+        KeyboardEvent(const KeyboardEvent& e) : _keyCode(e._keyCode) { }
         KeyboardEvent(const KeyCode& key) : _keyCode(key) { }
 
         inline const KeyCode& getKeyCode() const { return _keyCode; }
@@ -31,7 +32,6 @@ namespace VoxelEngine::input
         bool _isPressed;
     public:
         KeyPressedEvent() = delete;
-        KeyPressedEvent(const KeyPressedEvent& e) : KeyboardEvent(e._keyCode) { }
         KeyPressedEvent(const KeyCode& key, bool isHold) : KeyboardEvent(key), _isPressed(isHold) { }
 
         EVENT_CLASS_TYPE(KeyPressed)
@@ -43,7 +43,6 @@ namespace VoxelEngine::input
     {
     public:
         KeyReleasedEvent() = delete;
-        KeyReleasedEvent(const KeyReleasedEvent&);
         KeyReleasedEvent(const KeyCode& key) : KeyboardEvent(key) { }
 
         EVENT_CLASS_TYPE(KeyReleased)
@@ -55,7 +54,6 @@ namespace VoxelEngine::input
     {
     public:
         KeyTypedEvent() = delete;
-        KeyTypedEvent(const KeyTypedEvent&);
         KeyTypedEvent(const KeyCode& key) : KeyboardEvent(key) { }
 
         EVENT_CLASS_TYPE(KeyTyped)

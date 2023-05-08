@@ -1,5 +1,5 @@
 #pragma once
-#include "renderer/Renderer.h"
+#include "renderer/VulkanRenderer.h"
 #include "input/events/ApplicationEvent.h"
 #include "Log.h"
 #include "Assert.h"
@@ -44,9 +44,15 @@ namespace VoxelEngine
 	private:
 		ApplicationSpecification _specification;
 		UniqueRef<Window> _window;
-		renderer::Renderer _renderer;
+		renderer::VulkanRenderer _renderer;
 		bool _running = false;
+		bool _minimized;
+		float _lastFrameTime = 0.0f;
 		static Application* _instance;
+
+		void onEvent(input::Event& e);
+		bool onWindowClose(const input::WindowCloseEvent& e);
+		bool onWindowResize(const input::WindowResizeEvent& e);
 	protected:
 		Application(const ApplicationSpecification& spec);
 	public:
@@ -60,10 +66,6 @@ namespace VoxelEngine
 		const void init();
 		const void run();
 		const void shutdown();
-
-		void onEvent(input::Event& e);
-		bool onWindowClose(const input::WindowCloseEvent& e);
-		bool onWindowResize(const input::WindowResizeEvent& e);
 
 		virtual ~Application() = default;
 	};

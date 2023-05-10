@@ -178,7 +178,6 @@ namespace VoxelEngine::renderer
 		const void createDescriptorPool();
 		const void createDescriptorSets();
 		const void copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkDeviceSize& size);
-		const void copyBufferToImage(const VkBuffer& buffer, const VkImage& image, const uint32& width, const uint32& height);
 		const void setupDebugMessenger();
 		const void recreateSwapChain();
 		const void pickPhysicalDevice();

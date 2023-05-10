@@ -714,42 +714,42 @@ namespace VoxelEngine::renderer
 			createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, _uniformBuffers[i], _uniformBuffersMemory[i]);
 		}
 	}
-//	const void VulkanRenderer::createVertexBuffer()
-//	{
-//		VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
-//		VkBuffer stagingBuffer;
-//		VkDeviceMemory stagingBufferMemory;
-//		createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
-//
-//		void* data;
-//		vkMapMemory(_logicalDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
-//		memcpy(data, vertices.data(), (size_t)bufferSize);
-//		vkUnmapMemory(_logicalDevice, stagingBufferMemory);
-//
-//		createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _vertexBuffer, _vertexBufferMemory);
-//		copyBuffer(stagingBuffer, _vertexBuffer, bufferSize);
-//		vkDestroyBuffer(_logicalDevice, stagingBuffer, nullptr);
-//		vkFreeMemory(_logicalDevice, stagingBufferMemory, nullptr);
-//	}
-//	const void VulkanRenderer::createIndexBuffer()
-//	{
-//		VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
-//
-//		VkBuffer stagingBuffer;
-//		VkDeviceMemory stagingBufferMemory;
-//		createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
-//
-//		void* data;
-//		vkMapMemory(_logicalDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
-//		memcpy(data, indices.data(), (size_t)bufferSize);
-//		vkUnmapMemory(_logicalDevice, stagingBufferMemory);
-//
-//		createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _indexBuffer, _indexBufferMemory);
-//		copyBuffer(stagingBuffer, _indexBuffer, bufferSize);
-//
-//		vkDestroyBuffer(_logicalDevice, stagingBuffer, nullptr);
-//		vkFreeMemory(_logicalDevice, stagingBufferMemory, nullptr);
-//	}
+	const void VulkanRenderer::createVertexBuffer()
+	{
+		VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+		VkBuffer stagingBuffer;
+		VkDeviceMemory stagingBufferMemory;
+		createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+
+		void* data;
+		vkMapMemory(_logicalDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
+		memcpy(data, vertices.data(), (size_t)bufferSize);
+		vkUnmapMemory(_logicalDevice, stagingBufferMemory);
+
+		createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _vertexBuffer, _vertexBufferMemory);
+		copyBuffer(stagingBuffer, _vertexBuffer, bufferSize);
+		vkDestroyBuffer(_logicalDevice, stagingBuffer, nullptr);
+		vkFreeMemory(_logicalDevice, stagingBufferMemory, nullptr);
+	}
+	const void VulkanRenderer::createIndexBuffer()
+	{
+		VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+
+		VkBuffer stagingBuffer;
+		VkDeviceMemory stagingBufferMemory;
+		createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+
+		void* data;
+		vkMapMemory(_logicalDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
+		memcpy(data, indices.data(), (size_t)bufferSize);
+		vkUnmapMemory(_logicalDevice, stagingBufferMemory);
+
+		createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _indexBuffer, _indexBufferMemory);
+		copyBuffer(stagingBuffer, _indexBuffer, bufferSize);
+
+		vkDestroyBuffer(_logicalDevice, stagingBuffer, nullptr);
+		vkFreeMemory(_logicalDevice, stagingBufferMemory, nullptr);
+	}
 	const void VulkanRenderer::createCommandPool()
 	{
 		QueueFamilyIndices queueFamilyIndices = findQueueFamilies(_physicalDevice);
@@ -802,142 +802,110 @@ namespace VoxelEngine::renderer
 			}
 		}
 	}
-//	const void VulkanRenderer::createDescriptorSetLayout()
-//	{
-//		VkDescriptorSetLayoutBinding uboLayoutBinding = {};
-//		uboLayoutBinding.binding = 0;
-//		uboLayoutBinding.descriptorCount = 1;
-//		uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-//		uboLayoutBinding.pImmutableSamplers = nullptr;
-//		uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-//
-//		VkDescriptorSetLayoutBinding samplerLayoutBinding{};
-//		samplerLayoutBinding.binding = 1;
-//		samplerLayoutBinding.descriptorCount = 1;
-//		samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-//		samplerLayoutBinding.pImmutableSamplers = nullptr;
-//		samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-//
-//		std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
-//		VkDescriptorSetLayoutCreateInfo layoutInfo = {};
-//		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-//		layoutInfo.bindingCount = static_cast<uint32>(bindings.size());
-//		layoutInfo.pBindings = bindings.data();
-//
-//		if (vkCreateDescriptorSetLayout(_logicalDevice, &layoutInfo, nullptr, &_descriptorSetLayout) != VK_SUCCESS) 
-//		{
-//			throw std::runtime_error("failed to create descriptor set layout!");
-//		}
-//	}
-//	const void VulkanRenderer::createDescriptorPool()
-//	{
-//		std::array<VkDescriptorPoolSize, 2> poolSizes = {};
-//		poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-//		poolSizes[0].descriptorCount = static_cast<uint32>(MAX_FRAMES_IN_FLIGHT);
-//		poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-//		poolSizes[1].descriptorCount = static_cast<uint32>(MAX_FRAMES_IN_FLIGHT);
-//
-//		VkDescriptorPoolCreateInfo poolInfo = {};
-//		poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-//		poolInfo.poolSizeCount = static_cast<uint32>(poolSizes.size());
-//		poolInfo.pPoolSizes = poolSizes.data();
-//		poolInfo.maxSets = static_cast<uint32>(MAX_FRAMES_IN_FLIGHT);
-//
-//		if (vkCreateDescriptorPool(_logicalDevice, &poolInfo, nullptr, &_descriptorPool) != VK_SUCCESS) 
-//		{
-//			throw std::runtime_error("failed to create descriptor pool!");
-//		}
-//	}
-//	const void VulkanRenderer::createDescriptorSets()
-//	{
-//		std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, _descriptorSetLayout);
-//		VkDescriptorSetAllocateInfo allocInfo = {};
-//		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-//		allocInfo.descriptorPool = _descriptorPool;
-//		allocInfo.descriptorSetCount = static_cast<uint32>(MAX_FRAMES_IN_FLIGHT);
-//		allocInfo.pSetLayouts = layouts.data();
-//
-//		_descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
-//		if (vkAllocateDescriptorSets(_logicalDevice, &allocInfo, _descriptorSets.data()) != VK_SUCCESS) 
-//		{
-//			throw std::runtime_error("failed to allocate descriptor sets!");
-//		}
-//
-//		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) 
-//		{
-//			VkDescriptorBufferInfo bufferInfo = {};
-//			bufferInfo.buffer = _uniformBuffers[i];
-//			bufferInfo.offset = 0;
-//			bufferInfo.range = sizeof(UniformBufferObject);
-//
-//			VkDescriptorImageInfo imageInfo = {};
-//			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-//			imageInfo.imageView = _textureImageView;
-//			imageInfo.sampler = _textureSampler;
-//			
-//			std::array<VkWriteDescriptorSet, 2> descriptorWrites = {};
-//
-//			descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-//			descriptorWrites[0].dstSet = _descriptorSets[i];
-//			descriptorWrites[0].dstBinding = 0;
-//			descriptorWrites[0].dstArrayElement = 0;
-//			descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-//			descriptorWrites[0].descriptorCount = 1;
-//			descriptorWrites[0].pBufferInfo = &bufferInfo;
-//
-//			descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-//			descriptorWrites[1].dstSet = _descriptorSets[i];
-//			descriptorWrites[1].dstBinding = 1;
-//			descriptorWrites[1].dstArrayElement = 0;
-//			descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-//			descriptorWrites[1].descriptorCount = 1;
-//			descriptorWrites[1].pImageInfo = &imageInfo;
-//
-//			vkUpdateDescriptorSets(_logicalDevice, static_cast<uint32>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
-//		}
-//	}
-//	const void VulkanRenderer::copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkDeviceSize& size)
-//	{
-//		VkCommandBuffer commandBuffer = beginSingleTimeCommands();
-//
-//		VkBufferCopy copyRegion{};
-//		copyRegion.size = size;
-//		vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
-//
-//		endSingleTimeCommands(commandBuffer);
-//	}
-//	const void VulkanRenderer::copyBufferToImage(const VkBuffer& buffer, const VkImage& image, const uint32& width, const uint32& height)
-//	{
-//		VkCommandBuffer commandBuffer = beginSingleTimeCommands();
-//
-//		VkBufferImageCopy region = {};
-//		region.bufferOffset = 0;
-//		region.bufferRowLength = 0;
-//		region.bufferImageHeight = 0;
-//
-//		region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-//		region.imageSubresource.mipLevel = 0;
-//		region.imageSubresource.baseArrayLayer = 0;
-//		region.imageSubresource.layerCount = 1;
-//
-//		region.imageOffset = { 0, 0, 0 };
-//		region.imageExtent = {
-//			width,
-//			height,
-//			1
-//		};
-//
-//		vkCmdCopyBufferToImage(
-//			commandBuffer,
-//			buffer,
-//			image,
-//			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-//			1,
-//			&region
-//		);
-//
-//		endSingleTimeCommands(commandBuffer);
-//	}
+	const void VulkanRenderer::createDescriptorSetLayout()
+	{
+		VkDescriptorSetLayoutBinding uboLayoutBinding = {};
+		uboLayoutBinding.binding = 0;
+		uboLayoutBinding.descriptorCount = 1;
+		uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		uboLayoutBinding.pImmutableSamplers = nullptr;
+		uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+
+		VkDescriptorSetLayoutBinding samplerLayoutBinding{};
+		samplerLayoutBinding.binding = 1;
+		samplerLayoutBinding.descriptorCount = 1;
+		samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		samplerLayoutBinding.pImmutableSamplers = nullptr;
+		samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+		std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
+		VkDescriptorSetLayoutCreateInfo layoutInfo = {};
+		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		layoutInfo.bindingCount = static_cast<uint32>(bindings.size());
+		layoutInfo.pBindings = bindings.data();
+
+		if (vkCreateDescriptorSetLayout(_logicalDevice, &layoutInfo, nullptr, &_descriptorSetLayout) != VK_SUCCESS) 
+		{
+			throw std::runtime_error("failed to create descriptor set layout!");
+		}
+	}
+	const void VulkanRenderer::createDescriptorPool()
+	{
+		std::array<VkDescriptorPoolSize, 2> poolSizes = {};
+		poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		poolSizes[0].descriptorCount = static_cast<uint32>(MAX_FRAMES_IN_FLIGHT);
+		poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		poolSizes[1].descriptorCount = static_cast<uint32>(MAX_FRAMES_IN_FLIGHT);
+
+		VkDescriptorPoolCreateInfo poolInfo = {};
+		poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+		poolInfo.poolSizeCount = static_cast<uint32>(poolSizes.size());
+		poolInfo.pPoolSizes = poolSizes.data();
+		poolInfo.maxSets = static_cast<uint32>(MAX_FRAMES_IN_FLIGHT);
+
+		if (vkCreateDescriptorPool(_logicalDevice, &poolInfo, nullptr, &_descriptorPool) != VK_SUCCESS) 
+		{
+			throw std::runtime_error("failed to create descriptor pool!");
+		}
+	}
+	const void VulkanRenderer::createDescriptorSets()
+	{
+	/*	std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, _descriptorSetLayout);
+		VkDescriptorSetAllocateInfo allocInfo = {};
+		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		allocInfo.descriptorPool = _descriptorPool;
+		allocInfo.descriptorSetCount = static_cast<uint32>(MAX_FRAMES_IN_FLIGHT);
+		allocInfo.pSetLayouts = layouts.data();
+
+		_descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
+		if (vkAllocateDescriptorSets(_logicalDevice, &allocInfo, _descriptorSets.data()) != VK_SUCCESS) 
+		{
+			throw std::runtime_error("failed to allocate descriptor sets!");
+		}
+
+		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) 
+		{
+			VkDescriptorBufferInfo bufferInfo = {};
+			bufferInfo.buffer = _uniformBuffers[i];
+			bufferInfo.offset = 0;
+			bufferInfo.range = sizeof(UniformBufferObject);
+
+			VkDescriptorImageInfo imageInfo = {};
+			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			imageInfo.imageView = _textureImageView;
+			imageInfo.sampler = _textureSampler;
+			
+			std::array<VkWriteDescriptorSet, 2> descriptorWrites = {};
+
+			descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrites[0].dstSet = _descriptorSets[i];
+			descriptorWrites[0].dstBinding = 0;
+			descriptorWrites[0].dstArrayElement = 0;
+			descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			descriptorWrites[0].descriptorCount = 1;
+			descriptorWrites[0].pBufferInfo = &bufferInfo;
+
+			descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrites[1].dstSet = _descriptorSets[i];
+			descriptorWrites[1].dstBinding = 1;
+			descriptorWrites[1].dstArrayElement = 0;
+			descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			descriptorWrites[1].descriptorCount = 1;
+			descriptorWrites[1].pImageInfo = &imageInfo;
+
+			vkUpdateDescriptorSets(_logicalDevice, static_cast<uint32>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+		}*/
+	}
+	const void VulkanRenderer::copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkDeviceSize& size)
+	{
+		VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+
+		VkBufferCopy copyRegion{};
+		copyRegion.size = size;
+		vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+
+		endSingleTimeCommands(commandBuffer);
+	}
 	const void VulkanRenderer::endSingleTimeCommands(const VkCommandBuffer& commandBuffer)
 	{
 		vkEndCommandBuffer(commandBuffer);

@@ -12,14 +12,13 @@
 #endif
 
 // add headers that you want to pre-compile here
-#include <string>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
 #include <optional>
 #include <ostream>
 #include <array>
-#include <iostream>
+#include <initializer_list>
 #include <stdexcept>
 #include <functional>
 #include <map>

@@ -59,7 +59,7 @@
       <PreprocessorDefinitions>VOXEL_DEBUG;VOXELENGINE_EXPORTS;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)vendor;..\VoxelEngine\src\;..\VoxelEngine\vendor;..\VoxelEngine\vendor\spdlog\include;..\VoxelEngine\vendor\glfw-3.3.8\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)vendor;..\VoxelEngine\src\;..\VoxelEngine\vendor;..\VoxelEngine\vendor\spdlog\include;..\VoxelEngine\vendor\glfw-3.3.8\include;..\VoxelEngine\vendor\stb_image;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <ExceptionHandling>false</ExceptionHandling>
@@ -67,6 +67,8 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <AdditionalHeaderUnitDependencies>
+      </AdditionalHeaderUnitDependencies>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -86,7 +88,7 @@
       <PreprocessorDefinitions>VOXEL_RELEASE;VOXELENGINE_EXPORTS;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)vendor;..\VoxelEngine\src\;..\VoxelEngine\vendor;..\VoxelEngine\vendor\spdlog\include;..\VoxelEngine\vendor\glfw-3.3.8\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)vendor;..\VoxelEngine\src\;..\VoxelEngine\vendor;..\VoxelEngine\vendor\spdlog\include;..\VoxelEngine\vendor\glfw-3.3.8\include;..\VoxelEngine\vendor\stb_image;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <BufferSecurityCheck>false</BufferSecurityCheck>
@@ -96,6 +98,8 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <AdditionalHeaderUnitDependencies>
+      </AdditionalHeaderUnitDependencies>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

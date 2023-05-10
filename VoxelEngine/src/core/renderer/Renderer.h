@@ -1,8 +1,9 @@
 #pragma once
+#include <core/PrimitiveTypes.h>
 
 namespace VoxelEngine::renderer
 {
-	enum class RendererAPI
+	enum class RendererAPI : byte
 	{
 		None = 0,
 		OpenGL = 1,
@@ -12,6 +13,7 @@ namespace VoxelEngine::renderer
 
 	class Renderer
 	{
+	public:
 
 	};
 }

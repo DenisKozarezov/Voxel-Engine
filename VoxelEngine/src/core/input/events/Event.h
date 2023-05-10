@@ -1,6 +1,7 @@
 #pragma once
 #include <core/Base.h>
 #include <core/PrimitiveTypes.h>
+#include <sstream>
 
 namespace VoxelEngine::input
 {
@@ -38,7 +39,7 @@ namespace VoxelEngine::input
 								virtual const EventType eventType() const override { return getStaticType(); }	\
 								virtual const string getName() const override { return #type; }
 
-#define EVENT_CLASS_CATEGORY(category) virtual const int& categoryFlags() const override { return category; }
+#define EVENT_CLASS_CATEGORY(category) virtual const int categoryFlags() const override { return category; }
 
 	class VOXEL_API Event
 	{
@@ -50,7 +51,7 @@ namespace VoxelEngine::input
 
 		virtual const EventType eventType() const = 0;
 		virtual const string getName() const = 0;
-		virtual const int& categoryFlags() const = 0;
+		virtual const int categoryFlags() const = 0;
 		virtual const string toString() const { return getName(); }
 		inline const bool isInCategory(const EventCategory& category) const
 		{

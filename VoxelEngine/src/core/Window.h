@@ -24,6 +24,7 @@ namespace VoxelEngine
 		using EventCallback = std::function<void(input::Event&)>;
 
 		Window() = default;
+		Window(Window&&) = delete;
 
 		virtual inline const uint16& getWidth() const noexcept = 0;
 		virtual inline const uint16& getHeight() const noexcept = 0;

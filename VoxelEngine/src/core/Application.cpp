@@ -31,15 +31,15 @@ namespace VoxelEngine
 
 	const void Application::init()
 	{
-	//	try
-	//	{
-	//		_renderer.init();
-	//		_renderer.setGLFWwindow(_window);
-	//	}
-	//	catch (const std::exception& e)
-	//	{
-	//		VOXEL_CORE_CRITICAL(e.what())
-	//	}
+	/*	try
+		{
+			_renderer.init();
+			_renderer.setGLFWwindow(_window);
+		}
+		catch (const std::exception& e)
+		{
+			VOXEL_CORE_CRITICAL(e.what())
+		}*/
 	}
 	const void Application::run()
 	{
@@ -49,14 +49,14 @@ namespace VoxelEngine
 
 		while (_running)
 		{
-			const float time = (float)glfwGetTime();
+			/*const float time = (float)glfwGetTime();
 			const Timestep deltaTime = time - _lastFrameTime;
 			_lastFrameTime = time;
 
 			if (!_minimized)
 			{
 
-			}
+			}*/
 			_window->onUpdate();
 			//_renderer.renderFrame();
 		}

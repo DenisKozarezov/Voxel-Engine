@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include "PlatformDetection.h"
 
 #ifdef VOXEL_PLATFORM_WINDOWS

@@ -61,7 +61,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)vendor\stb-master;$(ProjectDir)vendor\glfw-3.3.8\include;$(ProjectDir)\vendor\spdlog\include;$(ProjectDir)vendor;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)vendor\stb-image;$(ProjectDir)vendor\glfw-3.3.8\include;$(ProjectDir)\vendor\spdlog\include;$(ProjectDir)vendor;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -89,7 +89,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)vendor\stb-master;$(ProjectDir)vendor\glfw-3.3.8\include;$(ProjectDir)\vendor\spdlog\include;$(ProjectDir)vendor;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)vendor\stb-image;$(ProjectDir)vendor\glfw-3.3.8\include;$(ProjectDir)\vendor\spdlog\include;$(ProjectDir)vendor;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -113,6 +113,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\core\input\InputSystem.h" />
+    <ClInclude Include="src\core\renderer\Buffers.h" />
+    <ClInclude Include="src\core\renderer\Image.h" />
     <ClInclude Include="src\core\renderer\Renderer.h" />
     <ClInclude Include="src\core\renderer\Shader.h" />
     <ClInclude Include="src\core\Assert.h" />
@@ -132,7 +135,7 @@
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\core\Application.h" />
     <ClInclude Include="src\core\renderer\Texture.h" />
-    <ClInclude Include="src\core\renderer\VulkanRenderer.h" />
+    <ClInclude Include="src\platform\Vulkan\VulkanRenderer.h" />
     <ClInclude Include="src\VoxelEngine.h" />
     <ClInclude Include="vendor\glfw-3.3.8\include\GLFW\glfw3.h" />
     <ClInclude Include="vendor\glfw-3.3.8\include\GLFW\glfw3native.h" />
@@ -418,6 +421,7 @@
     <ClInclude Include="vendor\glm\vec3.hpp" />
     <ClInclude Include="vendor\glm\vec4.hpp" />
     <ClInclude Include="vendor\glm\vector_relational.hpp" />
+    <ClInclude Include="vendor\stb_image\stb_image.h" />
     <ClInclude Include="vendor\vulkan\vk_enum_string_helper.h" />
     <ClInclude Include="vendor\vulkan\vk_icd.h" />
     <ClInclude Include="vendor\vulkan\vk_layer.h" />
@@ -453,8 +457,11 @@
     <ClInclude Include="vendor\vulkan\vulkan_xlib_xrandr.h" />
     <ClInclude Include="src\platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\platform\Vulkan\VulkanShader.h" />
+    <ClInclude Include="src\core\renderer\VertexArray.h" />
+    <ClInclude Include="src\platform\Vulkan\VulkanImage.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\core\renderer\Buffers.cpp" />
     <ClCompile Include="src\core\renderer\Renderer.cpp" />
     <ClCompile Include="src\core\Log.cpp" />
     <ClCompile Include="src\pch.cpp">
@@ -464,9 +471,11 @@
     <ClCompile Include="src\core\Application.cpp" />
     <ClCompile Include="src\platform\Windows\WindowsWindow.cpp" />
     <ClCompile Include="src\platform\Vulkan\VulkanShader.cpp" />
+    <ClCompile Include="src\core\renderer\VertexArray.cpp" />
+    <ClCompile Include="src\platform\Vulkan\VulkanImage.cpp" />
     <ClInclude Include="src\core\EntryPoint.h" />
     <ClCompile Include="src\core\renderer\Texture.cpp" />
-    <ClCompile Include="src\core\renderer\VulkanRenderer.cpp" />
+    <ClCompile Include="src\platform\Vulkan\VulkanRenderer.cpp" />
     <ClCompile Include="vendor\glm\detail\glm.cpp" />
   </ItemGroup>
   <ItemGroup>

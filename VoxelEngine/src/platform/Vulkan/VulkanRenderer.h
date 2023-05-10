@@ -95,9 +95,10 @@ namespace VoxelEngine::renderer
 		VkInstance _instance;
 		GLFWwindow* _window;
 		VkDebugUtilsMessengerEXT _debugMessenger;
-		VkDevice _logicalDevice;
-		VkPhysicalDevice _physicalDevice = VK_NULL_HANDLE;
-		VkQueue _graphicsQueue;
+		static VkDevice _logicalDevice;
+		static VkPhysicalDevice _physicalDevice;
+		static VkCommandPool _commandPool;
+		static VkQueue _graphicsQueue;
 		VkQueue _presentQueue;
 		VkSurfaceKHR _surface;
 		VkSwapchainKHR _swapChain;
@@ -109,17 +110,10 @@ namespace VoxelEngine::renderer
 		VkDescriptorPool _descriptorPool;
 		std::vector<VkDescriptorSet> _descriptorSets;
 		VkPipeline _graphicsPipeline;
-		VkCommandPool _commandPool;
 		VkBuffer _vertexBuffer;
 		VkDeviceMemory _vertexBufferMemory;
 		VkBuffer _indexBuffer;
 		VkDeviceMemory _indexBufferMemory;
-		VkBuffer _stagingBuffer;
-		VkDeviceMemory _stagingBufferMemory;
-		VkImage _textureImage;
-		VkImageView _textureImageView;
-		VkSampler _textureSampler;
-		VkDeviceMemory _textureImageMemory;
 		VkImage _depthImage;
 		VkDeviceMemory _depthImageMemory;
 		VkImageView _depthImageView;
@@ -164,16 +158,12 @@ namespace VoxelEngine::renderer
 		constexpr const VkSurfaceFormatKHR& chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) const;
 		constexpr const VkPresentModeKHR& chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes) const;
 		constexpr const VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) const;
-		const uint32 findMemoryType(const uint32& typeFilter, const VkMemoryPropertyFlags& properties) const;
 		constexpr const VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, const VkImageTiling& tiling, const VkFormatFeatureFlags& features) const;
 		constexpr const VkFormat& findDepthFormat() const;
-		const VkImageView createImageView(const VkImage& image, const VkFormat& format, const VkImageAspectFlags& aspectFlags) const;
-		const VkCommandBuffer beginSingleTimeCommands() const;
 		const void createInstance();
 		const void createLogicalDevice();
 		const void createSurface();
 		const void createSwapChain();
-		const void createImageViews();
 		const void createRenderPass();
 		const void createGraphicsPipeline();
 		const void createBuffer(const VkDeviceSize& size, const VkBufferUsageFlags& usage, const VkMemoryPropertyFlags& properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
@@ -187,24 +177,20 @@ namespace VoxelEngine::renderer
 		const void createDescriptorSetLayout();
 		const void createDescriptorPool();
 		const void createDescriptorSets();
-		const void createTextureImage();
-		const void createTextureImageView();
-		const void createTextureSampler();
-		const void createDepthResources();
-		const void createImage(const uint32& width, const uint32& height, const VkFormat& format, const VkImageTiling& tiling, const VkImageUsageFlags& usage, const VkMemoryPropertyFlags& properties, VkImage& image, VkDeviceMemory& imageMemory);
 		const void copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkDeviceSize& size);
 		const void copyBufferToImage(const VkBuffer& buffer, const VkImage& image, const uint32& width, const uint32& height);
-		const void endSingleTimeCommands(const VkCommandBuffer& commandBuffer);
-		const void transitionImageLayout(const VkImage& image, const VkFormat& format, const VkImageLayout& oldLayout, const VkImageLayout& newLayout);
-		const void recordCommandBuffer(const VkCommandBuffer& commandBuffer, const uint32& imageIndex);
 		const void setupDebugMessenger();
 		const void recreateSwapChain();
-		const void updateUniformBuffer(const uint32& currentImage);
 		const void pickPhysicalDevice();
 		const void destroyDebugUtilsMessengerEXT(const VkInstance& instance, const VkDebugUtilsMessengerEXT& debugMessenger, const VkAllocationCallbacks* pAllocator);
 		const void cleanupSwapChain();
 		const void cleanupUniformBuffers();
 	public:
+		static const VkCommandBuffer beginSingleTimeCommands();
+		static const uint32 findMemoryType(const uint32& typeFilter, const VkMemoryPropertyFlags& properties);
+		inline static const VkDevice& getLogicalDevice() { return _logicalDevice; }
+		inline static const VkPhysicalDevice& getPhysicalDevice() { return _physicalDevice; }
+		static const void endSingleTimeCommands(const VkCommandBuffer& commandBuffer);
 		const void setGLFWwindow(GLFWwindow* const window) noexcept;
 		const void init();
 		const void renderFrame();

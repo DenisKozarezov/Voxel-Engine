@@ -1,5 +1,4 @@
 #pragma once
-#include <pch.h>
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
@@ -8,7 +7,7 @@
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 #include <vulkan/vulkan.h>
-#include <core/PrimitiveTypes.h>
+#include <core/renderer/Renderer.h>
 
 namespace VoxelEngine::renderer
 {
@@ -90,7 +89,7 @@ namespace VoxelEngine::renderer
 		4, 5, 6, 6, 7, 4
 	};
 
-	class VulkanRenderer
+	class VulkanRenderer : public Renderer
 	{
 		VkInstance _instance;
 		GLFWwindow* _window;
@@ -187,13 +186,14 @@ namespace VoxelEngine::renderer
 	public:
 		static const VkCommandBuffer beginSingleTimeCommands();
 		static const uint32 findMemoryType(const uint32& typeFilter, const VkMemoryPropertyFlags& properties);
+		static const void endSingleTimeCommands(const VkCommandBuffer& commandBuffer);
 		inline static const VkDevice& getLogicalDevice() { return _logicalDevice; }
 		inline static const VkPhysicalDevice& getPhysicalDevice() { return _physicalDevice; }
-		static const void endSingleTimeCommands(const VkCommandBuffer& commandBuffer);
-		const void setGLFWwindow(GLFWwindow* const window) noexcept;
-		const void init();
+		const float getTime() const noexcept override;
+		const void setWindow(const UniqueRef<Window>& window) noexcept override;
+		const void init() override;
 		const void renderFrame();
-		const void deviceWaitIdle() const;
-		const void cleanup();
+		const void deviceWaitIdle() const override;
+		const void cleanup() override;
 	};
 }

@@ -1,5 +1,5 @@
 #pragma once
-#include <core/PrimitiveTypes.h>
+#include "../Window.h"
 
 namespace VoxelEngine::renderer
 {
@@ -14,6 +14,11 @@ namespace VoxelEngine::renderer
 	class Renderer
 	{
 	public:
-
+		virtual const float getTime() const noexcept = 0;
+		virtual const void setWindow(const UniqueRef<Window>& window) noexcept = 0;
+		virtual const void init() = 0;
+		//virtual const void renderFrame() = 0;
+		virtual const void deviceWaitIdle() const = 0;
+		virtual const void cleanup() = 0;
 	};
 }

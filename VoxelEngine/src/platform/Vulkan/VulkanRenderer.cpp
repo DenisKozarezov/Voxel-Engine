@@ -287,25 +287,6 @@ namespace VoxelEngine::renderer
 		createInfo.pfnUserCallback = debugCallback;
 		return createInfo;
 	}
-	const VkCommandBuffer VulkanRenderer::beginSingleTimeCommands()
-	{
-		VkCommandBufferAllocateInfo allocInfo = {};
-		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandPool = _commandPool;
-		allocInfo.commandBufferCount = 1;
-
-		VkCommandBuffer commandBuffer;
-		vkAllocateCommandBuffers(_logicalDevice, &allocInfo, &commandBuffer);
-
-		VkCommandBufferBeginInfo beginInfo = {};
-		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-		vkBeginCommandBuffer(commandBuffer, &beginInfo);
-
-		return commandBuffer;
-	}
 	const void VulkanRenderer::createInstance()
 	{
 		if (_enableValidationLayers && !checkValidationLayerSupport())
@@ -906,18 +887,9 @@ namespace VoxelEngine::renderer
 
 		endSingleTimeCommands(commandBuffer);
 	}
-	const void VulkanRenderer::endSingleTimeCommands(const VkCommandBuffer& commandBuffer)
+	const void VulkanRenderer::setWindow(const UniqueRef<Window>& window) noexcept
 	{
-		vkEndCommandBuffer(commandBuffer);
-
-		VkSubmitInfo submitInfo = {};
-		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &commandBuffer;
-
-		vkQueueSubmit(_graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-		vkQueueWaitIdle(_graphicsQueue);
-		vkFreeCommandBuffers(_logicalDevice, _commandPool, 1, &commandBuffer);
+		_window = (GLFWwindow*)window->getNativeWindow();
 	}
 	const void VulkanRenderer::setupDebugMessenger()
 	{
@@ -1009,6 +981,93 @@ namespace VoxelEngine::renderer
 		}
 	}
 
+	//const void VulkanRenderer::renderFrame() 
+	//{
+	//	vkWaitForFences(_logicalDevice, 1, &_inFlightFences[_currentFrame], VK_TRUE, UINT64_MAX);
+	//	uint32 imageIndex;
+	//	VkResult result = vkAcquireNextImageKHR(_logicalDevice, _swapChain, UINT64_MAX, _imageAvailableSemaphores[_currentFrame], VK_NULL_HANDLE, &imageIndex);
+	//	if (result == VK_ERROR_OUT_OF_DATE_KHR) 
+	//	{
+	//		recreateSwapChain();
+	//		return;
+	//	}
+	//	else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) 
+	//	{
+	//		throw std::runtime_error("failed to acquire swap chain image!");
+	//	}
+	//	
+	//	updateUniformBuffer(_currentFrame);
+	//	vkResetFences(_logicalDevice, 1, &_inFlightFences[_currentFrame]);
+	//	vkResetCommandBuffer(_commandBuffers[_currentFrame], /*VkCommandBufferResetFlagBits*/ 0);
+	//	recordCommandBuffer(_commandBuffers[_currentFrame], imageIndex);
+
+	//	VkSemaphore waitSemaphores[] = { _imageAvailableSemaphores[_currentFrame] };
+	//	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+	//	
+	//	VkSubmitInfo submitInfo = {};
+	//	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	//	submitInfo.waitSemaphoreCount = 1;
+	//	submitInfo.pWaitSemaphores = waitSemaphores;
+	//	submitInfo.pWaitDstStageMask = waitStages;
+	//	submitInfo.commandBufferCount = 1;
+	//	submitInfo.pCommandBuffers = &_commandBuffers[_currentFrame];
+
+	//	VkSemaphore signalSemaphores[] = { _renderFinishedSemaphores[_currentFrame] };
+	//	submitInfo.signalSemaphoreCount = 1;
+	//	submitInfo.pSignalSemaphores = signalSemaphores;
+
+	//	if (vkQueueSubmit(_graphicsQueue, 1, &submitInfo, _inFlightFences[_currentFrame]) != VK_SUCCESS)
+	//	{
+	//		throw std::runtime_error("failed to submit draw command buffer!");
+	//	}
+
+	//	VkSwapchainKHR swapChains[] = { _swapChain };
+
+	//	VkPresentInfoKHR presentInfo = {};
+	//	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+	//	presentInfo.waitSemaphoreCount = 1;
+	//	presentInfo.pWaitSemaphores = signalSemaphores;
+	//	presentInfo.swapchainCount = 1;
+	//	presentInfo.pSwapchains = swapChains;
+	//	presentInfo.pImageIndices = &imageIndex;
+
+	//	vkQueuePresentKHR(_presentQueue, &presentInfo);
+
+	//	_currentFrame = (_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+	//}
+
+	const VkCommandBuffer VulkanRenderer::beginSingleTimeCommands()
+	{
+		VkCommandBufferAllocateInfo allocInfo = {};
+		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		allocInfo.commandPool = _commandPool;
+		allocInfo.commandBufferCount = 1;
+
+		VkCommandBuffer commandBuffer;
+		vkAllocateCommandBuffers(_logicalDevice, &allocInfo, &commandBuffer);
+
+		VkCommandBufferBeginInfo beginInfo = {};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+		vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+		return commandBuffer;
+	}
+	const void VulkanRenderer::endSingleTimeCommands(const VkCommandBuffer& commandBuffer)
+	{
+		vkEndCommandBuffer(commandBuffer);
+
+		VkSubmitInfo submitInfo = {};
+		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers = &commandBuffer;
+
+		vkQueueSubmit(_graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+		vkQueueWaitIdle(_graphicsQueue);
+		vkFreeCommandBuffers(_logicalDevice, _commandPool, 1, &commandBuffer);
+	}
 	const uint32 VulkanRenderer::findMemoryType(const uint32& typeFilter, const VkMemoryPropertyFlags& properties)
 	{
 		VkPhysicalDeviceMemoryProperties memProperties;
@@ -1023,64 +1082,10 @@ namespace VoxelEngine::renderer
 		}
 		throw std::runtime_error("failed to find suitable memory type!");
 	}
-//	const void VulkanRenderer::setGLFWwindow(GLFWwindow* const window) noexcept
-//	{
-//		_window = window;
-//	}
-//	const void VulkanRenderer::renderFrame() 
-//	{
-//		vkWaitForFences(_logicalDevice, 1, &_inFlightFences[_currentFrame], VK_TRUE, UINT64_MAX);
-//		uint32 imageIndex;
-//		VkResult result = vkAcquireNextImageKHR(_logicalDevice, _swapChain, UINT64_MAX, _imageAvailableSemaphores[_currentFrame], VK_NULL_HANDLE, &imageIndex);
-//		if (result == VK_ERROR_OUT_OF_DATE_KHR) 
-//		{
-//			recreateSwapChain();
-//			return;
-//		}
-//		else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) 
-//		{
-//			throw std::runtime_error("failed to acquire swap chain image!");
-//		}
-//		
-//		updateUniformBuffer(_currentFrame);
-//		vkResetFences(_logicalDevice, 1, &_inFlightFences[_currentFrame]);
-//		vkResetCommandBuffer(_commandBuffers[_currentFrame], /*VkCommandBufferResetFlagBits*/ 0);
-//		recordCommandBuffer(_commandBuffers[_currentFrame], imageIndex);
-//
-//		VkSemaphore waitSemaphores[] = { _imageAvailableSemaphores[_currentFrame] };
-//		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-//		
-//		VkSubmitInfo submitInfo = {};
-//		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-//		submitInfo.waitSemaphoreCount = 1;
-//		submitInfo.pWaitSemaphores = waitSemaphores;
-//		submitInfo.pWaitDstStageMask = waitStages;
-//		submitInfo.commandBufferCount = 1;
-//		submitInfo.pCommandBuffers = &_commandBuffers[_currentFrame];
-//
-//		VkSemaphore signalSemaphores[] = { _renderFinishedSemaphores[_currentFrame] };
-//		submitInfo.signalSemaphoreCount = 1;
-//		submitInfo.pSignalSemaphores = signalSemaphores;
-//
-//		if (vkQueueSubmit(_graphicsQueue, 1, &submitInfo, _inFlightFences[_currentFrame]) != VK_SUCCESS)
-//		{
-//			throw std::runtime_error("failed to submit draw command buffer!");
-//		}
-//
-//		VkSwapchainKHR swapChains[] = { _swapChain };
-//
-//		VkPresentInfoKHR presentInfo = {};
-//		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-//		presentInfo.waitSemaphoreCount = 1;
-//		presentInfo.pWaitSemaphores = signalSemaphores;
-//		presentInfo.swapchainCount = 1;
-//		presentInfo.pSwapchains = swapChains;
-//		presentInfo.pImageIndices = &imageIndex;
-//
-//		vkQueuePresentKHR(_presentQueue, &presentInfo);
-//
-//		_currentFrame = (_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
-//	}
+	const float VulkanRenderer::getTime() const noexcept
+	{
+		return (float)glfwGetTime();
+	}
 	const void VulkanRenderer::init()
 	{
 		createInstance();

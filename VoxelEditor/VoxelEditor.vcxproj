@@ -59,7 +59,7 @@
       <PreprocessorDefinitions>VOXEL_DEBUG;VOXELENGINE_EXPORTS;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>..\VoxelEngine\vendor;..\VoxelEngine\src\;..\VoxelEngine\vendor\spdlog\include;..\VoxelEngine\vendor\GLFW\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\VoxelEngine\vendor;..\VoxelEngine\src\;..\VoxelEngine\vendor\spdlog\include;..\VoxelEngine\vendor\GLFW\include;..\VoxelEngine\vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <ExceptionHandling>false</ExceptionHandling>
@@ -88,7 +88,7 @@
       <PreprocessorDefinitions>VOXEL_RELEASE;VOXELENGINE_EXPORTS;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>..\VoxelEngine\vendor;..\VoxelEngine\src\;..\VoxelEngine\vendor\spdlog\include;..\VoxelEngine\vendor\GLFW\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\VoxelEngine\vendor;..\VoxelEngine\src\;..\VoxelEngine\vendor\spdlog\include;..\VoxelEngine\vendor\GLFW\include;..\VoxelEngine\vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <BufferSecurityCheck>false</BufferSecurityCheck>

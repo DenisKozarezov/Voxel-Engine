@@ -113,6 +113,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\core\Layer.h" />
     <ClInclude Include="src\core\input\InputSystem.h" />
     <ClInclude Include="src\core\renderer\Buffers.h" />
     <ClInclude Include="src\core\renderer\Image.h" />

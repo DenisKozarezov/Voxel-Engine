@@ -114,6 +114,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\EditorLayer.cpp" />
     <ClCompile Include="src\EditorApplication.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -125,7 +126,7 @@
     <Image Include="resources\textures\texture.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\EditorApplication.h" />
+    <ClInclude Include="src\EditorLayer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

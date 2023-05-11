@@ -887,10 +887,6 @@ namespace VoxelEngine::renderer
 
 		endSingleTimeCommands(commandBuffer);
 	}
-	const void VulkanRenderer::setWindow(const UniqueRef<Window>& window) noexcept
-	{
-		_window = (GLFWwindow*)window->getNativeWindow();
-	}
 	const void VulkanRenderer::setupDebugMessenger()
 	{
 		if (!_enableValidationLayers) return;
@@ -1085,6 +1081,10 @@ namespace VoxelEngine::renderer
 	const float VulkanRenderer::getTime() const noexcept
 	{
 		return (float)glfwGetTime();
+	}
+	const void VulkanRenderer::setWindow(const UniqueRef<Window>& window) noexcept
+	{
+		_window = (GLFWwindow*)window->getNativeWindow();
 	}
 	const void VulkanRenderer::init()
 	{

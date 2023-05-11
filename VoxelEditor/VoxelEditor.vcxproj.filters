@@ -18,6 +18,9 @@
     <ClCompile Include="src\EditorApplication.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\EditorLayer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\textures\texture.jpg">
@@ -25,7 +28,7 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\EditorApplication.h">
+    <ClInclude Include="src\EditorLayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

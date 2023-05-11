@@ -2,6 +2,6 @@
 
 // ----------- Internal modules -----------
 #include "core/Application.h"
-
-// ------------- Entry point --------------
-#include "core/EntryPoint.h"
+#include "core/Layer.h"
+#include "core/input/events/KeyboardEvent.h"
+#include "core/input/events/MouseEvent.h"

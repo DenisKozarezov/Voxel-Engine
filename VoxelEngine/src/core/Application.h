@@ -57,6 +57,7 @@ namespace VoxelEngine
 		Application(const ApplicationSpecification& spec);
 	public:
 		Application(const Application&) = delete;
+		Application(Application&&) = delete;
 		const Application& operator=(const Application&) = delete;
 
 		inline static UniqueRef<Application>& getInstance();

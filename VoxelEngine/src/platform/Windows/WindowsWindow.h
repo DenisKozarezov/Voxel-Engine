@@ -26,7 +26,7 @@ namespace VoxelEngine
 		inline const uint16& getWidth() const noexcept override { return _windowData.Width; }
 		inline const uint16& getHeight() const noexcept override { return _windowData.Height; }
 		inline const bool& VSyncEnabled() const noexcept override { return _windowData.VSync; }
-		inline const void* getNativeWindow() const override { return _window; }
+		const GLFWwindow* getNativeWindow() const override { return _window; }
 		void setVSync(bool isEnabled) noexcept override;
 		void setEventCallback(const EventCallback& callback) noexcept override;
 		void onUpdate() override;

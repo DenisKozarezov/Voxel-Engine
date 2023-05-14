@@ -8,7 +8,7 @@ namespace VoxelEditor
 	public:
 		EditorApplication(const ApplicationSpecification& spec) : Application(spec)
 		{
-
+			//pushLayer(VoxelEngine::MakeShared<EditorLayer>());
 		}
 		EditorApplication(const EditorApplication&) = delete;
 		EditorApplication(EditorApplication&&) = delete;

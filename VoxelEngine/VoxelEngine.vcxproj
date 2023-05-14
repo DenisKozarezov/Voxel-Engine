@@ -61,7 +61,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)vendor\glm;$(ProjectDir)vendor\stb_image;$(ProjectDir)vendor\GLFW\include;$(ProjectDir)vendor\spdlog\include;$(ProjectDir)vendor</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)vendor\glm;$(ProjectDir)vendor\stb_image;$(ProjectDir)vendor\GLFW\include;$(ProjectDir)vendor\spdlog\include;$(ProjectDir)vendor\imgui;$(ProjectDir)vendor</AdditionalIncludeDirectories>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -89,7 +89,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)vendor\glm;$(ProjectDir)vendor\stb_image;$(ProjectDir)vendor\GLFW\include;$(ProjectDir)vendor\spdlog\include;$(ProjectDir)vendor</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)vendor\glm;$(ProjectDir)vendor\stb_image;$(ProjectDir)vendor\GLFW\include;$(ProjectDir)vendor\spdlog\include;$(ProjectDir)vendor\imgui;$(ProjectDir)vendor</AdditionalIncludeDirectories>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -115,8 +115,10 @@
   <ItemGroup>
     <ClInclude Include="src\core\Layer.h" />
     <ClInclude Include="src\core\input\InputSystem.h" />
+    <ClInclude Include="src\core\LayerStack.h" />
     <ClInclude Include="src\core\renderer\Buffers.h" />
     <ClInclude Include="src\core\renderer\Image.h" />
+    <ClInclude Include="src\core\renderer\ImGuiLayer.h" />
     <ClInclude Include="src\core\renderer\Renderer.h" />
     <ClInclude Include="src\core\renderer\Shader.h" />
     <ClInclude Include="src\core\Assert.h" />
@@ -140,6 +142,10 @@
     <ClInclude Include="src\VoxelEngine.h" />
     <ClInclude Include="vendor\GLFW\include\GLFW\glfw3.h" />
     <ClInclude Include="vendor\GLFW\include\GLFW\glfw3native.h" />
+    <ClInclude Include="vendor\imgui\backends\imgui_impl_glfw.h" />
+    <ClInclude Include="vendor\imgui\backends\imgui_impl_vulkan.h" />
+    <ClInclude Include="vendor\imgui\imgui.h" />
+    <ClInclude Include="vendor\imgui\imgui_internal.h" />
     <ClInclude Include="vendor\stb_image\stb_image.h" />
     <ClInclude Include="vendor\vulkan\vk_enum_string_helper.h" />
     <ClInclude Include="vendor\vulkan\vk_icd.h" />
@@ -180,7 +186,9 @@
     <ClInclude Include="src\platform\Vulkan\VulkanImage.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\core\LayerStack.cpp" />
     <ClCompile Include="src\core\renderer\Buffers.cpp" />
+    <ClCompile Include="src\core\renderer\ImGuiLayer.cpp" />
     <ClCompile Include="src\core\renderer\Renderer.cpp" />
     <ClCompile Include="src\core\Log.cpp" />
     <ClCompile Include="src\pch.cpp">
@@ -193,6 +201,13 @@
     <ClCompile Include="src\core\renderer\VertexArray.cpp" />
     <ClCompile Include="src\platform\Vulkan\VulkanImage.cpp" />
     <ClCompile Include="vendor\glm\glm\detail\glm.cpp" />
+    <ClCompile Include="vendor\imgui\backends\imgui_impl_glfw.cpp" />
+    <ClCompile Include="vendor\imgui\backends\imgui_impl_vulkan.cpp" />
+    <ClCompile Include="vendor\imgui\imgui.cpp" />
+    <ClCompile Include="vendor\imgui\imgui_demo.cpp" />
+    <ClCompile Include="vendor\imgui\imgui_draw.cpp" />
+    <ClCompile Include="vendor\imgui\imgui_tables.cpp" />
+    <ClCompile Include="vendor\imgui\imgui_widgets.cpp" />
     <ClInclude Include="src\core\EntryPoint.h" />
     <ClCompile Include="src\core\renderer\Texture.cpp" />
     <ClCompile Include="src\platform\Vulkan\VulkanRenderer.cpp" />

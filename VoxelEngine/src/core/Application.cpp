@@ -23,10 +23,20 @@ namespace VoxelEngine
 		_window->setEventCallback(BIND_CALLBACK(onEvent));
 	}
 
-	inline UniqueRef<Application>& Application::getInstance()
+	inline const SharedRef<Application> Application::getInstance()
 	{
-		static UniqueRef<Application> ptr = UniqueRef<Application>(_instance);
-		return ptr;
+		return SharedRef<Application>(_instance);
+	}
+
+	void Application::pushLayer(const SharedRef<renderer::Layer>& layer)
+	{
+		_layerStack.pushLayer(layer);
+		layer->onAttach();
+	}
+	void Application::pushOverlay(const SharedRef<renderer::Layer>& layer)
+	{
+		_layerStack.pushOverlay(layer);
+		layer->onAttach();
 	}
 
 	const void Application::init()
@@ -39,28 +49,37 @@ namespace VoxelEngine
 		catch (const std::exception& e)
 		{
 			VOXEL_CORE_CRITICAL(e.what())
+			VOXEL_DEBUGBREAK()
 		}
 	}
 	const void Application::run()
 	{
 		VOXEL_CORE_WARN("Running Voxel Engine...")
 
-		_running = true;
+			_running = true;
 
-		while (_running)
+		try
 		{
-			const float time = _renderer.getTime();
-			const Timestep deltaTime = time - _lastFrameTime;
-			_lastFrameTime = time;
-
-			if (!_minimized)
+			while (_running)
 			{
+				const float time = _renderer.getTime();
+				const Timestep deltaTime = time - _lastFrameTime;
+				_lastFrameTime = time;
 
+				if (!_minimized)
+				{
+					_layerStack.onUpdate(time);
+				}
+				_window->onUpdate();
+				_renderer.renderFrame();
 			}
-			_window->onUpdate();
-			//_renderer.renderFrame();
 		}
-		//_renderer.deviceWaitIdle();
+		catch (const std::exception& e)
+		{
+			VOXEL_CORE_CRITICAL(e.what())
+			VOXEL_DEBUGBREAK()
+		}
+		_renderer.deviceWaitIdle();
 	}
 	const void Application::shutdown()
 	{

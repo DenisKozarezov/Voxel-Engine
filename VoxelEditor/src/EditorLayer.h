@@ -16,6 +16,6 @@ namespace VoxelEditor
 		void onDetach() override;
 		void onUpdate(const VoxelEngine::Timestep& ts) override;
 		void onImGuiRender() override;
-		void onEvent(const VoxelEngine::input::Event& e) override;
+		void onEvent(VoxelEngine::input::Event& e) override;
 	};
 }

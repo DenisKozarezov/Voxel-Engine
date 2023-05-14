@@ -91,18 +91,19 @@ namespace VoxelEngine::renderer
 
 	class VulkanRenderer : public Renderer
 	{
-		VkInstance _instance;
 		GLFWwindow* _window;
+		VkInstance _instance;
 		VkDebugUtilsMessengerEXT _debugMessenger;
 		static VkDevice _logicalDevice;
 		static VkPhysicalDevice _physicalDevice;
 		static VkCommandPool _commandPool;
 		static VkQueue _graphicsQueue;
 		VkQueue _presentQueue;
+		VkAllocationCallbacks* _allocator = nullptr;
+		VkPipelineCache _pipelineCache;
+		QueueFamilyIndices _queueFamilyIndices;
 		VkSurfaceKHR _surface;
 		VkSwapchainKHR _swapChain;
-		VkFormat _swapChainImageFormat;
-		VkExtent2D _swapChainExtent;
 		VkRenderPass _renderPass;
 		VkPipelineLayout _pipelineLayout;
 		VkDescriptorSetLayout _descriptorSetLayout;
@@ -116,6 +117,8 @@ namespace VoxelEngine::renderer
 		VkImage _depthImage;
 		VkDeviceMemory _depthImageMemory;
 		VkImageView _depthImageView;
+		VkFormat _swapChainImageFormat;
+		VkExtent2D _swapChainExtent;
 		std::vector<VkBuffer> _uniformBuffers;
 		std::vector<VkDeviceMemory> _uniformBuffersMemory;
 		std::vector<VkImage> _swapChainImages;
@@ -125,7 +128,8 @@ namespace VoxelEngine::renderer
 		std::vector<VkSemaphore> _imageAvailableSemaphores;
 		std::vector<VkSemaphore> _renderFinishedSemaphores;
 		std::vector<VkFence> _inFlightFences;
-		uint32_t _currentFrame;
+		uint32 _currentFrame = 0;
+		bool framebufferResized = false;
 
 #ifdef VOXEL_RELEASE
 		const bool _enableValidationLayers = false;
@@ -169,6 +173,7 @@ namespace VoxelEngine::renderer
 		const void createFramebuffers();
 		const void createUniformBuffers();
 		const void createVertexBuffer();
+		const void createImageViews();
 		const void createIndexBuffer();
 		const void createCommandPool();
 		const void createCommandBuffers();
@@ -183,10 +188,13 @@ namespace VoxelEngine::renderer
 		const void destroyDebugUtilsMessengerEXT(const VkInstance& instance, const VkDebugUtilsMessengerEXT& debugMessenger, const VkAllocationCallbacks* pAllocator);
 		const void cleanupSwapChain();
 		const void cleanupUniformBuffers();
+		const void presentFrame(const uint32& imageIndex, VkSemaphore* signalSemaphores);
+		const void check_vk_result(const VkResult& vkResult, const std::string& exceptionMsg) const;
+		void initImGui();
 	public:
-		static const VkCommandBuffer beginSingleTimeCommands();
+		const void recordCommandBuffer(const VkCommandBuffer& commandBuffer, const uint32& imageIndex) const;
 		static const uint32 findMemoryType(const uint32& typeFilter, const VkMemoryPropertyFlags& properties);
-		static const void endSingleTimeCommands(const VkCommandBuffer& commandBuffer);
+		const void endSingleTimeCommands(const VkCommandBuffer& commandBuffer, const VkSemaphore* signalSemaphores = nullptr);
 		inline static const VkDevice& getLogicalDevice() { return _logicalDevice; }
 		inline static const VkPhysicalDevice& getPhysicalDevice() { return _physicalDevice; }
 		const float getTime() const noexcept override;

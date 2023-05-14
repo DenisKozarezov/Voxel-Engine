@@ -15,7 +15,7 @@ namespace VoxelEngine::renderer
 		virtual void onDetach() {}
 		virtual void onUpdate(const Timestep& time) {}
 		virtual void onImGuiRender() {}
-		virtual void onEvent(const input::Event& event) {}
+		virtual void onEvent(input::Event& event) {}
 
 		inline const std::string& getName() const { return _debugName; }
 

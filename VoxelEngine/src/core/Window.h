@@ -1,5 +1,6 @@
 #pragma once
 #include <pch.h>
+#include <GLFW/glfw3.h>
 #include "input/events/Event.h"
 
 namespace VoxelEngine
@@ -29,7 +30,7 @@ namespace VoxelEngine
 		virtual inline const uint16& getWidth() const noexcept = 0;
 		virtual inline const uint16& getHeight() const noexcept = 0;
 		virtual inline const bool& VSyncEnabled() const noexcept = 0;
-		virtual inline const void* getNativeWindow() const = 0;
+		virtual const GLFWwindow* getNativeWindow() const = 0;
 		virtual void setVSync(bool isEnabled) noexcept = 0;
 		virtual void setEventCallback(const EventCallback& callback) noexcept = 0;
 		virtual void init() = 0;

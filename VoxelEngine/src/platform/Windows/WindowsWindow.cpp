@@ -29,7 +29,6 @@ namespace VoxelEngine
 		}
 
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 		_window = glfwCreateWindow(_windowData.Width, _windowData.Height, _windowData.Title.c_str(), nullptr, nullptr);
 		glfwMakeContextCurrent(_window);
 		glfwSetWindowUserPointer(_window, &_windowData);

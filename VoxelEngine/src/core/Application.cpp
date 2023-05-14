@@ -1,6 +1,7 @@
 #include "Application.h"
 #include "input/events/EventBus.h"
 #include "Timestep.h"
+#include "renderer/ImGuiLayer.h"
 
 namespace VoxelEngine
 {
@@ -28,12 +29,12 @@ namespace VoxelEngine
 		return SharedRef<Application>(_instance);
 	}
 
-	void Application::pushLayer(const SharedRef<renderer::Layer>& layer)
+	void Application::pushLayer(renderer::Layer* layer)
 	{
 		_layerStack.pushLayer(layer);
 		layer->onAttach();
 	}
-	void Application::pushOverlay(const SharedRef<renderer::Layer>& layer)
+	void Application::pushOverlay(renderer::Layer* layer)
 	{
 		_layerStack.pushOverlay(layer);
 		layer->onAttach();
@@ -43,8 +44,10 @@ namespace VoxelEngine
 	{
 		try
 		{
-			_renderer.setWindow(_window);
-			_renderer.init();
+			pushOverlay(new renderer::ImGuiLayer());
+			_renderer = renderer::Renderer::Create();
+			_renderer->setWindow(_window);
+			_renderer->init();
 		}
 		catch (const std::exception& e)
 		{
@@ -56,30 +59,24 @@ namespace VoxelEngine
 	{
 		VOXEL_CORE_WARN("Running Voxel Engine...")
 
-			_running = true;
+		_running = true;
 
-		try
+		while (_running)
 		{
-			while (_running)
+			const float time = _renderer->getTime();
+			const Timestep deltaTime = time - _lastFrameTime;
+			_lastFrameTime = time;
+
+			if (!_minimized)
 			{
-				const float time = _renderer.getTime();
-				const Timestep deltaTime = time - _lastFrameTime;
-				_lastFrameTime = time;
-
-				if (!_minimized)
-				{
-					_layerStack.onUpdate(time);
-				}
-				_window->onUpdate();
-				_renderer.renderFrame();
+				_layerStack.onUpdate(time);
+				_renderer->beginFrame();
+				_layerStack.onImGuiRender();
+				_renderer->endFrame();
 			}
+			_window->onUpdate();
 		}
-		catch (const std::exception& e)
-		{
-			VOXEL_CORE_CRITICAL(e.what())
-			VOXEL_DEBUGBREAK()
-		}
-		_renderer.deviceWaitIdle();
+		_renderer->deviceWaitIdle();
 	}
 	const void Application::shutdown()
 	{

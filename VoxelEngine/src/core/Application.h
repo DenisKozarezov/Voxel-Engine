@@ -1,9 +1,8 @@
 #pragma once
-#include "platform/Vulkan/VulkanRenderer.h"
+#include "renderer/Renderer.h"
 #include "input/events/ApplicationEvent.h"
 #include "Log.h"
 #include "Assert.h"
-#include "Window.h"
 #include "LayerStack.h"
 
 struct ApplicationCommandLineArgs
@@ -45,10 +44,10 @@ namespace VoxelEngine
 	private:
 		ApplicationSpecification _specification;
 		UniqueRef<Window> _window;
+		SharedRef<renderer::Renderer> _renderer;
 		renderer::LayerStack _layerStack;
-		renderer::VulkanRenderer _renderer;
 		bool _running = false;
-		bool _minimized;
+		bool _minimized = false;
 		float _lastFrameTime = 0.0f;
 		static Application* _instance;
 
@@ -57,8 +56,8 @@ namespace VoxelEngine
 		bool onWindowResize(const input::WindowResizeEvent& e);
 	protected:
 		Application(const ApplicationSpecification& spec);
-		void pushLayer(const SharedRef<renderer::Layer>& layer);
-		void pushOverlay(const SharedRef<renderer::Layer>& layer);
+		void pushLayer(renderer::Layer* layer);
+		void pushOverlay(renderer::Layer* layer);
 	public:
 		Application() = delete;
 		Application(const Application&) = delete;

@@ -854,25 +854,6 @@ namespace VoxelEngine::renderer
 	}
 	void VulkanRenderer::initImGui()
 	{
-		IMGUI_CHECKVERSION();
-		ImGui::CreateContext();
-		ImGuiIO& io = ImGui::GetIO(); (void)io;
-		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
-		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
-		//io.ConfigViewportsNoAutoMerge = true;
-		//io.ConfigViewportsNoTaskBarIcon = true;
-
-		// Setup Dear ImGui style
-		ImGui::StyleColorsDark();
-		ImGuiStyle& style = ImGui::GetStyle();
-		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-		{
-			style.WindowRounding = 0.0f;
-			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
-		}
-
 		ImGui_ImplVulkan_InitInfo init_info = {};
 		init_info.Instance = _instance;
 		init_info.PhysicalDevice = _physicalDevice;
@@ -888,7 +869,8 @@ namespace VoxelEngine::renderer
 		init_info.Allocator = _allocator;
 		ImGui_ImplGlfw_InitForVulkan(_window, true);
 		ImGui_ImplVulkan_Init(&init_info, _renderPass);
-	
+		
+		ImGuiIO& io = ImGui::GetIO(); (void)io;
 		io.Fonts->AddFontDefault();
 		{
 			// Use any command queue
@@ -961,7 +943,7 @@ namespace VoxelEngine::renderer
 	}
 	const void VulkanRenderer::copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkDeviceSize& size)
 	{
-		VkCommandBufferAllocateInfo allocInfo{};
+		VkCommandBufferAllocateInfo allocInfo = {};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 		allocInfo.commandPool = _commandPool;
@@ -970,19 +952,19 @@ namespace VoxelEngine::renderer
 		VkCommandBuffer commandBuffer;
 		vkAllocateCommandBuffers(_logicalDevice, &allocInfo, &commandBuffer);
 
-		VkCommandBufferBeginInfo beginInfo{};
+		VkCommandBufferBeginInfo beginInfo = {};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
 		vkBeginCommandBuffer(commandBuffer, &beginInfo);
 
-		VkBufferCopy copyRegion{};
+		VkBufferCopy copyRegion = {};
 		copyRegion.size = size;
 		vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
 
 		vkEndCommandBuffer(commandBuffer);
 
-		VkSubmitInfo submitInfo{};
+		VkSubmitInfo submitInfo = {};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 		submitInfo.commandBufferCount = 1;
 		submitInfo.pCommandBuffers = &commandBuffer;
@@ -1107,7 +1089,7 @@ namespace VoxelEngine::renderer
 		}
 		else check_vk_result(err, "failed to present swap chain image!");
 	}
-	const void VulkanRenderer::renderFrame() 
+	const void VulkanRenderer::beginFrame() 
 	{
 		vkWaitForFences(_logicalDevice, 1, &_inFlightFences[_currentFrame], VK_TRUE, UINT64_MAX);
 		uint32 imageIndex;
@@ -1127,44 +1109,25 @@ namespace VoxelEngine::renderer
 
 		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
-		
-		if (show_demo_window)
-			ImGui::ShowDemoWindow(&show_demo_window);
-
-		static float f = 0.0f;
-		static int counter = 0;
-
-		ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
-		ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-		ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-
-		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-
-		if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-			counter++;
-		ImGui::SameLine();
-		ImGui::Text("counter = %d", counter);
-
-		ImGuiIO& io = ImGui::GetIO();
-		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-		ImGui::End();
-
+		ImGui::NewFrame();	
+	}
+	const void VulkanRenderer::endFrame()
+	{
 		ImGui::Render();
 
-		recordCommandBuffer(_commandBuffers[_currentFrame], imageIndex);
+		recordCommandBuffer(_commandBuffers[_currentFrame], _currentFrame);
 
 		VkSemaphore signalSemaphores[] = { _renderFinishedSemaphores[_currentFrame] };
 		endSingleTimeCommands(_commandBuffers[_currentFrame], signalSemaphores);
 
+		ImGuiIO& io = ImGui::GetIO();
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
 			ImGui::UpdatePlatformWindows();
 			ImGui::RenderPlatformWindowsDefault();
 		}
-			
-		presentFrame(imageIndex, signalSemaphores);
+
+		presentFrame(_currentFrame, signalSemaphores);
 
 		_currentFrame = (_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 	}

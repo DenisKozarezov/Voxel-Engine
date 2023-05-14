@@ -14,11 +14,12 @@ namespace VoxelEngine::renderer
 		LayerStack() = default;
 		~LayerStack();
 
-		void pushLayer(const SharedRef<Layer>& layer);
-		void pushOverlay(const SharedRef<Layer>& overlay);
-		void popLayer(const SharedRef<Layer>& layer);
-		void popOverlay(const SharedRef<Layer>& overlay);
+		void pushLayer(Layer* layer);
+		void pushOverlay(Layer* overlay);
+		void popLayer(Layer* layer);
+		void popOverlay(Layer* overlay);
 		void onUpdate(const Timestep& time);
+		void onImGuiRender();
 
 		std::deque<Layer*>::iterator begin() { return _layers.begin(); }
 		std::deque<Layer*>::iterator end() { return _layers.end(); }

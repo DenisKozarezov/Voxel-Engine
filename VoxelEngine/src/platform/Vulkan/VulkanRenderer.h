@@ -6,47 +6,11 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
-#include <vulkan/vulkan.h>
+#include "VulkanVertex.h"
 #include <core/renderer/Renderer.h>
 
 namespace VoxelEngine::renderer
 {
-	struct Vertex
-	{
-		glm::vec3 position;
-		glm::vec3 color;
-		glm::vec2 texCoord;
-
-		static VkVertexInputBindingDescription getBindingDescription()
-		{
-			VkVertexInputBindingDescription description = {};
-			description.binding = 0;
-			description.stride = sizeof(Vertex);
-			description.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-			return description;
-		}
-		static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions()
-		{
-			std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions = {};
-
-			attributeDescriptions[0].binding = 0;
-			attributeDescriptions[0].location = 0;
-			attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-			attributeDescriptions[0].offset = offsetof(Vertex, position);
-
-			attributeDescriptions[1].binding = 0;
-			attributeDescriptions[1].location = 1;
-			attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-			attributeDescriptions[1].offset = offsetof(Vertex, color);
-
-			attributeDescriptions[2].binding = 0;
-			attributeDescriptions[2].location = 2;
-			attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
-			attributeDescriptions[2].offset = offsetof(Vertex, texCoord);
-
-			return attributeDescriptions;
-		}
-	};
 	struct QueueFamilyIndices
 	{
 		std::optional<uint32> graphicsFamily;
@@ -185,6 +149,8 @@ namespace VoxelEngine::renderer
 		const void setupDebugMessenger();
 		const void recreateSwapChain();
 		const void pickPhysicalDevice();
+		const void recordCommandBuffer(const VkCommandBuffer& commandBuffer, const uint32& imageIndex) const;
+		const void endSingleTimeCommands(const VkCommandBuffer& commandBuffer, const VkSemaphore* signalSemaphores = nullptr);
 		const void destroyDebugUtilsMessengerEXT(const VkInstance& instance, const VkDebugUtilsMessengerEXT& debugMessenger, const VkAllocationCallbacks* pAllocator);
 		const void cleanupSwapChain();
 		const void cleanupUniformBuffers();
@@ -192,16 +158,20 @@ namespace VoxelEngine::renderer
 		const void check_vk_result(const VkResult& vkResult, const std::string& exceptionMsg) const;
 		void initImGui();
 	public:
-		const void recordCommandBuffer(const VkCommandBuffer& commandBuffer, const uint32& imageIndex) const;
 		static const uint32 findMemoryType(const uint32& typeFilter, const VkMemoryPropertyFlags& properties);
-		const void endSingleTimeCommands(const VkCommandBuffer& commandBuffer, const VkSemaphore* signalSemaphores = nullptr);
 		inline static const VkDevice& getLogicalDevice() { return _logicalDevice; }
 		inline static const VkPhysicalDevice& getPhysicalDevice() { return _physicalDevice; }
 		const float getTime() const noexcept override;
 		const void setWindow(const UniqueRef<Window>& window) noexcept override;
 		const void init() override;
-		const void renderFrame();
+		const void beginFrame() override;
+		const void endFrame() override;
 		const void deviceWaitIdle() const override;
 		const void cleanup() override;
 	};
+
+	const SharedRef<Renderer> Renderer::Create()
+	{
+		return MakeShared<VulkanRenderer>();
+	}
 }

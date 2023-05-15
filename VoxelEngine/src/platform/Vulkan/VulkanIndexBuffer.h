@@ -1,4 +1,4 @@
-#include "Renderer.h"
+#pragma once
 
 namespace VoxelEngine::renderer
 {

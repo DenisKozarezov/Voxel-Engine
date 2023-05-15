@@ -234,6 +234,12 @@
     <ClInclude Include="src\platform\Vulkan\VulkanVertex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\platform\Vulkan\VulkanVertexBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\platform\Vulkan\VulkanIndexBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\pch.cpp">
@@ -255,9 +261,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\platform\Vulkan\VulkanShader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\core\renderer\Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\core\renderer\VertexArray.cpp">

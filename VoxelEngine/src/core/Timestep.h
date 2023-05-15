@@ -12,7 +12,7 @@ namespace VoxelEngine
 
 		operator float() const { return _time; }
 
-		inline const float& getSeconds() const { return _time; }
+		inline const float& getSeconds() const & { return _time; }
 		inline const float& getMilliseconds() const { return _time * 1000.0f; }
 	};
 }

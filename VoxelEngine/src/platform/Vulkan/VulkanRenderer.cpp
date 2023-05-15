@@ -13,9 +13,18 @@ namespace VoxelEngine::renderer
 	VkPhysicalDevice VulkanRenderer::_physicalDevice = VK_NULL_HANDLE;
 	VkCommandPool VulkanRenderer::_commandPool = VK_NULL_HANDLE;
 	VkQueue VulkanRenderer::_graphicsQueue = VK_NULL_HANDLE;
+	VkAllocationCallbacks* VulkanRenderer::_allocator = nullptr;
 
 	static ImGui_ImplVulkanH_Window* _mainWindowData = nullptr;
 	bool show_demo_window = true;
+
+	static const void check_vk_result(const VkResult& vkResult, const std::string& exceptionMsg)
+	{
+		std::stringstream ss;
+		ss << "[VULKAN] [" << vkResult << "] ";
+		ss << exceptionMsg;
+		VOXEL_CORE_ASSERT(vkResult == VK_SUCCESS, ss.str())
+	}
 
 	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 		VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
@@ -852,7 +861,7 @@ namespace VoxelEngine::renderer
 		VkResult err = vkCreateDescriptorPool(_logicalDevice, &poolInfo, _allocator, &_descriptorPool);
 		check_vk_result(err, "failed to create descriptor pool!");
 	}
-	void VulkanRenderer::initImGui()
+	const void VulkanRenderer::initImGui() const
 	{
 		ImGui_ImplVulkan_InitInfo init_info = {};
 		init_info.Instance = _instance;
@@ -889,7 +898,7 @@ namespace VoxelEngine::renderer
 			vkEndCommandBuffer(_commandBuffers[_currentFrame]);
 			vkQueueSubmit(_graphicsQueue, 1, &end_info, VK_NULL_HANDLE);
 
-			vkDeviceWaitIdle(_logicalDevice);
+			deviceWaitIdle();
 			ImGui_ImplVulkan_DestroyFontUploadObjects();
 		}
 	}
@@ -973,13 +982,6 @@ namespace VoxelEngine::renderer
 		vkQueueWaitIdle(_graphicsQueue);
 		vkFreeCommandBuffers(_logicalDevice, _commandPool, 1, &commandBuffer);
 	}
-	const void VulkanRenderer::check_vk_result(const VkResult& vkResult, const std::string& exceptionMsg) const
-	{
-		std::stringstream ss;
-		ss << "[VULKAN] [" << vkResult << "] ";
-		ss << exceptionMsg;
-		VOXEL_CORE_ASSERT(vkResult == VK_SUCCESS, ss.str())
-	}
 	const void VulkanRenderer::setupDebugMessenger()
 	{
 		if (!_enableValidationLayers) return;
@@ -1040,7 +1042,7 @@ namespace VoxelEngine::renderer
 			throw std::runtime_error("failed to find a suitable GPU!");
 		}
 	}
-	const void VulkanRenderer::destroyDebugUtilsMessengerEXT(const VkInstance& instance, const VkDebugUtilsMessengerEXT& debugMessenger, const VkAllocationCallbacks* pAllocator)
+	const void VulkanRenderer::destroyDebugUtilsMessengerEXT(const VkInstance& instance, const VkDebugUtilsMessengerEXT& debugMessenger, const VkAllocationCallbacks* pAllocator) const
 	{
 		auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
 		if (func != nullptr)
@@ -1048,7 +1050,7 @@ namespace VoxelEngine::renderer
 			func(instance, debugMessenger, pAllocator);
 		}
 	}
-	const void VulkanRenderer::cleanupSwapChain()
+	const void VulkanRenderer::cleanupSwapChain() const
 	{
 		for (const auto& framebuffer : _swapChainFramebuffers) 
 		{
@@ -1060,7 +1062,7 @@ namespace VoxelEngine::renderer
 		}
 		vkDestroySwapchainKHR(_logicalDevice, _swapChain, _allocator);
 	}
-	const void VulkanRenderer::cleanupUniformBuffers()
+	const void VulkanRenderer::cleanupUniformBuffers() const
 	{
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) 
 		{
@@ -1219,7 +1221,7 @@ namespace VoxelEngine::renderer
 	}
 	const void VulkanRenderer::setWindow(const UniqueRef<Window>& window) noexcept
 	{
-		_window = const_cast<GLFWwindow*>(window->getNativeWindow());
+		_window = (GLFWwindow*)(window->getNativeWindow());
 		int success = glfwVulkanSupported();
 		VOXEL_CORE_ASSERT(success, "GLFW: Vulkan Not Supported")
 	}
@@ -1250,7 +1252,7 @@ namespace VoxelEngine::renderer
 	{
 		vkDeviceWaitIdle(_logicalDevice);
 	}
-	const void VulkanRenderer::cleanup()
+	const void VulkanRenderer::cleanup() const
 	{
 		cleanupSwapChain();
 		vkDestroyPipeline(_logicalDevice, _graphicsPipeline, _allocator);

@@ -62,8 +62,8 @@ namespace VoxelEngine::renderer
 		static VkPhysicalDevice _physicalDevice;
 		static VkCommandPool _commandPool;
 		static VkQueue _graphicsQueue;
+		static VkAllocationCallbacks* _allocator;
 		VkQueue _presentQueue;
-		VkAllocationCallbacks* _allocator = nullptr;
 		VkPipelineCache _pipelineCache;
 		QueueFamilyIndices _queueFamilyIndices;
 		VkSurfaceKHR _surface;
@@ -133,7 +133,6 @@ namespace VoxelEngine::renderer
 		const void createSwapChain();
 		const void createRenderPass();
 		const void createGraphicsPipeline();
-		const void createBuffer(const VkDeviceSize& size, const VkBufferUsageFlags& usage, const VkMemoryPropertyFlags& properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 		const void createFramebuffers();
 		const void createUniformBuffers();
 		const void createVertexBuffer();
@@ -145,29 +144,29 @@ namespace VoxelEngine::renderer
 		const void createDescriptorSetLayout();
 		const void createDescriptorPool();
 		const void createDescriptorSets();
-		const void copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkDeviceSize& size);
 		const void setupDebugMessenger();
 		const void recreateSwapChain();
 		const void pickPhysicalDevice();
 		const void recordCommandBuffer(const VkCommandBuffer& commandBuffer, const uint32& imageIndex) const;
 		const void endSingleTimeCommands(const VkCommandBuffer& commandBuffer, const VkSemaphore* signalSemaphores = nullptr);
-		const void destroyDebugUtilsMessengerEXT(const VkInstance& instance, const VkDebugUtilsMessengerEXT& debugMessenger, const VkAllocationCallbacks* pAllocator);
-		const void cleanupSwapChain();
-		const void cleanupUniformBuffers();
+		const void destroyDebugUtilsMessengerEXT(const VkInstance& instance, const VkDebugUtilsMessengerEXT& debugMessenger, const VkAllocationCallbacks* pAllocator) const;
+		const void cleanupSwapChain() const;
+		const void cleanupUniformBuffers() const;
 		const void presentFrame(const uint32& imageIndex, VkSemaphore* signalSemaphores);
-		const void check_vk_result(const VkResult& vkResult, const std::string& exceptionMsg) const;
-		void initImGui();
+		const void initImGui() const;
 	public:
 		static const uint32 findMemoryType(const uint32& typeFilter, const VkMemoryPropertyFlags& properties);
 		inline static const VkDevice& getLogicalDevice() { return _logicalDevice; }
 		inline static const VkPhysicalDevice& getPhysicalDevice() { return _physicalDevice; }
+		static const void copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkDeviceSize& size);
+		static const void createBuffer(const VkDeviceSize& size, const VkBufferUsageFlags& usage, const VkMemoryPropertyFlags& properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 		const float getTime() const noexcept override;
 		const void setWindow(const UniqueRef<Window>& window) noexcept override;
 		const void init() override;
 		const void beginFrame() override;
 		const void endFrame() override;
 		const void deviceWaitIdle() const override;
-		const void cleanup() override;
+		const void cleanup() const override;
 	};
 
 	const SharedRef<Renderer> Renderer::Create()

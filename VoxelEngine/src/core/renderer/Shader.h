@@ -6,10 +6,12 @@ namespace VoxelEngine::renderer
 {
 	class Shader
 	{
+	private:
+		string _name;
 	public:
 		Shader() = delete;
 
-		virtual const string& getName() const = 0;
+		inline const string& getName() const & noexcept { return _name; }
 		virtual void setUniform(const string& name, const glm::vec2 vector) const = 0;
 		virtual void setUniform(const string& name, const glm::vec3 vector) const = 0;
 		virtual void setUniform(const string& name, const glm::vec4 vector) const = 0;

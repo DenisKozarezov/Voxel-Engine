@@ -146,8 +146,10 @@
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\core\Application.h" />
     <ClInclude Include="src\core\renderer\Texture.h" />
+    <ClInclude Include="src\platform\Vulkan\VulkanIndexBuffer.h" />
     <ClInclude Include="src\platform\Vulkan\VulkanRenderer.h" />
     <ClInclude Include="src\platform\Vulkan\VulkanVertex.h" />
+    <ClInclude Include="src\platform\Vulkan\VulkanVertexBuffer.h" />
     <ClInclude Include="src\VoxelEngine.h" />
     <ClInclude Include="vendor\GLFW\include\GLFW\glfw3.h" />
     <ClInclude Include="vendor\GLFW\include\GLFW\glfw3native.h" />
@@ -198,7 +200,6 @@
     <ClCompile Include="src\core\LayerStack.cpp" />
     <ClCompile Include="src\core\renderer\Buffers.cpp" />
     <ClCompile Include="src\core\renderer\ImGuiLayer.cpp" />
-    <ClCompile Include="src\core\renderer\Renderer.cpp" />
     <ClCompile Include="src\core\Log.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

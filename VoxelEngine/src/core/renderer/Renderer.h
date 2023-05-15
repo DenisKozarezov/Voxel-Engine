@@ -20,7 +20,7 @@ namespace VoxelEngine::renderer
 		virtual const void beginFrame() = 0;
 		virtual const void endFrame() = 0;
 		virtual const void deviceWaitIdle() const = 0;
-		virtual const void cleanup() = 0;
+		virtual const void cleanup() const = 0;
 
 		static const SharedRef<Renderer> Create();
 	};

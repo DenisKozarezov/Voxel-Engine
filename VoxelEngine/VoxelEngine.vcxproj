@@ -206,6 +206,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\core\Application.cpp" />
+    <ClCompile Include="src\platform\Vulkan\VulkanVertexBuffer.cpp" />
     <ClCompile Include="src\platform\Windows\WindowsWindow.cpp" />
     <ClCompile Include="src\platform\Vulkan\VulkanShader.cpp" />
     <ClCompile Include="src\core\renderer\VertexArray.cpp" />

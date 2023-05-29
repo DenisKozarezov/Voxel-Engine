@@ -22,6 +22,6 @@ namespace VoxelEngine::renderer
 		virtual const void deviceWaitIdle() const = 0;
 		virtual const void cleanup() const = 0;
 
-		static const SharedRef<Renderer> Create();
+		static const SharedRef<Renderer> CreateRenderer();
 	};
 }

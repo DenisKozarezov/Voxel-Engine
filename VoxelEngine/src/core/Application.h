@@ -63,7 +63,7 @@ namespace VoxelEngine
 		Application(const Application&) = delete;
 		Application(Application&&) = delete;
 
-		inline static const SharedRef<Application> getInstance();
+		static const SharedRef<Application> getInstance();
 
 		const void init();
 		const void run();

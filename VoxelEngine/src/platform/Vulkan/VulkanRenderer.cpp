@@ -9,11 +9,7 @@
 namespace VoxelEngine::renderer
 {
 	constexpr static int MAX_FRAMES_IN_FLIGHT = 2;
-	VkDevice VulkanRenderer::_logicalDevice = VK_NULL_HANDLE;
-	VkPhysicalDevice VulkanRenderer::_physicalDevice = VK_NULL_HANDLE;
-	VkCommandPool VulkanRenderer::_commandPool = VK_NULL_HANDLE;
-	VkQueue VulkanRenderer::_graphicsQueue = VK_NULL_HANDLE;
-	VkAllocationCallbacks* VulkanRenderer::_allocator = nullptr;
+	VulkanRenderer* VulkanRenderer::_singleton = nullptr;
 
 	static ImGui_ImplVulkanH_Window* _mainWindowData = nullptr;
 	bool show_demo_window = true;
@@ -663,7 +659,7 @@ namespace VoxelEngine::renderer
 		vkDestroyShaderModule(_logicalDevice, vertShaderModule, _allocator);
 		vkDestroyShaderModule(_logicalDevice, fragShaderModule, _allocator);
 	}
-	const void VulkanRenderer::createBuffer(const VkDeviceSize& size, const VkBufferUsageFlags& usage, const VkMemoryPropertyFlags& properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)
+	const void VulkanRenderer::createBuffer(const VkDeviceSize& size, const VkBufferUsageFlags& usage, const VkMemoryPropertyFlags& properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) const
 	{
 		VkBufferCreateInfo bufferInfo = {};
 		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -950,7 +946,7 @@ namespace VoxelEngine::renderer
 			vkUpdateDescriptorSets(_logicalDevice, static_cast<uint32>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 		}
 	}
-	const void VulkanRenderer::copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkDeviceSize& size)
+	const void VulkanRenderer::copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkDeviceSize& size) const
 	{
 		VkCommandBufferAllocateInfo allocInfo = {};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -1201,7 +1197,7 @@ namespace VoxelEngine::renderer
 		VkResult err = vkQueueSubmit(_graphicsQueue, 1, &submitInfo, _inFlightFences[_currentFrame]);
 		check_vk_result(err, "failed to submit draw command buffer!");
 	}
-	const uint32 VulkanRenderer::findMemoryType(const uint32& typeFilter, const VkMemoryPropertyFlags& properties)
+	const uint32 VulkanRenderer::findMemoryType(const uint32& typeFilter, const VkMemoryPropertyFlags& properties) const
 	{
 		VkPhysicalDeviceMemoryProperties memProperties;
 		vkGetPhysicalDeviceMemoryProperties(_physicalDevice, &memProperties);

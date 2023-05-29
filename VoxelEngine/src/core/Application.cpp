@@ -24,7 +24,7 @@ namespace VoxelEngine
 		_window->setEventCallback(BIND_CALLBACK(onEvent));
 	}
 
-	inline const SharedRef<Application> Application::getInstance()
+	const SharedRef<Application> Application::getInstance()
 	{
 		return SharedRef<Application>(_instance);
 	}
@@ -45,7 +45,7 @@ namespace VoxelEngine
 		try
 		{
 			pushOverlay(new renderer::ImGuiLayer());
-			_renderer = renderer::Renderer::Create();
+			_renderer = renderer::Renderer::CreateRenderer();
 			_renderer->setWindow(_window);
 			_renderer->init();
 		}

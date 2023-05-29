@@ -6,7 +6,7 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
-#include "VulkanVertex.h"
+#include "VulkanVertexBuffer.h"
 #include <core/renderer/Renderer.h>
 
 namespace VoxelEngine::renderer
@@ -55,14 +55,15 @@ namespace VoxelEngine::renderer
 
 	class VulkanRenderer : public Renderer
 	{
+		static VulkanRenderer* _singleton;		
 		GLFWwindow* _window;
 		VkInstance _instance;
 		VkDebugUtilsMessengerEXT _debugMessenger;
-		static VkDevice _logicalDevice;
-		static VkPhysicalDevice _physicalDevice;
-		static VkCommandPool _commandPool;
-		static VkQueue _graphicsQueue;
-		static VkAllocationCallbacks* _allocator;
+		VkDevice _logicalDevice;
+		VkPhysicalDevice _physicalDevice;
+		VkCommandPool _commandPool;
+		VkQueue _graphicsQueue;
+		VkAllocationCallbacks* _allocator;
 		VkQueue _presentQueue;
 		VkPipelineCache _pipelineCache;
 		QueueFamilyIndices _queueFamilyIndices;
@@ -155,11 +156,13 @@ namespace VoxelEngine::renderer
 		const void presentFrame(const uint32& imageIndex, VkSemaphore* signalSemaphores);
 		const void initImGui() const;
 	public:
-		static const uint32 findMemoryType(const uint32& typeFilter, const VkMemoryPropertyFlags& properties);
-		inline static const VkDevice& getLogicalDevice() { return _logicalDevice; }
-		inline static const VkPhysicalDevice& getPhysicalDevice() { return _physicalDevice; }
-		static const void copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkDeviceSize& size);
-		static const void createBuffer(const VkDeviceSize& size, const VkBufferUsageFlags& usage, const VkMemoryPropertyFlags& properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+		static const SharedRef<VulkanRenderer> getInstance() { return SharedRef<VulkanRenderer>(_singleton); }
+		const uint32 findMemoryType(const uint32& typeFilter, const VkMemoryPropertyFlags& properties) const;
+		inline const VkDevice& getLogicalDevice() const &{ return _logicalDevice; }
+		inline const VkPhysicalDevice& getPhysicalDevice() const & { return _physicalDevice; }
+		inline const VkCommandBuffer& getCommandBuffer() const & { return _commandBuffers[_currentFrame]; }
+		const void copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkDeviceSize& size) const;
+		const void createBuffer(const VkDeviceSize& size, const VkBufferUsageFlags& usage, const VkMemoryPropertyFlags& properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) const;
 		const float getTime() const noexcept override;
 		const void setWindow(const UniqueRef<Window>& window) noexcept override;
 		const void init() override;
@@ -169,7 +172,7 @@ namespace VoxelEngine::renderer
 		const void cleanup() const override;
 	};
 
-	const SharedRef<Renderer> Renderer::Create()
+	const SharedRef<Renderer> Renderer::CreateRenderer()
 	{
 		return MakeShared<VulkanRenderer>();
 	}

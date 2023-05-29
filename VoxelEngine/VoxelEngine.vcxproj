@@ -201,6 +201,7 @@
     <ClCompile Include="src\core\renderer\Buffers.cpp" />
     <ClCompile Include="src\core\renderer\ImGuiLayer.cpp" />
     <ClCompile Include="src\core\Log.cpp" />
+    <ClCompile Include="src\core\renderer\Renderer.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>

@@ -1,6 +1,6 @@
 #pragma once
-#include "renderer/Renderer.h"
 #include "input/events/ApplicationEvent.h"
+#include "Window.h"
 #include "Log.h"
 #include "Assert.h"
 #include "LayerStack.h"
@@ -43,8 +43,7 @@ namespace VoxelEngine
 	{
 	private:
 		ApplicationSpecification _specification;
-		UniqueRef<Window> _window;
-		SharedRef<renderer::Renderer> _renderer;
+		SharedRef<Window> _window;
 		renderer::LayerStack _layerStack;
 		bool _running = false;
 		bool _minimized = false;

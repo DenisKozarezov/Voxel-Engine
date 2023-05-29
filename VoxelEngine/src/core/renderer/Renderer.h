@@ -14,14 +14,11 @@ namespace VoxelEngine::renderer
 	class Renderer
 	{
 	public:
-		virtual const float getTime() const noexcept = 0;
-		virtual const void setWindow(const UniqueRef<Window>& window) noexcept = 0;
-		virtual const void init() = 0;
-		virtual const void beginFrame() = 0;
-		virtual const void endFrame() = 0;
-		virtual const void deviceWaitIdle() const = 0;
-		virtual const void cleanup() const = 0;
-
-		static const SharedRef<Renderer> CreateRenderer();
+		static const float getTime();
+		static const void init(const SharedRef<Window> window);
+		static const void beginFrame();
+		static const void endFrame();
+		static const void deviceWaitIdle();
+		static const void cleanup();
 	};
 }

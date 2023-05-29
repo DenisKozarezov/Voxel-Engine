@@ -156,24 +156,18 @@ namespace VoxelEngine::renderer
 		const void presentFrame(const uint32& imageIndex, VkSemaphore* signalSemaphores);
 		const void initImGui() const;
 	public:
-		static const SharedRef<VulkanRenderer> getInstance() { return SharedRef<VulkanRenderer>(_singleton); }
+		static const SharedRef<VulkanRenderer> getInstance();
 		const uint32 findMemoryType(const uint32& typeFilter, const VkMemoryPropertyFlags& properties) const;
 		inline const VkDevice& getLogicalDevice() const &{ return _logicalDevice; }
 		inline const VkPhysicalDevice& getPhysicalDevice() const & { return _physicalDevice; }
 		inline const VkCommandBuffer& getCommandBuffer() const & { return _commandBuffers[_currentFrame]; }
 		const void copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkDeviceSize& size) const;
 		const void createBuffer(const VkDeviceSize& size, const VkBufferUsageFlags& usage, const VkMemoryPropertyFlags& properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) const;
-		const float getTime() const noexcept override;
-		const void setWindow(const UniqueRef<Window>& window) noexcept override;
-		const void init() override;
-		const void beginFrame() override;
-		const void endFrame() override;
-		const void deviceWaitIdle() const override;
-		const void cleanup() const override;
+		const void setWindow(const SharedRef<Window>& window) noexcept;
+		const void init();
+		const void beginFrame();
+		const void endFrame();
+		const void deviceWaitIdle() const;
+		const void cleanup() const;
 	};
-
-	const SharedRef<Renderer> Renderer::CreateRenderer()
-	{
-		return MakeShared<VulkanRenderer>();
-	}
 }

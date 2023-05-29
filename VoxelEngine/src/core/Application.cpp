@@ -1,6 +1,7 @@
 #include "Application.h"
 #include "input/events/EventBus.h"
 #include "Timestep.h"
+#include "renderer/Renderer.h"
 #include "renderer/ImGuiLayer.h"
 
 namespace VoxelEngine
@@ -45,9 +46,7 @@ namespace VoxelEngine
 		try
 		{
 			pushOverlay(new renderer::ImGuiLayer());
-			_renderer = renderer::Renderer::CreateRenderer();
-			_renderer->setWindow(_window);
-			_renderer->init();
+			renderer::Renderer::init(_window);
 		}
 		catch (const std::exception& e)
 		{
@@ -63,20 +62,20 @@ namespace VoxelEngine
 
 		while (_running)
 		{
-			const float time = _renderer->getTime();
+			const float time = renderer::Renderer::getTime();
 			const Timestep deltaTime = time - _lastFrameTime;
 			_lastFrameTime = time;
 
 			if (!_minimized)
 			{
 				_layerStack.onUpdate(time);
-				_renderer->beginFrame();
+				renderer::Renderer::beginFrame();
 				_layerStack.onImGuiRender();
-				_renderer->endFrame();
+				renderer::Renderer::endFrame();
 			}
 			_window->onUpdate();
 		}
-		_renderer->deviceWaitIdle();
+		renderer::Renderer::deviceWaitIdle();
 	}
 	const void Application::shutdown()
 	{

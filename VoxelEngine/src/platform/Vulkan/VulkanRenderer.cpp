@@ -1197,6 +1197,14 @@ namespace VoxelEngine::renderer
 		VkResult err = vkQueueSubmit(_graphicsQueue, 1, &submitInfo, _inFlightFences[_currentFrame]);
 		check_vk_result(err, "failed to submit draw command buffer!");
 	}
+	const SharedRef<VulkanRenderer> VulkanRenderer::getInstance()
+	{
+		if (_singleton == nullptr)
+		{
+			_singleton = new VulkanRenderer();
+		}
+		return SharedRef<VulkanRenderer>(_singleton);
+	}
 	const uint32 VulkanRenderer::findMemoryType(const uint32& typeFilter, const VkMemoryPropertyFlags& properties) const
 	{
 		VkPhysicalDeviceMemoryProperties memProperties;
@@ -1211,11 +1219,7 @@ namespace VoxelEngine::renderer
 		}
 		throw std::runtime_error("failed to find suitable memory type!");
 	}
-	const float VulkanRenderer::getTime() const noexcept
-	{
-		return (float)glfwGetTime();
-	}
-	const void VulkanRenderer::setWindow(const UniqueRef<Window>& window) noexcept
+	const void VulkanRenderer::setWindow(const SharedRef<Window>& window) noexcept
 	{
 		_window = (GLFWwindow*)(window->getNativeWindow());
 		int success = glfwVulkanSupported();

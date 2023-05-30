@@ -43,7 +43,7 @@ namespace VoxelEngine
 	{
 	private:
 		ApplicationSpecification _specification;
-		SharedRef<Window> _window;
+		UniqueRef<Window> _window;
 		renderer::LayerStack _layerStack;
 		bool _running = false;
 		bool _minimized = false;

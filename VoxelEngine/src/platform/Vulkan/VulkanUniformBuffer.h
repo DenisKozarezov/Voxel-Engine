@@ -18,14 +18,17 @@ namespace VoxelEngine::renderer
 	private:
 		VkBuffer _uniformBuffer;
 		VkDeviceMemory _uniformBufferMemory;
+		void* _uniformBufferMapped;
 		VkDevice _logicalDevice;
 		VkAllocationCallbacks* _allocator;
 	public:
 		UniformBuffer() = default;
 		UniformBuffer(const uint32& size, VkAllocationCallbacks* allocator = nullptr);
 
-		void bind();
-		void unbind();
+		operator VkBuffer() const & { return _uniformBuffer; }
+
+		const void bind() const;
+		const void unbind() const;
 
 		~UniformBuffer() = default;
 	};

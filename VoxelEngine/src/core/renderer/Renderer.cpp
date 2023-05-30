@@ -5,11 +5,11 @@ namespace VoxelEngine::renderer
 {
     static SharedRef<VulkanRenderer> renderer = 0;
 
-    const float Renderer::getTime()
+    const float Renderer::getTime() noexcept
     {
         return (float)glfwGetTime();
     }
-    const void Renderer::init(const SharedRef<Window> window)
+    const void Renderer::init(const Window& window)
     {
         renderer = VulkanRenderer::getInstance();
         renderer->setWindow(window);

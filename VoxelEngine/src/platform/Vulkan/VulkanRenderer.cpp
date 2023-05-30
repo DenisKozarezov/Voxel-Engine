@@ -711,13 +711,10 @@ namespace VoxelEngine::renderer
 	const void VulkanRenderer::createUniformBuffers()
 	{
 		VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-
 		_uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
-		_uniformBuffersMemory.resize(MAX_FRAMES_IN_FLIGHT);
-
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) 
 		{
-			createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, _uniformBuffers[i], _uniformBuffersMemory[i]);
+			_uniformBuffers[i] = UniformBuffer(bufferSize, _allocator);
 		}
 	}
 	const void VulkanRenderer::createCommandPool()
@@ -872,10 +869,8 @@ namespace VoxelEngine::renderer
 		allocInfo.pSetLayouts = layouts.data();
 
 		_descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
-		if (vkAllocateDescriptorSets(_logicalDevice, &allocInfo, _descriptorSets.data()) != VK_SUCCESS) 
-		{
-			throw std::runtime_error("failed to allocate descriptor sets!");
-		}
+		VkResult err = vkAllocateDescriptorSets(_logicalDevice, &allocInfo, _descriptorSets.data());
+		check_vk_result(err, "failed to allocate descriptor sets!");
 
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) 
 		{
@@ -1022,8 +1017,7 @@ namespace VoxelEngine::renderer
 	{
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) 
 		{
-			vkDestroyBuffer(_logicalDevice, _uniformBuffers[i], _allocator);
-			vkFreeMemory(_logicalDevice, _uniformBuffersMemory[i], _allocator);
+			_uniformBuffers[i].unbind();
 		}
 	}
 	const void VulkanRenderer::presentFrame(const uint32& imageIndex, VkSemaphore* signalSemaphores)
@@ -1176,9 +1170,9 @@ namespace VoxelEngine::renderer
 		}
 		throw std::runtime_error("failed to find suitable memory type!");
 	}
-	const void VulkanRenderer::setWindow(const SharedRef<Window>& window) noexcept
+	const void VulkanRenderer::setWindow(const Window& window)
 	{
-		_window = (GLFWwindow*)(window->getNativeWindow());
+		_window = (GLFWwindow*)(window.getNativeWindow());
 		glfwSetFramebufferSizeCallback(_window, framebufferResizeCallback);
 		int success = glfwVulkanSupported();
 		VOXEL_CORE_ASSERT(success, "GLFW: Vulkan Not Supported")

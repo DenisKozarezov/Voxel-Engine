@@ -46,7 +46,7 @@ namespace VoxelEngine
 		try
 		{
 			pushOverlay(new renderer::ImGuiLayer());
-			renderer::Renderer::init(_window);
+			renderer::Renderer::init(*_window.get());
 		}
 		catch (const std::exception& e)
 		{

@@ -24,8 +24,8 @@ namespace VoxelEngine::renderer
 		renderer->createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _indexBuffer, _indexBufferMemory);
 		renderer->copyBuffer(stagingBuffer, _indexBuffer, bufferSize);
 
-		vkDestroyBuffer(_logicalDevice, stagingBuffer, _allocator);
-		vkFreeMemory(_logicalDevice, stagingBufferMemory, _allocator);
+		vkDestroyBuffer(_logicalDevice, stagingBuffer, nullptr);
+		vkFreeMemory(_logicalDevice, stagingBufferMemory, nullptr);
 	}
 	const void IndexBuffer::bind() const
 	{
@@ -34,7 +34,7 @@ namespace VoxelEngine::renderer
 	}
 	const void IndexBuffer::unbind() const
 	{
-		vkDestroyBuffer(_logicalDevice, _indexBuffer, _allocator);
-		vkFreeMemory(_logicalDevice, _indexBufferMemory, _allocator);
+		vkDestroyBuffer(_logicalDevice, _indexBuffer, nullptr);
+		vkFreeMemory(_logicalDevice, _indexBufferMemory, nullptr);
 	}
 }

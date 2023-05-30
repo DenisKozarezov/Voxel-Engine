@@ -78,8 +78,7 @@ namespace VoxelEngine::renderer
 		VkExtent2D _swapChainExtent;
 		IndexBuffer _indexBuffer;
 		VertexBuffer _vertexBuffer;
-		std::vector<VkBuffer> _uniformBuffers;
-		std::vector<VkDeviceMemory> _uniformBuffersMemory;
+		std::vector<UniformBuffer> _uniformBuffers;
 		std::vector<VkImage> _swapChainImages;
 		std::vector<VkImageView> _swapChainImageViews;
 		std::vector<VkFramebuffer> _swapChainFramebuffers;
@@ -155,7 +154,7 @@ namespace VoxelEngine::renderer
 		inline const VkCommandBuffer& getCommandBuffer() const & { return _commandBuffers[_currentFrame]; }
 		const void copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkDeviceSize& size) const;
 		const void createBuffer(const VkDeviceSize& size, const VkBufferUsageFlags& usage, const VkMemoryPropertyFlags& properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) const;
-		const void setWindow(const SharedRef<Window>& window) noexcept;
+		const void setWindow(const Window& window);
 		const void init();
 		const void beginFrame();
 		const void endFrame();

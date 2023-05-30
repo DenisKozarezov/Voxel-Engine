@@ -3,10 +3,12 @@
 
 namespace VoxelEngine::renderer
 {
+	static SharedRef<VulkanRenderer> renderer = 0;
+
 	VertexBuffer::VertexBuffer(const Vertex* vertices, const uint32& size, VkAllocationCallbacks* allocator)
 		: _allocator(allocator)
 	{
-		auto renderer = VulkanRenderer::getInstance();
+		renderer = VulkanRenderer::getInstance();
 		_logicalDevice = renderer->getLogicalDevice();
 
 		VkDeviceSize bufferSize = sizeof(vertices[0]) * size;
@@ -27,18 +29,13 @@ namespace VoxelEngine::renderer
 
 	const void VertexBuffer::bind() const
 	{
-		VkCommandBuffer commandBuffer = VulkanRenderer::getInstance()->getCommandBuffer();
+		VkCommandBuffer commandBuffer = renderer->getCommandBuffer();
 		VkBuffer vertexBuffers[] = { _vertexBuffer };
 		VkDeviceSize offsets[] = { 0 };
 		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 	}
 
 	const void VertexBuffer::unbind() const
-	{
-		
-	}
-
-	VertexBuffer::~VertexBuffer()
 	{
 		vkDestroyBuffer(_logicalDevice, _vertexBuffer, _allocator);
 		vkFreeMemory(_logicalDevice, _vertexBufferMemory, _allocator);

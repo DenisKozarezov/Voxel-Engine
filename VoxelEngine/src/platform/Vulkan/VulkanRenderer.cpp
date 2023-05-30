@@ -9,10 +9,8 @@
 namespace VoxelEngine::renderer
 {
 	constexpr static int MAX_FRAMES_IN_FLIGHT = 2;
-	VulkanRenderer* VulkanRenderer::_singleton = nullptr;
-
-	static ImGui_ImplVulkanH_Window* _mainWindowData = nullptr;
-	bool show_demo_window = true;
+	SharedRef<VulkanRenderer> VulkanRenderer::_singleton = nullptr;
+	bool VulkanRenderer::_framebufferResized = false;
 
 	static const void check_vk_result(const VkResult& vkResult, const std::string& exceptionMsg)
 	{
@@ -21,7 +19,6 @@ namespace VoxelEngine::renderer
 		ss << exceptionMsg;
 		VOXEL_CORE_ASSERT(vkResult == VK_SUCCESS, ss.str())
 	}
-
 	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 		VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 		VkDebugUtilsMessageTypeFlagsEXT messageType,
@@ -65,7 +62,10 @@ namespace VoxelEngine::renderer
 		file.close();
 		return buffer;
 	}
-
+	void VulkanRenderer::framebufferResizeCallback(GLFWwindow* window, int width, int height)
+	{
+		_framebufferResized = true;
+	}
 	const bool VulkanRenderer::checkValidationLayerSupport() const
 	{
 		uint32 layerCount;
@@ -720,42 +720,6 @@ namespace VoxelEngine::renderer
 			createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, _uniformBuffers[i], _uniformBuffersMemory[i]);
 		}
 	}
-	const void VulkanRenderer::createVertexBuffer()
-	{
-		VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
-		VkBuffer stagingBuffer;
-		VkDeviceMemory stagingBufferMemory;
-		createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
-
-		void* data;
-		vkMapMemory(_logicalDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
-		memcpy(data, vertices.data(), (size_t)bufferSize);
-		vkUnmapMemory(_logicalDevice, stagingBufferMemory);
-
-		createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _vertexBuffer, _vertexBufferMemory);
-		copyBuffer(stagingBuffer, _vertexBuffer, bufferSize);
-		vkDestroyBuffer(_logicalDevice, stagingBuffer, _allocator);
-		vkFreeMemory(_logicalDevice, stagingBufferMemory, _allocator);
-	}
-	const void VulkanRenderer::createIndexBuffer()
-	{
-		VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
-
-		VkBuffer stagingBuffer;
-		VkDeviceMemory stagingBufferMemory;
-		createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
-
-		void* data;
-		vkMapMemory(_logicalDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
-		memcpy(data, indices.data(), (size_t)bufferSize);
-		vkUnmapMemory(_logicalDevice, stagingBufferMemory);
-
-		createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _indexBuffer, _indexBufferMemory);
-		copyBuffer(stagingBuffer, _indexBuffer, bufferSize);
-
-		vkDestroyBuffer(_logicalDevice, stagingBuffer, _allocator);
-		vkFreeMemory(_logicalDevice, stagingBufferMemory, _allocator);
-	}
 	const void VulkanRenderer::createCommandPool()
 	{
 		QueueFamilyIndices queueFamilyIndices = findQueueFamilies(_physicalDevice);
@@ -989,14 +953,10 @@ namespace VoxelEngine::renderer
 	const void VulkanRenderer::recreateSwapChain()
 	{
 		int width = 0, height = 0;
-
 		glfwGetFramebufferSize(_window, &width, &height);
-		while (width == 0 || height == 0) 
+		while (width == 0 || height == 0)
 		{
 			glfwGetFramebufferSize(_window, &width, &height);
-			ImGui_ImplVulkan_SetMinImageCount(MAX_FRAMES_IN_FLIGHT);
-			ImGui_ImplVulkanH_CreateOrResizeWindow(_instance, _physicalDevice, _logicalDevice, _mainWindowData, _queueFamilyIndices.graphicsFamily.value(), _allocator, width, height, MAX_FRAMES_IN_FLIGHT);
-			_mainWindowData->FrameIndex = 0;
 			glfwWaitEvents();
 		}
 		deviceWaitIdle();
@@ -1080,9 +1040,9 @@ namespace VoxelEngine::renderer
 
 		VkResult err = vkQueuePresentKHR(_presentQueue, &presentInfo);
 
-		if (err == VK_ERROR_OUT_OF_DATE_KHR || err == VK_SUBOPTIMAL_KHR || framebufferResized)
+		if (err == VK_ERROR_OUT_OF_DATE_KHR || err == VK_SUBOPTIMAL_KHR || _framebufferResized)
 		{
-			framebufferResized = false;
+			_framebufferResized = false;
 			recreateSwapChain();
 		}
 		else check_vk_result(err, "failed to present swap chain image!");
@@ -1166,11 +1126,8 @@ namespace VoxelEngine::renderer
 		scissor.extent = _swapChainExtent;
 		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-		VkBuffer vertexBuffers[] = { _vertexBuffer };
-		VkDeviceSize offsets[] = { 0 };
-		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-
-		vkCmdBindIndexBuffer(commandBuffer, _indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+		_vertexBuffer.bind();
+		_indexBuffer.bind();
 
 		ImDrawData* main_draw_data = ImGui::GetDrawData();
 		ImGui_ImplVulkan_RenderDrawData(main_draw_data, commandBuffer);
@@ -1201,9 +1158,9 @@ namespace VoxelEngine::renderer
 	{
 		if (_singleton == nullptr)
 		{
-			_singleton = new VulkanRenderer();
+			_singleton = MakeShared<VulkanRenderer>();
 		}
-		return SharedRef<VulkanRenderer>(_singleton);
+		return _singleton;
 	}
 	const uint32 VulkanRenderer::findMemoryType(const uint32& typeFilter, const VkMemoryPropertyFlags& properties) const
 	{
@@ -1222,6 +1179,7 @@ namespace VoxelEngine::renderer
 	const void VulkanRenderer::setWindow(const SharedRef<Window>& window) noexcept
 	{
 		_window = (GLFWwindow*)(window->getNativeWindow());
+		glfwSetFramebufferSizeCallback(_window, framebufferResizeCallback);
 		int success = glfwVulkanSupported();
 		VOXEL_CORE_ASSERT(success, "GLFW: Vulkan Not Supported")
 	}
@@ -1239,8 +1197,8 @@ namespace VoxelEngine::renderer
 		createGraphicsPipeline();
 		createFramebuffers();
 		createCommandPool();
-		createVertexBuffer();
-		createIndexBuffer();
+		_vertexBuffer = VertexBuffer(vertices.data(), sizeof(vertices[0]) * vertices.size(), _allocator);
+		_indexBuffer = IndexBuffer(indices.data(), sizeof(indices[0]) * indices.size(), _allocator);
 		createUniformBuffers();
 		createDescriptorPool();
 		//createDescriptorSets();
@@ -1261,11 +1219,8 @@ namespace VoxelEngine::renderer
 		cleanupUniformBuffers();
 		vkDestroyDescriptorPool(_logicalDevice, _descriptorPool, _allocator);
 		vkDestroyDescriptorSetLayout(_logicalDevice, _descriptorSetLayout, _allocator);
-		vkDestroyBuffer(_logicalDevice, _indexBuffer, _allocator);
-		vkFreeMemory(_logicalDevice, _indexBufferMemory, _allocator);
-		vkDestroyBuffer(_logicalDevice, _vertexBuffer, _allocator);
-		vkFreeMemory(_logicalDevice, _vertexBufferMemory, _allocator);
-		ImGui_ImplVulkanH_DestroyWindow(_instance, _logicalDevice, _mainWindowData, _allocator);
+		_indexBuffer.unbind();
+		_vertexBuffer.unbind();
 		
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 		{

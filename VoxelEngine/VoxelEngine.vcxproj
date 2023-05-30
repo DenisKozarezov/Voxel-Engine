@@ -151,6 +151,7 @@
     <ClInclude Include="src\platform\Vulkan\VulkanVertex.h" />
     <ClInclude Include="src\platform\Vulkan\VulkanVertexBuffer.h" />
     <ClInclude Include="src\VoxelEngine.h" />
+    <ClInclude Include="src\platform\Vulkan\VulkanUniformBuffer.h" />
     <ClInclude Include="vendor\GLFW\include\GLFW\glfw3.h" />
     <ClInclude Include="vendor\GLFW\include\GLFW\glfw3native.h" />
     <ClInclude Include="vendor\imgui\backends\imgui_impl_glfw.h" />
@@ -212,6 +213,7 @@
     <ClCompile Include="src\platform\Vulkan\VulkanShader.cpp" />
     <ClCompile Include="src\core\renderer\VertexArray.cpp" />
     <ClCompile Include="src\platform\Vulkan\VulkanImage.cpp" />
+    <ClCompile Include="src\platform\Vulkan\VulkanUniformBuffer.cpp" />
     <ClCompile Include="vendor\glm\glm\detail\glm.cpp" />
     <ClCompile Include="vendor\imgui\backends\imgui_impl_glfw.cpp" />
     <ClCompile Include="vendor\imgui\backends\imgui_impl_vulkan.cpp" />
@@ -220,6 +222,7 @@
     <ClCompile Include="vendor\imgui\imgui_draw.cpp" />
     <ClCompile Include="vendor\imgui\imgui_tables.cpp" />
     <ClCompile Include="vendor\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\platform\Vulkan\VulkanIndexBuffer.cpp" />
     <ClInclude Include="src\core\EntryPoint.h" />
     <ClCompile Include="src\core\renderer\Texture.cpp" />
     <ClCompile Include="src\platform\Vulkan\VulkanRenderer.cpp" />

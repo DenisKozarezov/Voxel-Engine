@@ -14,6 +14,7 @@ int main(int argc, char** argv)
     auto app = CreateApplication({ argc, argv });
     app->init();
     app->run();
+    app->shutdown();
 
     VOXEL_CORE_TRACE("================ Application QUIT ===============")
     return 0;

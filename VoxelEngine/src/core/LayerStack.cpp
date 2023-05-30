@@ -2,15 +2,6 @@
 
 namespace VoxelEngine::renderer
 {
-	LayerStack::~LayerStack()
-	{
-		for (Layer* layer : _layers)
-		{
-			layer->onDetach();
-			delete layer;
-		}
-	}
-
 	void LayerStack::pushLayer(Layer* layer)
 	{
 		_layers.emplace(_layers.begin() + _layerInsertIndex, layer);
@@ -40,6 +31,14 @@ namespace VoxelEngine::renderer
 		{
 			overlay->onDetach();
 			_layers.erase(it);
+		}
+	}
+	void LayerStack::detach()
+	{
+		for (Layer* layer : _layers)
+		{
+			layer->onDetach();
+			delete layer;
 		}
 	}
 	void LayerStack::onUpdate(const Timestep& time)

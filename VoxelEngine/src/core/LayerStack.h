@@ -12,12 +12,13 @@ namespace VoxelEngine::renderer
 		uint32 _layerInsertIndex = 0;
 	public:
 		LayerStack() = default;
-		~LayerStack();
+		~LayerStack() = default;
 
 		void pushLayer(Layer* layer);
 		void pushOverlay(Layer* overlay);
 		void popLayer(Layer* layer);
 		void popOverlay(Layer* overlay);
+		void detach();
 		void onUpdate(const Timestep& time);
 		void onImGuiRender();
 

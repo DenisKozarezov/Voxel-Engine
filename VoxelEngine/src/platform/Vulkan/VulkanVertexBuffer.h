@@ -12,11 +12,12 @@ namespace VoxelEngine::renderer
 		VkAllocationCallbacks* _allocator;
 		VkDevice _logicalDevice;
 	public:
+		VertexBuffer() = default;
 		VertexBuffer(const Vertex* vertices, const uint32& size, VkAllocationCallbacks* allocator = nullptr);
 
 		const void bind() const;
 		const void unbind() const;
 
-		~VertexBuffer();
-	};
+		~VertexBuffer() = default;
+	};	
 }

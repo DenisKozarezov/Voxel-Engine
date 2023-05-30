@@ -79,7 +79,8 @@ namespace VoxelEngine
 	}
 	const void Application::shutdown()
 	{
-		_running = false;
+		_layerStack.detach();
+		renderer::Renderer::cleanup();
 	}
 
 	void Application::onEvent(input::Event& e)
@@ -90,7 +91,7 @@ namespace VoxelEngine
 	}
 	bool Application::onWindowClose(const input::WindowCloseEvent& e)
 	{
-		shutdown();
+		_running = false;
 		return true;
 	}
 	bool Application::onWindowResize(const input::WindowResizeEvent& e)

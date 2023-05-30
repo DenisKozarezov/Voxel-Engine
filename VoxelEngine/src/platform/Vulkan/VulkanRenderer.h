@@ -1,13 +1,15 @@
 #pragma once
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #define VK_USE_PLATFORM_WIN32_KHR
 #define GLFW_INCLUDE_VULKAN
+#include <pch.h>
+#include <core/Window.h>
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 #include "VulkanVertexBuffer.h"
-#include <core/renderer/Renderer.h>
+#include "VulkanIndexBuffer.h"
+#include "VulkanUniformBuffer.h"
 
 namespace VoxelEngine::renderer
 {
@@ -26,12 +28,6 @@ namespace VoxelEngine::renderer
 		VkSurfaceCapabilitiesKHR capabilities;
 		std::vector<VkSurfaceFormatKHR> formats;
 		std::vector<VkPresentModeKHR> presentModes;
-	};
-	struct UniformBufferObject
-	{
-		alignas(16) glm::mat4 model;
-		alignas(16) glm::mat4 view;
-		alignas(16) glm::mat4 projection;
 	};
 
 	const std::vector<Vertex> vertices = 
@@ -53,9 +49,9 @@ namespace VoxelEngine::renderer
 		4, 5, 6, 6, 7, 4
 	};
 
-	class VulkanRenderer : public Renderer
+	class VulkanRenderer
 	{
-		static VulkanRenderer* _singleton;		
+		static SharedRef<VulkanRenderer> _singleton;		
 		GLFWwindow* _window;
 		VkInstance _instance;
 		VkDebugUtilsMessengerEXT _debugMessenger;
@@ -75,15 +71,13 @@ namespace VoxelEngine::renderer
 		VkDescriptorPool _descriptorPool;
 		std::vector<VkDescriptorSet> _descriptorSets;
 		VkPipeline _graphicsPipeline;
-		VkBuffer _vertexBuffer;
-		VkDeviceMemory _vertexBufferMemory;
-		VkBuffer _indexBuffer;
-		VkDeviceMemory _indexBufferMemory;
 		VkImage _depthImage;
 		VkDeviceMemory _depthImageMemory;
 		VkImageView _depthImageView;
 		VkFormat _swapChainImageFormat;
 		VkExtent2D _swapChainExtent;
+		IndexBuffer _indexBuffer;
+		VertexBuffer _vertexBuffer;
 		std::vector<VkBuffer> _uniformBuffers;
 		std::vector<VkDeviceMemory> _uniformBuffersMemory;
 		std::vector<VkImage> _swapChainImages;
@@ -94,7 +88,7 @@ namespace VoxelEngine::renderer
 		std::vector<VkSemaphore> _renderFinishedSemaphores;
 		std::vector<VkFence> _inFlightFences;
 		uint32 _currentFrame = 0;
-		bool framebufferResized = false;
+		static bool _framebufferResized;
 
 #ifdef VOXEL_RELEASE
 		const bool _enableValidationLayers = false;
@@ -106,7 +100,6 @@ namespace VoxelEngine::renderer
 		{
 			"VK_LAYER_KHRONOS_validation"
 		};
-
 		const std::vector<const char*> _deviceExtensions =
 		{
 			VK_KHR_SWAPCHAIN_EXTENSION_NAME
@@ -136,9 +129,7 @@ namespace VoxelEngine::renderer
 		const void createGraphicsPipeline();
 		const void createFramebuffers();
 		const void createUniformBuffers();
-		const void createVertexBuffer();
 		const void createImageViews();
-		const void createIndexBuffer();
 		const void createCommandPool();
 		const void createCommandBuffers();
 		const void createSyncObjects();
@@ -155,10 +146,11 @@ namespace VoxelEngine::renderer
 		const void cleanupUniformBuffers() const;
 		const void presentFrame(const uint32& imageIndex, VkSemaphore* signalSemaphores);
 		const void initImGui() const;
+		static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
 	public:
 		static const SharedRef<VulkanRenderer> getInstance();
 		const uint32 findMemoryType(const uint32& typeFilter, const VkMemoryPropertyFlags& properties) const;
-		inline const VkDevice& getLogicalDevice() const &{ return _logicalDevice; }
+		inline const VkDevice& getLogicalDevice() const & { return _logicalDevice; }
 		inline const VkPhysicalDevice& getPhysicalDevice() const & { return _physicalDevice; }
 		inline const VkCommandBuffer& getCommandBuffer() const & { return _commandBuffers[_currentFrame]; }
 		const void copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkDeviceSize& size) const;

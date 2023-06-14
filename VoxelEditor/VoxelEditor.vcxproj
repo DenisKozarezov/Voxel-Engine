@@ -59,7 +59,7 @@
       <PreprocessorDefinitions>IMGUI_API= __declspec(dllimport);VOXEL_DEBUG;VOXELENGINE_EXPORTS;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>..\VoxelEngine\vendor;..\VoxelEngine\src\;..\VoxelEngine\vendor\spdlog\include;..\VoxelEngine\vendor\GLFW\include;..\VoxelEngine\vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)VoxelEngine\src\;$(SolutionDir)ThirdParty\spdlog\include;$(SolutionDir)ThirdParty\GLFW\include;$(SolutionDir)ThirdParty\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <ExceptionHandling>false</ExceptionHandling>
@@ -88,7 +88,7 @@
       <PreprocessorDefinitions>IMGUI_API= __declspec(dllimport);VOXEL_RELEASE;VOXELENGINE_EXPORTS;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>..\VoxelEngine\vendor;..\VoxelEngine\src\;..\VoxelEngine\vendor\spdlog\include;..\VoxelEngine\vendor\GLFW\include;..\VoxelEngine\vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)VoxelEngine\src\;$(SolutionDir)ThirdParty\spdlog\include;$(SolutionDir)ThirdParty\GLFW\include;$(SolutionDir)ThirdParty\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <BufferSecurityCheck>false</BufferSecurityCheck>

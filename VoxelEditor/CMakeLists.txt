@@ -20,7 +20,22 @@ find_library(VoxelEngine NAMES VoxelEngine VoxelEngine_dll
     PATHS RUNTIME_OUTPUT_DIRECTORY)
 target_link_libraries(${PROJECT_NAME} PRIVATE VoxelEngine)
 
+# ============== POST-BUILD ==============
+
+# copy VoxelEngine.dll to executable file
 add_custom_command (TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
     $<TARGET_FILE:VoxelEngine> $<TARGET_FILE_DIR:${PROJECT_NAME}>
+    COMMENT "Copy $<TARGET_FILE:VoxelEngine> to $<TARGET_FILE_DIR:${PROJECT_NAME}>."
+)
+
+# make symbolic link to RESOURCES folder
+set(RESOURCES_FOLDER "${CMAKE_SOURCE_DIR}/resources")
+set(link_dst "${CMAKE_CURRENT_BINARY_DIR}/resources") 
+add_custom_command(
+    TARGET ${PROJECT_NAME}
+    POST_BUILD COMMAND ${CMAKE_COMMAND} 
+        -E create_symlink ${RESOURCES_FOLDER} ${link_dst}
+    DEPENDS ${link_dst}
+    COMMENT "Symbolic link ${RESOURCES_FOLDER} => ${link_dst}." 
 )

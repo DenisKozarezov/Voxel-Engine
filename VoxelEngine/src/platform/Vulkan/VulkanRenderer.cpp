@@ -525,8 +525,8 @@ namespace VoxelEngine::renderer
 	}
 	const void VulkanRenderer::createGraphicsPipeline()
 	{
-		auto vertShaderCode = readFile("../VoxelEngine/shaders/vert.spv");
-		auto fragShaderCode = readFile("../VoxelEngine/shaders/frag.spv");
+		auto vertShaderCode = readFile("resources/shaders/vert.spv");
+		auto fragShaderCode = readFile("resources/shaders/frag.spv");
 
 		VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
 		VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);

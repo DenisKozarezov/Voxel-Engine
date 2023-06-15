@@ -47,7 +47,7 @@ if (MSVC)
     )
 endif()
 
-target_compile_definitions(${PROJECT_NAME} 
+target_compile_definitions(${PROJECT_NAME}
     PUBLIC 
         "IMGUI_API= __declspec(dllexport)"
         VOXELENGINE_EXPORTS

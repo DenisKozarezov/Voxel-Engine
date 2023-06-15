@@ -16,15 +16,14 @@ add_executable(${PROJECT_NAME}
 )
 
 # link VoxelEngine SHARED library
-find_library(VoxelEngine NAMES VoxelEngine VoxelEngine_dll
-    PATHS RUNTIME_OUTPUT_DIRECTORY)
+find_package(VoxelEngine CONFIG)
 target_link_libraries(${PROJECT_NAME} PRIVATE VoxelEngine)
 
 # ============== POST-BUILD ==============
 
 # copy VoxelEngine.dll to executable file
 add_custom_command (TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    COMMAND ${CMAKE_COMMAND} -E copy
     $<TARGET_FILE:VoxelEngine> $<TARGET_FILE_DIR:${PROJECT_NAME}>
     COMMENT "Copy $<TARGET_FILE:VoxelEngine> to $<TARGET_FILE_DIR:${PROJECT_NAME}>."
 )

@@ -16,7 +16,6 @@ add_executable(${PROJECT_NAME}
 )
 
 # link VoxelEngine SHARED library
-find_package(VoxelEngine CONFIG)
 target_link_libraries(${PROJECT_NAME} PRIVATE VoxelEngine)
 
 # ============== POST-BUILD ==============

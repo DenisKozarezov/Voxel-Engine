@@ -29,6 +29,8 @@ add_custom_command (TARGET ${PROJECT_NAME} POST_BUILD
 
 # make symbolic link to RESOURCES folder
 set(RESOURCES_FOLDER "${CMAKE_SOURCE_DIR}/resources")
+set(BINARY_OUTPUT_DIR "$<0:>${CMAKE_BINARY_DIR}/bin/$<CONFIG>")
+message(${BINARY_OUTPUT_DIR})
 set(link_dst "${CMAKE_CURRENT_BINARY_DIR}/resources") 
 add_custom_command(
     TARGET ${PROJECT_NAME}

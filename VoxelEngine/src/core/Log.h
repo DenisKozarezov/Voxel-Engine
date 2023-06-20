@@ -4,7 +4,7 @@
 
 namespace VoxelEngine
 {
-	static class VOXEL_API Log
+	class VOXEL_API Log
 	{
 	private:
 		inline static SharedRef<spdlog::logger> _coreLogger;

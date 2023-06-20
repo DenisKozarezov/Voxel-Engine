@@ -1,9 +1,10 @@
 cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_TOOLCHAIN_FILE vcpkg/scripts/buildsystems/vcpkg.cmake)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 project(VoxelEngine)
-add_subdirectory(ThirdParty)
 add_subdirectory(VoxelEngine)
 add_subdirectory(VoxelEditor)
 

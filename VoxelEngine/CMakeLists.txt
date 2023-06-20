@@ -66,14 +66,21 @@ target_include_directories(${PROJECT_NAME}
         ${Vulkan_INCLUDE_DIR}
     PUBLIC
         ${EXTERNAL_LIBS_ROOT}
+        ${Stb_INCLUDE_DIR}
 )
+
+find_package(glfw3 CONFIG REQUIRED)
+find_package(glm CONFIG REQUIRED)
+find_package(imgui CONFIG REQUIRED)
+find_package(spdlog CONFIG REQUIRED)
+find_package(Stb REQUIRED)
 
 target_link_libraries(${PROJECT_NAME} 
     PRIVATE
 	    ${Vulkan_LIBRARIES}
 	    glfw
     PUBLIC
-        glm
-        spdlog
-        imgui
+        spdlog::spdlog
+        imgui::imgui
+        glm::glm
 )

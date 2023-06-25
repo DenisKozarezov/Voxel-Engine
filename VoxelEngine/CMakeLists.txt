@@ -26,7 +26,7 @@ source_group("platform" FILES ${PLATFORM_HEADER})
 set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 add_library(${PROJECT_NAME} 
-    SHARED 
+    STATIC 
         ${CORE_SOURCE}
         ${CORE_HEADER}
         ${PLATFORM_SOURCE}
@@ -48,8 +48,7 @@ if (MSVC)
 endif()
 
 target_compile_definitions(${PROJECT_NAME}
-    PUBLIC 
-        "IMGUI_API= __declspec(dllexport)"
+    PUBLIC        
         VOXELENGINE_EXPORTS
         $<$<CONFIG:Debug>:VOXEL_DEBUG>
         $<$<CONFIG:RelWithDebInfo>:VOXEL_DEBUG>

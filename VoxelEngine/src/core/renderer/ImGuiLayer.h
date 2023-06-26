@@ -15,7 +15,12 @@ namespace VoxelEngine::renderer
 
 		inline void blockEvents(const bool& block) { _blockEvents = block; }
 	public:
+		enum ColorStyle : byte { Dark, Light, Classic };
+
 		ImGuiLayer() : Layer("ImGUILayer") { }
+
+		void setStyle(const ColorStyle& style) const;
+
 		~ImGuiLayer() = default;
 	};
 }

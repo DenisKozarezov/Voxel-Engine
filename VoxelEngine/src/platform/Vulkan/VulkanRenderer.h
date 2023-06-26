@@ -135,11 +135,11 @@ namespace VoxelEngine::renderer
 		void createSyncObjects();
 		void createDescriptorPool();
 		void createDescriptorSets();
+		void createDescriptorSetLayout();
 		void setupDebugMessenger();
 		void recreateSwapChain();
 		void pickPhysicalDevice();
 		void recordCommandBuffer(const VkCommandBuffer& commandBuffer, const uint32& imageIndex) const;
-		void createDescriptorSetLayout();
 		void endSingleTimeCommands(const VkCommandBuffer& commandBuffer, const VkSemaphore* signalSemaphores = nullptr);
 		void destroyDebugUtilsMessengerEXT(const VkInstance& instance, const VkDebugUtilsMessengerEXT& debugMessenger, const VkAllocationCallbacks* pAllocator) const;
 		void cleanupSwapChain() const;

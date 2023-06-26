@@ -23,6 +23,7 @@ namespace VoxelEngine
 		name << spec.ApplicationName << " " << spec.Version << " (" << spec.GraphicsAPI << ")";
 		_window = Window::Create({ name.str(), 1920, 1080 });
 		_window->setEventCallback(BIND_CALLBACK(onEvent));
+		_window->setMaximized(spec.Maximized);
 	}
 
 	const SharedRef<Application> Application::getInstance()

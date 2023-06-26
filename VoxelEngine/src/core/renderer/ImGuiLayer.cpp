@@ -17,7 +17,7 @@ namespace VoxelEngine::renderer
 		//io.ConfigViewportsNoTaskBarIcon = true;
 
 		// Setup Dear ImGui style
-		ImGui::StyleColorsDark();
+		setStyle(ColorStyle::Dark);
 		ImGuiStyle& style = ImGui::GetStyle();
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
@@ -25,14 +25,12 @@ namespace VoxelEngine::renderer
 			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 		}
 	}
-
 	void ImGuiLayer::onDetach()
 	{
 		ImGui_ImplVulkan_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
 	}
-
 	void ImGuiLayer::onEvent(input::Event& e)
 	{
 		if (_blockEvents)
@@ -40,6 +38,21 @@ namespace VoxelEngine::renderer
 			ImGuiIO& io = ImGui::GetIO();
 			e.Handled |= e.isInCategory(input::EventCategoryMouse) & io.WantCaptureMouse;
 			e.Handled |= e.isInCategory(input::EventCategoryKeyboard) & io.WantCaptureKeyboard;
+		}
+	}
+	void ImGuiLayer::setStyle(const ColorStyle& style) const
+	{
+		switch (style)
+		{
+		case Dark:
+			ImGui::StyleColorsDark();
+			break;
+		case Light:
+			ImGui::StyleColorsLight();
+			break;
+		case Classic:
+			ImGui::StyleColorsClassic();
+			break;
 		}
 	}
 }

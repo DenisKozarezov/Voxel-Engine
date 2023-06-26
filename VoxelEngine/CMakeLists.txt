@@ -32,7 +32,10 @@ add_library(${PROJECT_NAME}
         ${PLATFORM_SOURCE}
         ${PLATFORM_HEADER}
         ${SOURCE_DIR}/VoxelEngine.h
+        ${SOURCE_DIR}/pch.h
 )
+
+target_include_directories(${PROJECT_NAME} PUBLIC ${SOURCE_DIR})
 
 # ============= PREPROCESSOR DEFINES ==============
 if (MSVC)
@@ -57,17 +60,6 @@ target_compile_definitions(${PROJECT_NAME}
 )
 
 # ============= Third Party Libraries =============
-set(EXTERNAL_LIBS_ROOT ${CMAKE_SOURCE_DIR}/ThirdParty)
-
-target_include_directories(${PROJECT_NAME}
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
-        ${Vulkan_INCLUDE_DIR}
-    PUBLIC
-        ${EXTERNAL_LIBS_ROOT}
-        ${Stb_INCLUDE_DIR}
-)
-
 find_package(glfw3 CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)

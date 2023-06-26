@@ -16,8 +16,8 @@ namespace VoxelEngine::renderer
 	public:
 		VulkanShader(const string& filepath, const VkShaderStageFlagBits& shaderType, VkAllocationCallbacks* allocator = nullptr);
 
-		const VkShaderModule& getShaderModule()& { return _shaderModule; }
-		const VkPipelineShaderStageCreateInfo& getStage() & { return _shaderInfo; }
+		inline const VkShaderModule& getShaderModule() & { return _shaderModule; }
+		inline const VkPipelineShaderStageCreateInfo& getStage() & { return _shaderInfo; }
 		void setUniform(const string& name, const glm::vec2 vector) const override;
 		void setUniform(const string& name, const glm::vec3 vector) const override;
 		void setUniform(const string& name, const glm::vec4 vector) const override;

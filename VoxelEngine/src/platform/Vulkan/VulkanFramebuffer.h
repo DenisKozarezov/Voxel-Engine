@@ -8,7 +8,6 @@ namespace VoxelEngine::renderer
 	{
 	private:
 		VkFramebuffer _framebuffer;
-		VkFramebufferCreateInfo _framebufferInfo;
 		VkDevice _logicalDevice;
 		VkAllocationCallbacks* _allocator;
 	public:

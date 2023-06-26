@@ -32,6 +32,7 @@ struct ApplicationSpecification
 	std::string WorkingDirectory;
 	std::string Version;
 	std::string GraphicsAPI;
+	bool Maximized = false;
 	ApplicationCommandLineArgs CommandLineArgs;
 };
 

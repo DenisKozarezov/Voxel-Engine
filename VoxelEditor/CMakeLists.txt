@@ -4,7 +4,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 project(VoxelEditor)
 
-include_directories(${CMAKE_SOURCE_DIR}/VoxelEngine/src)
 set_target_properties(${TARGET} PROPERTIES 
     LINKER_LANGUAGE CXX
 )
@@ -15,12 +14,12 @@ add_executable(${PROJECT_NAME}
 	src/EditorLayer.h
 )
 
-# link VoxelEngine SHARED library
+# link VoxelEngine STATIC library
 target_link_libraries(${PROJECT_NAME} PRIVATE VoxelEngine)
 
 # ============== POST-BUILD ==============
 
-# copy VoxelEngine.dll to executable file
+# copy VoxelEngine.lib to executable file
 add_custom_command (TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
     $<TARGET_FILE:VoxelEngine> $<TARGET_FILE_DIR:${PROJECT_NAME}>

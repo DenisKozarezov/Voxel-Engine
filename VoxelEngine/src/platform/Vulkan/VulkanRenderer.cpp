@@ -12,7 +12,7 @@ namespace VoxelEngine::renderer
 	SharedRef<VulkanRenderer> VulkanRenderer::_singleton = nullptr;
 	bool VulkanRenderer::_framebufferResized = false;
 
-	static const void check_vk_result(const VkResult& vkResult, const std::string& exceptionMsg)
+	void VulkanRenderer::check_vk_result(const VkResult& vkResult, const std::string& exceptionMsg)
 	{
 		std::stringstream ss;
 		ss << "[VULKAN] [" << vkResult << "] ";
@@ -44,24 +44,7 @@ namespace VoxelEngine::renderer
 			break;
 		}
 		return VK_FALSE;
-	}
-
-	static std::vector<char> readFile(const string& filename)
-	{
-		std::ifstream file(filename, std::ios::ate | std::ios::binary);
-
-		if (!file.is_open())
-		{
-			throw std::runtime_error("failed to open file! Path: " + filename);
-		}
-
-		size_t fileSize = (size_t)file.tellg();
-		std::vector<char> buffer(fileSize);
-		file.seekg(0);
-		file.read(buffer.data(), fileSize);
-		file.close();
-		return buffer;
-	}
+	}	
 	void VulkanRenderer::framebufferResizeCallback(GLFWwindow* window, int width, int height)
 	{
 		_framebufferResized = true;
@@ -286,18 +269,6 @@ namespace VoxelEngine::renderer
 		else
 			return VK_ERROR_EXTENSION_NOT_PRESENT;
 	}
-	const VkShaderModule VulkanRenderer::createShaderModule(const std::vector<char>& code) const
-	{
-		VkShaderModuleCreateInfo createInfo = {};
-		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-		createInfo.codeSize = code.size();
-		createInfo.pCode = reinterpret_cast<const uint32*>(code.data());
-
-		VkShaderModule shaderModule;
-		VkResult err = vkCreateShaderModule(_logicalDevice, &createInfo, nullptr, &shaderModule);
-		check_vk_result(err, "failed to create shader module!");
-		return shaderModule;
-	}
 	constexpr VkDebugUtilsMessengerCreateInfoEXT VulkanRenderer::populateDebugMessengerCreateInfo() const
 	{
 		VkDebugUtilsMessengerCreateInfoEXT createInfo = {};
@@ -307,7 +278,7 @@ namespace VoxelEngine::renderer
 		createInfo.pfnUserCallback = debugCallback;
 		return createInfo;
 	}
-	const void VulkanRenderer::createInstance()
+	void VulkanRenderer::createInstance()
 	{
 		if (_enableValidationLayers && !checkValidationLayerSupport())
 		{
@@ -316,7 +287,7 @@ namespace VoxelEngine::renderer
 
 		VkApplicationInfo appInfo = {};
 		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-		appInfo.pApplicationName = "Hello Triangle";
+		appInfo.pApplicationName = "Voxel Engine";
 		appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
 		appInfo.pEngineName = "No Engine";
 		appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
@@ -347,7 +318,7 @@ namespace VoxelEngine::renderer
 		VkResult err = vkCreateInstance(&createInfo, _allocator, &_instance);
 		check_vk_result(err, "failed to create instance!");
 	}
-	const void VulkanRenderer::createLogicalDevice()
+	void VulkanRenderer::createLogicalDevice()
 	{
 		_queueFamilyIndices = findQueueFamilies(_physicalDevice);
 
@@ -381,7 +352,7 @@ namespace VoxelEngine::renderer
 		vkGetDeviceQueue(_logicalDevice, _queueFamilyIndices.graphicsFamily.value(), 0, &_graphicsQueue);
 		vkGetDeviceQueue(_logicalDevice, _queueFamilyIndices.presentFamily.value(), 0, &_presentQueue);
 	}
-	const void VulkanRenderer::createSurface()
+	void VulkanRenderer::createSurface()
 	{
 		VkWin32SurfaceCreateInfoKHR createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
@@ -391,7 +362,7 @@ namespace VoxelEngine::renderer
 		VkResult err = vkCreateWin32SurfaceKHR(_instance, &createInfo, _allocator, &_surface);
 		check_vk_result(err, "failed to create window surface!");
 	}
-	const void VulkanRenderer::createSwapChain()
+	void VulkanRenderer::createSwapChain()
 	{
 		SwapChainSupportDetails swapChainSupport = querySwapChainSupport(_physicalDevice);
 		VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
@@ -441,7 +412,7 @@ namespace VoxelEngine::renderer
 		_swapChainImageFormat = surfaceFormat.format;
 		_swapChainExtent = extent;
 	}
-	const void VulkanRenderer::createRenderPass()
+	void VulkanRenderer::createRenderPass()
 	{
 		VkAttachmentDescription colorAttachment = {};
 		colorAttachment.format = _swapChainImageFormat;
@@ -498,7 +469,7 @@ namespace VoxelEngine::renderer
 		VkResult err = vkCreateRenderPass(_logicalDevice, &renderPassInfo, _allocator, &_renderPass);
 		check_vk_result(err, "failed to create render pass!");
 	}
-	const void VulkanRenderer::createImageViews()
+	void VulkanRenderer::createImageViews()
 	{
 		_swapChainImageViews.resize(_swapChainImages.size());
 
@@ -523,27 +494,12 @@ namespace VoxelEngine::renderer
 			check_vk_result(err, "failed to create image views!");
 		}
 	}
-	const void VulkanRenderer::createGraphicsPipeline()
+	void VulkanRenderer::createGraphicsPipeline()
 	{
-		auto vertShaderCode = readFile("resources/shaders/vert.spv");
-		auto fragShaderCode = readFile("resources/shaders/frag.spv");
+		VulkanShader vertexShader = VulkanShader("resources/shaders/vert.spv", VK_SHADER_STAGE_VERTEX_BIT);
+		VulkanShader fragShader = VulkanShader("resources/shaders/frag.spv", VK_SHADER_STAGE_FRAGMENT_BIT);
 
-		VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
-		VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
-
-		VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
-		vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-		vertShaderStageInfo.module = vertShaderModule;
-		vertShaderStageInfo.pName = "main";
-
-		VkPipelineShaderStageCreateInfo fragShaderStageInfo = {};
-		fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-		fragShaderStageInfo.module = fragShaderModule;
-		fragShaderStageInfo.pName = "main";
-
-		VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
+		VkPipelineShaderStageCreateInfo shaderStages[] = { vertexShader.getStage(), fragShader.getStage() };
 
 		const auto& bindingDescription = Vertex::getBindingDescription();
 		const auto& attributeDescription = Vertex::getAttributeDescriptions();
@@ -656,10 +612,10 @@ namespace VoxelEngine::renderer
 		err = vkCreateGraphicsPipelines(_logicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, _allocator, &_graphicsPipeline);
 		check_vk_result(err, "failed to create graphics pipeline!");
 
-		vkDestroyShaderModule(_logicalDevice, vertShaderModule, _allocator);
-		vkDestroyShaderModule(_logicalDevice, fragShaderModule, _allocator);
+		vertexShader.unbind();
+		fragShader.unbind();
 	}
-	const void VulkanRenderer::createBuffer(const VkDeviceSize& size, const VkBufferUsageFlags& usage, const VkMemoryPropertyFlags& properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) const
+	void VulkanRenderer::createBuffer(const VkDeviceSize& size, const VkBufferUsageFlags& usage, const VkMemoryPropertyFlags& properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) const
 	{
 		VkBufferCreateInfo bufferInfo = {};
 		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -683,7 +639,7 @@ namespace VoxelEngine::renderer
 
 		vkBindBufferMemory(_logicalDevice, buffer, bufferMemory, 0);
 	}
-	const void VulkanRenderer::createFramebuffers()
+	void VulkanRenderer::createFramebuffers()
 	{
 		_swapChainFramebuffers.resize(_swapChainImageViews.size());
 
@@ -694,21 +650,10 @@ namespace VoxelEngine::renderer
 				_swapChainImageViews[i]
 				//_depthImageView
 			};
-
-			VkFramebufferCreateInfo framebufferInfo = {};
-			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-			framebufferInfo.renderPass = _renderPass;
-			framebufferInfo.attachmentCount = static_cast<uint32>(attachments.size());
-			framebufferInfo.pAttachments = attachments.data();
-			framebufferInfo.width = _swapChainExtent.width;
-			framebufferInfo.height = _swapChainExtent.height;
-			framebufferInfo.layers = 1;
-
-			VkResult err = vkCreateFramebuffer(_logicalDevice, &framebufferInfo, _allocator, &_swapChainFramebuffers[i]);
-			check_vk_result(err, "failed to create framebuffer!");
+			_swapChainFramebuffers[i] = Framebuffer(_renderPass, attachments, _swapChainExtent, _allocator);
 		}
 	}
-	const void VulkanRenderer::createUniformBuffers()
+	void VulkanRenderer::createUniformBuffers()
 	{
 		VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 		_uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
@@ -717,7 +662,7 @@ namespace VoxelEngine::renderer
 			_uniformBuffers[i] = UniformBuffer(bufferSize, _allocator);
 		}
 	}
-	const void VulkanRenderer::createCommandPool()
+	void VulkanRenderer::createCommandPool()
 	{
 		QueueFamilyIndices queueFamilyIndices = findQueueFamilies(_physicalDevice);
 
@@ -729,7 +674,7 @@ namespace VoxelEngine::renderer
 		VkResult err = vkCreateCommandPool(_logicalDevice, &poolInfo, _allocator, &_commandPool);
 		check_vk_result(err, "failed to create command pool!");
 	}
-	const void VulkanRenderer::createCommandBuffers()
+	void VulkanRenderer::createCommandBuffers()
 	{
 		_commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
 
@@ -742,7 +687,7 @@ namespace VoxelEngine::renderer
 		VkResult err = vkAllocateCommandBuffers(_logicalDevice, &allocInfo, _commandBuffers.data());
 		check_vk_result(err, "failed to allocate command buffers!");
 	}
-	const void VulkanRenderer::createSyncObjects()
+	void VulkanRenderer::createSyncObjects()
 	{
 		_imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 		_renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
@@ -765,33 +710,8 @@ namespace VoxelEngine::renderer
 			check_vk_result(err2, "failed to create semaphore!");
 			check_vk_result(err3, "failed to create fence!");
 		}
-	}
-	const void VulkanRenderer::createDescriptorSetLayout()
-	{
-		VkDescriptorSetLayoutBinding uboLayoutBinding = {};
-		uboLayoutBinding.binding = 0;
-		uboLayoutBinding.descriptorCount = 1;
-		uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		uboLayoutBinding.pImmutableSamplers = nullptr;
-		uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-
-		VkDescriptorSetLayoutBinding samplerLayoutBinding{};
-		samplerLayoutBinding.binding = 1;
-		samplerLayoutBinding.descriptorCount = 1;
-		samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		samplerLayoutBinding.pImmutableSamplers = nullptr;
-		samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-
-		std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
-		VkDescriptorSetLayoutCreateInfo layoutInfo = {};
-		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-		layoutInfo.bindingCount = static_cast<uint32>(bindings.size());
-		layoutInfo.pBindings = bindings.data();
-
-		VkResult err = vkCreateDescriptorSetLayout(_logicalDevice, &layoutInfo, nullptr, &_descriptorSetLayout);
-		check_vk_result(err, "failed to create descriptor set layout!");
-	}
-	const void VulkanRenderer::createDescriptorPool()
+	}	
+	void VulkanRenderer::createDescriptorPool()
 	{
 		VkDescriptorPoolSize pool_sizes[] =
 		{
@@ -818,7 +738,7 @@ namespace VoxelEngine::renderer
 		VkResult err = vkCreateDescriptorPool(_logicalDevice, &poolInfo, _allocator, &_descriptorPool);
 		check_vk_result(err, "failed to create descriptor pool!");
 	}
-	const void VulkanRenderer::initImGui() const
+	void VulkanRenderer::initImGui() const
 	{
 		ImGui_ImplVulkan_InitInfo init_info = {};
 		init_info.Instance = _instance;
@@ -859,7 +779,7 @@ namespace VoxelEngine::renderer
 			ImGui_ImplVulkan_DestroyFontUploadObjects();
 		}
 	}
-	const void VulkanRenderer::createDescriptorSets()
+	void VulkanRenderer::createDescriptorSets()
 	{
 		std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, _descriptorSetLayout);
 		VkDescriptorSetAllocateInfo allocInfo = {};
@@ -905,7 +825,7 @@ namespace VoxelEngine::renderer
 			vkUpdateDescriptorSets(_logicalDevice, static_cast<uint32>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 		}
 	}
-	const void VulkanRenderer::copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkDeviceSize& size) const
+	void VulkanRenderer::copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkDeviceSize& size) const
 	{
 		VkCommandBufferAllocateInfo allocInfo = {};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -937,7 +857,7 @@ namespace VoxelEngine::renderer
 		vkQueueWaitIdle(_graphicsQueue);
 		vkFreeCommandBuffers(_logicalDevice, _commandPool, 1, &commandBuffer);
 	}
-	const void VulkanRenderer::setupDebugMessenger()
+	void VulkanRenderer::setupDebugMessenger()
 	{
 		if (!_enableValidationLayers) return;
 
@@ -945,7 +865,7 @@ namespace VoxelEngine::renderer
 		VkResult err = createDebugUtilsMessengerEXT(_instance, &createInfo, _allocator, &_debugMessenger);
 		check_vk_result(err, "failed to set up debug messenger!");
 	}
-	const void VulkanRenderer::recreateSwapChain()
+	void VulkanRenderer::recreateSwapChain()
 	{
 		int width = 0, height = 0;
 		glfwGetFramebufferSize(_window, &width, &height);
@@ -961,7 +881,7 @@ namespace VoxelEngine::renderer
 		createImageViews();
 		createFramebuffers();
 	}
-	const void VulkanRenderer::pickPhysicalDevice()
+	void VulkanRenderer::pickPhysicalDevice()
 	{
 		uint32 deviceCount = 0;
 		vkEnumeratePhysicalDevices(_instance, &deviceCount, nullptr);
@@ -993,7 +913,7 @@ namespace VoxelEngine::renderer
 			throw std::runtime_error("failed to find a suitable GPU!");
 		}
 	}
-	const void VulkanRenderer::destroyDebugUtilsMessengerEXT(const VkInstance& instance, const VkDebugUtilsMessengerEXT& debugMessenger, const VkAllocationCallbacks* pAllocator) const
+	void VulkanRenderer::destroyDebugUtilsMessengerEXT(const VkInstance& instance, const VkDebugUtilsMessengerEXT& debugMessenger, const VkAllocationCallbacks* pAllocator) const
 	{
 		auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
 		if (func != nullptr)
@@ -1001,11 +921,11 @@ namespace VoxelEngine::renderer
 			func(instance, debugMessenger, pAllocator);
 		}
 	}
-	const void VulkanRenderer::cleanupSwapChain() const
+	void VulkanRenderer::cleanupSwapChain() const
 	{
 		for (const auto& framebuffer : _swapChainFramebuffers) 
 		{
-			vkDestroyFramebuffer(_logicalDevice, framebuffer, _allocator);
+			framebuffer.unbind();
 		}
 		for (const auto& imageView : _swapChainImageViews)
 		{
@@ -1013,14 +933,14 @@ namespace VoxelEngine::renderer
 		}
 		vkDestroySwapchainKHR(_logicalDevice, _swapChain, _allocator);
 	}
-	const void VulkanRenderer::cleanupUniformBuffers() const
+	void VulkanRenderer::cleanupUniformBuffers() const
 	{
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) 
 		{
 			_uniformBuffers[i].unbind();
 		}
 	}
-	const void VulkanRenderer::presentFrame(const uint32& imageIndex, VkSemaphore* signalSemaphores)
+	void VulkanRenderer::presentFrame(const uint32& imageIndex, VkSemaphore* signalSemaphores)
 	{
 		VkSwapchainKHR swapChains[] = { _swapChain };
 
@@ -1041,7 +961,7 @@ namespace VoxelEngine::renderer
 		}
 		else check_vk_result(err, "failed to present swap chain image!");
 	}
-	const void VulkanRenderer::beginFrame() 
+	void VulkanRenderer::beginFrame() 
 	{
 		vkWaitForFences(_logicalDevice, 1, &_inFlightFences[_currentFrame], VK_TRUE, UINT64_MAX);
 		uint32 imageIndex;
@@ -1063,7 +983,7 @@ namespace VoxelEngine::renderer
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();	
 	}
-	const void VulkanRenderer::endFrame()
+	void VulkanRenderer::endFrame()
 	{
 		ImGui::Render();
 
@@ -1084,7 +1004,7 @@ namespace VoxelEngine::renderer
 		_currentFrame = (_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 	}
 
-	const void VulkanRenderer::recordCommandBuffer(const VkCommandBuffer& commandBuffer, const uint32& imageIndex) const
+	void VulkanRenderer::recordCommandBuffer(const VkCommandBuffer& commandBuffer, const uint32& imageIndex) const
 	{
 		VkCommandBufferBeginInfo beginInfo = {};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -1130,7 +1050,32 @@ namespace VoxelEngine::renderer
 		err = vkEndCommandBuffer(commandBuffer);
 		check_vk_result(err, "failed to record command buffer!");
 	}
-	const void VulkanRenderer::endSingleTimeCommands(const VkCommandBuffer& commandBuffer, const VkSemaphore* signalSemaphores)
+	void VulkanRenderer::createDescriptorSetLayout()
+	{
+		VkDescriptorSetLayoutBinding uboLayoutBinding = {};
+		uboLayoutBinding.binding = 0;
+		uboLayoutBinding.descriptorCount = 1;
+		uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		uboLayoutBinding.pImmutableSamplers = nullptr;
+		uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+
+		VkDescriptorSetLayoutBinding samplerLayoutBinding{};
+		samplerLayoutBinding.binding = 1;
+		samplerLayoutBinding.descriptorCount = 1;
+		samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		samplerLayoutBinding.pImmutableSamplers = nullptr;
+		samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+		std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
+		VkDescriptorSetLayoutCreateInfo layoutInfo = {};
+		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		layoutInfo.bindingCount = static_cast<uint32>(bindings.size());
+		layoutInfo.pBindings = bindings.data();
+
+		VkResult err = vkCreateDescriptorSetLayout(_logicalDevice, &layoutInfo, nullptr, &_descriptorSetLayout);
+		check_vk_result(err, "failed to create descriptor set layout!");
+	}
+	void VulkanRenderer::endSingleTimeCommands(const VkCommandBuffer& commandBuffer, const VkSemaphore* signalSemaphores)
 	{
 		VkSemaphore waitSemaphores[] = { _imageAvailableSemaphores[_currentFrame] };
 		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
@@ -1170,14 +1115,14 @@ namespace VoxelEngine::renderer
 		}
 		throw std::runtime_error("failed to find suitable memory type!");
 	}
-	const void VulkanRenderer::setWindow(const Window& window)
+	void VulkanRenderer::setWindow(const Window& window)
 	{
 		_window = (GLFWwindow*)(window.getNativeWindow());
 		glfwSetFramebufferSizeCallback(_window, framebufferResizeCallback);
 		int success = glfwVulkanSupported();
 		VOXEL_CORE_ASSERT(success, "GLFW: Vulkan Not Supported")
 	}
-	const void VulkanRenderer::init()
+	void VulkanRenderer::init()
 	{
 		createInstance();
 		setupDebugMessenger();
@@ -1200,11 +1145,11 @@ namespace VoxelEngine::renderer
 		createSyncObjects();
 		initImGui();
 	}
-	const void VulkanRenderer::deviceWaitIdle() const
+	void VulkanRenderer::deviceWaitIdle() const
 	{
 		vkDeviceWaitIdle(_logicalDevice);
 	}
-	const void VulkanRenderer::cleanup() const
+	void VulkanRenderer::cleanup() const
 	{
 		cleanupSwapChain();
 		vkDestroyPipeline(_logicalDevice, _graphicsPipeline, _allocator);

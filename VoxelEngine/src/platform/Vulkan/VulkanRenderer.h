@@ -10,6 +10,8 @@
 #include "VulkanVertexBuffer.h"
 #include "VulkanIndexBuffer.h"
 #include "VulkanUniformBuffer.h"
+#include "VulkanFramebuffer.h"
+#include "VulkanShader.h"
 
 namespace VoxelEngine::renderer
 {
@@ -81,7 +83,7 @@ namespace VoxelEngine::renderer
 		std::vector<UniformBuffer> _uniformBuffers;
 		std::vector<VkImage> _swapChainImages;
 		std::vector<VkImageView> _swapChainImageViews;
-		std::vector<VkFramebuffer> _swapChainFramebuffers;
+		std::vector<Framebuffer> _swapChainFramebuffers;
 		std::vector<VkCommandBuffer> _commandBuffers;
 		std::vector<VkSemaphore> _imageAvailableSemaphores;
 		std::vector<VkSemaphore> _renderFinishedSemaphores;
@@ -111,7 +113,6 @@ namespace VoxelEngine::renderer
 		const int rateDeviceSuitability(const VkPhysicalDevice& device) const;
 		const std::vector<const char*> getRequiredExtensions() const;
 		const VkResult createDebugUtilsMessengerEXT(const VkInstance& instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) const;
-		const VkShaderModule createShaderModule(const std::vector<char>& code) const;
 		constexpr VkDebugUtilsMessengerCreateInfoEXT populateDebugMessengerCreateInfo() const;
 		const QueueFamilyIndices findQueueFamilies(const VkPhysicalDevice& device) const;
 		const SwapChainSupportDetails querySwapChainSupport(const VkPhysicalDevice& device) const;
@@ -120,45 +121,46 @@ namespace VoxelEngine::renderer
 		constexpr const VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) const;
 		constexpr const VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, const VkImageTiling& tiling, const VkFormatFeatureFlags& features) const;
 		constexpr const VkFormat& findDepthFormat() const;
-		const void createInstance();
-		const void createLogicalDevice();
-		const void createSurface();
-		const void createSwapChain();
-		const void createRenderPass();
-		const void createGraphicsPipeline();
-		const void createFramebuffers();
-		const void createUniformBuffers();
-		const void createImageViews();
-		const void createCommandPool();
-		const void createCommandBuffers();
-		const void createSyncObjects();
-		const void createDescriptorSetLayout();
-		const void createDescriptorPool();
-		const void createDescriptorSets();
-		const void setupDebugMessenger();
-		const void recreateSwapChain();
-		const void pickPhysicalDevice();
-		const void recordCommandBuffer(const VkCommandBuffer& commandBuffer, const uint32& imageIndex) const;
-		const void endSingleTimeCommands(const VkCommandBuffer& commandBuffer, const VkSemaphore* signalSemaphores = nullptr);
-		const void destroyDebugUtilsMessengerEXT(const VkInstance& instance, const VkDebugUtilsMessengerEXT& debugMessenger, const VkAllocationCallbacks* pAllocator) const;
-		const void cleanupSwapChain() const;
-		const void cleanupUniformBuffers() const;
-		const void presentFrame(const uint32& imageIndex, VkSemaphore* signalSemaphores);
-		const void initImGui() const;
+		void createInstance();
+		void createLogicalDevice();
+		void createSurface();
+		void createSwapChain();
+		void createRenderPass();
+		void createGraphicsPipeline();
+		void createFramebuffers();
+		void createUniformBuffers();
+		void createImageViews();
+		void createCommandPool();
+		void createCommandBuffers();
+		void createSyncObjects();
+		void createDescriptorPool();
+		void createDescriptorSets();
+		void setupDebugMessenger();
+		void recreateSwapChain();
+		void pickPhysicalDevice();
+		void recordCommandBuffer(const VkCommandBuffer& commandBuffer, const uint32& imageIndex) const;
+		void createDescriptorSetLayout();
+		void endSingleTimeCommands(const VkCommandBuffer& commandBuffer, const VkSemaphore* signalSemaphores = nullptr);
+		void destroyDebugUtilsMessengerEXT(const VkInstance& instance, const VkDebugUtilsMessengerEXT& debugMessenger, const VkAllocationCallbacks* pAllocator) const;
+		void cleanupSwapChain() const;
+		void cleanupUniformBuffers() const;
+		void presentFrame(const uint32& imageIndex, VkSemaphore* signalSemaphores);
+		void initImGui() const;
 		static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
 	public:
 		static const SharedRef<VulkanRenderer> getInstance();
+		static void check_vk_result(const VkResult& vkResult, const std::string& exceptionMsg);
 		const uint32 findMemoryType(const uint32& typeFilter, const VkMemoryPropertyFlags& properties) const;
 		inline const VkDevice& getLogicalDevice() const & { return _logicalDevice; }
 		inline const VkPhysicalDevice& getPhysicalDevice() const & { return _physicalDevice; }
 		inline const VkCommandBuffer& getCommandBuffer() const & { return _commandBuffers[_currentFrame]; }
-		const void copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkDeviceSize& size) const;
-		const void createBuffer(const VkDeviceSize& size, const VkBufferUsageFlags& usage, const VkMemoryPropertyFlags& properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) const;
-		const void setWindow(const Window& window);
-		const void init();
-		const void beginFrame();
-		const void endFrame();
-		const void deviceWaitIdle() const;
-		const void cleanup() const;
+		void copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkDeviceSize& size) const;
+		void createBuffer(const VkDeviceSize& size, const VkBufferUsageFlags& usage, const VkMemoryPropertyFlags& properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) const;
+		void setWindow(const Window& window);
+		void init();
+		void beginFrame();
+		void endFrame();
+		void deviceWaitIdle() const;
+		void cleanup() const;
 	};
 }

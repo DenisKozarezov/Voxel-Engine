@@ -27,15 +27,14 @@ namespace VoxelEngine::renderer
 		vkFreeMemory(_logicalDevice, stagingBufferMemory, _allocator);
 	}
 
-	const void VertexBuffer::bind() const
+	void VertexBuffer::bind() const
 	{
 		VkCommandBuffer commandBuffer = renderer->getCommandBuffer();
 		VkBuffer vertexBuffers[] = { _vertexBuffer };
 		VkDeviceSize offsets[] = { 0 };
 		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 	}
-
-	const void VertexBuffer::unbind() const
+	void VertexBuffer::unbind() const
 	{
 		vkDestroyBuffer(_logicalDevice, _vertexBuffer, _allocator);
 		vkFreeMemory(_logicalDevice, _vertexBufferMemory, _allocator);

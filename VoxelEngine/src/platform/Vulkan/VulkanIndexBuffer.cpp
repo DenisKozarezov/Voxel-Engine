@@ -27,12 +27,12 @@ namespace VoxelEngine::renderer
 		vkDestroyBuffer(_logicalDevice, stagingBuffer, nullptr);
 		vkFreeMemory(_logicalDevice, stagingBufferMemory, nullptr);
 	}
-	const void IndexBuffer::bind() const
+	void IndexBuffer::bind() const
 	{
 		VkCommandBuffer commandBuffer = renderer->getCommandBuffer();
 		vkCmdBindIndexBuffer(commandBuffer, _indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 	}
-	const void IndexBuffer::unbind() const
+	void IndexBuffer::unbind() const
 	{
 		vkDestroyBuffer(_logicalDevice, _indexBuffer, nullptr);
 		vkFreeMemory(_logicalDevice, _indexBufferMemory, nullptr);

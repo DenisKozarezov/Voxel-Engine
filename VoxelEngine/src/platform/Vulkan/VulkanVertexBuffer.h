@@ -15,8 +15,8 @@ namespace VoxelEngine::renderer
 		VertexBuffer() = default;
 		VertexBuffer(const Vertex* vertices, const uint32& size, VkAllocationCallbacks* allocator = nullptr);
 
-		const void bind() const;
-		const void unbind() const;
+		void bind() const;
+		void unbind() const;
 
 		~VertexBuffer() = default;
 	};	

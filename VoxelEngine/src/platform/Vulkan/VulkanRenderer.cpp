@@ -676,16 +676,7 @@ namespace VoxelEngine::renderer
 	}
 	void VulkanRenderer::createCommandBuffers()
 	{
-		_commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
-
-		VkCommandBufferAllocateInfo allocInfo = {};
-		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocInfo.commandPool = _commandPool;
-		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandBufferCount = static_cast<uint32>(_commandBuffers.size());
-
-		VkResult err = vkAllocateCommandBuffers(_logicalDevice, &allocInfo, _commandBuffers.data());
-		check_vk_result(err, "failed to allocate command buffers!");
+		_commandBuffers = CommandBuffer::allocate(MAX_FRAMES_IN_FLIGHT);
 	}
 	void VulkanRenderer::createSyncObjects()
 	{
@@ -734,10 +725,7 @@ namespace VoxelEngine::renderer
 		{
 			// Use any command queue
 			vkResetCommandPool(_logicalDevice, _commandPool, 0);
-			VkCommandBufferBeginInfo begin_info = {};
-			begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-			begin_info.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-			vkBeginCommandBuffer(_commandBuffers[_currentFrame], &begin_info);
+			CommandBuffer::beginCommand(_commandBuffers[_currentFrame]);
 
 			ImGui_ImplVulkan_CreateFontsTexture(_commandBuffers[_currentFrame]);
 
@@ -745,7 +733,7 @@ namespace VoxelEngine::renderer
 			end_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 			end_info.commandBufferCount = 1;
 			end_info.pCommandBuffers = &_commandBuffers[_currentFrame];
-			vkEndCommandBuffer(_commandBuffers[_currentFrame]);
+			CommandBuffer::endCommand(_commandBuffers[_currentFrame]);
 			vkQueueSubmit(_graphicsQueue, 1, &end_info, VK_NULL_HANDLE);
 
 			deviceWaitIdle();
@@ -852,26 +840,14 @@ namespace VoxelEngine::renderer
 	}
 	void VulkanRenderer::copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkDeviceSize& size) const
 	{
-		VkCommandBufferAllocateInfo allocInfo = {};
-		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandPool = _commandPool;
-		allocInfo.commandBufferCount = 1;
-
-		VkCommandBuffer commandBuffer;
-		vkAllocateCommandBuffers(_logicalDevice, &allocInfo, &commandBuffer);
-
-		VkCommandBufferBeginInfo beginInfo = {};
-		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-		vkBeginCommandBuffer(commandBuffer, &beginInfo);
+		VkCommandBuffer commandBuffer = CommandBuffer::allocate();
+		CommandBuffer::beginCommand(commandBuffer);
 
 		VkBufferCopy copyRegion = {};
 		copyRegion.size = size;
 		vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
 
-		vkEndCommandBuffer(commandBuffer);
+		CommandBuffer::endCommand(commandBuffer);
 
 		VkSubmitInfo submitInfo = {};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -880,7 +856,7 @@ namespace VoxelEngine::renderer
 
 		vkQueueSubmit(_graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
 		vkQueueWaitIdle(_graphicsQueue);
-		vkFreeCommandBuffers(_logicalDevice, _commandPool, 1, &commandBuffer);
+		CommandBuffer::free(commandBuffer);
 	}
 	void VulkanRenderer::setupDebugMessenger()
 	{
@@ -1002,7 +978,7 @@ namespace VoxelEngine::renderer
 		}
 		
 		vkResetFences(_logicalDevice, 1, &_inFlightFences[_currentFrame]);
-		vkResetCommandBuffer(_commandBuffers[_currentFrame], /*VkCommandBufferResetFlagBits*/ 0);
+		CommandBuffer::reset(_commandBuffers[_currentFrame]);
 
 		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -1031,12 +1007,7 @@ namespace VoxelEngine::renderer
 
 	void VulkanRenderer::recordCommandBuffer(const VkCommandBuffer& commandBuffer, const uint32& imageIndex) const
 	{
-		VkCommandBufferBeginInfo beginInfo = {};
-		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-		VkResult err = vkBeginCommandBuffer(commandBuffer, &beginInfo);
-		check_vk_result(err, "failed to begin recording command buffer!");
+		CommandBuffer::beginCommand(commandBuffer);
 
 		VkRenderPassBeginInfo renderPassInfo = {};
 		VkClearValue clearColor = { {{0.0f, 0.0f, 0.0f, 1.0f}} };
@@ -1051,7 +1022,7 @@ namespace VoxelEngine::renderer
 
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _graphicsPipeline);
 
-		VkViewport viewport{};
+		VkViewport viewport = {};
 		viewport.x = 0.0f;
 		viewport.y = 0.0f;
 		viewport.width = (float)_swapChainExtent.width;
@@ -1060,7 +1031,7 @@ namespace VoxelEngine::renderer
 		viewport.maxDepth = 1.0f;
 		vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
-		VkRect2D scissor{};
+		VkRect2D scissor = {};
 		scissor.offset = { 0, 0 };
 		scissor.extent = _swapChainExtent;
 		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
@@ -1072,8 +1043,7 @@ namespace VoxelEngine::renderer
 		ImGui_ImplVulkan_RenderDrawData(main_draw_data, commandBuffer);
 
 		vkCmdEndRenderPass(commandBuffer);
-		err = vkEndCommandBuffer(commandBuffer);
-		check_vk_result(err, "failed to record command buffer!");
+		CommandBuffer::endCommand(commandBuffer);
 	}
 	void VulkanRenderer::endSingleTimeCommands(const VkCommandBuffer& commandBuffer, const VkSemaphore* signalSemaphores)
 	{
@@ -1168,6 +1138,7 @@ namespace VoxelEngine::renderer
 			vkDestroyFence(_logicalDevice, _inFlightFences[i], _allocator);
 		}
 
+		CommandBuffer::free(_commandBuffers);
 		vkDestroyCommandPool(_logicalDevice, _commandPool, _allocator);
 		vkDestroyDevice(_logicalDevice, _allocator);
 

@@ -12,6 +12,7 @@
 #include "VulkanUniformBuffer.h"
 #include "VulkanFramebuffer.h"
 #include "VulkanShader.h"
+#include "VulkanCommandBuffer.h"
 
 namespace VoxelEngine::renderer
 {
@@ -154,6 +155,7 @@ namespace VoxelEngine::renderer
 		inline const VkDevice& getLogicalDevice() const & { return _logicalDevice; }
 		inline const VkPhysicalDevice& getPhysicalDevice() const & { return _physicalDevice; }
 		inline const VkCommandBuffer& getCommandBuffer() const & { return _commandBuffers[_currentFrame]; }
+		const VkCommandPool& getCommandPool() const& { return _commandPool; }
 		void copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkDeviceSize& size) const;
 		void createBuffer(const VkDeviceSize& size, const VkBufferUsageFlags& usage, const VkMemoryPropertyFlags& properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) const;
 		void setWindow(const Window& window);

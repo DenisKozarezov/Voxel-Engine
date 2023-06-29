@@ -28,7 +28,8 @@ namespace VoxelEngine::renderer
 
 		operator VkBuffer() const & { return _uniformBuffer; }
 
-		void unbind() const;
+		void setData(void* data) const;
+		void release() const;
 
 		~UniformBuffer() = default;
 	};

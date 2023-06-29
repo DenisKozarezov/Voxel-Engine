@@ -34,7 +34,7 @@ namespace VoxelEngine::renderer
 		VkDeviceSize offsets[] = { 0 };
 		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 	}
-	void VertexBuffer::unbind() const
+	void VertexBuffer::release() const
 	{
 		vkDestroyBuffer(_logicalDevice, _vertexBuffer, _allocator);
 		vkFreeMemory(_logicalDevice, _vertexBufferMemory, _allocator);

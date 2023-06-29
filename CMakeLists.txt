@@ -4,7 +4,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_TOOLCHAIN_FILE vcpkg/scripts/buildsystems/vcpkg.cmake)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-project(VoxelEngine)
+project(VoxelEngine VERSION 0.0.1)
+
 add_subdirectory(VoxelEngine)
 add_subdirectory(VoxelEditor)
 

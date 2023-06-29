@@ -21,7 +21,7 @@ namespace VoxelEngine::renderer
 		VkResult err = vkCreateFramebuffer(_logicalDevice, &framebufferInfo, _allocator, &_framebuffer);
 		VulkanRenderer::check_vk_result(err, "failed to create framebuffer!");
 	}
-	void Framebuffer::unbind() const
+	void Framebuffer::release() const
 	{
 		vkDestroyFramebuffer(_logicalDevice, _framebuffer, _allocator);
 	}

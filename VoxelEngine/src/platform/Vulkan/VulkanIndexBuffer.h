@@ -16,7 +16,7 @@ namespace VoxelEngine::renderer
 		IndexBuffer(const uint16* indices, const uint32& size, VkAllocationCallbacks* allocator = nullptr);
 
 		void bind() const;
-		void unbind() const;
+		void release() const;
 
 		~IndexBuffer() = default;
 	};

@@ -16,7 +16,7 @@ namespace VoxelEngine::renderer
 
 		operator VkFramebuffer() const & { return _framebuffer; }
 
-		void unbind() const;
+		void release() const;
 
 		~Framebuffer() = default;
 	};

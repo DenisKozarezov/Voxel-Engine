@@ -50,13 +50,13 @@ namespace VoxelEngine::renderer
 		VkResult err = vkEndCommandBuffer(buffer);
 		VulkanRenderer::check_vk_result(err, "failed to record command buffer!");
 	}
-	void CommandBuffer::free(const VkCommandBuffer& buffer)
+	void CommandBuffer::release(const VkCommandBuffer& buffer)
 	{
 		auto logicalDevice = VulkanRenderer::getInstance()->getLogicalDevice();
 		auto commandPool = VulkanRenderer::getInstance()->getCommandPool();
 		vkFreeCommandBuffers(logicalDevice, commandPool, 1, &buffer);
 	}
-	void CommandBuffer::free(const std::vector<VkCommandBuffer>& buffers)
+	void CommandBuffer::release(const std::vector<VkCommandBuffer>& buffers)
 	{
 		auto logicalDevice = VulkanRenderer::getInstance()->getLogicalDevice();
 		auto commandPool = VulkanRenderer::getInstance()->getCommandPool();

@@ -19,11 +19,11 @@ namespace VoxelEngine::renderer
 		ss << exceptionMsg;
 		VOXEL_CORE_ASSERT(vkResult == VK_SUCCESS, ss.str())
 	}
-	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
-		VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-		VkDebugUtilsMessageTypeFlagsEXT messageType,
-		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-		void* pUserData) noexcept
+	static VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsCallback(
+		VkDebugUtilsMessageSeverityFlagBitsEXT		messageSeverity,
+		VkDebugUtilsMessageTypeFlagsEXT				messageType,
+		const VkDebugUtilsMessengerCallbackDataEXT	*pCallbackData,
+		void*										pUserData) noexcept
 	{
 		std::stringstream message;
 		message << "[VULKAN] " << pCallbackData->pMessage << std::endl;
@@ -45,6 +45,37 @@ namespace VoxelEngine::renderer
 		}
 		return VK_FALSE;
 	}	
+	static VKAPI_ATTR VkBool32 VKAPI_CALL debugReportCallback(
+		VkDebugReportFlagsEXT       flags,
+		VkDebugReportObjectTypeEXT  objectType,
+		uint64_t                    object,
+		size_t                      location,
+		int32_t                     messageCode,
+		const char*					pLayerPrefix,
+		const char*					pMessage,
+		void*						pUserData) noexcept
+	{
+		std::stringstream message;
+		message << "[VULKAN] " << pMessage << std::endl;
+
+		switch (objectType)
+		{
+		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
+			VOXEL_CORE_INFO(message.str())
+				break;
+		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
+			VOXEL_CORE_TRACE(message.str())
+				break;
+		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+			VOXEL_CORE_WARN(message.str())
+				break;
+		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+			VOXEL_CORE_ERROR(message.str())
+				break;
+		}
+		return VK_FALSE;
+	}
+
 	void VulkanRenderer::framebufferResizeCallback(GLFWwindow* window, int width, int height)
 	{
 		_framebufferResized = true;
@@ -57,17 +88,26 @@ namespace VoxelEngine::renderer
 		std::vector<VkLayerProperties> availableLayers(layerCount);
 		vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
 
-		for (const char* requiredLayer : _validationLayers)
+		for (const char* layerName : _validationLayers) 
 		{
-			auto availableLayer = std::find_if(begin(availableLayers), end(availableLayers),
-				[requiredLayer](const VkLayerProperties& layer)
-				{
-					return strcmp(requiredLayer, layer.layerName);
-				});
+			bool layerFound = false;
 
-			// Case: requested validation layer is (not) supported
-			return availableLayer != end(availableLayers);
+			for (const auto& layerProperties : availableLayers) 
+			{
+				if (strcmp(layerName, layerProperties.layerName) == 0) 
+				{
+					layerFound = true;
+					break;
+				}
+			}
+
+			if (!layerFound) 
+			{
+				return false;
+			}
 		}
+
+		return true;
 	}
 	const bool VulkanRenderer::checkDeviceExtensionSupport(const VkPhysicalDevice& device) const
 	{
@@ -76,6 +116,18 @@ namespace VoxelEngine::renderer
 
 		std::vector<VkExtensionProperties> availableExtensions(extensionCount);
 		vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
+
+		if (_enableValidationLayers && availableExtensions.size() > 0)
+		{
+			std::stringstream ss;
+			for (const VkExtensionProperties& extension : availableExtensions)
+			{
+				ss << '\t';
+				ss << extension.extensionName;
+				ss << '\n';
+			}
+			VOXEL_CORE_TRACE("[VULKAN] Device available extensions:\n" + ss.str())
+		}
 
 		std::set<std::string> requiredExtensions(_deviceExtensions.begin(), _deviceExtensions.end());
 		for (const auto& extension : availableExtensions)
@@ -103,30 +155,7 @@ namespace VoxelEngine::renderer
 	constexpr bool VulkanRenderer::hasStencilComponent(const VkFormat& format) const
 	{
 		return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
-	}
-	const int VulkanRenderer::rateDeviceSuitability(const VkPhysicalDevice& device) const
-	{
-		VkPhysicalDeviceProperties deviceProperties;
-		VkPhysicalDeviceFeatures deviceFeatures;
-		vkGetPhysicalDeviceProperties(device, &deviceProperties);
-		vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
-
-		int score = 0;
-
-		// Discrete GPUs have a significant performance advantage
-		if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
-		{
-			score += 1000;
-		}
-
-		// Maximum possible size of textures affects graphics quality
-		score += deviceProperties.limits.maxImageDimension2D;
-
-		// Application can't function without geometry shaders
-		if (!deviceFeatures.geometryShader) return 0;
-
-		return score;
-	}
+	}	
 	const std::vector<const char*> VulkanRenderer::getRequiredExtensions() const
 	{
 		uint32 glfwExtensionCount = 0;
@@ -134,10 +163,25 @@ namespace VoxelEngine::renderer
 		glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
 		std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+		extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
 		if (_enableValidationLayers)
 		{
+			extensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
 			extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+
+			if (extensions.size() > 0)
+			{
+				std::stringstream ss;
+				for (const char* extensionName : extensions)
+				{
+					ss << '\t';
+					ss << extensionName;
+					ss << '\n';
+				}
+				VOXEL_CORE_TRACE("[VULKAN] Device extensions to be requested:\n" + ss.str())
+			}
 		}
+
 		return extensions;
 	}
 	const QueueFamilyIndices VulkanRenderer::findQueueFamilies(const VkPhysicalDevice& device) const
@@ -263,19 +307,37 @@ namespace VoxelEngine::renderer
 	}
 	const VkResult VulkanRenderer::createDebugUtilsMessengerEXT(const VkInstance& instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) const
 	{
-		auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+		auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsCallbackEXT");
 		if (func != nullptr)
 			return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
 		else
 			return VK_ERROR_EXTENSION_NOT_PRESENT;
 	}
-	constexpr VkDebugUtilsMessengerCreateInfoEXT VulkanRenderer::populateDebugMessengerCreateInfo() const
+	const VkResult VulkanRenderer::createDebugReportMessengerEXT(const VkInstance& instance, const VkDebugReportCallbackCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugReportCallbackEXT* pDebugMessenger) const
+	{
+		auto func = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugReportCallbackEXT");
+		if (func != nullptr)
+			return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
+		else
+			return VK_ERROR_EXTENSION_NOT_PRESENT;
+	}
+	constexpr VkDebugUtilsMessengerCreateInfoEXT VulkanRenderer::populateDebugUtilsCreateInfo() const
 	{
 		VkDebugUtilsMessengerCreateInfoEXT createInfo = {};
-		createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-		createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+		createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
+		createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
 		createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-		createInfo.pfnUserCallback = debugCallback;
+		createInfo.pfnUserCallback = &debugUtilsCallback;
+		return createInfo;
+	}
+	constexpr VkDebugReportCallbackCreateInfoEXT VulkanRenderer::populateDebugReportCreateInfo() const
+	{
+		VkDebugReportCallbackCreateInfoEXT createInfo = {};
+		createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
+		createInfo.pNext = nullptr;
+		createInfo.flags = VK_DEBUG_REPORT_INFORMATION_BIT_EXT | VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT | VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT;
+		createInfo.pfnCallback = &debugReportCallback;
+		createInfo.pUserData = nullptr;
 		return createInfo;
 	}
 	void VulkanRenderer::createInstance()
@@ -304,10 +366,10 @@ namespace VoxelEngine::renderer
 		if (_enableValidationLayers)
 		{
 			createInfo.enabledLayerCount = static_cast<uint32>(_validationLayers.size());
-			createInfo.ppEnabledLayerNames = _validationLayers.data();
-			VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo = {};
-			debugCreateInfo = populateDebugMessengerCreateInfo();
-			createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
+			createInfo.ppEnabledLayerNames = _validationLayers.data();			
+			VkDebugReportCallbackCreateInfoEXT debugCreateInfo = {};
+			debugCreateInfo = populateDebugReportCreateInfo();
+			createInfo.pNext = (VkDebugReportCallbackCreateInfoEXT*)&debugCreateInfo;
 		}
 		else
 		{
@@ -586,8 +648,8 @@ namespace VoxelEngine::renderer
 
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		pipelineLayoutInfo.setLayoutCount = 1;
-		pipelineLayoutInfo.pSetLayouts = &_descriptorSetLayout;
+		//pipelineLayoutInfo.setLayoutCount = 1;
+		//pipelineLayoutInfo.pSetLayouts = &_descriptorSetLayout;
 
 		VkResult err = vkCreatePipelineLayout(_logicalDevice, &pipelineLayoutInfo, _allocator, &_pipelineLayout);
 		check_vk_result(err, "failed to create pipeline layout!");
@@ -651,15 +713,6 @@ namespace VoxelEngine::renderer
 				//_depthImageView
 			};
 			_swapChainFramebuffers[i] = Framebuffer(_renderPass, attachments, _swapChainExtent, _allocator);
-		}
-	}
-	void VulkanRenderer::createUniformBuffers()
-	{
-		VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-		_uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
-		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) 
-		{
-			_uniformBuffers[i] = UniformBuffer(bufferSize, _allocator);
 		}
 	}
 	void VulkanRenderer::createCommandPool()
@@ -766,78 +819,7 @@ namespace VoxelEngine::renderer
 
 		VkResult err = vkCreateDescriptorPool(_logicalDevice, &poolInfo, _allocator, &_descriptorPool);
 		check_vk_result(err, "failed to create descriptor pool!");
-	}
-	void VulkanRenderer::createDescriptorSets()
-	{
-		std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, _descriptorSetLayout);
-		VkDescriptorSetAllocateInfo allocInfo = {};
-		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-		allocInfo.descriptorPool = _descriptorPool;
-		allocInfo.descriptorSetCount = static_cast<uint32>(MAX_FRAMES_IN_FLIGHT);
-		allocInfo.pSetLayouts = layouts.data();
-
-		_descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
-		VkResult err = vkAllocateDescriptorSets(_logicalDevice, &allocInfo, _descriptorSets.data());
-		check_vk_result(err, "failed to allocate descriptor sets!");
-
-		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) 
-		{
-			VkDescriptorBufferInfo bufferInfo = {};
-			bufferInfo.buffer = _uniformBuffers[i];
-			bufferInfo.offset = 0;
-			bufferInfo.range = sizeof(UniformBufferObject);
-
-		/*	VkDescriptorImageInfo imageInfo = {};
-			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-			imageInfo.imageView = _textureImageView;
-			imageInfo.sampler = _textureSampler;*/
-			
-			std::array<VkWriteDescriptorSet, 1> descriptorWrites = {};
-
-			descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			descriptorWrites[0].dstSet = _descriptorSets[i];
-			descriptorWrites[0].dstBinding = 0;
-			descriptorWrites[0].dstArrayElement = 0;
-			descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			descriptorWrites[0].descriptorCount = 1;
-			descriptorWrites[0].pBufferInfo = &bufferInfo;
-
-			//descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			//descriptorWrites[1].dstSet = _descriptorSets[i];
-			//descriptorWrites[1].dstBinding = 1;
-			//descriptorWrites[1].dstArrayElement = 0;
-			//descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			//descriptorWrites[1].descriptorCount = 1;
-			//descriptorWrites[1].pImageInfo = &imageInfo;
-
-			vkUpdateDescriptorSets(_logicalDevice, static_cast<uint32>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
-		}
-	}
-	void VulkanRenderer::createDescriptorSetLayout()
-	{
-		VkDescriptorSetLayoutBinding uboLayoutBinding = {};
-		uboLayoutBinding.binding = 0;
-		uboLayoutBinding.descriptorCount = 1;
-		uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		uboLayoutBinding.pImmutableSamplers = nullptr;
-		uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-
-		VkDescriptorSetLayoutBinding samplerLayoutBinding{};
-		samplerLayoutBinding.binding = 1;
-		samplerLayoutBinding.descriptorCount = 1;
-		samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		samplerLayoutBinding.pImmutableSamplers = nullptr;
-		samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-
-		std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
-		VkDescriptorSetLayoutCreateInfo layoutInfo = {};
-		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-		layoutInfo.bindingCount = static_cast<uint32>(bindings.size());
-		layoutInfo.pBindings = bindings.data();
-
-		VkResult err = vkCreateDescriptorSetLayout(_logicalDevice, &layoutInfo, nullptr, &_descriptorSetLayout);
-		check_vk_result(err, "failed to create descriptor set layout!");
-	}
+	}		
 	void VulkanRenderer::copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkDeviceSize& size) const
 	{
 		VkCommandBuffer commandBuffer = CommandBuffer::allocate();
@@ -856,14 +838,14 @@ namespace VoxelEngine::renderer
 
 		vkQueueSubmit(_graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
 		vkQueueWaitIdle(_graphicsQueue);
-		CommandBuffer::free(commandBuffer);
+		CommandBuffer::release(commandBuffer);
 	}
 	void VulkanRenderer::setupDebugMessenger()
 	{
 		if (!_enableValidationLayers) return;
 
-		VkDebugUtilsMessengerCreateInfoEXT createInfo = populateDebugMessengerCreateInfo();
-		VkResult err = createDebugUtilsMessengerEXT(_instance, &createInfo, _allocator, &_debugMessenger);
+		VkDebugReportCallbackCreateInfoEXT createInfo = populateDebugReportCreateInfo();
+		VkResult err = createDebugReportMessengerEXT(_instance, &createInfo, _allocator, &_debugReportMessenger);
 		check_vk_result(err, "failed to set up debug messenger!");
 	}
 	void VulkanRenderer::recreateSwapChain()
@@ -895,24 +877,17 @@ namespace VoxelEngine::renderer
 		std::vector<VkPhysicalDevice> devices(deviceCount);
 		vkEnumeratePhysicalDevices(_instance, &deviceCount, devices.data());
 
-		// Use an ordered map to automatically sort candidates by increasing score
-		std::multimap<int, VkPhysicalDevice> candidates;
-
-		for (const auto& device : devices)
+		for (const auto& device : devices) 
 		{
-			int score = rateDeviceSuitability(device);
-			candidates.insert(std::make_pair(score, device));
+			if (isDeviceSuitable(device)) 
+			{
+				_physicalDevice = device;
+				break;
+			}
 		}
 
-		// Check if the best candidate is suitable at all
-		if (candidates.rbegin()->first > 0)
-		{
-			_physicalDevice = candidates.rbegin()->second;
-		}
-		else
-		{
+		if (_physicalDevice == VK_NULL_HANDLE)
 			throw std::runtime_error("failed to find a suitable GPU!");
-		}
 	}
 	void VulkanRenderer::destroyDebugUtilsMessengerEXT(const VkInstance& instance, const VkDebugUtilsMessengerEXT& debugMessenger, const VkAllocationCallbacks* pAllocator) const
 	{
@@ -922,24 +897,25 @@ namespace VoxelEngine::renderer
 			func(instance, debugMessenger, pAllocator);
 		}
 	}
+	void VulkanRenderer::destroyDebugReportMessengerEXT(const VkInstance& instance, const VkDebugReportCallbackEXT& debugMessenger, const VkAllocationCallbacks* pAllocator) const
+	{
+		auto func = (PFN_vkDestroyDebugReportCallbackEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugReportCallbackEXT");
+		if (func != nullptr)
+		{
+			func(instance, debugMessenger, pAllocator);
+		}
+	}
 	void VulkanRenderer::cleanupSwapChain() const
 	{
 		for (const auto& framebuffer : _swapChainFramebuffers) 
 		{
-			framebuffer.unbind();
+			framebuffer.release();
 		}
 		for (const auto& imageView : _swapChainImageViews)
 		{
 			vkDestroyImageView(_logicalDevice, imageView, _allocator);
 		}
 		vkDestroySwapchainKHR(_logicalDevice, _swapChain, _allocator);
-	}
-	void VulkanRenderer::cleanupUniformBuffers() const
-	{
-		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) 
-		{
-			_uniformBuffers[i].unbind();
-		}
 	}
 	void VulkanRenderer::presentFrame(const uint32& imageIndex, VkSemaphore* signalSemaphores)
 	{
@@ -1036,9 +1012,6 @@ namespace VoxelEngine::renderer
 		scissor.extent = _swapChainExtent;
 		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-		_vertexBuffer.bind();
-		_indexBuffer.bind();
-
 		ImDrawData* main_draw_data = ImGui::GetDrawData();
 		ImGui_ImplVulkan_RenderDrawData(main_draw_data, commandBuffer);
 
@@ -1102,15 +1075,10 @@ namespace VoxelEngine::renderer
 		createSwapChain();
 		createImageViews();
 		createRenderPass();
-		createDescriptorSetLayout();
 		createGraphicsPipeline();
 		createFramebuffers();
 		createCommandPool();
-		_vertexBuffer = VertexBuffer(vertices.data(), sizeof(vertices[0]) * vertices.size(), _allocator);
-		_indexBuffer = IndexBuffer(indices.data(), sizeof(indices[0]) * indices.size(), _allocator);
-		createUniformBuffers();
 		createDescriptorPool();
-		//createDescriptorSets();
 		createCommandBuffers();
 		createSyncObjects();
 		initImGui();
@@ -1125,11 +1093,7 @@ namespace VoxelEngine::renderer
 		vkDestroyPipeline(_logicalDevice, _graphicsPipeline, _allocator);
 		vkDestroyPipelineLayout(_logicalDevice, _pipelineLayout, _allocator);
 		vkDestroyRenderPass(_logicalDevice, _renderPass, _allocator);
-		cleanupUniformBuffers();
 		vkDestroyDescriptorPool(_logicalDevice, _descriptorPool, _allocator);
-		vkDestroyDescriptorSetLayout(_logicalDevice, _descriptorSetLayout, _allocator);
-		_indexBuffer.unbind();
-		_vertexBuffer.unbind();
 		
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 		{
@@ -1138,13 +1102,13 @@ namespace VoxelEngine::renderer
 			vkDestroyFence(_logicalDevice, _inFlightFences[i], _allocator);
 		}
 
-		CommandBuffer::free(_commandBuffers);
+		CommandBuffer::release(_commandBuffers);
 		vkDestroyCommandPool(_logicalDevice, _commandPool, _allocator);
 		vkDestroyDevice(_logicalDevice, _allocator);
 
 		if (_enableValidationLayers)
 		{
-			destroyDebugUtilsMessengerEXT(_instance, _debugMessenger, _allocator);
+			destroyDebugReportMessengerEXT(_instance, _debugReportMessenger, _allocator);
 		}
 
 		vkDestroySurfaceKHR(_instance, _surface, _allocator);

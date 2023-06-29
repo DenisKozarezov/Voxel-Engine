@@ -105,7 +105,7 @@ namespace VoxelEngine::renderer
 		virtual ~VertexBuffer() = default;
 
 		virtual void bind() const = 0;
-		virtual void unbind() const = 0;
+		virtual void release() const = 0;
 
 		virtual void setData(const void* data, const uint32& size) = 0;
 
@@ -122,7 +122,7 @@ namespace VoxelEngine::renderer
 		virtual ~IndexBuffer() = default;
 
 		virtual void bind() const = 0;
-		virtual void unbind() const = 0;
+		virtual void release() const = 0;
 
 		virtual const uint32& getCount() const = 0;
 

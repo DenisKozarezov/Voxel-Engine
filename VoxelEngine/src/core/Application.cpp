@@ -42,7 +42,7 @@ namespace VoxelEngine
 		layer->onAttach();
 	}
 
-	const void Application::init()
+	void Application::init()
 	{
 		try
 		{
@@ -55,7 +55,7 @@ namespace VoxelEngine
 			VOXEL_DEBUGBREAK()
 		}
 	}
-	const void Application::run()
+	void Application::run()
 	{
 		VOXEL_CORE_WARN("Running Voxel Engine...")
 
@@ -78,7 +78,7 @@ namespace VoxelEngine
 		}
 		renderer::Renderer::deviceWaitIdle();
 	}
-	const void Application::shutdown()
+	void Application::shutdown()
 	{
 		_layerStack.detach();
 		renderer::Renderer::cleanup();

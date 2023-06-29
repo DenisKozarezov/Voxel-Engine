@@ -9,7 +9,7 @@ namespace VoxelEngine::renderer
 	{
 		glm::vec3 position;
 		glm::vec3 color;
-		glm::vec2 texCoord;
+		glm::vec2 uv;
 
 		static VkVertexInputBindingDescription getBindingDescription()
 		{
@@ -36,7 +36,7 @@ namespace VoxelEngine::renderer
 			attributeDescriptions[2].binding = 0;
 			attributeDescriptions[2].location = 2;
 			attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
-			attributeDescriptions[2].offset = offsetof(Vertex, texCoord);
+			attributeDescriptions[2].offset = offsetof(Vertex, uv);
 
 			return attributeDescriptions;
 		}

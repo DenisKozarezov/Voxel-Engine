@@ -14,7 +14,7 @@ namespace VoxelEngine::renderer
 		static void reset(const VkCommandBuffer& buffer);
 		static void beginCommand(const VkCommandBuffer& buffer);
 		static void endCommand(const VkCommandBuffer& buffer);
-		static void free(const VkCommandBuffer& buffer);
-		static void free(const std::vector<VkCommandBuffer>& buffers);
+		static void release(const VkCommandBuffer& buffer);
+		static void release(const std::vector<VkCommandBuffer>& buffers);
 	};
 }

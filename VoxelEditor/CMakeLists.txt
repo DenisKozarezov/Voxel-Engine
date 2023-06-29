@@ -8,10 +8,12 @@ set_target_properties(${TARGET} PROPERTIES
     LINKER_LANGUAGE CXX
 )
 
+file(GLOB_RECURSE EDITOR_SOURCE ./*.cpp)
+file(GLOB_RECURSE EDITOR_HEADER ./*.h)
+
 add_executable(${PROJECT_NAME} 
-	src/EditorApplication.cpp
-	src/EditorLayer.cpp
-	src/EditorLayer.h
+	${EDITOR_SOURCE}
+	${EDITOR_HEADER}
 )
 
 # link VoxelEngine STATIC library

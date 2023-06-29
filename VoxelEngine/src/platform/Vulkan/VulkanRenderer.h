@@ -7,12 +7,10 @@
 #include <core/Window.h>
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
-#include "VulkanVertexBuffer.h"
-#include "VulkanIndexBuffer.h"
-#include "VulkanUniformBuffer.h"
 #include "VulkanFramebuffer.h"
 #include "VulkanShader.h"
 #include "VulkanCommandBuffer.h"
+#include "VulkanVertex.h"
 
 namespace VoxelEngine::renderer
 {
@@ -33,31 +31,14 @@ namespace VoxelEngine::renderer
 		std::vector<VkPresentModeKHR> presentModes;
 	};
 
-	const std::vector<Vertex> vertices = 
-	{
-		{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-		{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-		{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-		{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
-
-		{{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-		{{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-		{{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-		{{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}
-	};
-
-	const std::vector<uint16> indices = 
-	{
-		0, 1, 2, 2, 3, 0,
-		4, 5, 6, 6, 7, 4
-	};
-
 	class VulkanRenderer
 	{
+	public:
 		static SharedRef<VulkanRenderer> _singleton;		
 		GLFWwindow* _window;
 		VkInstance _instance;
-		VkDebugUtilsMessengerEXT _debugMessenger;
+		VkDebugUtilsMessengerEXT _debugUtilsMessenger;
+		VkDebugReportCallbackEXT _debugReportMessenger;
 		VkDevice _logicalDevice;
 		VkPhysicalDevice _physicalDevice;
 		VkCommandPool _commandPool;
@@ -70,18 +51,13 @@ namespace VoxelEngine::renderer
 		VkSwapchainKHR _swapChain;
 		VkRenderPass _renderPass;
 		VkPipelineLayout _pipelineLayout;
-		VkDescriptorSetLayout _descriptorSetLayout;
 		VkDescriptorPool _descriptorPool;
-		std::vector<VkDescriptorSet> _descriptorSets;
 		VkPipeline _graphicsPipeline;
 		VkImage _depthImage;
 		VkDeviceMemory _depthImageMemory;
 		VkImageView _depthImageView;
 		VkFormat _swapChainImageFormat;
 		VkExtent2D _swapChainExtent;
-		IndexBuffer _indexBuffer;
-		VertexBuffer _vertexBuffer;
-		std::vector<UniformBuffer> _uniformBuffers;
 		std::vector<VkImage> _swapChainImages;
 		std::vector<VkImageView> _swapChainImageViews;
 		std::vector<Framebuffer> _swapChainFramebuffers;
@@ -111,10 +87,11 @@ namespace VoxelEngine::renderer
 		const bool checkDeviceExtensionSupport(const VkPhysicalDevice& device) const;
 		const bool isDeviceSuitable(const VkPhysicalDevice& device) const;
 		constexpr bool hasStencilComponent(const VkFormat& format) const;
-		const int rateDeviceSuitability(const VkPhysicalDevice& device) const;
 		const std::vector<const char*> getRequiredExtensions() const;
 		const VkResult createDebugUtilsMessengerEXT(const VkInstance& instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) const;
-		constexpr VkDebugUtilsMessengerCreateInfoEXT populateDebugMessengerCreateInfo() const;
+		const VkResult createDebugReportMessengerEXT(const VkInstance& instance, const VkDebugReportCallbackCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugReportCallbackEXT* pDebugMessenger) const;
+		constexpr VkDebugUtilsMessengerCreateInfoEXT populateDebugUtilsCreateInfo() const;
+		constexpr VkDebugReportCallbackCreateInfoEXT populateDebugReportCreateInfo() const;
 		const QueueFamilyIndices findQueueFamilies(const VkPhysicalDevice& device) const;
 		const SwapChainSupportDetails querySwapChainSupport(const VkPhysicalDevice& device) const;
 		constexpr const VkSurfaceFormatKHR& chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) const;
@@ -129,22 +106,19 @@ namespace VoxelEngine::renderer
 		void createRenderPass();
 		void createGraphicsPipeline();
 		void createFramebuffers();
-		void createUniformBuffers();
 		void createImageViews();
 		void createCommandPool();
 		void createCommandBuffers();
 		void createSyncObjects();
 		void createDescriptorPool();
-		void createDescriptorSets();
-		void createDescriptorSetLayout();
 		void setupDebugMessenger();
 		void recreateSwapChain();
 		void pickPhysicalDevice();
 		void recordCommandBuffer(const VkCommandBuffer& commandBuffer, const uint32& imageIndex) const;
 		void endSingleTimeCommands(const VkCommandBuffer& commandBuffer, const VkSemaphore* signalSemaphores = nullptr);
 		void destroyDebugUtilsMessengerEXT(const VkInstance& instance, const VkDebugUtilsMessengerEXT& debugMessenger, const VkAllocationCallbacks* pAllocator) const;
+		void destroyDebugReportMessengerEXT(const VkInstance& instance, const VkDebugReportCallbackEXT& debugMessenger, const VkAllocationCallbacks* pAllocator) const;
 		void cleanupSwapChain() const;
-		void cleanupUniformBuffers() const;
 		void presentFrame(const uint32& imageIndex, VkSemaphore* signalSemaphores);
 		void initImGui() const;
 		static void framebufferResizeCallback(GLFWwindow* window, int width, int height);

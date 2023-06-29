@@ -65,9 +65,9 @@ namespace VoxelEngine
 
 		static const SharedRef<Application> getInstance();
 
-		const void init();
-		const void run();
-		const void shutdown();
+		void init();
+		void run();
+		void shutdown();
 
 		virtual ~Application() = default;
 	};

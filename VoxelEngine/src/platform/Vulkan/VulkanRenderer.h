@@ -53,9 +53,6 @@ namespace VoxelEngine::renderer
 		VkPipelineLayout _pipelineLayout;
 		VkDescriptorPool _descriptorPool;
 		VkPipeline _graphicsPipeline;
-		VkImage _depthImage;
-		VkDeviceMemory _depthImageMemory;
-		VkImageView _depthImageView;
 		VkFormat _swapChainImageFormat;
 		VkExtent2D _swapChainExtent;
 		std::vector<VkImage> _swapChainImages;

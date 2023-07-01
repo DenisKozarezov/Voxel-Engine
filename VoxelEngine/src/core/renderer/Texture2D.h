@@ -6,9 +6,10 @@ namespace VoxelEngine::renderer
 	class Texture2D
 	{
 	protected:
-		int _width;
-		int _height;
-		int _texChannels;
+		int _width = 0;
+		int _height = 0;
+		int _texChannels = 0;
+		string _filepath;
 	public:
 		Texture2D(const std::string& path);
 

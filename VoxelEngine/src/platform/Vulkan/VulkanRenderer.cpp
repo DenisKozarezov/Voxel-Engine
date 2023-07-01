@@ -1,16 +1,18 @@
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include "VulkanRenderer.h"
-#include <core/Log.h>
 #include <core/Assert.h>
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
+#include "VulkanTexture2D.h"
 
 namespace VoxelEngine::renderer
 {
 	constexpr static int MAX_FRAMES_IN_FLIGHT = 2;
 	SharedRef<VulkanRenderer> VulkanRenderer::_singleton = nullptr;
 	bool VulkanRenderer::_framebufferResized = false;
+
+	VulkanTexture2D* texture = nullptr;
 
 	void VulkanRenderer::check_vk_result(const VkResult& vkResult, const std::string& exceptionMsg)
 	{
@@ -335,17 +337,15 @@ namespace VoxelEngine::renderer
 		VkDebugReportCallbackCreateInfoEXT createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
 		createInfo.pNext = nullptr;
-		createInfo.flags = VK_DEBUG_REPORT_INFORMATION_BIT_EXT | VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT | VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT;
+		createInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT | VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT;
 		createInfo.pfnCallback = &debugReportCallback;
 		createInfo.pUserData = nullptr;
 		return createInfo;
 	}
 	void VulkanRenderer::createInstance()
 	{
-		if (_enableValidationLayers && !checkValidationLayerSupport())
-		{
-			throw std::runtime_error("validation layers requested, but not available!");
-		}
+		bool layersSupported = _enableValidationLayers && checkValidationLayerSupport();
+		VOXEL_CORE_ASSERT(layersSupported, "validation layers requested, but not available!")
 
 		VkApplicationInfo appInfo = {};
 		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -416,12 +416,7 @@ namespace VoxelEngine::renderer
 	}
 	void VulkanRenderer::createSurface()
 	{
-		VkWin32SurfaceCreateInfoKHR createInfo = {};
-		createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-		createInfo.hwnd = glfwGetWin32Window(_window);
-		createInfo.hinstance = GetModuleHandle(nullptr);
-
-		VkResult err = vkCreateWin32SurfaceKHR(_instance, &createInfo, _allocator, &_surface);
+		VkResult err = glfwCreateWindowSurface(_instance, _window, nullptr, &_surface);
 		check_vk_result(err, "failed to create window surface!");
 	}
 	void VulkanRenderer::createSwapChain()
@@ -490,39 +485,24 @@ namespace VoxelEngine::renderer
 		colorAttachmentRef.attachment = 0;
 		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-		VkAttachmentDescription depthAttachment = {};
-		depthAttachment.format = findDepthFormat();
-		depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-		depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-		VkAttachmentReference depthAttachmentRef = {};
-		depthAttachmentRef.attachment = 1;
-		depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
 		VkSubpassDescription subpass = {};
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 		subpass.colorAttachmentCount = 1;
 		subpass.pColorAttachments = &colorAttachmentRef;
-		//subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
 		VkSubpassDependency dependency = {};
 		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
 		dependency.dstSubpass = 0;
 		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 		dependency.srcAccessMask = 0;
-		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
-		std::vector<VkAttachmentDescription> attachments = { colorAttachment, depthAttachment };
+		std::vector<VkAttachmentDescription> attachments = { colorAttachment };
 		VkRenderPassCreateInfo renderPassInfo = {};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-		renderPassInfo.attachmentCount = 1;
-		renderPassInfo.pAttachments = &colorAttachment;
+		renderPassInfo.attachmentCount = attachments.size();
+		renderPassInfo.pAttachments = attachments.data();
 		renderPassInfo.subpassCount = 1;
 		renderPassInfo.pSubpasses = &subpass;
 		renderPassInfo.dependencyCount = 1;
@@ -568,6 +548,7 @@ namespace VoxelEngine::renderer
 
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
 		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+
 		vertexInputInfo.vertexBindingDescriptionCount = 1;
 		vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32>(attributeDescription.size());
 		vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
@@ -590,7 +571,7 @@ namespace VoxelEngine::renderer
 		rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
 		rasterizer.lineWidth = 1.0f;
 		rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-		rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+		rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
 		rasterizer.depthBiasEnable = VK_FALSE;
 		rasterizer.depthBiasConstantFactor = 0.0f;								// Optional
 		rasterizer.depthBiasClamp = 0.0f;										// Optional
@@ -605,21 +586,9 @@ namespace VoxelEngine::renderer
 		multisampling.alphaToCoverageEnable = VK_FALSE;							// Optional
 		multisampling.alphaToOneEnable = VK_FALSE;								// Optional
 
-		VkPipelineDepthStencilStateCreateInfo depthStencil = {};
-		depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-		depthStencil.depthTestEnable = VK_TRUE;
-		depthStencil.depthWriteEnable = VK_TRUE;
-		depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
-		depthStencil.depthBoundsTestEnable = VK_FALSE;
-		depthStencil.stencilTestEnable = VK_FALSE;
-		depthStencil.minDepthBounds = 0.0f;										// Optional
-		depthStencil.maxDepthBounds = 1.0f;										// Optional
-
 		VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
 		colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 		colorBlendAttachment.blendEnable = VK_FALSE;
-		colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;			// Optional
-		colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;		// Optional
 		colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;					// Optional
 		colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;			// Optional
 		colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;		// Optional
@@ -636,7 +605,7 @@ namespace VoxelEngine::renderer
 		colorBlending.blendConstants[2] = 0.0f;
 		colorBlending.blendConstants[3] = 0.0f;
 
-		std::vector<VkDynamicState> dynamicStates =
+		std::vector<VkDynamicState> dynamicStates = 
 		{
 			VK_DYNAMIC_STATE_VIEWPORT,
 			VK_DYNAMIC_STATE_SCISSOR
@@ -648,8 +617,9 @@ namespace VoxelEngine::renderer
 
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		//pipelineLayoutInfo.setLayoutCount = 1;
-		//pipelineLayoutInfo.pSetLayouts = &_descriptorSetLayout;
+		pipelineLayoutInfo.setLayoutCount = 0;
+		pipelineLayoutInfo.pPushConstantRanges = 0;
+		//pipelineLayoutInfo.pSetLayouts = &texture->_descriptorSetLayout;
 
 		VkResult err = vkCreatePipelineLayout(_logicalDevice, &pipelineLayoutInfo, _allocator, &_pipelineLayout);
 		check_vk_result(err, "failed to create pipeline layout!");
@@ -663,7 +633,6 @@ namespace VoxelEngine::renderer
 		pipelineInfo.pViewportState = &viewportState;
 		pipelineInfo.pRasterizationState = &rasterizer;
 		pipelineInfo.pMultisampleState = &multisampling;
-		pipelineInfo.pDepthStencilState = &depthStencil;
 		pipelineInfo.pColorBlendState = &colorBlending;
 		pipelineInfo.pDynamicState = &dynamicState;
 		pipelineInfo.layout = _pipelineLayout;
@@ -710,9 +679,8 @@ namespace VoxelEngine::renderer
 			std::vector<VkImageView> attachments = 
 			{
 				_swapChainImageViews[i]
-				//_depthImageView
 			};
-			_swapChainFramebuffers[i] = Framebuffer(_renderPass, attachments, _swapChainExtent, _allocator);
+			_swapChainFramebuffers[i] = Framebuffer(_logicalDevice, _renderPass, attachments, _swapChainExtent, _allocator);
 		}
 	}
 	void VulkanRenderer::createCommandPool()
@@ -836,7 +804,8 @@ namespace VoxelEngine::renderer
 		submitInfo.commandBufferCount = 1;
 		submitInfo.pCommandBuffers = &commandBuffer;
 
-		vkQueueSubmit(_graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+		VkResult err = vkQueueSubmit(_graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+		check_vk_result(err, "failed to copy buffer!");
 		vkQueueWaitIdle(_graphicsQueue);
 		CommandBuffer::release(commandBuffer);
 	}
@@ -869,10 +838,7 @@ namespace VoxelEngine::renderer
 		uint32 deviceCount = 0;
 		vkEnumeratePhysicalDevices(_instance, &deviceCount, nullptr);
 		
-		if (deviceCount == 0)
-		{
-			throw std::runtime_error("failed to find GPUs with Vulkan support!");
-		}
+		VOXEL_CORE_ASSERT(deviceCount != 0, "failed to find GPUs with Vulkan support!")
 
 		std::vector<VkPhysicalDevice> devices(deviceCount);
 		vkEnumeratePhysicalDevices(_instance, &deviceCount, devices.data());
@@ -943,16 +909,16 @@ namespace VoxelEngine::renderer
 		vkWaitForFences(_logicalDevice, 1, &_inFlightFences[_currentFrame], VK_TRUE, UINT64_MAX);
 		uint32 imageIndex;
 		VkResult result = vkAcquireNextImageKHR(_logicalDevice, _swapChain, UINT64_MAX, _imageAvailableSemaphores[_currentFrame], VK_NULL_HANDLE, &imageIndex);
-		if (result == VK_ERROR_OUT_OF_DATE_KHR) 
+		if (result == VK_ERROR_OUT_OF_DATE_KHR)
 		{
 			recreateSwapChain();
 			return;
 		}
-		else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) 
-		{
-			throw std::runtime_error("failed to acquire swap chain image!");
-		}
-		
+		else
+			VOXEL_CORE_ASSERT(result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR, "failed to acquire swap chain image!")
+
+		//texture->updateUniformBuffer();
+
 		vkResetFences(_logicalDevice, 1, &_inFlightFences[_currentFrame]);
 		CommandBuffer::reset(_commandBuffers[_currentFrame]);
 
@@ -979,21 +945,23 @@ namespace VoxelEngine::renderer
 		presentFrame(_currentFrame, signalSemaphores);
 
 		_currentFrame = (_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
-	}
+	}	
 
 	void VulkanRenderer::recordCommandBuffer(const VkCommandBuffer& commandBuffer, const uint32& imageIndex) const
 	{
 		CommandBuffer::beginCommand(commandBuffer);
 
 		VkRenderPassBeginInfo renderPassInfo = {};
-		VkClearValue clearColor = { {{0.0f, 0.0f, 0.0f, 1.0f}} };
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 		renderPassInfo.renderPass = _renderPass;
 		renderPassInfo.framebuffer = _swapChainFramebuffers[imageIndex];
-		renderPassInfo.renderArea.extent = _swapChainExtent;
 		renderPassInfo.renderArea.offset = { 0, 0 };
+		renderPassInfo.renderArea.extent = _swapChainExtent;
+
+		VkClearValue clearColor = { {{0.0f, 0.0f, 0.0f, 1.0f}} };
 		renderPassInfo.clearValueCount = 1;
 		renderPassInfo.pClearValues = &clearColor;
+
 		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _graphicsPipeline);
@@ -1012,8 +980,12 @@ namespace VoxelEngine::renderer
 		scissor.extent = _swapChainExtent;
 		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
+		// =================== RENDER WHOLE STUFF HERE ! ===================
+		texture->render(commandBuffer);
+
 		ImDrawData* main_draw_data = ImGui::GetDrawData();
 		ImGui_ImplVulkan_RenderDrawData(main_draw_data, commandBuffer);
+		// =================================================================
 
 		vkCmdEndRenderPass(commandBuffer);
 		CommandBuffer::endCommand(commandBuffer);
@@ -1034,7 +1006,7 @@ namespace VoxelEngine::renderer
 		submitInfo.pSignalSemaphores = signalSemaphores;
 
 		VkResult err = vkQueueSubmit(_graphicsQueue, 1, &submitInfo, _inFlightFences[_currentFrame]);
-		check_vk_result(err, "failed to submit draw command buffer!");
+		check_vk_result(err, "failed to submit draw command buffer! Possible reasons:\n 1) Incorrect shaders for submitting to the command queue. Please recompile your shaders!\n 2) Synchronization issues.");
 	}
 	const SharedRef<VulkanRenderer> VulkanRenderer::getInstance()
 	{
@@ -1066,7 +1038,7 @@ namespace VoxelEngine::renderer
 		VOXEL_CORE_ASSERT(success, "GLFW: Vulkan Not Supported")
 	}
 	void VulkanRenderer::init()
-	{
+	{		
 		createInstance();
 		setupDebugMessenger();
 		createSurface();
@@ -1074,7 +1046,7 @@ namespace VoxelEngine::renderer
 		createLogicalDevice();
 		createSwapChain();
 		createImageViews();
-		createRenderPass();
+		createRenderPass();		
 		createGraphicsPipeline();
 		createFramebuffers();
 		createCommandPool();
@@ -1082,6 +1054,8 @@ namespace VoxelEngine::renderer
 		createCommandBuffers();
 		createSyncObjects();
 		initImGui();
+
+		texture = new VulkanTexture2D("resources/textures/texture.jpg", _allocator);
 	}
 	void VulkanRenderer::deviceWaitIdle() const
 	{
@@ -1089,6 +1063,8 @@ namespace VoxelEngine::renderer
 	}
 	void VulkanRenderer::cleanup() const
 	{
+		delete texture;
+
 		cleanupSwapChain();
 		vkDestroyPipeline(_logicalDevice, _graphicsPipeline, _allocator);
 		vkDestroyPipelineLayout(_logicalDevice, _pipelineLayout, _allocator);

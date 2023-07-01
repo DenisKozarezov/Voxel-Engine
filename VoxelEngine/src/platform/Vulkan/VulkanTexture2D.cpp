@@ -1,5 +1,6 @@
 #include "VulkanTexture2D.h"
 #include "VulkanRenderer.h"
+#include <core/Assert.h>
 #include <imgui_impl_vulkan.h>
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -16,12 +17,12 @@ namespace VoxelEngine::renderer
 		_renderer = VulkanRenderer::getInstance();
 		_logicalDevice = _renderer->getLogicalDevice();
 
-		createTextureImage(path);
-		createTextureImageView();
-		createTextureSampler();
+		//createDescriptorSetLayout();
+		//createTextureImage(path);
+		//createTextureImageView();
+		//createTextureSampler();
 		generateQuad();
-		createDescriptorSetLayout();
-		createDescriptorSet();
+		//createDescriptorSet();
 	}
     
 	const VkImageView VulkanTexture2D::createImageView(const VkFormat& format) const
@@ -38,16 +39,14 @@ namespace VoxelEngine::renderer
 		viewInfo.subresourceRange.layerCount = 1;
 
 		VkImageView imageView;
-		if (vkCreateImageView(_logicalDevice, &viewInfo, nullptr, &imageView) != VK_SUCCESS)
-		{
-			throw std::runtime_error("failed to create texture image view!");
-		}
+		VkResult err = vkCreateImageView(_logicalDevice, &viewInfo, nullptr, &imageView);
+		VulkanRenderer::check_vk_result(err, "failed to create texture image view!");
 		return imageView;
 	}
 	void VulkanTexture2D::generateQuad()
     {
-		_vertexBuffer = VertexBuffer(_vertices.data(), sizeof(_vertices[0]) * _vertices.size(), _allocator);
-		_indexBuffer = IndexBuffer(_indices.data(), sizeof(_indices[0]) * _indices.size(), _allocator);
+		_vertexBuffer = VertexBuffer(_logicalDevice, _vertices.data(), sizeof(_vertices[0]) * _vertices.size(), _allocator);
+		_indexBuffer = IndexBuffer(_logicalDevice, _indices.data(), sizeof(_indices[0]) * _indices.size(), _allocator);
 		
 		VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 		_uniformBuffer = UniformBuffer(bufferSize, _allocator);
@@ -68,11 +67,9 @@ namespace VoxelEngine::renderer
 		imageInfo.usage = usage;
 		imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
 		imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-		if (vkCreateImage(_logicalDevice, &imageInfo, nullptr, &_textureImage) != VK_SUCCESS)
-		{
-			throw std::runtime_error("failed to create image!");
-		}
+		
+		VkResult err = vkCreateImage(_logicalDevice, &imageInfo, nullptr, &_textureImage);
+		VulkanRenderer::check_vk_result(err, "failed to create image!");
 
 		VkMemoryRequirements memRequirements;
 		vkGetImageMemoryRequirements(_logicalDevice, _textureImage, &memRequirements);
@@ -80,12 +77,11 @@ namespace VoxelEngine::renderer
 		VkMemoryAllocateInfo allocInfo = {};
 		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		allocInfo.allocationSize = memRequirements.size;
-		allocInfo.memoryTypeIndex = VulkanRenderer::getInstance()->findMemoryType(memRequirements.memoryTypeBits, properties);
+		allocInfo.memoryTypeIndex = _renderer->findMemoryType(memRequirements.memoryTypeBits, properties);
 		
-		if (vkAllocateMemory(_logicalDevice, &allocInfo, _allocator, &_stagingMemory) != VK_SUCCESS)
-		{
-			throw std::runtime_error("failed to allocate image memory!");
-		}
+		err = vkAllocateMemory(_logicalDevice, &allocInfo, _allocator, &_stagingMemory);
+		VulkanRenderer::check_vk_result(err, "failed to allocate image memory!");
+
 		vkBindImageMemory(_logicalDevice, _textureImage, _stagingMemory, 0);
 	}
 	void VulkanTexture2D::createTextureImage(const string& filepath)
@@ -93,9 +89,11 @@ namespace VoxelEngine::renderer
 		stbi_uc* pixels = stbi_load(filepath.c_str(), &_width, &_height, &_texChannels, STBI_rgb_alpha);
 		VkDeviceSize imageSize = _width * _height * 4;
 
-		if (!pixels) {
-			throw std::runtime_error("failed to load texture image on path " + filepath);
-		}
+		VOXEL_CORE_ASSERT(pixels, "failed to load texture image on path '" + filepath + "'")
+
+		std::stringstream ss;
+		ss << "Creating texture '" << filepath << "' [W: " << _width << "; H: " << _height << "]...";
+		VOXEL_CORE_TRACE(ss.str())
 
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
@@ -138,22 +136,19 @@ namespace VoxelEngine::renderer
 		samplerInfo.mipLodBias = 0.0f;
 		samplerInfo.minLod = 0.0f;
 
-		if (vkCreateSampler(_logicalDevice, &samplerInfo, _allocator, &_textureSampler) != VK_SUCCESS)
-		{
-			throw std::runtime_error("failed to create texture sampler!");
-		}
+		VkResult err = vkCreateSampler(_logicalDevice, &samplerInfo, _allocator, &_textureSampler);
+		VulkanRenderer::check_vk_result(err, "failed to create texture sampler!");
 	}
 	void VulkanTexture2D::createDescriptorSet()
 	{
 		VkDescriptorSetAllocateInfo allocInfo = {};
 		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-		allocInfo.descriptorPool = VulkanRenderer::getInstance()->_descriptorPool;
+		allocInfo.descriptorPool = _renderer->_descriptorPool;
 		allocInfo.descriptorSetCount = 1;
 		allocInfo.pSetLayouts = &_descriptorSetLayout;
 
-		if (vkAllocateDescriptorSets(_logicalDevice, &allocInfo, &_descriptorSet) != VK_SUCCESS) {
-			throw std::runtime_error("failed to allocate descriptor sets!");
-		}
+		VkResult err = vkAllocateDescriptorSets(_logicalDevice, &allocInfo, &_descriptorSet);
+		VulkanRenderer::check_vk_result(err, "failed to allocate descriptor sets!");
 
 		VkDescriptorBufferInfo bufferInfo = {};
 		bufferInfo.buffer = _uniformBuffer;
@@ -194,7 +189,7 @@ namespace VoxelEngine::renderer
 		uboLayoutBinding.pImmutableSamplers = nullptr;
 		uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
-		VkDescriptorSetLayoutBinding samplerLayoutBinding{};
+		VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
 		samplerLayoutBinding.binding = 1;
 		samplerLayoutBinding.descriptorCount = 1;
 		samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -210,19 +205,20 @@ namespace VoxelEngine::renderer
 		VkResult err = vkCreateDescriptorSetLayout(_logicalDevice, &layoutInfo, _allocator, &_descriptorSetLayout);
 		VulkanRenderer::check_vk_result(err, "failed to create descriptor set layout!");
 	}
-	void VulkanTexture2D::bind()
+	void VulkanTexture2D::updateUniformBuffer()
 	{
 		UniformBufferObject ubo = {};
 		ubo.model = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 		ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-		ubo.projection = glm::perspective(glm::radians(45.0f), 3.0f / 2.0f, 0.1f, 10.0f);
-		ubo.projection[1][1] *= -1;
+		ubo.proj = glm::perspective(glm::radians(45.0f), 3.0f / 2.0f, 0.1f, 10.0f);
+		ubo.proj[1][1] *= -1;
 
-		_uniformBuffer.setData(&ubo);				
-		_vertexBuffer.bind();
-		_indexBuffer.bind();
-
-		VkCommandBuffer commandBuffer = _renderer->getCommandBuffer();
+		_uniformBuffer.setData(&ubo);	
+	}
+	void VulkanTexture2D::render(const VkCommandBuffer& commandBuffer)
+	{	
+		_vertexBuffer.bind(commandBuffer);
+		_indexBuffer.bind(commandBuffer);
 		//vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _renderer->_pipelineLayout, 0, 1, &_descriptorSet, 0, nullptr);
 		vkCmdDrawIndexed(commandBuffer, static_cast<uint32>(_indices.size()), 1, 0, 0, 0);
 	}
@@ -238,9 +234,9 @@ namespace VoxelEngine::renderer
 		_vertexBuffer.release();
 		_uniformBuffer.release();
 
-		_textureSampler = nullptr;
-		_textureImageView = nullptr;
 		_textureImage = nullptr;
+		_textureImageView = nullptr;
+		_textureSampler = nullptr;
 		_stagingMemory = nullptr;
 	}
 	void VulkanTexture2D::recordToBuffer(void* src, const VkDeviceSize& imageSize, const VkDeviceMemory& stagingBufferMemory) const
@@ -330,6 +326,10 @@ namespace VoxelEngine::renderer
 	
 	VulkanTexture2D::~VulkanTexture2D()
 	{
+		std::stringstream ss;
+		ss << "Clearing texture '" << _filepath << "' [W: " << _width << "; H: " << _height << "]...";
+		VOXEL_CORE_TRACE(ss.str())
+
 		release();
 	}
 }

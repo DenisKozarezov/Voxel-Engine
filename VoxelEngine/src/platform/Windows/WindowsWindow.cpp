@@ -1,5 +1,4 @@
 #include "WindowsWindow.h"
-#include "core/Log.h"
 #include "core/Assert.h"
 #include "core/input/events/ApplicationEvent.h"
 #include "core/input/events/KeyboardEvent.h"

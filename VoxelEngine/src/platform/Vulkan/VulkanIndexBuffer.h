@@ -13,9 +13,11 @@ namespace VoxelEngine::renderer
 		VkDevice _logicalDevice;
 	public:
 		IndexBuffer() = default;
-		IndexBuffer(const uint16* indices, const uint32& size, VkAllocationCallbacks* allocator = nullptr);
+		IndexBuffer(const VkDevice& logicalDevice, const uint16* indices, const uint32& bufferSize, VkAllocationCallbacks* allocator = nullptr);
 
-		void bind() const;
+		operator const VkBuffer () const & { return _indexBuffer; }
+
+		void bind(const VkCommandBuffer& commandBuffer) const;
 		void release() const;
 
 		~IndexBuffer() = default;

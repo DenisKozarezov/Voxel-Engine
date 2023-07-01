@@ -1,7 +1,6 @@
 #pragma once
 #include "input/events/ApplicationEvent.h"
 #include "Window.h"
-#include "Log.h"
 #include "Assert.h"
 #include "LayerStack.h"
 

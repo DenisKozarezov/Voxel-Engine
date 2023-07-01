@@ -9,7 +9,7 @@ namespace VoxelEngine::renderer
 {
 	class VulkanTexture2D : public Texture2D
 	{
-	private:
+	public:
 		VkDevice _logicalDevice;
 
 		VkImage _textureImage;
@@ -26,17 +26,14 @@ namespace VoxelEngine::renderer
 		VkDescriptorSetLayout _descriptorSetLayout;
 		VkAllocationCallbacks* _allocator;
 
-		std::vector<Vertex> _vertices =
-		{
-			{ {  1.0f,  1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f } },
-			{ { -1.0f,  1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f } },
-			{ { -1.0f, -1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f } },
-			{ {  1.0f, -1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f } }
+		const std::vector<Vertex> _vertices = {
+			{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+			{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+			{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+			{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
 		};
+		const std::vector<uint16_t> _indices = { 0,1,2,2,3,0 };
 
-		std::vector<uint16> _indices = { 0,1,2,2,3,0 };
-
-		inline const VkDescriptorSet& getDescriptorSet() const & { return _descriptorSet; }
 		const VkImageView createImageView(const VkFormat& format) const;
 		void generateQuad();
 		void createImage(const VkFormat& format, const VkImageTiling& tiling, const VkImageUsageFlags& usage, const VkMemoryPropertyFlags& properties);
@@ -52,7 +49,8 @@ namespace VoxelEngine::renderer
 		VulkanTexture2D() = delete;
 		VulkanTexture2D(const std::string& path, VkAllocationCallbacks* allocator = nullptr);
 
-		void bind();
+		void updateUniformBuffer();
+		void render(const VkCommandBuffer& commandBuffer);
 		void release() override;
 
 		~VulkanTexture2D();

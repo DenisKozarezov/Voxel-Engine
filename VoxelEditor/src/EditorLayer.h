@@ -8,6 +8,10 @@ namespace VoxelEditor
 	private:
 		const bool onKeyPressed(const VoxelEngine::input::KeyPressedEvent& e) const;
 		const bool onMouseButtonPressed(const VoxelEngine::input::MouseButtonPressedEvent& e) const;
+		void drawMenuBar();
+		void drawBrushPanel();
+		void drawHierarchy();
+		void drawRenderPerformance();
 	public:
 		EditorLayer();
 		~EditorLayer() = default;

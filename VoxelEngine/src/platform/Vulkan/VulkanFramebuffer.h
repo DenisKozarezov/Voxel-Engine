@@ -9,10 +9,9 @@ namespace VoxelEngine::renderer
 	private:
 		VkFramebuffer _framebuffer;
 		VkDevice _logicalDevice;
-		VkAllocationCallbacks* _allocator;
 	public:
 		Framebuffer() = default;
-		Framebuffer(const VkDevice& logicalDevice, const VkRenderPass& renderPass, const std::vector<VkImageView>& attachments, const VkExtent2D& framebufferSize, VkAllocationCallbacks* allocator = nullptr);
+		Framebuffer(const VkDevice& logicalDevice, const VkRenderPass& renderPass, const std::vector<VkImageView>& attachments, const VkExtent2D& framebufferSize);
 
 		operator VkFramebuffer() const & { return _framebuffer; }
 

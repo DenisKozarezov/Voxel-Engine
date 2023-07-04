@@ -3,8 +3,8 @@
 
 namespace VoxelEngine::renderer
 {
-	IndexBuffer::IndexBuffer(const VkDevice& logicalDevice, const uint16* indices, const uint32& bufferSize, VkAllocationCallbacks* allocator)
-		: _logicalDevice(logicalDevice), _allocator(allocator)
+	IndexBuffer::IndexBuffer(const VkDevice& logicalDevice, const uint16* indices, const uint32& bufferSize)
+		: _logicalDevice(logicalDevice)
 	{
 		auto renderer = VulkanRenderer::getInstance();
 
@@ -20,8 +20,8 @@ namespace VoxelEngine::renderer
 		renderer->createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _indexBuffer, _indexBufferMemory);
 		renderer->copyBuffer(stagingBuffer, _indexBuffer, bufferSize);
 
-		vkDestroyBuffer(logicalDevice, stagingBuffer, _allocator);
-		vkFreeMemory(logicalDevice, stagingBufferMemory, _allocator);
+		vkDestroyBuffer(logicalDevice, stagingBuffer, nullptr);
+		vkFreeMemory(logicalDevice, stagingBufferMemory, nullptr);
 	}
 	void IndexBuffer::bind(const VkCommandBuffer& commandBuffer) const
 	{
@@ -29,7 +29,7 @@ namespace VoxelEngine::renderer
 	}
 	void IndexBuffer::release() const
 	{
-		vkDestroyBuffer(_logicalDevice, _indexBuffer, _allocator);
-		vkFreeMemory(_logicalDevice, _indexBufferMemory, _allocator);
+		vkDestroyBuffer(_logicalDevice, _indexBuffer, nullptr);
+		vkFreeMemory(_logicalDevice, _indexBufferMemory, nullptr);
 	}
 }

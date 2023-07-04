@@ -3,8 +3,8 @@
 
 namespace VoxelEngine::renderer
 {
-	Framebuffer::Framebuffer(const VkDevice& logicalDevice, const VkRenderPass& renderPass, const std::vector<VkImageView>& attachments, const VkExtent2D& framebufferSize, VkAllocationCallbacks* allocator)
-		: _logicalDevice(logicalDevice), _allocator(allocator)
+	Framebuffer::Framebuffer(const VkDevice& logicalDevice, const VkRenderPass& renderPass, const std::vector<VkImageView>& attachments, const VkExtent2D& framebufferSize)
+		: _logicalDevice(logicalDevice)
 	{		
 		VkFramebufferCreateInfo framebufferInfo = {};
 		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -15,11 +15,11 @@ namespace VoxelEngine::renderer
 		framebufferInfo.height = framebufferSize.height;
 		framebufferInfo.layers = 1;
 
-		VkResult err = vkCreateFramebuffer(logicalDevice, &framebufferInfo, _allocator, &_framebuffer);
-		VulkanRenderer::check_vk_result(err, "failed to create framebuffer!");
+		VkResult err = vkCreateFramebuffer(logicalDevice, &framebufferInfo, nullptr, &_framebuffer);
+		check_vk_result(err, "failed to create framebuffer!");
 	}
 	void Framebuffer::release() const
 	{
-		vkDestroyFramebuffer(_logicalDevice, _framebuffer, _allocator);
+		vkDestroyFramebuffer(_logicalDevice, _framebuffer, nullptr);
 	}
 }

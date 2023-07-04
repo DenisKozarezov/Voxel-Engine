@@ -9,11 +9,10 @@ namespace VoxelEngine::renderer
 	private:
 		VkBuffer _vertexBuffer;
 		VkDeviceMemory _vertexBufferMemory;
-		VkAllocationCallbacks* _allocator;
 		VkDevice _logicalDevice;
 	public:
 		VertexBuffer() = default;
-		VertexBuffer(const VkDevice& logicalDevice, const Vertex* vertices, const uint32& bufferSize, VkAllocationCallbacks* allocator = nullptr);
+		VertexBuffer(const VkDevice& logicalDevice, const Vertex* vertices, const uint32& bufferSize);
 
 		operator VkBuffer () const & { return _vertexBuffer; }
 

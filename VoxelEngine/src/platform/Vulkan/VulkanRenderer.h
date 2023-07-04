@@ -3,8 +3,8 @@
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #define VK_USE_PLATFORM_WIN32_KHR
 #define GLFW_INCLUDE_VULKAN
-#include <pch.h>
 #include <core/Window.h>
+#include <core/Assert.h>
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 #include "VulkanFramebuffer.h"
@@ -16,6 +16,14 @@
 namespace VoxelEngine::renderer
 {
 	constexpr static int MAX_FRAMES_IN_FLIGHT = 2;
+
+	static void check_vk_result(const VkResult& vkResult, const std::string& exceptionMsg)
+	{
+		std::stringstream ss;
+		ss << "[VULKAN] [" << vkResult << "] ";
+		ss << exceptionMsg;
+		VOXEL_CORE_ASSERT(vkResult == VK_SUCCESS, ss.str())
+	}
 
 	struct QueueFamilyIndices
 	{
@@ -36,7 +44,7 @@ namespace VoxelEngine::renderer
 
 	class VulkanRenderer
 	{
-	public:
+	private:
 		static SharedRef<VulkanRenderer> _singleton;		
 		GLFWwindow* _window;
 		VkInstance _instance;
@@ -75,18 +83,6 @@ namespace VoxelEngine::renderer
 		const bool _enableValidationLayers = true;
 #endif
 
-		const std::vector<Vertex> vertices = {
-			{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-			{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-			{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-			{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
-		};
-
-		const std::vector<uint16_t> indices = {
-			0, 1, 2, 2, 3, 0
-		};
-
-
 		const std::vector<const char*> _validationLayers =
 		{
 			"VK_LAYER_KHRONOS_validation"
@@ -112,7 +108,6 @@ namespace VoxelEngine::renderer
 		constexpr const VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) const;
 		constexpr const VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, const VkImageTiling& tiling, const VkFormatFeatureFlags& features) const;
 		constexpr const VkFormat& findDepthFormat() const;
-		const VkCommandBuffer& beginSingleTimeCommands() const;
 		void createInstance();
 		void createLogicalDevice();
 		void createSurface();
@@ -131,7 +126,6 @@ namespace VoxelEngine::renderer
 		void pickPhysicalDevice();
 		void recordCommandBuffer(const VkCommandBuffer& commandBuffer, const uint32& imageIndex) const;
 		void submitToQueue(const VkCommandBuffer& commandBuffer, const VkSemaphore* signalSemaphores = nullptr);
-		void endSingleTimeCommands(const VkCommandBuffer& commandBuffer) const;
 		void destroyDebugUtilsMessengerEXT(const VkInstance& instance, const VkDebugUtilsMessengerEXT& debugMessenger, const VkAllocationCallbacks* pAllocator) const;
 		void destroyDebugReportMessengerEXT(const VkInstance& instance, const VkDebugReportCallbackEXT& debugMessenger, const VkAllocationCallbacks* pAllocator) const;
 		void cleanupSwapChain() const;
@@ -140,13 +134,14 @@ namespace VoxelEngine::renderer
 		static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
 	public:
 		static const SharedRef<VulkanRenderer> getInstance();
-		static void check_vk_result(const VkResult& vkResult, const std::string& exceptionMsg);
 		const uint32 findMemoryType(const uint32& typeFilter, const VkMemoryPropertyFlags& properties) const;
 		inline const VkDevice& getLogicalDevice() const & { return _logicalDevice; }
 		inline const VkPhysicalDevice& getPhysicalDevice() const & { return _physicalDevice; }
 		inline const VkCommandBuffer& getCommandBuffer() const & { return _commandBuffers[_currentFrame]; }
-		const VkCommandPool& getCommandPool() const& { return _commandPool; }
+		const VkCommandPool& getCommandPool() const & { return _commandPool; }
 		const VkDeviceMemory allocateMemory(const VkMemoryRequirements& requirements, const VkMemoryPropertyFlags& properties) const;
+		const VkCommandBuffer& beginSingleTimeCommands() const;
+		void endSingleTimeCommands(const VkCommandBuffer& commandBuffer) const;
 		void copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkDeviceSize& size);
 		void createBuffer(const VkDeviceSize& size, const VkBufferUsageFlags& usage, const VkMemoryPropertyFlags& properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) const;
 		void setWindow(const Window& window);

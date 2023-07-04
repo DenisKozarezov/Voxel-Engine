@@ -3,8 +3,8 @@
 
 namespace VoxelEngine::renderer
 {
-	VertexBuffer::VertexBuffer(const VkDevice& logicalDevice, const Vertex* vertices, const uint32& bufferSize, VkAllocationCallbacks* allocator)
-		: _logicalDevice(logicalDevice), _allocator(allocator)
+	VertexBuffer::VertexBuffer(const VkDevice& logicalDevice, const Vertex* vertices, const uint32& bufferSize)
+		: _logicalDevice(logicalDevice)
 	{
 		auto renderer = VulkanRenderer::getInstance();
 
@@ -19,8 +19,8 @@ namespace VoxelEngine::renderer
 
 		renderer->createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _vertexBuffer, _vertexBufferMemory);
 		renderer->copyBuffer(stagingBuffer, _vertexBuffer, bufferSize);
-		vkDestroyBuffer(logicalDevice, stagingBuffer, _allocator);
-		vkFreeMemory(logicalDevice, stagingBufferMemory, _allocator);
+		vkDestroyBuffer(logicalDevice, stagingBuffer, nullptr);
+		vkFreeMemory(logicalDevice, stagingBufferMemory, nullptr);
 	}
 
 	void VertexBuffer::bind(const VkCommandBuffer& commandBuffer) const
@@ -31,7 +31,7 @@ namespace VoxelEngine::renderer
 	}
 	void VertexBuffer::release() const
 	{
-		vkDestroyBuffer(_logicalDevice, _vertexBuffer, _allocator);
-		vkFreeMemory(_logicalDevice, _vertexBufferMemory, _allocator);
+		vkDestroyBuffer(_logicalDevice, _vertexBuffer, nullptr);
+		vkFreeMemory(_logicalDevice, _vertexBufferMemory, nullptr);
 	}
 }

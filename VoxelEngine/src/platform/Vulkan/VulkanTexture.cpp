@@ -10,10 +10,11 @@ namespace VoxelEngine::renderer
 {
 	SharedRef<VulkanRenderer> _renderer = 0;
 
-	VulkanTexture::VulkanTexture(const std::string& path) : Texture(path)
+	VulkanTexture::VulkanTexture(const std::string& path, const TextureCreateInfo& createInfo) 
+		: Texture(path),
+		_createInfo(createInfo)
 	{
 		_renderer = VulkanRenderer::getInstance();
-		_logicalDevice = _renderer->getLogicalDevice();
 
 		createTextureImage(path);
 		createTextureImageView();
@@ -36,19 +37,19 @@ namespace VoxelEngine::renderer
 		viewInfo.subresourceRange.layerCount = 1;
 
 		VkImageView imageView;
-		VkResult err = vkCreateImageView(_logicalDevice, &viewInfo, nullptr, &imageView);
-		VulkanRenderer::check_vk_result(err, "failed to create texture image view!");
+		VkResult err = vkCreateImageView(_createInfo.logicalDevice, &viewInfo, nullptr, &imageView);
+		check_vk_result(err, "failed to create texture image view!");
 		return imageView;
 	}
 	void VulkanTexture::generateQuad()
     {
-		_vertexBuffer = VertexBuffer(_logicalDevice, _vertices.data(), sizeof(_vertices[0]) * _vertices.size());
-		_indexBuffer = IndexBuffer(_logicalDevice, _indices.data(), sizeof(_indices[0]) * _indices.size());
+		_vertexBuffer = VertexBuffer(_createInfo.logicalDevice, _vertices.data(), sizeof(_vertices[0]) * _vertices.size());
+		_indexBuffer = IndexBuffer(_createInfo.logicalDevice, _indices.data(), sizeof(_indices[0]) * _indices.size());
 
 		_uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) 
 		{
-			_uniformBuffers[i] = UniformBuffer(_logicalDevice, sizeof(UniformBufferObject));
+			_uniformBuffers[i] = UniformBuffer(_createInfo.logicalDevice, sizeof(UniformBufferObject));
 		}
 	}
     void VulkanTexture::createImage(const uint32& width, const uint32& height, const VkFormat& format, const VkImageTiling& tiling, const VkImageUsageFlags& usage, const VkMemoryPropertyFlags& properties, VkImage& image, VkDeviceMemory& imageMemory)
@@ -68,15 +69,15 @@ namespace VoxelEngine::renderer
 		imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
 		imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 		
-		VkResult err = vkCreateImage(_logicalDevice, &imageInfo, nullptr, &image);
-		VulkanRenderer::check_vk_result(err, "failed to create image!");
+		VkResult err = vkCreateImage(_createInfo.logicalDevice, &imageInfo, nullptr, &image);
+		check_vk_result(err, "failed to create image!");
 
 		VkMemoryRequirements memRequirements;
-		vkGetImageMemoryRequirements(_logicalDevice, image, &memRequirements);
+		vkGetImageMemoryRequirements(_createInfo.logicalDevice, image, &memRequirements);
 
 		_textureImageMemory = _renderer->allocateMemory(memRequirements, properties);
 
-		vkBindImageMemory(_logicalDevice, _textureImage, _textureImageMemory, 0);
+		vkBindImageMemory(_createInfo.logicalDevice, _textureImage, _textureImageMemory, 0);
 	}
 	void VulkanTexture::createTextureImage(const string& filepath)
 	{
@@ -106,8 +107,8 @@ namespace VoxelEngine::renderer
 		copyBufferToImage(stagingBuffer, _textureImage);
 		transitionImageLayout(VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-		vkDestroyBuffer(_logicalDevice, stagingBuffer, nullptr);
-		vkFreeMemory(_logicalDevice, stagingBufferMemory, nullptr);
+		vkDestroyBuffer(_createInfo.logicalDevice, stagingBuffer, nullptr);
+		vkFreeMemory(_createInfo.logicalDevice, stagingBufferMemory, nullptr);
 	}
 	void VulkanTexture::createTextureImageView()
 	{
@@ -116,8 +117,7 @@ namespace VoxelEngine::renderer
 	void VulkanTexture::createTextureSampler()
 	{
 		VkPhysicalDeviceProperties properties = {};
-		auto physicalDevice = _renderer->getPhysicalDevice();
-		vkGetPhysicalDeviceProperties(physicalDevice, &properties);
+		vkGetPhysicalDeviceProperties(_createInfo.physicalDevice, &properties);
 
 		VkSamplerCreateInfo samplerInfo = {};
 		samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -136,35 +136,35 @@ namespace VoxelEngine::renderer
 		samplerInfo.mipLodBias = 0.0f;
 		samplerInfo.minLod = 0.0f;
 
-		VkResult err = vkCreateSampler(_logicalDevice, &samplerInfo, nullptr, &_textureSampler);
-		VulkanRenderer::check_vk_result(err, "failed to create texture sampler!");
+		VkResult err = vkCreateSampler(_createInfo.logicalDevice, &samplerInfo, nullptr, &_textureSampler);
+		check_vk_result(err, "failed to create texture sampler!");
 	}
 	void VulkanTexture::createDescriptorSets()
 	{
-		std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, _renderer->_descriptorSetLayout);
-		VkDescriptorSetAllocateInfo allocInfo{};
+		std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, _createInfo.descriptorSetLayout);
+		VkDescriptorSetAllocateInfo allocInfo = {};
 		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-		allocInfo.descriptorPool = _renderer->_descriptorPool;
+		allocInfo.descriptorPool = _createInfo.descriptorPool;
 		allocInfo.descriptorSetCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
 		allocInfo.pSetLayouts = layouts.data();
 
 		_descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
-		VkResult err = vkAllocateDescriptorSets(_logicalDevice, &allocInfo, _descriptorSets.data());
-		_renderer->check_vk_result(err, "failed to allocate descriptor sets!");
+		VkResult err = vkAllocateDescriptorSets(_createInfo.logicalDevice, &allocInfo, _descriptorSets.data());
+		check_vk_result(err, "failed to allocate descriptor sets!");
 
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) 
 		{
-			VkDescriptorBufferInfo bufferInfo{};
+			VkDescriptorBufferInfo bufferInfo = {};
 			bufferInfo.buffer = _uniformBuffers[i];
 			bufferInfo.offset = 0;
 			bufferInfo.range = sizeof(UniformBufferObject);
 
-			VkDescriptorImageInfo imageInfo{};
+			VkDescriptorImageInfo imageInfo = {};
 			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 			imageInfo.imageView = _textureImageView;
 			imageInfo.sampler = _textureSampler;
 
-			std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
+			std::array<VkWriteDescriptorSet, 2> descriptorWrites = {};
 
 			descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 			descriptorWrites[0].dstSet = _descriptorSets[i];
@@ -182,7 +182,7 @@ namespace VoxelEngine::renderer
 			descriptorWrites[1].descriptorCount = 1;
 			descriptorWrites[1].pImageInfo = &imageInfo;
 
-			vkUpdateDescriptorSets(_logicalDevice, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+			vkUpdateDescriptorSets(_createInfo.logicalDevice, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 		}
 	}
 	void VulkanTexture::updateUniformBuffer(const uint32& currentImage)
@@ -192,10 +192,10 @@ namespace VoxelEngine::renderer
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-		UniformBufferObject ubo{};
+		UniformBufferObject ubo = {};
 		ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 		ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-		ubo.proj = glm::perspective(glm::radians(45.0f), 3.0f / 2.0f, 0.1f, 10.0f);
+		ubo.proj = glm::perspective(glm::radians(45.0f), (float)_createInfo.swapChainExtent.width / _createInfo.swapChainExtent.height, 0.1f, 10.0f);
 		ubo.proj[1][1] *= -1;
 
 		_uniformBuffers[currentImage].setData(&ubo, sizeof(ubo));
@@ -213,10 +213,10 @@ namespace VoxelEngine::renderer
 		ss << "Clearing texture '" << _filepath << "' [W: " << _width << "; H: " << _height << "; Channels: " << _texChannels << "]...";
 		VOXEL_CORE_TRACE(ss.str())
 
-		vkDestroyImageView(_logicalDevice, _textureImageView, nullptr);
-		vkDestroySampler(_logicalDevice, _textureSampler, nullptr);
-		vkFreeMemory(_logicalDevice, _textureImageMemory, nullptr);
-		vkDestroyImage(_logicalDevice, _textureImage, nullptr);
+		vkDestroyImageView(_createInfo.logicalDevice, _textureImageView, nullptr);
+		vkDestroySampler(_createInfo.logicalDevice, _textureSampler, nullptr);
+		vkFreeMemory(_createInfo.logicalDevice, _textureImageMemory, nullptr);
+		vkDestroyImage(_createInfo.logicalDevice, _textureImage, nullptr);
 
 		_vertexBuffer.release();
 		_indexBuffer.release();
@@ -233,9 +233,9 @@ namespace VoxelEngine::renderer
 	void VulkanTexture::recordToBuffer(void* src, const VkDeviceSize& imageSize, const VkDeviceMemory& stagingBufferMemory) const
 	{
 		void* data;
-		vkMapMemory(_logicalDevice, stagingBufferMemory, 0, imageSize, 0, &data);
+		vkMapMemory(_createInfo.logicalDevice, stagingBufferMemory, 0, imageSize, 0, &data);
 		memcpy(data, src, static_cast<size_t>(imageSize));
-		vkUnmapMemory(_logicalDevice, stagingBufferMemory);
+		vkUnmapMemory(_createInfo.logicalDevice, stagingBufferMemory);
 		stbi_image_free(src);
 	}
 	void VulkanTexture::copyBufferToImage(const VkBuffer& buffer, const VkImage& image)

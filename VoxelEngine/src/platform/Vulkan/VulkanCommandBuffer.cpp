@@ -29,7 +29,7 @@ namespace VoxelEngine::renderer
 
 		auto logicalDevice = VulkanRenderer::getInstance()->getLogicalDevice();
 		VkResult err = vkAllocateCommandBuffers(logicalDevice, &allocInfo, buffers.data());
-		VulkanRenderer::check_vk_result(err, "failed to allocate command buffers!");
+		check_vk_result(err, "failed to allocate command buffers!");
 
 		return buffers;
 	}
@@ -43,12 +43,12 @@ namespace VoxelEngine::renderer
 		begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 		begin_info.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 		VkResult err = vkBeginCommandBuffer(buffer, &begin_info);
-		VulkanRenderer::check_vk_result(err, "failed to begin recording command buffer!");
+		check_vk_result(err, "failed to begin recording command buffer!");
 	}
 	void CommandBuffer::endCommand(const VkCommandBuffer& buffer)
 	{
 		VkResult err = vkEndCommandBuffer(buffer);
-		VulkanRenderer::check_vk_result(err, "failed to record command buffer!");
+		check_vk_result(err, "failed to record command buffer!");
 	}
 	void CommandBuffer::release(const VkCommandBuffer& buffer)
 	{

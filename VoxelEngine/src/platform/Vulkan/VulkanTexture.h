@@ -7,10 +7,20 @@
 
 namespace VoxelEngine::renderer
 {
+	struct TextureCreateInfo
+	{
+		VkDevice logicalDevice;
+		VkPhysicalDevice physicalDevice;
+		VkPipelineLayout pipelineLayout;
+		VkDescriptorSetLayout descriptorSetLayout;
+		VkDescriptorPool descriptorPool;
+		VkExtent2D swapChainExtent;
+	};
+
 	class VulkanTexture : public Texture
 	{
 	private:
-		VkDevice _logicalDevice;
+		TextureCreateInfo _createInfo;
 
 		VkImage _textureImage;
 		VkDeviceMemory _textureImageMemory;
@@ -42,7 +52,7 @@ namespace VoxelEngine::renderer
 		void transitionImageLayout(const VkFormat& format, const VkImageLayout& oldLayout, const VkImageLayout& newLayout) const;
 	public:
 		VulkanTexture() = delete;
-		VulkanTexture(const std::string& path);
+		VulkanTexture(const std::string& path, const TextureCreateInfo& createInfo);
 
 		void updateUniformBuffer(const uint32& currentImage);
 		void render(const VkCommandBuffer& commandBuffer, const VkPipelineLayout& pipelineLayout, const uint32& currentImage);

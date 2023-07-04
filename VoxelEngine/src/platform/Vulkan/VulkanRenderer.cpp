@@ -1,6 +1,5 @@
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include "VulkanRenderer.h"
-#include <core/Assert.h>
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
@@ -12,47 +11,7 @@ namespace VoxelEngine::renderer
 	bool VulkanRenderer::_framebufferResized = false;
 
 	VulkanTexture* texture;
-
-	static std::vector<char> readFile(const std::string& filename) 
-	{
-		std::ifstream file(filename, std::ios::ate | std::ios::binary);
-
-		if (!file.is_open()) {
-			throw std::runtime_error("failed to open file!");
-		}
-
-		size_t fileSize = (size_t)file.tellg();
-		std::vector<char> buffer(fileSize);
-
-		file.seekg(0);
-		file.read(buffer.data(), fileSize);
-
-		file.close();
-
-		return buffer;
-	}
-	VkShaderModule createShaderModule(VkDevice device, const std::vector<char>& code) 
-	{
-		VkShaderModuleCreateInfo createInfo{};
-		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-		createInfo.codeSize = code.size();
-		createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
-
-		VkShaderModule shaderModule;
-		if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
-			throw std::runtime_error("failed to create shader module!");
-		}
-
-		return shaderModule;
-	}
-
-	void VulkanRenderer::check_vk_result(const VkResult& vkResult, const std::string& exceptionMsg)
-	{
-		std::stringstream ss;
-		ss << "[VULKAN] [" << vkResult << "] ";
-		ss << exceptionMsg;
-		VOXEL_CORE_ASSERT(vkResult == VK_SUCCESS, ss.str())
-	}
+		
 	static VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsCallback(
 		VkDebugUtilsMessageSeverityFlagBitsEXT		messageSeverity,
 		VkDebugUtilsMessageTypeFlagsEXT				messageType,
@@ -96,16 +55,16 @@ namespace VoxelEngine::renderer
 		{
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
 			VOXEL_CORE_INFO(message.str())
-				break;
+			break;
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
 			VOXEL_CORE_TRACE(message.str())
-				break;
+			break;
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
 			VOXEL_CORE_WARN(message.str())
-				break;
+			break;
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
 			VOXEL_CORE_ERROR(message.str())
-				break;
+			break;
 		}
 		return VK_FALSE;
 	}
@@ -704,7 +663,7 @@ namespace VoxelEngine::renderer
 			{
 				_swapChainImageViews[i]
 			};
-			_swapChainFramebuffers[i] = Framebuffer(_logicalDevice, _renderPass, attachments, _swapChainExtent, _allocator);
+			_swapChainFramebuffers[i] = Framebuffer(_logicalDevice, _renderPass, attachments, _swapChainExtent);
 		}
 	}
 	void VulkanRenderer::createCommandPool()
@@ -809,9 +768,8 @@ namespace VoxelEngine::renderer
 		poolInfo.pPoolSizes = pool_sizes;
 		poolInfo.maxSets = 1000 * IM_ARRAYSIZE(pool_sizes);
 
-		if (vkCreateDescriptorPool(_logicalDevice, &poolInfo, nullptr, &_descriptorPool) != VK_SUCCESS) {
-			throw std::runtime_error("failed to create descriptor pool!");
-		}
+		VkResult err = vkCreateDescriptorPool(_logicalDevice, &poolInfo, nullptr, &_descriptorPool);
+		check_vk_result(err, "failed to create descriptor pool!");
 	}
 	void VulkanRenderer::createDescriptorSetLayout()
 	{
@@ -1131,7 +1089,16 @@ namespace VoxelEngine::renderer
 		createSyncObjects();
 		initImGui();
 
-		texture = new VulkanTexture("resources/textures/texture.jpg");
+		TextureCreateInfo createInfo =
+		{			
+			_logicalDevice,
+			_physicalDevice,
+			_pipelineLayout,
+			_descriptorSetLayout,
+			_descriptorPool,
+			_swapChainExtent
+		};
+		texture = new VulkanTexture("resources/textures/texture.jpg", createInfo);
 	}
 	void VulkanRenderer::deviceWaitIdle() const
 	{

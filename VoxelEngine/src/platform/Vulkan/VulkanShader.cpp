@@ -12,12 +12,11 @@ namespace VoxelEngine::renderer
 
 		VkShaderModule shaderModule;
 		VkResult err = vkCreateShaderModule(_logicalDevice, &createInfo, nullptr, &shaderModule);
-		VulkanRenderer::check_vk_result(err, "failed to create shader module!");
+		check_vk_result(err, "failed to create shader module!");
 		return shaderModule;
 	}	
-	VulkanShader::VulkanShader(const string& filepath, const VkShaderStageFlagBits& shaderType, VkAllocationCallbacks* allocator) 
-		: Shader(filepath),
-		_allocator(allocator)
+	VulkanShader::VulkanShader(const string& filepath, const VkShaderStageFlagBits& shaderType) 
+		: Shader(filepath)
 	{
 		_logicalDevice = VulkanRenderer::getInstance()->getLogicalDevice();
 
@@ -48,6 +47,6 @@ namespace VoxelEngine::renderer
 	}
 	void VulkanShader::unbind() const
 	{
-		vkDestroyShaderModule(_logicalDevice, _shaderModule, _allocator);
+		vkDestroyShaderModule(_logicalDevice, _shaderModule, nullptr);
 	}
 }

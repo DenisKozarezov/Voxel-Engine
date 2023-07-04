@@ -9,12 +9,11 @@ namespace VoxelEngine::renderer
 	private:
 		VkShaderModule _shaderModule;
 		VkPipelineShaderStageCreateInfo _shaderInfo;
-		VkAllocationCallbacks* _allocator;
 		VkDevice _logicalDevice;
 
 		const VkShaderModule createShaderModule(const std::vector<char>& code) const;
 	public:
-		VulkanShader(const string& filepath, const VkShaderStageFlagBits& shaderType, VkAllocationCallbacks* allocator = nullptr);
+		VulkanShader(const string& filepath, const VkShaderStageFlagBits& shaderType);
 
 		inline const VkShaderModule& getShaderModule() & { return _shaderModule; }
 		inline const VkPipelineShaderStageCreateInfo& getStage() & { return _shaderInfo; }

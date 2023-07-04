@@ -3,15 +3,15 @@
 
 namespace VoxelEngine::renderer
 {
-	class Texture2D
+	class Texture
 	{
 	protected:
 		uint32 _width = 0;
 		uint32 _height = 0;
-		int _texChannels = 0;
+		uint16 _texChannels = 0;
 		string _filepath;
 	public:
-		Texture2D(const std::string& path);
+		Texture(const std::string& path);
 
 		inline const uint32& getWidth() const& { return _width; }
 		inline const uint32& getHeight() const& { return _height; }

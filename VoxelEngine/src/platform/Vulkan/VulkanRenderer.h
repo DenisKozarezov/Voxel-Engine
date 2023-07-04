@@ -69,20 +69,6 @@ namespace VoxelEngine::renderer
 		uint32 _currentFrame = 0;
 		static bool _framebufferResized;
 
-		VkImage _textureImage;
-		VkDeviceMemory _textureImageMemory;
-		VkImageView _textureImageView;
-		VkSampler _textureSampler;
-		VkBuffer _vertexBuffer;
-		VkDeviceMemory _vertexBufferMemory;
-		VkBuffer _indexBuffer;
-		VkDeviceMemory _indexBufferMemory;
-		std::vector<VkDescriptorSet> _descriptorSets;
-
-		std::vector<VkBuffer> _uniformBuffers;
-		std::vector<VkDeviceMemory> _uniformBuffersMemory;
-		std::vector<void*> _uniformBuffersMapped;
-
 #ifdef VOXEL_RELEASE
 		const bool _enableValidationLayers = false;
 #else
@@ -126,6 +112,7 @@ namespace VoxelEngine::renderer
 		constexpr const VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) const;
 		constexpr const VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, const VkImageTiling& tiling, const VkFormatFeatureFlags& features) const;
 		constexpr const VkFormat& findDepthFormat() const;
+		const VkCommandBuffer& beginSingleTimeCommands() const;
 		void createInstance();
 		void createLogicalDevice();
 		void createSurface();
@@ -138,19 +125,6 @@ namespace VoxelEngine::renderer
 		void createCommandBuffers();
 		void createSyncObjects();
 		void createDescriptorPool();
-		void createTextureImage();
-		void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
-		VkImageView createImageView(VkImage image, VkFormat format);
-		void createTextureImageView();
-		void createTextureSampler();
-		void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
-		void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
-		void updateUniformBuffer(uint32_t currentImage);
-		VkCommandBuffer beginSingleTimeCommands();
-		void createDescriptorSets();
-		void createVertexBuffer();
-		void createIndexBuffer();
-		void createUniformBuffers();
 		void createDescriptorSetLayout();
 		void setupDebugMessenger();
 		void recreateSwapChain();
@@ -179,7 +153,6 @@ namespace VoxelEngine::renderer
 		void init();
 		void beginFrame();
 		void endFrame();
-		void drawFrame();
 		void deviceWaitIdle() const;
 		void cleanup() const;
 	};

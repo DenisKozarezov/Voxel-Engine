@@ -15,7 +15,7 @@ namespace VoxelEngine::renderer
 
 	class UniformBuffer
 	{
-	public:
+	private:
 		VkBuffer _uniformBuffer;
 		VkDeviceMemory _uniformBufferMemory;
 		void* _uniformBufferMapped;

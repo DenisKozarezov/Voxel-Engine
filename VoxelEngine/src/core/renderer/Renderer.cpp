@@ -23,10 +23,6 @@ namespace VoxelEngine::renderer
     {
         renderer->endFrame();
     }
-    void Renderer::drawFrame()
-    {
-        renderer->drawFrame();
-    }
     void Renderer::deviceWaitIdle()
     {
         renderer->deviceWaitIdle();

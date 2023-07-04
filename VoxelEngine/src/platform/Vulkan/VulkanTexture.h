@@ -1,5 +1,5 @@
 #pragma once
-#include <core/renderer/Texture2D.h>
+#include <core/renderer/Texture.h>
 #include <vector>
 #include "VulkanVertexBuffer.h"
 #include "VulkanIndexBuffer.h"
@@ -7,9 +7,9 @@
 
 namespace VoxelEngine::renderer
 {
-	class VulkanTexture2D : public Texture2D
+	class VulkanTexture : public Texture
 	{
-	public:
+	private:
 		VkDevice _logicalDevice;
 
 		VkImage _textureImage;
@@ -41,13 +41,13 @@ namespace VoxelEngine::renderer
 		void copyBufferToImage(const VkBuffer& buffer, const VkImage& image);
 		void transitionImageLayout(const VkFormat& format, const VkImageLayout& oldLayout, const VkImageLayout& newLayout) const;
 	public:
-		VulkanTexture2D() = delete;
-		VulkanTexture2D(const std::string& path);
+		VulkanTexture() = delete;
+		VulkanTexture(const std::string& path);
 
 		void updateUniformBuffer(const uint32& currentImage);
 		void render(const VkCommandBuffer& commandBuffer, const VkPipelineLayout& pipelineLayout, const uint32& currentImage);
 		void release() override;
 
-		~VulkanTexture2D();
+		~VulkanTexture();
 	};
 }

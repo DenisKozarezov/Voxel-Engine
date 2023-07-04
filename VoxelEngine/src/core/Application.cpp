@@ -46,7 +46,7 @@ namespace VoxelEngine
 	{
 		try
 		{
-			//pushOverlay(new renderer::ImGuiLayer());
+			pushOverlay(new renderer::ImGuiLayer());
 			renderer::Renderer::init(*_window.get());
 		}
 		catch (const std::exception& e)
@@ -71,7 +71,7 @@ namespace VoxelEngine
 			{
 				_layerStack.onUpdate(time);
 				renderer::Renderer::beginFrame();
-				//_layerStack.onImGuiRender();
+				_layerStack.onImGuiRender();
 				renderer::Renderer::endFrame();
 			}
 			_window->onUpdate();

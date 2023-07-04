@@ -10,19 +10,16 @@ namespace VoxelEngine::renderer
 {
 	SharedRef<VulkanRenderer> _renderer = 0;
 
-	VulkanTexture2D::VulkanTexture2D(const std::string& path, VkAllocationCallbacks* allocator) 
-		: Texture2D(path),
-		_allocator(allocator)
+	VulkanTexture2D::VulkanTexture2D(const std::string& path) : Texture2D(path)
 	{
 		_renderer = VulkanRenderer::getInstance();
 		_logicalDevice = _renderer->getLogicalDevice();
 
-		//createDescriptorSetLayout();
-		//createTextureImage(path);
-		//createTextureImageView();
-		//createTextureSampler();
+		createTextureImage(path);
+		createTextureImageView();
+		createTextureSampler();
 		generateQuad();
-		//createDescriptorSet();
+		createDescriptorSets();
 	}
     
 	const VkImageView VulkanTexture2D::createImageView(const VkFormat& format) const
@@ -45,19 +42,21 @@ namespace VoxelEngine::renderer
 	}
 	void VulkanTexture2D::generateQuad()
     {
-		_vertexBuffer = VertexBuffer(_logicalDevice, _vertices.data(), sizeof(_vertices[0]) * _vertices.size(), _allocator);
-		_indexBuffer = IndexBuffer(_logicalDevice, _indices.data(), sizeof(_indices[0]) * _indices.size(), _allocator);
-		
-		VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-		_uniformBuffer = UniformBuffer(bufferSize, _allocator);
+		_vertexBuffer = VertexBuffer(_logicalDevice, _vertices.data(), sizeof(_vertices[0]) * _vertices.size());
+		_indexBuffer = IndexBuffer(_logicalDevice, _indices.data(), sizeof(_indices[0]) * _indices.size());
+
+		_uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+			_uniformBuffers[i] = UniformBuffer(_logicalDevice, sizeof(UniformBufferObject));
+		}
 	}
-    void VulkanTexture2D::createImage(const VkFormat& format, const VkImageTiling& tiling, const VkImageUsageFlags& usage, const VkMemoryPropertyFlags& properties)
+    void VulkanTexture2D::createImage(const uint32& width, const uint32& height, const VkFormat& format, const VkImageTiling& tiling, const VkImageUsageFlags& usage, const VkMemoryPropertyFlags& properties, VkImage& image, VkDeviceMemory& imageMemory)
 	{
 		VkImageCreateInfo imageInfo = {};
 		imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 		imageInfo.imageType = VK_IMAGE_TYPE_2D;
-		imageInfo.extent.width = _width;
-		imageInfo.extent.height = _height;
+		imageInfo.extent.width = width;
+		imageInfo.extent.height = height;
 		imageInfo.extent.depth = 1;
 		imageInfo.mipLevels = 1;
 		imageInfo.arrayLayers = 1;
@@ -68,26 +67,25 @@ namespace VoxelEngine::renderer
 		imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
 		imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 		
-		VkResult err = vkCreateImage(_logicalDevice, &imageInfo, nullptr, &_textureImage);
+		VkResult err = vkCreateImage(_logicalDevice, &imageInfo, nullptr, &image);
 		VulkanRenderer::check_vk_result(err, "failed to create image!");
 
 		VkMemoryRequirements memRequirements;
-		vkGetImageMemoryRequirements(_logicalDevice, _textureImage, &memRequirements);
+		vkGetImageMemoryRequirements(_logicalDevice, image, &memRequirements);
 
-		VkMemoryAllocateInfo allocInfo = {};
-		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-		allocInfo.allocationSize = memRequirements.size;
-		allocInfo.memoryTypeIndex = _renderer->findMemoryType(memRequirements.memoryTypeBits, properties);
-		
-		err = vkAllocateMemory(_logicalDevice, &allocInfo, _allocator, &_stagingMemory);
-		VulkanRenderer::check_vk_result(err, "failed to allocate image memory!");
+		_textureImageMemory = _renderer->allocateMemory(memRequirements, properties);
 
-		vkBindImageMemory(_logicalDevice, _textureImage, _stagingMemory, 0);
+		vkBindImageMemory(_logicalDevice, _textureImage, _textureImageMemory, 0);
 	}
 	void VulkanTexture2D::createTextureImage(const string& filepath)
 	{
-		stbi_uc* pixels = stbi_load(filepath.c_str(), &_width, &_height, &_texChannels, STBI_rgb_alpha);
-		VkDeviceSize imageSize = _width * _height * 4;
+		int width, height;
+
+		stbi_uc* pixels = stbi_load(filepath.c_str(), &width, &height, &_texChannels, STBI_rgb_alpha);
+		VkDeviceSize imageSize = width * height * 4;
+
+		_width = static_cast<uint32>(width);
+		_height = static_cast<uint32>(height);
 
 		VOXEL_CORE_ASSERT(pixels, "failed to load texture image on path '" + filepath + "'")
 
@@ -100,14 +98,14 @@ namespace VoxelEngine::renderer
 		_renderer->createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
 		recordToBuffer(pixels, imageSize, stagingBufferMemory);
-		createImage(VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		createImage(_width, _height, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _textureImage, _textureImageMemory);
 
 		transitionImageLayout(VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 		copyBufferToImage(stagingBuffer, _textureImage);
 		transitionImageLayout(VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-		vkDestroyBuffer(_logicalDevice, stagingBuffer, _allocator);
-		vkFreeMemory(_logicalDevice, stagingBufferMemory, _allocator);
+		vkDestroyBuffer(_logicalDevice, stagingBuffer, nullptr);
+		vkFreeMemory(_logicalDevice, stagingBufferMemory, nullptr);
 	}
 	void VulkanTexture2D::createTextureImageView()
 	{
@@ -136,108 +134,89 @@ namespace VoxelEngine::renderer
 		samplerInfo.mipLodBias = 0.0f;
 		samplerInfo.minLod = 0.0f;
 
-		VkResult err = vkCreateSampler(_logicalDevice, &samplerInfo, _allocator, &_textureSampler);
+		VkResult err = vkCreateSampler(_logicalDevice, &samplerInfo, nullptr, &_textureSampler);
 		VulkanRenderer::check_vk_result(err, "failed to create texture sampler!");
 	}
-	void VulkanTexture2D::createDescriptorSet()
+	void VulkanTexture2D::createDescriptorSets()
 	{
-		VkDescriptorSetAllocateInfo allocInfo = {};
+		std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, _renderer->_descriptorSetLayout);
+		VkDescriptorSetAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 		allocInfo.descriptorPool = _renderer->_descriptorPool;
-		allocInfo.descriptorSetCount = 1;
-		allocInfo.pSetLayouts = &_descriptorSetLayout;
+		allocInfo.descriptorSetCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+		allocInfo.pSetLayouts = layouts.data();
 
-		VkResult err = vkAllocateDescriptorSets(_logicalDevice, &allocInfo, &_descriptorSet);
-		VulkanRenderer::check_vk_result(err, "failed to allocate descriptor sets!");
+		_descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
+		if (vkAllocateDescriptorSets(_logicalDevice, &allocInfo, _descriptorSets.data()) != VK_SUCCESS) {
+			throw std::runtime_error("failed to allocate descriptor sets!");
+		}
 
-		VkDescriptorBufferInfo bufferInfo = {};
-		bufferInfo.buffer = _uniformBuffer;
-		bufferInfo.offset = 0;
-		bufferInfo.range = sizeof(UniformBufferObject);
+		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+			VkDescriptorBufferInfo bufferInfo{};
+			bufferInfo.buffer = _uniformBuffers[i];
+			bufferInfo.offset = 0;
+			bufferInfo.range = sizeof(UniformBufferObject);
 
-		VkDescriptorImageInfo imageInfo = {};
-		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		imageInfo.imageView = _textureImageView;
-		imageInfo.sampler = _textureSampler;
+			VkDescriptorImageInfo imageInfo{};
+			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			imageInfo.imageView = _textureImageView;
+			imageInfo.sampler = _textureSampler;
 
-		std::array<VkWriteDescriptorSet, 2> descriptorWrites = {};
+			std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
 
-		descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrites[0].dstSet = _descriptorSet;
-		descriptorWrites[0].dstBinding = 0;
-		descriptorWrites[0].dstArrayElement = 0;
-		descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		descriptorWrites[0].descriptorCount = 1;
-		descriptorWrites[0].pBufferInfo = &bufferInfo;
+			descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrites[0].dstSet = _descriptorSets[i];
+			descriptorWrites[0].dstBinding = 0;
+			descriptorWrites[0].dstArrayElement = 0;
+			descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			descriptorWrites[0].descriptorCount = 1;
+			descriptorWrites[0].pBufferInfo = &bufferInfo;
 
-		descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrites[1].dstSet = _descriptorSet;
-		descriptorWrites[1].dstBinding = 1;
-		descriptorWrites[1].dstArrayElement = 0;
-		descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		descriptorWrites[1].descriptorCount = 1;
-		descriptorWrites[1].pImageInfo = &imageInfo;
+			descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrites[1].dstSet = _descriptorSets[i];
+			descriptorWrites[1].dstBinding = 1;
+			descriptorWrites[1].dstArrayElement = 0;
+			descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			descriptorWrites[1].descriptorCount = 1;
+			descriptorWrites[1].pImageInfo = &imageInfo;
 
-		vkUpdateDescriptorSets(_logicalDevice, static_cast<uint32>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+			vkUpdateDescriptorSets(_logicalDevice, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+		}
 	}
-	void VulkanTexture2D::createDescriptorSetLayout()
+	void VulkanTexture2D::updateUniformBuffer(const uint32& currentImage)
 	{
-		VkDescriptorSetLayoutBinding uboLayoutBinding = {};
-		uboLayoutBinding.binding = 0;
-		uboLayoutBinding.descriptorCount = 1;
-		uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		uboLayoutBinding.pImmutableSamplers = nullptr;
-		uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+		static auto startTime = std::chrono::high_resolution_clock::now();
 
-		VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
-		samplerLayoutBinding.binding = 1;
-		samplerLayoutBinding.descriptorCount = 1;
-		samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		samplerLayoutBinding.pImmutableSamplers = nullptr;
-		samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+		auto currentTime = std::chrono::high_resolution_clock::now();
+		float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-		std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
-		VkDescriptorSetLayoutCreateInfo layoutInfo = {};
-		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-		layoutInfo.bindingCount = static_cast<uint32>(bindings.size());
-		layoutInfo.pBindings = bindings.data();
-
-		VkResult err = vkCreateDescriptorSetLayout(_logicalDevice, &layoutInfo, _allocator, &_descriptorSetLayout);
-		VulkanRenderer::check_vk_result(err, "failed to create descriptor set layout!");
-	}
-	void VulkanTexture2D::updateUniformBuffer()
-	{
-		UniformBufferObject ubo = {};
-		ubo.model = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+		UniformBufferObject ubo{};
+		ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 		ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 		ubo.proj = glm::perspective(glm::radians(45.0f), 3.0f / 2.0f, 0.1f, 10.0f);
 		ubo.proj[1][1] *= -1;
 
-		_uniformBuffer.setData(&ubo);	
+		_uniformBuffers[currentImage].setData(&ubo, sizeof(ubo));
+		memcpy(_uniformBuffers[currentImage]._uniformBufferMapped, &ubo, sizeof(ubo));
 	}
-	void VulkanTexture2D::render(const VkCommandBuffer& commandBuffer)
+	void VulkanTexture2D::render(const VkCommandBuffer& commandBuffer, const VkPipelineLayout& pipelineLayout, const uint32& currentImage)
 	{	
 		_vertexBuffer.bind(commandBuffer);
 		_indexBuffer.bind(commandBuffer);
-		//vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _renderer->_pipelineLayout, 0, 1, &_descriptorSet, 0, nullptr);
+		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &_descriptorSets[currentImage], 0, nullptr);
 		vkCmdDrawIndexed(commandBuffer, static_cast<uint32>(_indices.size()), 1, 0, 0, 0);
 	}
 	void VulkanTexture2D::release()
 	{
-		vkDestroyImageView(_logicalDevice, _textureImageView, _allocator);
-		vkDestroySampler(_logicalDevice, _textureSampler, _allocator);
-		vkFreeMemory(_logicalDevice, _stagingMemory, _allocator);
-		vkDestroyImage(_logicalDevice, _textureImage, _allocator);
-		vkDestroyDescriptorSetLayout(_logicalDevice, _descriptorSetLayout, _allocator);
-
-		_indexBuffer.release();
-		_vertexBuffer.release();
-		_uniformBuffer.release();
+		vkDestroyImageView(_logicalDevice, _textureImageView, nullptr);
+		vkDestroySampler(_logicalDevice, _textureSampler, nullptr);
+		vkFreeMemory(_logicalDevice, _textureImageMemory, nullptr);
+		vkDestroyImage(_logicalDevice, _textureImage, nullptr);
 
 		_textureImage = nullptr;
 		_textureImageView = nullptr;
 		_textureSampler = nullptr;
-		_stagingMemory = nullptr;
+		_textureImageMemory = nullptr;
 	}
 	void VulkanTexture2D::recordToBuffer(void* src, const VkDeviceSize& imageSize, const VkDeviceMemory& stagingBufferMemory) const
 	{
@@ -268,7 +247,7 @@ namespace VoxelEngine::renderer
 		};
 		vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 		
-		CommandBuffer::endCommand(commandBuffer);
+		_renderer->endSingleTimeCommands(commandBuffer);
 	}
 	void VulkanTexture2D::transitionImageLayout(const VkFormat& format, const VkImageLayout& oldLayout, const VkImageLayout& newLayout) const
 	{
@@ -321,7 +300,7 @@ namespace VoxelEngine::renderer
 			1, &barrier
 		);
 
-		CommandBuffer::endCommand(commandBuffer);
+		_renderer->endSingleTimeCommands(commandBuffer);
 	}
 	
 	VulkanTexture2D::~VulkanTexture2D()

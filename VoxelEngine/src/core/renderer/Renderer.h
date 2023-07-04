@@ -18,6 +18,7 @@ namespace VoxelEngine::renderer
 		static void init(const Window& window);
 		static void beginFrame();
 		static void endFrame();
+		static void drawFrame();
 		static void deviceWaitIdle();
 		static void cleanup();
 	};

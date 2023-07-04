@@ -10,10 +10,13 @@
 #include "VulkanFramebuffer.h"
 #include "VulkanShader.h"
 #include "VulkanCommandBuffer.h"
+#include "VulkanUniformBuffer.h"
 #include "VulkanVertex.h"
 
 namespace VoxelEngine::renderer
 {
+	constexpr static int MAX_FRAMES_IN_FLIGHT = 2;
+
 	struct QueueFamilyIndices
 	{
 		std::optional<uint32> graphicsFamily;
@@ -50,8 +53,9 @@ namespace VoxelEngine::renderer
 		VkSurfaceKHR _surface;
 		VkSwapchainKHR _swapChain;
 		VkRenderPass _renderPass;
-		VkPipelineLayout _pipelineLayout;
 		VkDescriptorPool _descriptorPool;
+		VkPipelineLayout _pipelineLayout;
+		VkDescriptorSetLayout _descriptorSetLayout;
 		VkPipeline _graphicsPipeline;
 		VkFormat _swapChainImageFormat;
 		VkExtent2D _swapChainExtent;
@@ -65,11 +69,37 @@ namespace VoxelEngine::renderer
 		uint32 _currentFrame = 0;
 		static bool _framebufferResized;
 
+		VkImage _textureImage;
+		VkDeviceMemory _textureImageMemory;
+		VkImageView _textureImageView;
+		VkSampler _textureSampler;
+		VkBuffer _vertexBuffer;
+		VkDeviceMemory _vertexBufferMemory;
+		VkBuffer _indexBuffer;
+		VkDeviceMemory _indexBufferMemory;
+		std::vector<VkDescriptorSet> _descriptorSets;
+
+		std::vector<VkBuffer> _uniformBuffers;
+		std::vector<VkDeviceMemory> _uniformBuffersMemory;
+		std::vector<void*> _uniformBuffersMapped;
+
 #ifdef VOXEL_RELEASE
 		const bool _enableValidationLayers = false;
 #else
 		const bool _enableValidationLayers = true;
 #endif
+
+		const std::vector<Vertex> vertices = {
+			{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+			{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+			{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+			{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
+		};
+
+		const std::vector<uint16_t> indices = {
+			0, 1, 2, 2, 3, 0
+		};
+
 
 		const std::vector<const char*> _validationLayers =
 		{
@@ -108,11 +138,26 @@ namespace VoxelEngine::renderer
 		void createCommandBuffers();
 		void createSyncObjects();
 		void createDescriptorPool();
+		void createTextureImage();
+		void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
+		VkImageView createImageView(VkImage image, VkFormat format);
+		void createTextureImageView();
+		void createTextureSampler();
+		void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+		void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+		void updateUniformBuffer(uint32_t currentImage);
+		VkCommandBuffer beginSingleTimeCommands();
+		void createDescriptorSets();
+		void createVertexBuffer();
+		void createIndexBuffer();
+		void createUniformBuffers();
+		void createDescriptorSetLayout();
 		void setupDebugMessenger();
 		void recreateSwapChain();
 		void pickPhysicalDevice();
 		void recordCommandBuffer(const VkCommandBuffer& commandBuffer, const uint32& imageIndex) const;
-		void endSingleTimeCommands(const VkCommandBuffer& commandBuffer, const VkSemaphore* signalSemaphores = nullptr);
+		void submitToQueue(const VkCommandBuffer& commandBuffer, const VkSemaphore* signalSemaphores = nullptr);
+		void endSingleTimeCommands(const VkCommandBuffer& commandBuffer) const;
 		void destroyDebugUtilsMessengerEXT(const VkInstance& instance, const VkDebugUtilsMessengerEXT& debugMessenger, const VkAllocationCallbacks* pAllocator) const;
 		void destroyDebugReportMessengerEXT(const VkInstance& instance, const VkDebugReportCallbackEXT& debugMessenger, const VkAllocationCallbacks* pAllocator) const;
 		void cleanupSwapChain() const;
@@ -127,12 +172,14 @@ namespace VoxelEngine::renderer
 		inline const VkPhysicalDevice& getPhysicalDevice() const & { return _physicalDevice; }
 		inline const VkCommandBuffer& getCommandBuffer() const & { return _commandBuffers[_currentFrame]; }
 		const VkCommandPool& getCommandPool() const& { return _commandPool; }
-		void copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkDeviceSize& size) const;
+		const VkDeviceMemory allocateMemory(const VkMemoryRequirements& requirements, const VkMemoryPropertyFlags& properties) const;
+		void copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkDeviceSize& size);
 		void createBuffer(const VkDeviceSize& size, const VkBufferUsageFlags& usage, const VkMemoryPropertyFlags& properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) const;
 		void setWindow(const Window& window);
 		void init();
 		void beginFrame();
 		void endFrame();
+		void drawFrame();
 		void deviceWaitIdle() const;
 		void cleanup() const;
 	};

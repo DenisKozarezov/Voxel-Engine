@@ -11,8 +11,20 @@ namespace VoxelEngine::renderer
 		DirectX12 = 3,
 	};
 
+	struct RenderPerformanceStats
+	{
+		uint32 drawCalls;
+		uint64 triangles;
+		uint64 vertices;
+		uint64 indices;
+		uint32 voxels;
+		uint32 batches;
+	};
+
 	class Renderer
 	{
+	private:
+		static RenderPerformanceStats _stats;
 	public:
 		static float getTime() noexcept;
 		static void init(const Window& window);

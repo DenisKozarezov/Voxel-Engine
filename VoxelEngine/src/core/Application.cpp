@@ -2,7 +2,7 @@
 #include "input/events/EventBus.h"
 #include "Timestep.h"
 #include "renderer/Renderer.h"
-#include "renderer/ImGuiLayer.h"
+#include "imgui/ImGuiLayer.h"
 
 namespace VoxelEngine
 {

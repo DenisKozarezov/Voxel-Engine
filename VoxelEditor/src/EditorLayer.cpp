@@ -23,14 +23,14 @@ namespace VoxelEditor
 
 	void EditorLayer::drawMenuBar()
 	{
-		if (ImGui::BeginMainMenuBar())
+		if (ImGui::BeginMenuBar())
 		{
 			if (ImGui::BeginMenu("File"))
 			{
-				ImGui::MenuItem("Open");
+				ImGui::MenuItem("Open", "Ctrl+O");
 				ImGui::Separator();
-				ImGui::MenuItem("Save");
-				ImGui::MenuItem("Save As");
+				ImGui::MenuItem("Save", "Ctrl+S");
+				ImGui::MenuItem("Save As...");
 				ImGui::Separator();
 				ImGui::MenuItem("Import");
 				ImGui::MenuItem("Export");
@@ -40,8 +40,8 @@ namespace VoxelEditor
 
 			if (ImGui::BeginMenu("Edit"))
 			{
-				ImGui::MenuItem("Step Forward (Ctrl+D)");
-				ImGui::MenuItem("Step Backwards (Ctrl+Z)");
+				ImGui::MenuItem("Step Forward", "Ctrl+D");
+				ImGui::MenuItem("Step Backwards", "Ctrl+Z");
 				ImGui::EndMenu();
 			}
 
@@ -75,42 +75,47 @@ namespace VoxelEditor
 				ImGui::EndMenu();
 			}
 
-			ImGui::EndMainMenuBar();
+			ImGui::EndMenuBar();
 		}
-	}
-	void EditorLayer::drawBrushPanel()
-	{
-		//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-		ImGui::Begin("Viewport");
-		ImVec2 regionSize = ImGui::GetContentRegionAvail();
-		//ImGui::PopStyleVar();
-		ImGui::End();
 	}
 	void EditorLayer::drawHierarchy()
 	{
 	}
 	void EditorLayer::drawRenderPerformance()
 	{
-		ImGuiWindowFlags flags = ImGuiWindowFlags_::ImGuiWindowFlags_NoResize;
+		ImGuiWindowFlags flags = ImGuiWindowFlags_::ImGuiWindowFlags_NoCollapse;
 		if (show_performance && ImGui::Begin("Performance", &show_performance, flags))
 		{
-			ImGui::Text("Statistics:");
+			if (ImGui::CollapsingHeader("Statistics", ImGuiTreeNodeFlags_DefaultOpen))
+			{
+				ImGui::BeginColumns("##statistics", 2);
+				ImGui::Text("Draw Calls: %d", 0);
+				ImGui::Text("Triangles: %d", 0);
+				ImGui::Text("Vertices: %d", 0);
+				ImGui::Text("Indices: %d", 0);
+				ImGui::NextColumn();
+				ImGui::Text("Batches: %d", 0);
+				ImGui::EndColumns();
 
-			ImGui::BeginColumns("statistics", 2);
-			ImGui::Text("Draw Calls: %d", 0);
-			ImGui::Text("Triangles: %d", 0);
-			ImGui::Text("Vertices: %d", 0);
-			ImGui::Text("Indices: %d", 0);
-			ImGui::NextColumn();
-			ImGui::Text("Voxels: %d", 0);
-			ImGui::Text("SVO Traverse Time: %.3f ms", 0.0f);
+				ImGui::Separator();
 
-			ImGui::EndColumns();
+				ImGuiIO& io = ImGui::GetIO();
+				ImGui::Text("Rendering: %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+			}
 
-			ImGui::Separator();
+			if (ImGui::CollapsingHeader("Memory"))
+			{
+				ImGui::Text("Textures Memory: %d MB", 0);
+				ImGui::Text("Voxels Memory: %d MB", 0);
+				
+				ImGui::BeginGroup();
+				ImGui::AlignTextToFramePadding();
+				ImGui::Text("Memory Usage:");
+				ImGui::SameLine();
+				ImGui::ProgressBar(0.6f, ImVec2(0,0), "0 MB / 1000 MB");
+				ImGui::EndGroup();
+			}
 
-			ImGuiIO& io = ImGui::GetIO();
-			ImGui::Text("Rendering: %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 			ImGui::End();
 		}
 	}
@@ -127,29 +132,33 @@ namespace VoxelEditor
 	}				  
 	void EditorLayer::onImGuiRender()
 	{
+		static bool opt_fullscreen = true;
+
+		// Full-size
+		ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_MenuBar;
+		if (opt_fullscreen)
+		{
+			flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+			flags |= ImGuiWindowFlags_NoBackground;
+			const ImGuiViewport* viewport = ImGui::GetMainViewport();
+			ImGui::SetNextWindowPos(viewport->WorkPos);
+			ImGui::SetNextWindowSize(viewport->WorkSize);
+			ImGui::SetNextWindowViewport(viewport->ID);
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+			ImGui::PopStyleVar(2);
+		}
+
+		if (ImGui::Begin("##root", 0, flags))
+		{
+			drawRenderPerformance();
+			drawMenuBar();
+
+			ImGui::End();
+		}
+
 		if (show_demo_window)
 			ImGui::ShowDemoWindow(&show_demo_window);
-
-		static float f = 0.0f;
-		static int counter = 0;
-
-		drawMenuBar();
-		drawBrushPanel();
-		drawRenderPerformance();
-
-		ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
-		ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-		ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-
-		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-
-		if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-			counter++;
-		ImGui::SameLine();
-		ImGui::Text("counter = %d", counter);
-
-		ImGui::End();
 	}				  
 	void EditorLayer::onEvent(VoxelEngine::input::Event& e)
 	{

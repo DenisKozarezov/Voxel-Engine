@@ -1,7 +1,6 @@
 #pragma once
 #include "input/events/ApplicationEvent.h"
 #include "Window.h"
-#include "Log.h"
 #include "Assert.h"
 #include "LayerStack.h"
 
@@ -32,6 +31,7 @@ struct ApplicationSpecification
 	std::string WorkingDirectory;
 	std::string Version;
 	std::string GraphicsAPI;
+	bool Maximized = false;
 	ApplicationCommandLineArgs CommandLineArgs;
 };
 
@@ -64,9 +64,9 @@ namespace VoxelEngine
 
 		static const SharedRef<Application> getInstance();
 
-		const void init();
-		const void run();
-		const void shutdown();
+		void init();
+		void run();
+		void shutdown();
 
 		virtual ~Application() = default;
 	};

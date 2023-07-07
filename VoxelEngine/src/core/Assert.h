@@ -1,4 +1,6 @@
 #pragma once
+#include "Base.h"
+#include "Log.h"
 
 namespace VoxelEngine
 {

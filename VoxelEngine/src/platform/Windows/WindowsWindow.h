@@ -29,6 +29,7 @@ namespace VoxelEngine
 		const void* getNativeWindow() const & noexcept override { return _window; }
 		void setVSync(bool isEnabled) noexcept override;
 		void setEventCallback(const EventCallback& callback) noexcept override;
+		void setMaximized(const bool& isMaximized) override;
 		void onUpdate() override;
 
 		~WindowsWindow();

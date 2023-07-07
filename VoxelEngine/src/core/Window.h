@@ -32,6 +32,7 @@ namespace VoxelEngine
 		virtual const void* getNativeWindow() const & noexcept = 0;
 		virtual void setVSync(bool isEnabled) noexcept = 0;
 		virtual void setEventCallback(const EventCallback& callback) noexcept = 0;
+		virtual void setMaximized(const bool& isMaximized) = 0;
 		virtual void init() = 0;
 		virtual void shutdown() = 0;
 		virtual void onUpdate() = 0;

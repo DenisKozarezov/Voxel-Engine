@@ -10,7 +10,7 @@ namespace VoxelEngine::renderer
 	{
 		alignas(16) glm::mat4 model;
 		alignas(16) glm::mat4 view;
-		alignas(16) glm::mat4 projection;
+		alignas(16) glm::mat4 proj;
 	};
 
 	class UniformBuffer
@@ -20,15 +20,15 @@ namespace VoxelEngine::renderer
 		VkDeviceMemory _uniformBufferMemory;
 		void* _uniformBufferMapped;
 		VkDevice _logicalDevice;
-		VkAllocationCallbacks* _allocator;
+		uint32 _bufferSize;
 	public:
 		UniformBuffer() = default;
-		UniformBuffer(const uint32& size, VkAllocationCallbacks* allocator = nullptr);
+		UniformBuffer(const VkDevice& logicalDevice, const uint32& size, VkAllocationCallbacks* allocator = nullptr);
 
 		operator VkBuffer() const & { return _uniformBuffer; }
 
-		const void bind() const;
-		const void unbind() const;
+		void setData(const void* data, size_t size) const;
+		void release() const;
 
 		~UniformBuffer() = default;
 	};

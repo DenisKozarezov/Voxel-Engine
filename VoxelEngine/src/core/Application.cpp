@@ -2,7 +2,7 @@
 #include "input/events/EventBus.h"
 #include "Timestep.h"
 #include "renderer/Renderer.h"
-#include "renderer/ImGuiLayer.h"
+#include "imgui/ImGuiLayer.h"
 
 namespace VoxelEngine
 {
@@ -23,6 +23,7 @@ namespace VoxelEngine
 		name << spec.ApplicationName << " " << spec.Version << " (" << spec.GraphicsAPI << ")";
 		_window = Window::Create({ name.str(), 1920, 1080 });
 		_window->setEventCallback(BIND_CALLBACK(onEvent));
+		_window->setMaximized(spec.Maximized);
 	}
 
 	const SharedRef<Application> Application::getInstance()
@@ -41,7 +42,7 @@ namespace VoxelEngine
 		layer->onAttach();
 	}
 
-	const void Application::init()
+	void Application::init()
 	{
 		try
 		{
@@ -54,7 +55,7 @@ namespace VoxelEngine
 			VOXEL_DEBUGBREAK()
 		}
 	}
-	const void Application::run()
+	void Application::run()
 	{
 		VOXEL_CORE_WARN("Running Voxel Engine...")
 
@@ -77,7 +78,7 @@ namespace VoxelEngine
 		}
 		renderer::Renderer::deviceWaitIdle();
 	}
-	const void Application::shutdown()
+	void Application::shutdown()
 	{
 		_layerStack.detach();
 		renderer::Renderer::cleanup();

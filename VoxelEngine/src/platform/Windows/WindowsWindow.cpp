@@ -1,5 +1,4 @@
 #include "WindowsWindow.h"
-#include "core/Log.h"
 #include "core/Assert.h"
 #include "core/input/events/ApplicationEvent.h"
 #include "core/input/events/KeyboardEvent.h"
@@ -31,7 +30,7 @@ namespace VoxelEngine
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 		_window = glfwCreateWindow(_windowData.Width, _windowData.Height, _windowData.Title.c_str(), nullptr, nullptr);
 		glfwMakeContextCurrent(_window);
-		glfwSetWindowUserPointer(_window, &_windowData);
+		glfwSetWindowUserPointer(_window, &_windowData);	
 		setVSync(true);
 
 		glfwSetWindowSizeCallback(_window, [](GLFWwindow* window, int width, int height)
@@ -115,6 +114,11 @@ namespace VoxelEngine
 	inline void WindowsWindow::setEventCallback(const EventCallback& callback) noexcept
 	{
 		_windowData.EventCallback = callback;
+	}
+	void WindowsWindow::setMaximized(const bool& isMaximized)
+	{
+		if (isMaximized) 
+			glfwMaximizeWindow(_window);
 	}
 	void WindowsWindow::onUpdate()
 	{

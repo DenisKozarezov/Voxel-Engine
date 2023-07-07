@@ -1,3 +1,26 @@
+# The canonical out-of-tree build subdirectory
+[Bb]uild/
+
+# Visual Studio clutter
+*.sdf
+*.suo
+*.dir
+*.vcxproj
+*.vcxproj.filters
+*.sln
+*.opensdf
+CMakeSettings.json
+Win32
+bin/
+bin-int/
+obj/
+[Dd]ebug/
+[Rr]elease/
+x64
+.vs/
+MinSizeRel/
+RelWithDebInfo/
+
 # Prerequisites
 *.d
 
@@ -30,10 +53,4 @@
 *.out
 *.app
 
-bin/
-bin-int/
-obj/
-[Dd]ebug/
-[Rr]elease/
-x64
-.vs/
+vcpkg_installed/

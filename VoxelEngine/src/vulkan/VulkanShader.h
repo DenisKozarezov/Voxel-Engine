@@ -2,9 +2,9 @@
 #include <vulkan/vulkan.h>
 #include <core/renderer/Shader.h>
 
-namespace VoxelEngine::renderer
+namespace vulkan::shaders
 {
-	class VulkanShader : public Shader
+	class VulkanShader : public VoxelEngine::renderer::Shader
 	{
 	private:
 		VkShaderModule _shaderModule;

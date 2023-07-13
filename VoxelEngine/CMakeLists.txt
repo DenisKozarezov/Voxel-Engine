@@ -13,15 +13,11 @@ set_target_properties(${TARGET} PROPERTIES
 
 find_package(Vulkan REQUIRED)
 
-file(GLOB_RECURSE CORE_SOURCE ./src/core/*.cpp)
-file(GLOB_RECURSE CORE_HEADER ./src/core/*.h)
-file(GLOB_RECURSE PLATFORM_SOURCE ./src/platform/*.cpp)
-file(GLOB_RECURSE PLATFORM_HEADER ./src/platform/*.h)
+file(GLOB_RECURSE CORE_SOURCE ./src/*.cpp)
+file(GLOB_RECURSE CORE_HEADER ./src/*.h)
 
 source_group("core" FILES ${CORE_SOURCE})
 source_group("core" FILES ${CORE_HEADER})
-source_group("platform" FILES ${PLATFORM_SOURCE})
-source_group("platform" FILES ${PLATFORM_HEADER})
 
 set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
@@ -29,8 +25,6 @@ add_library(${PROJECT_NAME}
     STATIC 
         ${CORE_SOURCE}
         ${CORE_HEADER}
-        ${PLATFORM_SOURCE}
-        ${PLATFORM_HEADER}
         ${SOURCE_DIR}/VoxelEngine.h
         ${SOURCE_DIR}/pch.h
 )

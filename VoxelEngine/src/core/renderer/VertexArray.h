@@ -13,11 +13,11 @@ namespace VoxelEngine::renderer
 		virtual void bind() const = 0;
 		virtual void unbind() const = 0;
 
-		virtual void addVertexBuffer(const SharedRef<VertexBuffer>& vertexBuffer) = 0;
-		virtual void setIndexBuffer(const SharedRef<IndexBuffer>& indexBuffer) = 0;
+		virtual void addVertexBuffer(const SharedRef<VulkanVertexBuffer>& vertexBuffer) = 0;
+		virtual void setIndexBuffer(const SharedRef<VulkanIndexBuffer>& indexBuffer) = 0;
 
-		virtual const std::vector<SharedRef<VertexBuffer>>& getVertexBuffers() const = 0;
-		virtual const SharedRef<IndexBuffer>& getIndexBuffer() const = 0;
+		virtual const std::vector<SharedRef<VulkanVertexBuffer>>& getVertexBuffers() const = 0;
+		virtual const SharedRef<VulkanIndexBuffer>& getIndexBuffer() const = 0;
 
 		static SharedRef<VertexArray> Create();
 	};

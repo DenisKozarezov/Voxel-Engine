@@ -1,7 +1,7 @@
 #include "VulkanFramebuffer.h"
-#include "VulkanRenderer.h"
+#include "VulkanValidation.h"
 
-namespace VoxelEngine::renderer
+namespace vulkan
 {
 	Framebuffer::Framebuffer(const VkDevice& logicalDevice, const VkRenderPass& renderPass, const std::vector<VkImageView>& attachments, const VkExtent2D& framebufferSize)
 		: _logicalDevice(logicalDevice)

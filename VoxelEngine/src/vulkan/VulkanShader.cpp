@@ -1,7 +1,7 @@
 #include "VulkanShader.h"
-#include "VulkanRenderer.h"
+#include "VulkanBackend.h"
 
-namespace VoxelEngine::renderer
+namespace vulkan::shaders
 {
 	const VkShaderModule VulkanShader::createShaderModule(const std::vector<char>& code) const
 	{
@@ -18,7 +18,7 @@ namespace VoxelEngine::renderer
 	VulkanShader::VulkanShader(const string& filepath, const VkShaderStageFlagBits& shaderType) 
 		: Shader(filepath)
 	{
-		_logicalDevice = VulkanRenderer::getInstance()->getLogicalDevice();
+		_logicalDevice = vulkan::getLogicalDevice();
 
 		auto shaderProgram = readFile(filepath);
 

@@ -1,7 +1,9 @@
 #pragma once
+#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #include <pch.h>
+#include <glm/mat4x4.hpp>
+#include <vulkan/VulkanVertex.h>
 #include <core/PrimitiveTypes.h>
-#include <core/Base.h>
 
 namespace VoxelEngine::renderer
 {
@@ -63,70 +65,56 @@ namespace VoxelEngine::renderer
 	//		return 0;
 	//	}
 	//};
-
-
-	//class BufferLayout
-	//{
-	//public:
-	//	BufferLayout() {}
-
-	//	BufferLayout(std::initializer_list<BufferElement> elements) : m_Elements(elements)
-	//	{
-	//		CalculateOffsetsAndStride();
-	//	}
-
-	//	uint32 GetStride() const { return m_Stride; }
-	//	const std::vector<BufferElement>& GetElements() const { return m_Elements; }
-
-	//	std::vector<BufferElement>::iterator begin() { return m_Elements.begin(); }
-	//	std::vector<BufferElement>::iterator end() { return m_Elements.end(); }
-	//	std::vector<BufferElement>::const_iterator begin() const { return m_Elements.begin(); }
-	//	std::vector<BufferElement>::const_iterator end() const { return m_Elements.end(); }
-	//private:
-	//	void CalculateOffsetsAndStride()
-	//	{
-	//		size_t offset = 0;
-	//		m_Stride = 0;
-	//		for (auto& element : m_Elements)
-	//		{
-	//			element.Offset = offset;
-	//			offset += element.Size;
-	//			m_Stride += element.Size;
-	//		}
-	//	}
-	//private:
-	//	std::vector<BufferElement> m_Elements;
-	//	uint32 m_Stride = 0;
-	//};
+	
 
 	class VertexBuffer
 	{
 	public:
-		virtual ~VertexBuffer() = default;
+		VertexBuffer() = default;
 
 		virtual void bind() const = 0;
 		virtual void release() const = 0;
+		virtual void setData(const void* data, const size_t& size) = 0;
 
-		virtual void setData(const void* data, const uint32& size) = 0;
+		virtual ~VertexBuffer() = default;
 
-		//virtual const BufferLayout& getLayout() const = 0;
-		//virtual void setLayout(const BufferLayout& layout) = 0;
-
-		static SharedRef<VertexBuffer> Create(const uint32& size);
-		static SharedRef<VertexBuffer> Create(float* vertices, const uint32& size);
+		static VertexBuffer* Create(const void* data, const size_t& size);
 	};
 
 	class IndexBuffer
 	{
 	public:
-		virtual ~IndexBuffer() = default;
+		IndexBuffer() = default;
 
 		virtual void bind() const = 0;
 		virtual void release() const = 0;
+		virtual void setData(const void* data, const size_t& size) = 0;
 
-		virtual const uint32& getCount() const = 0;
+		virtual ~IndexBuffer() = default;
 
-		static SharedRef<IndexBuffer> Create(uint32* indices, const uint32& count);
+		static IndexBuffer* Create(const void* data, const size_t& size);
 	};
 
+	struct UniformBufferObject
+	{
+		alignas(16) glm::mat4 model;
+		alignas(16) glm::mat4 view;
+		alignas(16) glm::mat4 proj;
+	};
+
+	class UniformBuffer
+	{
+	private:
+		uint32 _bufferSize;
+	public:
+		UniformBuffer() = default;
+		UniformBuffer(const uint32& size) : _bufferSize(size) { }
+
+		virtual void setData(const void* data, size_t size) const = 0;
+		virtual void release() const = 0;
+
+		static UniformBuffer* Create(const size_t& size);
+
+		~UniformBuffer() = default;
+	};
 }

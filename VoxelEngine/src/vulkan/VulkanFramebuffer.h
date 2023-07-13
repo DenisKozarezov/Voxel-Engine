@@ -2,7 +2,7 @@
 #include <vulkan/vulkan.h>
 #include <vector>
 
-namespace VoxelEngine::renderer
+namespace vulkan
 {
 	class Framebuffer
 	{

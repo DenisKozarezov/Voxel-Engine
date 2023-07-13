@@ -1,18 +1,18 @@
 #include "VulkanCommandBuffer.h"
-#include "VulkanRenderer.h"
+#include "VulkanBackend.h"
 
-namespace VoxelEngine::renderer
+namespace vulkan::memory
 {
 	VkCommandBuffer CommandBuffer::allocate()
 	{
 		VkCommandBufferAllocateInfo allocInfo = {};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandPool = VulkanRenderer::getInstance()->getCommandPool();
+		allocInfo.commandPool = vulkan::getCommandPool();
 		allocInfo.commandBufferCount = 1;
 
 		VkCommandBuffer commandBuffer;
-		auto logicalDevice = VulkanRenderer::getInstance()->getLogicalDevice();
+		auto logicalDevice = vulkan::getLogicalDevice();
 		vkAllocateCommandBuffers(logicalDevice, &allocInfo, &commandBuffer);
 
 		return commandBuffer;
@@ -23,11 +23,11 @@ namespace VoxelEngine::renderer
 
 		VkCommandBufferAllocateInfo allocInfo = {};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocInfo.commandPool = VulkanRenderer::getInstance()->getCommandPool();
+		allocInfo.commandPool = vulkan::getCommandPool();
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 		allocInfo.commandBufferCount = buffersCount;
 
-		auto logicalDevice = VulkanRenderer::getInstance()->getLogicalDevice();
+		auto logicalDevice = vulkan::getLogicalDevice();
 		VkResult err = vkAllocateCommandBuffers(logicalDevice, &allocInfo, buffers.data());
 		check_vk_result(err, "failed to allocate command buffers!");
 
@@ -52,14 +52,14 @@ namespace VoxelEngine::renderer
 	}
 	void CommandBuffer::release(const VkCommandBuffer& buffer)
 	{
-		auto logicalDevice = VulkanRenderer::getInstance()->getLogicalDevice();
-		auto commandPool = VulkanRenderer::getInstance()->getCommandPool();
+		auto logicalDevice = vulkan::getLogicalDevice();
+		auto commandPool = vulkan::getCommandPool();
 		vkFreeCommandBuffers(logicalDevice, commandPool, 1, &buffer);
 	}
 	void CommandBuffer::release(const std::vector<VkCommandBuffer>& buffers)
 	{
-		auto logicalDevice = VulkanRenderer::getInstance()->getLogicalDevice();
-		auto commandPool = VulkanRenderer::getInstance()->getCommandPool();
+		auto logicalDevice = vulkan::getLogicalDevice();
+		auto commandPool = vulkan::getCommandPool();
 		vkFreeCommandBuffers(logicalDevice, commandPool, static_cast<uint32>(buffers.size()), buffers.data());
 	}
 }

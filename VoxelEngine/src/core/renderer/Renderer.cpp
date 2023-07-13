@@ -1,34 +1,31 @@
 #include "Renderer.h"
-#include <platform/Vulkan/VulkanRenderer.h>
+#include <vulkan/VulkanBackend.h>
 
 namespace VoxelEngine::renderer
 {
-    static SharedRef<VulkanRenderer> renderer = 0;
-
     float Renderer::getTime() noexcept
     {
         return (float)glfwGetTime();
     }
     void Renderer::init(const Window& window)
     {
-        renderer = VulkanRenderer::getInstance();
-        renderer->setWindow(window);
-        renderer->init();
+        vulkan::setWindow(window);
+        vulkan::init();
     }
     void Renderer::beginFrame()
     {
-        renderer->beginFrame();
+        vulkan::beginFrame();
     }
     void Renderer::endFrame()
     {
-        renderer->endFrame();
+        vulkan::endFrame();
     }
     void Renderer::deviceWaitIdle()
     {
-        renderer->deviceWaitIdle();
+        vulkan::deviceWaitIdle();
     }
     void Renderer::cleanup()
     {
-        renderer->cleanup();
+        vulkan::cleanup();
     }
 }

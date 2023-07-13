@@ -3,7 +3,7 @@
 #include <glm/glm.hpp>
 #include <vulkan/vulkan.h>
 
-namespace VoxelEngine::renderer
+namespace vulkan
 {
 	struct Vertex
 	{

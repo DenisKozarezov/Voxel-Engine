@@ -3,7 +3,7 @@
 #include <vulkan/vulkan.h>
 #include <core/PrimitiveTypes.h>
 
-namespace VoxelEngine::renderer
+namespace vulkan::memory
 {
 	static class CommandBuffer
 	{

@@ -86,6 +86,8 @@ namespace VoxelEditor
 		ImGuiWindowFlags flags = ImGuiWindowFlags_::ImGuiWindowFlags_NoCollapse;
 		if (show_performance && ImGui::Begin("Performance", &show_performance, flags))
 		{
+			auto stats = VoxelEngine::renderer::Renderer::getStats();
+
 			if (ImGui::CollapsingHeader("Statistics", ImGuiTreeNodeFlags_DefaultOpen))
 			{
 				ImGui::BeginColumns("##statistics", 2);
@@ -99,8 +101,7 @@ namespace VoxelEditor
 
 				ImGui::Separator();
 
-				ImGuiIO& io = ImGui::GetIO();
-				ImGui::Text("Rendering: %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+				ImGui::Text("Rendering: %.3f ms/frame (%.1f FPS)", stats.deltaTime, stats.fps);
 			}
 
 			if (ImGui::CollapsingHeader("Memory"))

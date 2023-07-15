@@ -4,6 +4,8 @@
 
 namespace VoxelEngine::input
 {
+    enum class MouseDraggingState { None, DragBegin, Dragging, DragEnd };
+
     class MouseButtonEvent : public Event
     {
     protected:
@@ -14,6 +16,7 @@ namespace VoxelEngine::input
 
         EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
 
+        inline const MouseCode& getKeyCode() const & { return _mouseCode; }
         const string toString() const override
         {
             std::stringstream ss;

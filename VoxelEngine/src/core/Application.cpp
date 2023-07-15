@@ -7,6 +7,7 @@
 namespace VoxelEngine
 {
 	Application* Application::_instance = 0;
+	float Application::_deltaTime = 0.0f;
 
 	Application::Application(const ApplicationSpecification& spec) : _specification(spec)
 	{
@@ -29,6 +30,10 @@ namespace VoxelEngine
 	const SharedRef<Application> Application::getInstance()
 	{
 		return SharedRef<Application>(_instance);
+	}
+	const float& Application::getDeltaTime()
+	{
+		return _deltaTime;
 	}
 
 	void Application::pushLayer(renderer::Layer* layer)
@@ -57,19 +62,20 @@ namespace VoxelEngine
 	}
 	void Application::run()
 	{
-		VOXEL_CORE_WARN("Running Voxel Engine...")
+		VOXEL_CORE_WARN("Running {0}...", _specification.ApplicationName)
 
 		_running = true;
 
 		while (_running)
 		{
 			const float time = renderer::Renderer::getTime();
-			const Timestep deltaTime = time - _lastFrameTime;
+			const float deltaTime = time - _lastFrameTime;
+			_deltaTime = deltaTime;
 			_lastFrameTime = time;
 
 			if (!_minimized)
 			{
-				_layerStack.onUpdate(time);
+				_layerStack.onUpdate(deltaTime);
 				renderer::Renderer::beginFrame();
 				_layerStack.onImGuiRender();
 				renderer::Renderer::endFrame();
@@ -86,7 +92,15 @@ namespace VoxelEngine
 
 	void Application::moveCamera(const components::camera::CameraMovement& direction)
 	{
-		_camera.processKeyboard(direction, 0.01f);
+		_camera.processKeyboard(direction, _deltaTime);
+	}
+	void Application::mouseMove(const float& x, const float& y)
+	{
+		_camera.processMouse(x, y);
+	}
+	void Application::setMouseDragging(const bool& isDragging)
+	{
+		_mouseState = isDragging ? input::MouseDraggingState::DragBegin : input::MouseDraggingState::None;
 	}
 
 	void Application::onEvent(input::Event& e)
@@ -95,6 +109,8 @@ namespace VoxelEngine
 		dispatcher.Fire<input::WindowCloseEvent>(BIND_CALLBACK(onWindowClose));
 		dispatcher.Fire<input::WindowResizeEvent>(BIND_CALLBACK(onWindowResize));
 		dispatcher.Fire<input::KeyPressedEvent>(BIND_CALLBACK(onKeyboardPressed));
+		dispatcher.Fire<input::MouseButtonPressedEvent>(BIND_CALLBACK(onMousePressed));
+		dispatcher.Fire<input::MouseButtonReleasedEvent>(BIND_CALLBACK(onMouseReleased));
 		dispatcher.Fire<input::MouseMovedEvent>(BIND_CALLBACK(onMouseMoved));
 	}
 	bool Application::onWindowClose(const input::WindowCloseEvent& e)
@@ -131,8 +147,44 @@ namespace VoxelEngine
 		}
 		return true;
 	}
+	bool Application::onMousePressed(const input::MouseButtonPressedEvent& e)
+	{
+		switch (e.getKeyCode())
+		{
+		case input::ButtonRight:
+			setMouseDragging(true);
+			break;
+		}
+		return true;
+	}
+	bool Application::onMouseReleased(const input::MouseButtonReleasedEvent& e)
+	{
+		switch (e.getKeyCode())
+		{
+		case input::ButtonRight:
+			setMouseDragging(false);
+			break;
+		}
+		return true;
+	}
 	bool Application::onMouseMoved(const input::MouseMovedEvent& e)
 	{
+		const float x = e.getX();
+		const float y = e.getY();
+
+		if (_mouseState == input::MouseDraggingState::DragBegin)
+		{
+			_lastMouseX = x;
+			_lastMouseY = y;
+			_mouseState = input::MouseDraggingState::Dragging;
+		}
+
+		if (_mouseState == input::MouseDraggingState::Dragging)
+		{
+			mouseMove(x - _lastMouseX, y - _lastMouseY);
+			_lastMouseX = x;
+			_lastMouseY = y;
+		}
 		return true;
 	}
 }

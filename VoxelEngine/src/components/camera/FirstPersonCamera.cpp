@@ -33,10 +33,18 @@ namespace VoxelEngine::components::camera
 			break;
 		}
 	}
-	void FirstPersonCamera::processMouse(const float& xOffset, const float& yOffset)
+	void FirstPersonCamera::processMouse(const float& xOffset, const float& yOffset, const bool& constrainPitch)
 	{
-		_yaw += xOffset * _mouseSensitivity;
 		_pitch += yOffset * _mouseSensitivity;
+		_yaw += xOffset * _mouseSensitivity;
+
+		if (constrainPitch) 
+		{
+			if (_pitch > 89.0f) _pitch = 89.0f;
+			if (_pitch < -89.0f) _pitch = -89.0f;
+		}
+
+		updateCameraVectors();
 	}
 	void FirstPersonCamera::updateCameraVectors()
 	{

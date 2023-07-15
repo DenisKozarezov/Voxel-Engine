@@ -51,15 +51,22 @@ namespace VoxelEngine
 		components::camera::FirstPersonCamera _camera{glm::vec3(0.0f, 0.0f, 5.0f)};
 		bool _running = false;
 		bool _minimized = false;
+		input::MouseDraggingState _mouseState;
+		float _lastMouseX = 0.0f, _lastMouseY = 0.0f;
 		float _lastFrameTime = 0.0f;
+		static float _deltaTime;
 		static Application* _instance;
 
 		void moveCamera(const components::camera::CameraMovement& direction);
+		void mouseMove(const float& x, const float& y);
+		void setMouseDragging(const bool& isDragging);
 
 		void onEvent(input::Event& e);
 		bool onWindowClose(const input::WindowCloseEvent& e);
 		bool onWindowResize(const input::WindowResizeEvent& e);
 		bool onKeyboardPressed(const input::KeyPressedEvent& e);
+		bool onMousePressed(const input::MouseButtonPressedEvent& e);
+		bool onMouseReleased(const input::MouseButtonReleasedEvent& e);
 		bool onMouseMoved(const input::MouseMovedEvent& e);
 	protected:
 		Application(const ApplicationSpecification& spec);
@@ -73,6 +80,7 @@ namespace VoxelEngine
 		Application& operator= (Application&& rhs) noexcept = delete;
 
 		static const SharedRef<Application> getInstance();
+		static const float& getDeltaTime();
 
 		void init();
 		void run();

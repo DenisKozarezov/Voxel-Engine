@@ -7,7 +7,7 @@ namespace VoxelEngine::components::camera
 	constexpr static float defaultYaw = -90.0f;
 	constexpr static float defaultPitch = 0.0f;
 	constexpr static float defaultSpeed = 20.0f;
-	constexpr static float defaultSensitivity = 0.05f;
+	constexpr static float defaultSensitivity = 0.15f;
 	constexpr static float defaultZoom = 45.0f;
 
 	class FirstPersonCamera
@@ -36,7 +36,7 @@ namespace VoxelEngine::components::camera
 		inline const glm::mat4& viewMatrix() const { return glm::lookAt(_position, _position + _front, _up); }
 	
 		void processKeyboard(const CameraMovement& direction, const float& deltaTime);
-		void processMouse(const float& xOffset, const float& yOffset);
+		void processMouse(const float& xOffset, const float& yOffset, const bool& constrainPitch = true);
 		void updateCameraVectors();
 	};
 }

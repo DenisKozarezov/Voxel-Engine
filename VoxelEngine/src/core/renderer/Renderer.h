@@ -20,14 +20,15 @@ namespace VoxelEngine::renderer
 		uint64 indices;
 		uint32 voxels;
 		uint32 batches;
+		float fps;
+		float deltaTime;
 	};
 
 	class Renderer
 	{
-	private:
-		static RenderPerformanceStats _stats;
 	public:
 		static float getTime() noexcept;
+		static const RenderPerformanceStats& getStats();
 		static void init(const Window& window, components::camera::FirstPersonCamera* camera);
 		static void beginFrame();
 		static void endFrame();

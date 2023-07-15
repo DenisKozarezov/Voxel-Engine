@@ -47,7 +47,7 @@ namespace VoxelEngine
 		try
 		{
 			pushOverlay(new renderer::ImGuiLayer());
-			renderer::Renderer::init(*_window.get());
+			renderer::Renderer::init(*_window.get(), &_camera);
 		}
 		catch (const std::exception& e)
 		{
@@ -84,11 +84,18 @@ namespace VoxelEngine
 		renderer::Renderer::cleanup();
 	}
 
+	void Application::moveCamera(const components::camera::CameraMovement& direction)
+	{
+		_camera.processKeyboard(direction, 0.01f);
+	}
+
 	void Application::onEvent(input::Event& e)
 	{
 		input::EventBus dispatcher(e);
 		dispatcher.Fire<input::WindowCloseEvent>(BIND_CALLBACK(onWindowClose));
 		dispatcher.Fire<input::WindowResizeEvent>(BIND_CALLBACK(onWindowResize));
+		dispatcher.Fire<input::KeyPressedEvent>(BIND_CALLBACK(onKeyboardPressed));
+		dispatcher.Fire<input::MouseMovedEvent>(BIND_CALLBACK(onMouseMoved));
 	}
 	bool Application::onWindowClose(const input::WindowCloseEvent& e)
 	{
@@ -104,5 +111,28 @@ namespace VoxelEngine
 		}
 		_minimized = false;
 		return false;
+	}
+	bool Application::onKeyboardPressed(const input::KeyPressedEvent& e)
+	{
+		switch (e.getKeyCode())
+		{
+		case input::W:
+			moveCamera(components::camera::CameraMovement::Forward);
+			break;
+		case input::S:
+			moveCamera(components::camera::CameraMovement::Backward);
+			break;
+		case input::A:
+			moveCamera(components::camera::CameraMovement::Left);
+			break;
+		case input::D:
+			moveCamera(components::camera::CameraMovement::Right);
+			break;
+		}
+		return true;
+	}
+	bool Application::onMouseMoved(const input::MouseMovedEvent& e)
+	{
+		return true;
 	}
 }

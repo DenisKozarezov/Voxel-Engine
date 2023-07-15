@@ -34,6 +34,10 @@ namespace VoxelEngine::renderer
 		virtual void generateQuad();
 	public:
 		Texture(const std::string& path);
+		Texture(Texture const&) noexcept = delete;
+		Texture(Texture&&) noexcept = delete;
+		Texture& operator= (Texture const& rhs) noexcept = delete;
+		Texture& operator= (Texture&& rhs) noexcept = delete;
 
 		inline const uint32& getWidth() const& noexcept { return _width; }
 		inline const uint32& getHeight() const& noexcept { return _height; }

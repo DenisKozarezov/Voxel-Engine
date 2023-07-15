@@ -7,9 +7,10 @@ namespace VoxelEngine::renderer
     {
         return (float)glfwGetTime();
     }
-    void Renderer::init(const Window& window)
+    void Renderer::init(const Window& window, components::camera::FirstPersonCamera* camera)
     {
         vulkan::setWindow(window);
+        vulkan::setCamera(camera);
         vulkan::init();
     }
     void Renderer::beginFrame()

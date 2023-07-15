@@ -1,5 +1,6 @@
 #pragma once
 #include "../Window.h"
+#include "components/camera/FirstPersonCamera.h"
 
 namespace VoxelEngine::renderer
 {
@@ -27,7 +28,7 @@ namespace VoxelEngine::renderer
 		static RenderPerformanceStats _stats;
 	public:
 		static float getTime() noexcept;
-		static void init(const Window& window);
+		static void init(const Window& window, components::camera::FirstPersonCamera* camera);
 		static void beginFrame();
 		static void endFrame();
 		static void deviceWaitIdle();

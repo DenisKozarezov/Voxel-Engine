@@ -6,11 +6,13 @@
 #include <core/Window.h>
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
+#include <components/camera/FirstPersonCamera.h>
 #include "VulkanFramebuffer.h"
 #include "VulkanShader.h"
 #include "VulkanCommandBuffer.h"
 #include "VulkanUniformBuffer.h"
 #include "VulkanValidation.h"
+#include "VulkanAlloc.h"
 
 namespace vulkan
 {
@@ -38,7 +40,7 @@ namespace vulkan
 	constexpr bool hasStencilComponent(const VkFormat& format);
 	const std::vector<const char*> getRequiredExtensions();
 	const QueueFamilyIndices findQueueFamilies(const VkPhysicalDevice& device);
-	const SwapChainSupportDetails querySwapChainSupport(const VkPhysicalDevice& device);
+	const SwapChainSupportDetails querySwapChainSupport(const VkPhysicalDevice& device, const VkSurfaceKHR& surface);
 	constexpr const VkSurfaceFormatKHR& chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 	constexpr const VkPresentModeKHR& chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
 	constexpr const VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
@@ -71,6 +73,7 @@ namespace vulkan
 	static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
 
 	void setWindow(const VoxelEngine::Window& window);
+	void setCamera(VoxelEngine::components::camera::FirstPersonCamera* camera);
 	void init();
 	void beginFrame();
 	void endFrame();
@@ -99,8 +102,6 @@ namespace vulkan
 
 
 	// ==================== MEMORY ALLOC / DEALLOC ====================
-
-	const uint32 findMemoryType(const uint32& typeFilter, const VkMemoryPropertyFlags& properties);
 	const VkDeviceMemory allocateMemory(const VkMemoryRequirements& requirements, const VkMemoryPropertyFlags& properties);
 	void createBuffer(
 		const VkDeviceSize& size,
@@ -108,7 +109,6 @@ namespace vulkan
 		const VkMemoryPropertyFlags& properties,
 		VkBuffer& buffer,
 		VkDeviceMemory& bufferMemory);
-	const VkCommandBuffer& beginSingleTimeCommands();
 	void copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkDeviceSize& size);
 	void endSingleTimeCommands(const VkCommandBuffer& commandBuffer);
 	void destroyBuffer(const VkBuffer& buffer);

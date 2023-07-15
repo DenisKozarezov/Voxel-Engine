@@ -23,11 +23,7 @@ namespace vulkan
 		vulkan::createBuffer(size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
 		VkDevice logicalDevice = vulkan::getLogicalDevice();
-
-		void* dst;
-		vkMapMemory(logicalDevice, stagingBufferMemory, 0, size, 0, &dst);
-		memcpy(dst, data, size);
-		vkUnmapMemory(logicalDevice, stagingBufferMemory);
+		memory::mapMemory(logicalDevice, stagingBufferMemory, 0, size, 0, data);
 
 		vulkan::createBuffer(size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _indexBuffer, _indexBufferMemory);
 		vulkan::copyBuffer(stagingBuffer, _indexBuffer, size);

@@ -4,7 +4,6 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
 #include "VulkanTexture.h"
-#include "VulkanAlloc.h"
 
 namespace vulkan
 {	
@@ -41,6 +40,7 @@ namespace vulkan
 	} state;
 
 	VulkanTexture* texture;
+	VoxelEngine::components::camera::FirstPersonCamera* FPVcamera;
 		
 	void framebufferResizeCallback(GLFWwindow* window, int width, int height)
 	{
@@ -80,7 +80,7 @@ namespace vulkan
 
 		if (extensionsSupported)
 		{
-			SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device);
+			SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device, state.surface);
 			swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
 		}
 
@@ -151,29 +151,28 @@ namespace vulkan
 
 		return indices;
 	}
-	const SwapChainSupportDetails querySwapChainSupport(const VkPhysicalDevice& device)
+	const SwapChainSupportDetails querySwapChainSupport(const VkPhysicalDevice& device, const VkSurfaceKHR& surface)
 	{
 		SwapChainSupportDetails details;
-		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, state.surface, &details.capabilities);
+		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.capabilities);
 
 		uint32 formatCount;
-		vkGetPhysicalDeviceSurfaceFormatsKHR(device, state.surface, &formatCount, nullptr);
+		vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
 
 		if (formatCount != 0)
 		{
 			details.formats.resize(formatCount);
-			vkGetPhysicalDeviceSurfaceFormatsKHR(device, state.surface, &formatCount, details.formats.data());
+			vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, details.formats.data());
 		}
 
 		uint32 presentModeCount;
-		vkGetPhysicalDeviceSurfacePresentModesKHR(device, state.surface, &presentModeCount, nullptr);
+		vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
 
 		if (presentModeCount != 0)
 		{
 			details.presentModes.resize(presentModeCount);
-			vkGetPhysicalDeviceSurfacePresentModesKHR(device, state.surface, &presentModeCount, details.presentModes.data());
+			vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, details.presentModes.data());
 		}
-
 		return details;
 	}
 	constexpr const VkSurfaceFormatKHR& chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
@@ -324,7 +323,7 @@ namespace vulkan
 	}
 	void createSwapChain(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice, const VkSurfaceKHR& surface)
 	{
-		SwapChainSupportDetails swapChainSupport = querySwapChainSupport(physicalDevice);
+		SwapChainSupportDetails swapChainSupport = querySwapChainSupport(physicalDevice, surface);
 		VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
 		VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
 		VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
@@ -420,33 +419,25 @@ namespace vulkan
 
 		for (size_t i = 0; i < state.swapChainImages.size(); i++)
 		{
-			VkImageViewCreateInfo createInfo = {};
-			createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-			createInfo.image = state.swapChainImages[i];
-			createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-			createInfo.format = imageFormat;
-			createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			createInfo.subresourceRange.baseMipLevel = 0;
-			createInfo.subresourceRange.levelCount = 1;
-			createInfo.subresourceRange.baseArrayLayer = 0;
-			createInfo.subresourceRange.layerCount = 1;
-
-			VkResult err = vkCreateImageView(state.logicalDevice, &createInfo, nullptr, &state.swapChainImageViews[i]);
-			check_vk_result(err, "failed to create image views!");
+			VkComponentMapping components =
+			{
+				VK_COMPONENT_SWIZZLE_IDENTITY,
+				VK_COMPONENT_SWIZZLE_IDENTITY,
+				VK_COMPONENT_SWIZZLE_IDENTITY,
+				VK_COMPONENT_SWIZZLE_IDENTITY
+			};
+			state.swapChainImageViews[i] = memory::createImageView(state.logicalDevice, state.swapChainImages[i], imageFormat, components);
 		}
 	}
-	void createGraphicsPipeline(const VkDevice& logicalDevice, 
+	void createGraphicsPipeline(
+		const VkDevice& logicalDevice, 
 		const VkRenderPass& renderPass, 
 		const VkDescriptorSetLayout& descriptorSetLayout)
 	{
 		shaders::VulkanShader vertexShader = shaders::VulkanShader("resources/shaders/vert.spv", VK_SHADER_STAGE_VERTEX_BIT);
 		shaders::VulkanShader fragShader = shaders::VulkanShader("resources/shaders/frag.spv", VK_SHADER_STAGE_FRAGMENT_BIT);
 
-		VkPipelineShaderStageCreateInfo shaderStages[] = { vertexShader.getStage(), fragShader.getStage() };
+		std::vector<VkPipelineShaderStageCreateInfo> shaderStages = { vertexShader.getStage(), fragShader.getStage() };
 		const auto& bindingDescription = Vertex::getBindingDescription();
 		const auto& attributeDescription = Vertex::getAttributeDescriptions();
 
@@ -529,8 +520,8 @@ namespace vulkan
 
 		VkGraphicsPipelineCreateInfo pipelineInfo = {};
 		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-		pipelineInfo.stageCount = 2;
-		pipelineInfo.pStages = shaderStages;
+		pipelineInfo.stageCount = shaderStages.size();
+		pipelineInfo.pStages = shaderStages.data();
 		pipelineInfo.pVertexInputState = &vertexInputInfo;
 		pipelineInfo.pInputAssemblyState = &inputAssembly;
 		pipelineInfo.pViewportState = &viewportState;
@@ -746,7 +737,7 @@ namespace vulkan
 		}
 		for (const auto& imageView : state.swapChainImageViews)
 		{
-			vkDestroyImageView(logicalDevice, imageView, nullptr);
+			memory::destroyImageView(logicalDevice, imageView);
 		}
 		vkDestroySwapchainKHR(logicalDevice, swapchain, nullptr);
 	}
@@ -784,17 +775,13 @@ namespace vulkan
 		else
 			VOXEL_CORE_ASSERT(result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR, "failed to acquire swap chain image!")
 
-
-		static auto startTime = std::chrono::high_resolution_clock::now();
-
-		auto currentTime = std::chrono::high_resolution_clock::now();
-		float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-
 		VoxelEngine::renderer::UniformBufferObject ubo = {};
-		ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-		ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-		ubo.proj = glm::perspective(glm::radians(45.0f), (float)state.swapChainExtent.width / state.swapChainExtent.height, 0.1f, 10.0f);
+		const float aspectRatio = (float)state.swapChainExtent.width / state.swapChainExtent.height;
+
+		ubo.view = FPVcamera->viewMatrix();
+		ubo.proj = glm::perspective(glm::radians(60.0f), aspectRatio, 0.1f, 200.0f);
 		ubo.proj[1][1] *= -1;
+		ubo.viewproj = ubo.proj * ubo.view;
 
 		texture->setUniformBuffer(&ubo, sizeof(ubo));
 
@@ -892,7 +879,12 @@ namespace vulkan
 		glfwSetFramebufferSizeCallback(state.window, framebufferResizeCallback);
 		int success = glfwVulkanSupported();
 		VOXEL_CORE_ASSERT(success, "GLFW: Vulkan Not Supported")
-	}	
+	}
+	void setCamera(VoxelEngine::components::camera::FirstPersonCamera* camera)
+	{
+		FPVcamera = camera;
+	}
+
 	void init()
 	{		
 		createInstance();
@@ -977,17 +969,9 @@ namespace vulkan
 
 
 	// ==================== MEMORY ALLOC / DEALLOC ====================
-	const uint32 findMemoryType(const uint32& typeFilter, const VkMemoryPropertyFlags& properties)
-	{
-		return memory::findMemoryType(state.physicalDevice, typeFilter, properties);
-	}
 	const VkDeviceMemory allocateMemory(const VkMemoryRequirements& requirements, const VkMemoryPropertyFlags& properties)
 	{
 		return memory::allocateMemory(state.physicalDevice, state.logicalDevice, requirements, properties);
-	}
-	const VkCommandBuffer& beginSingleTimeCommands()
-	{
-		return memory::beginSingleTimeCommands();
 	}
 	void createBuffer(
 		const VkDeviceSize& size,
@@ -1029,7 +1013,7 @@ namespace vulkan
 	}
 	void copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkDeviceSize& size)
 	{
-		VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+		VkCommandBuffer commandBuffer = memory::beginSingleTimeCommands();
 
 		VkBufferCopy copyRegion = {};
 		copyRegion.size = size;

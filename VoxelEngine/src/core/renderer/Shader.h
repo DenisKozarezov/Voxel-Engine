@@ -12,6 +12,10 @@ namespace VoxelEngine::renderer
 	public:
 		Shader() = delete;
 		Shader(const string& filepath);
+		Shader(Shader const&) noexcept = delete;
+		Shader(Shader&&) noexcept = delete;
+		Shader& operator= (Shader const& rhs) noexcept = delete;
+		Shader& operator= (Shader&& rhs) noexcept = delete;
 
 		inline const string& getName() const & noexcept { return _name; }
 		virtual void setUniform(const string& name, const glm::vec2 vector) const = 0;

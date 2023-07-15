@@ -11,7 +11,7 @@ namespace vulkan
         glm::vec3 color;
         glm::vec2 texCoord;
 
-        static VkVertexInputBindingDescription getBindingDescription() 
+        static constexpr VkVertexInputBindingDescription getBindingDescription() 
         {
             VkVertexInputBindingDescription bindingDescription = {};
             bindingDescription.binding = 0;
@@ -20,7 +20,7 @@ namespace vulkan
             return bindingDescription;
         }
 
-        static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions() 
+        static constexpr std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions()
         {
             std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions = {};
 

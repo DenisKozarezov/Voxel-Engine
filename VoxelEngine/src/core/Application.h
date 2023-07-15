@@ -1,8 +1,11 @@
 #pragma once
 #include "input/events/ApplicationEvent.h"
+#include "input/events/KeyboardEvent.h"
+#include "input/events/MouseEvent.h"
 #include "Window.h"
 #include "Assert.h"
 #include "LayerStack.h"
+#include "components/camera/FirstPersonCamera.h"
 
 struct ApplicationCommandLineArgs
 {
@@ -45,22 +48,29 @@ namespace VoxelEngine
 		ApplicationSpecification _specification;
 		UniqueRef<Window> _window;
 		renderer::LayerStack _layerStack;
+		components::camera::FirstPersonCamera _camera{glm::vec3(0.0f, 0.0f, 5.0f)};
 		bool _running = false;
 		bool _minimized = false;
 		float _lastFrameTime = 0.0f;
 		static Application* _instance;
 
+		void moveCamera(const components::camera::CameraMovement& direction);
+
 		void onEvent(input::Event& e);
 		bool onWindowClose(const input::WindowCloseEvent& e);
 		bool onWindowResize(const input::WindowResizeEvent& e);
+		bool onKeyboardPressed(const input::KeyPressedEvent& e);
+		bool onMouseMoved(const input::MouseMovedEvent& e);
 	protected:
 		Application(const ApplicationSpecification& spec);
 		void pushLayer(renderer::Layer* layer);
 		void pushOverlay(renderer::Layer* layer);
 	public:
-		Application() = delete;
-		Application(const Application&) = delete;
-		Application(Application&&) = delete;
+		Application() noexcept = delete;
+		Application(const Application&) noexcept = delete;
+		Application(Application&&) noexcept = delete;
+		Application& operator= (Application const& rhs) noexcept = delete;
+		Application& operator= (Application&& rhs) noexcept = delete;
 
 		static const SharedRef<Application> getInstance();
 

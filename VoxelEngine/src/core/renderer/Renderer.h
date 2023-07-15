@@ -29,7 +29,7 @@ namespace VoxelEngine::renderer
 	public:
 		static float getTime() noexcept;
 		static const RenderPerformanceStats& getStats();
-		static void init(const Window& window, components::camera::FirstPersonCamera* camera);
+		static void init(const Window& window, components::camera::Camera* camera);
 		static void beginFrame();
 		static void endFrame();
 		static void deviceWaitIdle();

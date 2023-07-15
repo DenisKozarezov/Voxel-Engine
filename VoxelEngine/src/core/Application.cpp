@@ -15,10 +15,10 @@ namespace VoxelEngine
 
 		_instance = this;
 
-		VOXEL_CORE_WARN("Application Name: " + spec.ApplicationName)
-		VOXEL_CORE_WARN("Version: " + spec.Version)
-		VOXEL_CORE_WARN("Working Directory: " + spec.WorkingDirectory)
-		VOXEL_CORE_WARN("Command Line Args: " + spec.CommandLineArgs.toString())
+		VOXEL_CORE_WARN("Application Name: {0}", spec.ApplicationName)
+		VOXEL_CORE_WARN("Version: {0}", spec.Version)
+		VOXEL_CORE_WARN("Working Directory: {0}", spec.WorkingDirectory)
+		VOXEL_CORE_WARN("Command Line Args: {0}", spec.CommandLineArgs.toString())
 
 		std::stringstream name;
 		name << spec.ApplicationName << " " << spec.Version << " (" << spec.GraphicsAPI << ")";
@@ -181,7 +181,7 @@ namespace VoxelEngine
 
 		if (_mouseState == input::MouseDraggingState::Dragging)
 		{
-			mouseMove(x - _lastMouseX, y - _lastMouseY);
+			mouseMove(x - _lastMouseX, _lastMouseY - y);
 			_lastMouseX = x;
 			_lastMouseY = y;
 		}

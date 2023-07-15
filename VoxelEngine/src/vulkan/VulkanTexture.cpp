@@ -18,7 +18,6 @@ namespace vulkan
     
 	void VulkanTexture::generateQuad()
     {
-		Texture::generateQuad();
 		createDescriptorSets();
 	}   
 	void VulkanTexture::createTextureImage(const string& filepath)
@@ -33,10 +32,8 @@ namespace vulkan
 		_texChannels = static_cast<uint16>(texChannels);
 
 		VOXEL_CORE_ASSERT(pixels, "failed to load texture image on path '" + filepath + "'")
-
-		std::stringstream ss;
-		ss << "Creating texture '" << filepath << "' [W: " << _width << "; H: " << _height << "; Channels: " << _texChannels << "]...";
-		VOXEL_CORE_TRACE(ss.str())
+		
+		VOXEL_CORE_TRACE("Creating texture '{0}' [W: {1}; H: {2}; Channels: {3}]...", _filepath, _width, _height, _texChannels);
 
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;

@@ -40,7 +40,7 @@ namespace vulkan
 	} state;
 
 	VulkanTexture* texture;
-	VoxelEngine::components::camera::FirstPersonCamera* FPVcamera;
+	VoxelEngine::components::camera::Camera* FPVcamera;
 		
 	void framebufferResizeCallback(GLFWwindow* window, int width, int height)
 	{
@@ -880,7 +880,7 @@ namespace vulkan
 		int success = glfwVulkanSupported();
 		VOXEL_CORE_ASSERT(success, "GLFW: Vulkan Not Supported")
 	}
-	void setCamera(VoxelEngine::components::camera::FirstPersonCamera* camera)
+	void setCamera(VoxelEngine::components::camera::Camera* camera)
 	{
 		FPVcamera = camera;
 	}

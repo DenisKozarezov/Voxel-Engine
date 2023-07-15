@@ -5,9 +5,9 @@
 namespace VoxelEngine::input
 {
 	template<typename T, typename F>
-	concept is_event = requires(T t, F&& f)
+	concept is_event = requires(T t, F && f)
 	{
-		requires std::is_base_of_v<Event, T>;
+		requires std::is_base_of_v<Event, T> && !std::is_abstract_v<T>;
 		{ f(t) } -> std::same_as<bool>;
 	};
 

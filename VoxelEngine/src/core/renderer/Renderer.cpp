@@ -17,7 +17,7 @@ namespace VoxelEngine::renderer
         renderPerformanceStats.fps = ImGui::GetIO().Framerate;
         return renderPerformanceStats;
     }
-    void Renderer::init(const Window& window, components::camera::FirstPersonCamera* camera)
+    void Renderer::init(const Window& window, components::camera::Camera* camera)
     {
         vulkan::setWindow(window);
         vulkan::setCamera(camera);

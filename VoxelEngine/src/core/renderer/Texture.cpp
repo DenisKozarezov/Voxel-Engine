@@ -4,7 +4,7 @@
 
 namespace VoxelEngine::renderer
 {
-	void Texture::generateQuad()
+	Texture::Texture(const std::string& path) : _filepath(path)
 	{
 		_vertexBuffer = VertexBuffer::Create(_vertices.data(), sizeof(_vertices[0]) * _vertices.size());
 		_indexBuffer = IndexBuffer::Create(_indices.data(), sizeof(_indices[0]) * _indices.size());
@@ -16,11 +16,6 @@ namespace VoxelEngine::renderer
 		}
 	}
 
-	Texture::Texture(const std::string& path) : _filepath(path)
-	{
-		
-	}
-
 	void Texture::render()
 	{
 		_vertexBuffer->bind();
@@ -29,9 +24,7 @@ namespace VoxelEngine::renderer
 
 	void Texture::release()
 	{
-		std::stringstream ss;
-		ss << "Clearing texture '" << _filepath << "' [W: " << _width << "; H: " << _height << "; Channels: " << _texChannels << "]...";
-		VOXEL_CORE_TRACE(ss.str())
+		VOXEL_CORE_TRACE("Clearing texture '{0}' [W: {1}; H: {2}; Channels: {3}]...", _filepath, _width, _height, _texChannels);
 
 		_vertexBuffer->release();
 		_indexBuffer->release();

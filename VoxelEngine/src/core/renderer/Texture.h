@@ -25,13 +25,12 @@ namespace VoxelEngine::renderer
 		virtual void createTextureImage(const std::string& path) = 0;
 		virtual void createTextureImageView() = 0;
 		virtual void createTextureSampler() = 0;
+		virtual void generateQuad() = 0;
 	protected:
 		uint32 _width = 0;
 		uint32 _height = 0;
 		uint16 _texChannels = 0;
 		string _filepath;
-
-		virtual void generateQuad();
 	public:
 		Texture(const std::string& path);
 		Texture(Texture const&) noexcept = delete;

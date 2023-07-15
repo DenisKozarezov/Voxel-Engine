@@ -6,7 +6,7 @@
 #include <core/Window.h>
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
-#include <components/camera/FirstPersonCamera.h>
+#include <components/camera/Camera.h>
 #include "VulkanFramebuffer.h"
 #include "VulkanShader.h"
 #include "VulkanCommandBuffer.h"
@@ -73,7 +73,7 @@ namespace vulkan
 	static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
 
 	void setWindow(const VoxelEngine::Window& window);
-	void setCamera(VoxelEngine::components::camera::FirstPersonCamera* camera);
+	void setCamera(VoxelEngine::components::camera::Camera* camera);
 	void init();
 	void beginFrame();
 	void endFrame();

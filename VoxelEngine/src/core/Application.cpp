@@ -1,5 +1,6 @@
 #include "Application.h"
 #include "input/events/EventBus.h"
+#include "input/events/EventDispatcher.h"
 #include "Timestep.h"
 #include "renderer/Renderer.h"
 #include "imgui/ImGuiLayer.h"
@@ -8,6 +9,7 @@ namespace VoxelEngine
 {
 	Application* Application::_instance = 0;
 	float Application::_deltaTime = 0.0f;
+	input::EventDispatcher _dispatcher;
 
 	Application::Application(const ApplicationSpecification& spec) : _specification(spec)
 	{
@@ -25,6 +27,11 @@ namespace VoxelEngine
 		_window = Window::Create({ name.str(), 1920, 1080 });
 		_window->setEventCallback(BIND_CALLBACK(onEvent));
 		_window->setMaximized(spec.Maximized);
+
+		_dispatcher.registerEvent(new input::EventHandler<input::MouseMovedEvent&>("hello1", BIND_CALLBACK(testFunc)));
+	
+		input::MouseMovedEvent e1(123, 321);
+		_dispatcher.dispatchEvent<input::MouseMovedEvent&>("hello1", e1);
 	}
 
 	const SharedRef<Application> Application::getInstance()
@@ -112,6 +119,11 @@ namespace VoxelEngine
 		dispatcher.Fire<input::MouseButtonPressedEvent>(BIND_CALLBACK(onMousePressed));
 		dispatcher.Fire<input::MouseButtonReleasedEvent>(BIND_CALLBACK(onMouseReleased));
 		dispatcher.Fire<input::MouseMovedEvent>(BIND_CALLBACK(onMouseMoved));
+	}
+	bool Application::testFunc(input::MouseMovedEvent& e)
+	{
+		VOXEL_CORE_INFO("X = {0}, Y = {1}", e.getX(), e.getY())
+		return true;
 	}
 	bool Application::onWindowClose(const input::WindowCloseEvent& e)
 	{

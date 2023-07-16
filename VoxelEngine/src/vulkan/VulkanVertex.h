@@ -41,5 +41,10 @@ namespace vulkan
 
             return attributeDescriptions;
         }
+
+        const bool operator==(const Vertex& other) const 
+        {
+            return pos == other.pos && color == other.color && texCoord == other.texCoord;
+        }
 	};
 }

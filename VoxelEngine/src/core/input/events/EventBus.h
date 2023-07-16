@@ -16,7 +16,11 @@ namespace VoxelEngine::input
 	private:
 		Event& _event;
 	public:
-		EventBus() = default;
+		EventBus() noexcept = default;
+		EventBus(const EventBus&) noexcept = delete;
+		EventBus(EventBus&&) noexcept = delete;
+		EventBus& operator= (EventBus const& rhs) noexcept = delete;
+		EventBus& operator= (EventBus&& rhs) noexcept = delete;
 		EventBus(Event& event) : _event(event) { }
 
 		template<typename T, typename F>
@@ -31,6 +35,6 @@ namespace VoxelEngine::input
 			return false;
 		}
 
-		~EventBus() = default;
+		~EventBus() noexcept = default;
 	};	
 }

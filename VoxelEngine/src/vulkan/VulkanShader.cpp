@@ -29,22 +29,6 @@ namespace vulkan::shaders
 		_shaderInfo.module = _shaderModule;
 		_shaderInfo.pName = "main";
 	}
-	void VulkanShader::setUniform(const string& name, const glm::vec2 vector) const
-	{
-
-	}
-	void VulkanShader::setUniform(const string& name, const glm::vec3 vector) const
-	{
-	}
-	void VulkanShader::setUniform(const string& name, const glm::vec4 vector) const
-	{
-	}
-	void VulkanShader::setUniform(const string& name, const glm::mat4 matrix) const
-	{
-	}
-	void VulkanShader::setUniform(const string& name, const float value) const
-	{
-	}
 	void VulkanShader::unbind() const
 	{
 		vkDestroyShaderModule(_logicalDevice, _shaderModule, nullptr);

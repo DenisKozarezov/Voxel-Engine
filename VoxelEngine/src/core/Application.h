@@ -60,8 +60,8 @@ namespace VoxelEngine
 		void moveCamera(const components::camera::CameraMovement& direction);
 		void mouseMove(const float& x, const float& y);
 		void setMouseDragging(const bool& isDragging);
-
 		void onEvent(input::Event& e);
+		bool testFunc(input::MouseMovedEvent& e);
 		bool onWindowClose(const input::WindowCloseEvent& e);
 		bool onWindowResize(const input::WindowResizeEvent& e);
 		bool onKeyboardPressed(const input::KeyPressedEvent& e);

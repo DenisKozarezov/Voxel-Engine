@@ -1,30 +1,59 @@
 #pragma once
-#include <core/PrimitiveTypes.h>
 #include <functional>
+#include <typeinfo>
 
 namespace VoxelEngine::input
 {
+    template<typename T>
+    concept is_event = requires(T t)
+    {
+        requires std::is_base_of_v<Event, T> && !std::is_abstract_v<T>;
+    };
+
+    template<typename T, typename F>
+    concept is_event_func = requires(T t, F && f)
+    {
+        requires is_event<T>;
+        { f(t) } -> std::same_as<bool>;
+    };
+
     class IEventHandler
     {
     public:
-        virtual const string& getName() const = 0;
+        virtual inline const size_t& getHashCode() const = 0;
+        virtual void invoke(input::Event& arg) = 0;
     };
 
-    template <typename ...Args>
+    template <typename TEvent>
     class EventHandler : public IEventHandler
     {
     public:
-        using Callback = std::function<bool(Args...)>;
+        using Callback = std::function<bool(TEvent&)>;
 
-        explicit EventHandler(const string& name, const Callback& cb) : _name(name), _cbFunc(cb) {}
+        explicit EventHandler(const Callback& cb) : _cbFunc(cb) 
+        {
+            _eventType = typeid(TEvent).hash_code();
+        }
         
         ~EventHandler() noexcept = default;
 
-        virtual const string& getName() const override { return this->_name; }
+        const bool operator==(const EventHandler& rhs)
+        {
+            return _eventType == rhs._eventType;
+        }
 
-        void invoke(Args... a) { this->_cbFunc(a...); }
+        virtual inline const size_t& getHashCode() const override { return _eventType; }
+
+        void invoke(input::Event& arg) override
+        {            
+            this->invoke(dynamic_cast<TEvent&>(arg));
+        }
+        void invoke(TEvent& arg)
+        { 
+            this->_cbFunc(std::forward<TEvent&>(arg));
+        }
     private:
-        string _name;
+        size_t _eventType;
         Callback const _cbFunc;
     };
 }

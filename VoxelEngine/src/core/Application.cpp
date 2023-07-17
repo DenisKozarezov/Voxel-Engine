@@ -114,7 +114,7 @@ namespace VoxelEngine
 	}
 	void Application::onEvent(input::Event& e)
 	{
-		_dispatcher.dispatchEvent(e);
+		_dispatcher.dispatchEvent(e, std::launch::async);
 	}
 	bool Application::onWindowClose(const input::WindowCloseEvent& e)
 	{

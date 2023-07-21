@@ -45,7 +45,7 @@ namespace VoxelEngine::input
 
         template<typename TEvent>
         requires is_event<TEvent>
-        void registerEvent(EventHandler<TEvent>::Callback callback)
+        constexpr void registerEvent(EventHandler<TEvent>::Callback callback)
         {
             if (callback)
             {
@@ -63,6 +63,7 @@ namespace VoxelEngine::input
         }
         
         template<typename TEvent>
+        requires is_event<TEvent>
         void unregisterEvent()
         {
             std::lock_guard<std::mutex> lock(_handlersLocker);
@@ -124,7 +125,7 @@ namespace VoxelEngine::input
             }
         }
     private:
-        typedef std::vector<IEventHandler*> EventCallbacks;
+        typedef std::list<IEventHandler*> EventCallbacks;
         std::unordered_map<size_t, EventCallbacks> _eventList;
         mutable std::mutex _handlersLocker;
     };

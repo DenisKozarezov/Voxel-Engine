@@ -55,8 +55,7 @@ namespace VoxelEngine
 		bool _minimized = false;
 		input::MouseDraggingState _mouseState;
 		float _lastMouseX = 0.0f, _lastMouseY = 0.0f;
-		float _lastFrameTime = 0.0f;
-		static float _deltaTime;
+		float _deltaTime;
 		static Application* _instance;
 
 		void moveCamera(const components::camera::CameraMovement& direction);
@@ -82,8 +81,8 @@ namespace VoxelEngine
 		Application& operator= (Application const& rhs) noexcept = delete;
 		Application& operator= (Application&& rhs) noexcept = delete;
 
-		static const SharedRef<Application> getInstance();
-		static const float& getDeltaTime();
+		static Application& getInstance();
+		const float& getDeltaTime();
 
 		void init();
 		void run();

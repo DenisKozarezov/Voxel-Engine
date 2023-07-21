@@ -1,12 +1,11 @@
 #include "Application.h"
-#include "Timestep.h"
 #include "renderer/Renderer.h"
 #include "imgui/ImGuiLayer.h"
+#include "Timer.h"
 
 namespace VoxelEngine
 {
 	Application* Application::_instance = 0;
-	float Application::_deltaTime = 0.0f;
 
 	Application::Application(const ApplicationSpecification& spec) : _specification(spec)
 	{
@@ -28,9 +27,9 @@ namespace VoxelEngine
 		_window->setMaximized(spec.Maximized);
 	}
 
-	const SharedRef<Application> Application::getInstance()
+	Application& Application::getInstance()
 	{
-		return SharedRef<Application>(_instance);
+		return *_instance;
 	}
 	const float& Application::getDeltaTime()
 	{
@@ -66,20 +65,21 @@ namespace VoxelEngine
 		VOXEL_CORE_WARN("Running {0}...", _specification.ApplicationName)
 
 		_running = true;
+		Timer timer;
 
 		while (_running)
 		{
-			const float time = renderer::Renderer::getTime();
-			const float deltaTime = time - _lastFrameTime;
-			_deltaTime = deltaTime;
-			_lastFrameTime = time;
-
 			if (!_minimized)
 			{
-				_layerStack.onUpdate(deltaTime);
+				_layerStack.onUpdate(_deltaTime);
+
+				timer.reset();
+
 				renderer::Renderer::beginFrame();
 				_layerStack.onImGuiRender();
 				renderer::Renderer::endFrame();
+
+				_deltaTime = timer.elapsedInMilliseconds<float>();
 			}
 			_window->onUpdate();
 		}
@@ -114,7 +114,7 @@ namespace VoxelEngine
 	}
 	void Application::onEvent(input::Event& e)
 	{
-		_dispatcher.dispatchEvent(e, std::launch::async);
+		_dispatcher.dispatchEvent(e);
 	}
 	bool Application::onWindowClose(const input::WindowCloseEvent& e)
 	{

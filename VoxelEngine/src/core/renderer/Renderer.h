@@ -27,7 +27,6 @@ namespace VoxelEngine::renderer
 	class Renderer
 	{
 	public:
-		static float getTime() noexcept;
 		static const RenderPerformanceStats& getStats();
 		static void init(const Window& window, components::camera::Camera* camera);
 		static void beginFrame();

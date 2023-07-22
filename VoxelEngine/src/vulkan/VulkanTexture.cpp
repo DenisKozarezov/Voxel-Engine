@@ -105,7 +105,7 @@ namespace vulkan
 
 			vkUpdateDescriptorSets(_createInfo.logicalDevice, static_cast<uint32>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 		}
-	}
+	}	
 	void VulkanTexture::setUniformBuffer(const void* ubo, const size_t& size)
 	{
 		_uniformBuffers[vulkan::CURRENT_FRAME]->setData(ubo, size);

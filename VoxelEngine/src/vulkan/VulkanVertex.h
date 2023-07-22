@@ -7,7 +7,7 @@ namespace vulkan
 {
 	struct Vertex
 	{
-        glm::vec2 pos;
+        glm::vec3 pos;
         glm::vec3 color;
         glm::vec2 texCoord;
 
@@ -19,7 +19,6 @@ namespace vulkan
             bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
             return bindingDescription;
         }
-
         static constexpr std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions()
         {
             std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions = {};

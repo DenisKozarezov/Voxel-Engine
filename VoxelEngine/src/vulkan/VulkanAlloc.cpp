@@ -121,14 +121,15 @@ namespace vulkan::memory
 	const VkImageView createImageView(
 		const VkDevice& logicalDevice,
 		const VkImage& image,
-		const VkFormat& format)
+		const VkFormat& format,
+		const VkImageAspectFlags aspectFlags)
 	{
 		VkImageViewCreateInfo viewInfo = {};
 		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 		viewInfo.image = image;
 		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
 		viewInfo.format = format;
-		viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		viewInfo.subresourceRange.aspectMask = aspectFlags;
 		viewInfo.subresourceRange.baseMipLevel = 0;
 		viewInfo.subresourceRange.levelCount = 1;
 		viewInfo.subresourceRange.baseArrayLayer = 0;
@@ -143,7 +144,8 @@ namespace vulkan::memory
 		const VkDevice& logicalDevice, 
 		const VkImage& image, 
 		const VkFormat& format,
-		const VkComponentMapping& components)
+		const VkComponentMapping& components,
+		const VkImageAspectFlags aspectFlags)
 	{
 		VkImageViewCreateInfo viewInfo = {};
 		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;

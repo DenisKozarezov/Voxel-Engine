@@ -59,11 +59,13 @@ find_package(glm CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(Stb REQUIRED)
+find_package(tinyobjloader CONFIG REQUIRED)
 
 target_link_libraries(${PROJECT_NAME} 
     PRIVATE
-	    ${Vulkan_LIBRARIES}
-	    glfw
+	${Vulkan_LIBRARIES}
+	glfw
+        tinyobjloader::tinyobjloader
     PUBLIC
         spdlog::spdlog
         imgui::imgui

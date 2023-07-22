@@ -45,7 +45,7 @@ namespace vulkan
 	constexpr const VkPresentModeKHR& chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
 	constexpr const VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 	constexpr const VkFormat findSupportedFormat(const VkPhysicalDevice& physicalDevice, const std::vector<VkFormat>& candidates, const VkImageTiling& tiling, const VkFormatFeatureFlags& features);
-	constexpr const VkFormat& findDepthFormat();
+	constexpr const VkFormat& findDepthFormat(const VkPhysicalDevice& physicalDevice);
 	void createInstance();
 	void createLogicalDevice(const VkPhysicalDevice& physicalDevice);
 	void createSurface(const VkInstance& instance, GLFWwindow* window);
@@ -58,6 +58,7 @@ namespace vulkan
 		const VkRenderPass& renderPass, 
 		const VkExtent2D& swapChainExtent);
 	void createImageViews(const VkFormat& imageFormat);
+	void createDepthResources(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice);
 	void createCommandPool(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice);
 	void createCommandBuffers();
 	void createSyncObjects(const VkDevice& logicalDevice);

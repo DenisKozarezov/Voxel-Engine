@@ -13,6 +13,10 @@ namespace VoxelEngine::renderer
         renderPerformanceStats.fps = ImGui::GetIO().Framerate;
         return renderPerformanceStats;
     }
+    const float Renderer::getTime()
+    {
+        return (float)glfwGetTime();
+    }
     void Renderer::init(const Window& window, components::camera::Camera* camera)
     {
         vulkan::setWindow(window);

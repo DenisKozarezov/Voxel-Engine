@@ -2,18 +2,19 @@
     "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
     "name": "ranok-cad",
     "version": "1.0",
-    "dependencies": [
-        "glfw3",
-        "glm",
-        "stb",
-        {
-            "name": "imgui",
-            "features": [
-                "vulkan-binding",
-                "glfw-binding",
-                "docking-experimental"
-            ]
-        },
-        "spdlog"
-    ]
+  "dependencies": [
+    "glfw3",
+    "glm",
+    "stb",
+    {
+      "name": "imgui",
+      "features": [
+        "vulkan-binding",
+        "glfw-binding",
+        "docking-experimental"
+      ]
+    },
+    "spdlog",
+    "tinyobjloader"
+  ]
 }

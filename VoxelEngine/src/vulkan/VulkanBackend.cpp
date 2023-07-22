@@ -5,6 +5,7 @@
 #include <imgui_impl_vulkan.h>
 #include "VulkanInitializers.h"
 #include "VulkanTexture.h"
+#include "assets_management/AssetsProvider.h"
 
 namespace vulkan
 {	
@@ -30,6 +31,9 @@ namespace vulkan
 		VkPipeline graphicsPipeline;
 		VkFormat swapChainImageFormat;
 		VkExtent2D swapChainExtent;
+		VkImage depthImage;
+		VkDeviceMemory depthImageMemory;
+		VkImageView depthImageView;
 		std::vector<VkImage> swapChainImages;
 		std::vector<VkImageView> swapChainImageViews;
 		std::vector<Framebuffer> swapChainFramebuffers;
@@ -234,9 +238,9 @@ namespace vulkan
 		}
 		throw std::runtime_error("failed to find supported format!");
 	}
-	constexpr const VkFormat& findDepthFormat()
+	constexpr const VkFormat& findDepthFormat(const VkPhysicalDevice& physicalDevice)
 	{
-		return findSupportedFormat(state.physicalDevice,
+		return findSupportedFormat(physicalDevice,
 			{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
 			VK_IMAGE_TILING_OPTIMAL,
 			VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
@@ -374,34 +378,33 @@ namespace vulkan
 	}
 	void createRenderPass(const VkDevice& logicalDevice, const VkFormat& swapChainImageFormat)
 	{
-		VkAttachmentDescription colorAttachment = {};
-		colorAttachment.format = swapChainImageFormat;
-		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-		colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-		colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+		VkAttachmentDescription colorAttachment = vulkan::initializers::renderPassColorAttachment(swapChainImageFormat);
 
-		VkAttachmentReference colorAttachmentRef = {};
+		VkAttachmentDescription depthAttachment = vulkan::initializers::renderPassDepthAttachment(findDepthFormat(state.physicalDevice));
+
+		VkAttachmentReference colorAttachmentRef{};
 		colorAttachmentRef.attachment = 0;
 		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+		VkAttachmentReference depthAttachmentRef{};
+		depthAttachmentRef.attachment = 1;
+		depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
 		VkSubpassDescription subpass = {};
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 		subpass.colorAttachmentCount = 1;
 		subpass.pColorAttachments = &colorAttachmentRef;
+		subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
 		VkSubpassDependency dependency = {};
 		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
 		dependency.dstSubpass = 0;
 		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 		dependency.srcAccessMask = 0;
-		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
-		std::vector<VkAttachmentDescription> attachments = { colorAttachment };
+		std::vector<VkAttachmentDescription> attachments = { colorAttachment, depthAttachment };
 		std::vector<VkSubpassDescription> subpasses = { subpass };
 		std::vector<VkSubpassDependency> dependencies = { dependency };
 		VkRenderPassCreateInfo renderPassInfo = vulkan::initializers::renderPassCreateInfo(attachments, subpasses, dependencies);
@@ -424,6 +427,12 @@ namespace vulkan
 			};
 			state.swapChainImageViews[i] = memory::createImageView(state.logicalDevice, state.swapChainImages[i], imageFormat, components);
 		}
+	}
+	void createDepthResources(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice)
+	{
+		VkFormat depthFormat = findDepthFormat(physicalDevice);
+		state.depthImage = memory::createImage(physicalDevice, logicalDevice, state.swapChainExtent.width, state.swapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, state.depthImageMemory);
+		state.depthImageView = memory::createImageView(logicalDevice, state.depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
 	}
 	void createGraphicsPipeline(
 		const VkDevice& logicalDevice, 
@@ -456,6 +465,8 @@ namespace vulkan
 
 		VkPipelineMultisampleStateCreateInfo multisampling = vulkan::initializers::pipelineMultisampleStateCreateInfo(VK_SAMPLE_COUNT_1_BIT);
 
+		VkPipelineDepthStencilStateCreateInfo depthStencil = vulkan::initializers::pipelineDepthStencilStateCreateInfo(VK_TRUE, VK_TRUE, VK_COMPARE_OP_LESS);
+
 		VkPipelineColorBlendAttachmentState colorBlendAttachment = vulkan::initializers::pipelineColorBlendAttachmentState(
 			VK_COLOR_COMPONENT_R_BIT | 
 			VK_COLOR_COMPONENT_G_BIT | 
@@ -486,6 +497,7 @@ namespace vulkan
 		pipelineInfo.pMultisampleState = &multisampling;
 		pipelineInfo.pColorBlendState = &colorBlending;
 		pipelineInfo.pDynamicState = &dynamicStateCreateInfo;
+		pipelineInfo.pDepthStencilState = &depthStencil;
 		pipelineInfo.layout = state.pipelineLayout;
 		pipelineInfo.renderPass = renderPass;
 		pipelineInfo.subpass = 0;
@@ -504,9 +516,10 @@ namespace vulkan
 		state.swapChainFramebuffers.resize(size);
 		for (size_t i = 0; i < size; i++)
 		{
-			std::vector<VkImageView> attachments = 
+			std::vector<VkImageView> attachments =
 			{
-				state.swapChainImageViews[i]
+				state.swapChainImageViews[i],
+				state.depthImageView
 			};
 			state.swapChainFramebuffers[i] = Framebuffer(logicalDevice, renderPass, attachments, swapChainExtent);
 		}
@@ -741,12 +754,14 @@ namespace vulkan
 	{
 		memory::CommandBuffer::beginCommand(commandBuffer);
 
-		std::vector<VkClearValue> clearColors = { { 0.0f, 0.0f, 0.0f, 1.0f } };
+		std::vector<VkClearValue> clearValues(2);
+		clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
+		clearValues[1].depthStencil = { 1.0f, 0 };
 		VkRenderPassBeginInfo renderPassBeginInfo = vulkan::initializers::renderPassBeginInfo(
 			renderPass, 
 			state.swapChainFramebuffers[imageIndex],
 			swapChainExtent,
-			clearColors);	
+			clearValues);
 		vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.graphicsPipeline);
@@ -805,8 +820,9 @@ namespace vulkan
 		createRenderPass(state.logicalDevice, state.swapChainImageFormat);
 		createDescriptorSetLayout(state.logicalDevice);
 		createGraphicsPipeline(state.logicalDevice, state.renderPass, state.descriptorSetLayout);
-		createFramebuffers(state.logicalDevice, state.renderPass, state.swapChainExtent);
 		createCommandPool(state.physicalDevice, state.logicalDevice);
+		createDepthResources(state.physicalDevice, state.logicalDevice);
+		createFramebuffers(state.logicalDevice, state.renderPass, state.swapChainExtent);
 		createDescriptorPool(state.logicalDevice);
 		createCommandBuffers();
 		createSyncObjects(state.logicalDevice);
@@ -821,7 +837,7 @@ namespace vulkan
 			state.descriptorPool,
 			state.swapChainExtent
 		};
-		texture = new VulkanTexture("resources/textures/texture.jpg", createInfo);
+		texture = new VulkanTexture(ASSET_PATH("textures/texture.jpg"), createInfo);	
 	}
 	void deviceWaitIdle()
 	{
@@ -874,7 +890,6 @@ namespace vulkan
 	{
 		return state.commandPool;
 	}
-
 
 	// ==================== MEMORY ALLOC / DEALLOC ====================
 	const VkDeviceMemory allocateMemory(const VkMemoryRequirements& requirements, const VkMemoryPropertyFlags& properties)

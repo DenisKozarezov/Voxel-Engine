@@ -82,7 +82,7 @@ namespace VoxelEngine
 		Application& operator= (Application&& rhs) noexcept = delete;
 
 		static Application& getInstance();
-		const float& getDeltaTime();
+		const float& getDeltaTime() const;
 
 		void init();
 		void run();

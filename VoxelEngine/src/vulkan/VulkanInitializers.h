@@ -53,6 +53,34 @@ namespace vulkan::initializers
 		return cmdBufferInheritanceInfo;
 	}
 
+	inline constexpr VkAttachmentDescription renderPassColorAttachment(const VkFormat& swapChainImageFormat)
+	{
+		VkAttachmentDescription colorAttachment{};
+		colorAttachment.format = swapChainImageFormat;
+		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+		colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+		colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+		return colorAttachment;
+	}
+
+	inline constexpr VkAttachmentDescription renderPassDepthAttachment(const VkFormat& depthFormat)
+	{
+		VkAttachmentDescription depthAttachment{};
+		depthAttachment.format = depthFormat;
+		depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+		depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		return depthAttachment;
+	}
+
 	inline constexpr VkRenderPassBeginInfo renderPassBeginInfo(
 		const VkRenderPass& renderPass, 
 		const VkFramebuffer& framebuffer,
@@ -66,7 +94,7 @@ namespace vulkan::initializers
 		renderPassBeginInfo.renderArea.offset = { 0, 0 };
 		renderPassBeginInfo.renderArea.extent = swapChainExtent;
 
-		renderPassBeginInfo.clearValueCount = clearValues.size();
+		renderPassBeginInfo.clearValueCount = static_cast<uint32>(clearValues.size());
 		renderPassBeginInfo.pClearValues = clearValues.data();
 
 		return renderPassBeginInfo;
@@ -547,6 +575,12 @@ namespace vulkan::initializers
 		pipelineDepthStencilStateCreateInfo.depthWriteEnable = depthWriteEnable;
 		pipelineDepthStencilStateCreateInfo.depthCompareOp = depthCompareOp;
 		pipelineDepthStencilStateCreateInfo.back.compareOp = VK_COMPARE_OP_ALWAYS;
+		pipelineDepthStencilStateCreateInfo.depthBoundsTestEnable = VK_FALSE;
+		pipelineDepthStencilStateCreateInfo.stencilTestEnable = VK_FALSE;
+		pipelineDepthStencilStateCreateInfo.minDepthBounds = 0.0f; // Optional
+		pipelineDepthStencilStateCreateInfo.maxDepthBounds = 1.0f; // Optional
+		pipelineDepthStencilStateCreateInfo.front = {}; // Optional
+		pipelineDepthStencilStateCreateInfo.back = {}; // Optional
 		return pipelineDepthStencilStateCreateInfo;
 	}
 

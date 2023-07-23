@@ -1,9 +1,8 @@
 #pragma once
 #include <pch.h>
-#include <core/PrimitiveTypes.h>
 #include <core/renderer/Buffers.h>
 
-namespace VoxelEngine::renderer
+namespace assets
 {
 	class Texture
 	{
@@ -16,6 +15,10 @@ namespace VoxelEngine::renderer
 			{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
 		};
 		const std::vector<uint16> _indices = { 0,1,2,2,3,0 };
+
+		using VertexBuffer = VoxelEngine::renderer::VertexBuffer;
+		using IndexBuffer = VoxelEngine::renderer::IndexBuffer;
+		using UniformBuffer = VoxelEngine::renderer::UniformBuffer;
 
 		VertexBuffer* _vertexBuffer;
 		IndexBuffer* _indexBuffer;
@@ -34,8 +37,8 @@ namespace VoxelEngine::renderer
 		Texture(const std::string& path);
 		Texture(Texture const&) noexcept = delete;
 		Texture(Texture&&) noexcept = delete;
-		Texture& operator= (Texture const& rhs) noexcept = delete;
-		Texture& operator= (Texture&& rhs) noexcept = delete;
+		Texture& operator=(Texture const& rhs) noexcept = delete;
+		Texture& operator=(Texture&& rhs) noexcept = delete;
 
 		inline const uint32& getWidth() const& noexcept { return _width; }
 		inline const uint32& getHeight() const& noexcept { return _height; }

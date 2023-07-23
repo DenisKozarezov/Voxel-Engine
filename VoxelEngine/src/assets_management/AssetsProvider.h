@@ -1,7 +1,7 @@
 #pragma once
 #include <core/PrimitiveTypes.h>
 #include <core/Base.h>
-#include "Model.h"
+#include <components/mesh/Mesh.h>
 
 #if defined(VOXEL_PLATFORM_WINDOWS)
 #define PATH_SEPARATOR "\\"
@@ -17,9 +17,35 @@ using Mesh = VoxelEngine::components::mesh::Mesh;
 
 namespace assets
 {
+	enum ImageColorFormat : byte
+	{
+		Default = 0, // only used for desired_channels
+		Grey = 1,
+		Grey_alpha = 2,
+		RGB = 3,
+		RGB_alpha = 4
+	};
+
+	struct TextureData
+	{
+	public:
+		byte* nativePtr;
+		int width;
+		int height;
+		int texChannels;
+
+		TextureData() noexcept = default;
+		~TextureData() noexcept = default;
+
+		inline constexpr bool isValid() const { return nativePtr; }
+		
+		void release() const;
+	};
+
 	static class AssetsProvider final
 	{
 	public:
+		static const TextureData loadTexture(const string& path, ImageColorFormat req_comp = ImageColorFormat::RGB_alpha);
 		static const VoxelEngine::SharedRef<Mesh*> loadObjMesh(const string& path);
 	};
 }

@@ -2,7 +2,7 @@
 #include "vulkan/VulkanTexture.h"
 #include <core/Log.h>
 
-namespace VoxelEngine::renderer
+namespace assets
 {
 	Texture::Texture(const std::string& path) : _filepath(path)
 	{
@@ -12,7 +12,7 @@ namespace VoxelEngine::renderer
 		_uniformBuffers.resize(2);
 		for (size_t i = 0; i < 2; i++)
 		{
-			_uniformBuffers[i] = UniformBuffer::Create(sizeof(UniformBufferObject));
+			_uniformBuffers[i] = UniformBuffer::Create(sizeof(VoxelEngine::renderer::UniformBufferObject));
 		}
 	}
 

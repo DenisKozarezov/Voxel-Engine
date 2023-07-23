@@ -5,7 +5,9 @@ namespace assets
 {
 	struct Model
 	{
-		VoxelEngine::components::mesh::Mesh mesh;
+		using Mesh = VoxelEngine::components::mesh::Mesh;
+
+		Mesh mesh;
 		std::vector<string> textures;
 
 		explicit Model(

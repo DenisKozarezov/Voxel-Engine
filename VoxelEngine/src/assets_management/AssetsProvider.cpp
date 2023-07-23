@@ -5,10 +5,14 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
-namespace std {
+namespace std 
+{
     template<> struct hash<vulkan::Vertex> 
     {
         size_t operator()(vulkan::Vertex const& vertex) const 
@@ -20,6 +24,16 @@ namespace std {
 
 namespace assets
 {
+    const TextureData AssetsProvider::loadTexture(const string& path, ImageColorFormat req_comp)
+    {
+        TextureData data;
+        
+        data.nativePtr = stbi_load(path.c_str(), &data.width, &data.height, &data.texChannels, req_comp);
+
+        VOXEL_CORE_ASSERT(data.isValid(), "failed to load texture image on path '" + path + "'")
+
+        return data;
+    }
     const VoxelEngine::SharedRef<Mesh*> AssetsProvider::loadObjMesh(const string& path)
     {
         tinyobj::attrib_t attrib;
@@ -27,9 +41,11 @@ namespace assets
         std::vector<tinyobj::material_t> materials;
         std::string warn, err;
 
+        VOXEL_CORE_TRACE("Loading OBJ mesh at path '{0}'...", path);
+
         bool isLoaded = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path.c_str());
-        VOXEL_ASSERT(isLoaded, warn + err)
-        
+        VOXEL_CORE_ASSERT(isLoaded, warn + err)
+
         std::unordered_map<vulkan::Vertex, uint32> uniqueVertices{};
         Mesh* mesh = new Mesh;
 
@@ -53,7 +69,7 @@ namespace assets
                     }
                 };
 
-                if (uniqueVertices.count(vertex) == 0) 
+                if (uniqueVertices.count(vertex) == 0)
                 {
                     uniqueVertices[vertex] = static_cast<uint32>(mesh->vertices.size());
                     mesh->vertices.push_back(vertex);
@@ -62,6 +78,12 @@ namespace assets
             }
         }
 
+        VOXEL_CORE_TRACE("Finished to load OBJ mesh at path '{0}'.", path);
+
         return VoxelEngine::MakeShared<Mesh*>(mesh);
+    }
+    void TextureData::release() const
+    {
+        stbi_image_free(nativePtr);
     }
 }

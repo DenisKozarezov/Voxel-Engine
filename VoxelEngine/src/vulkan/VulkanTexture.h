@@ -1,5 +1,5 @@
 #pragma once
-#include <core/renderer/Texture.h>
+#include <assets_management/Texture.h>
 
 namespace vulkan
 {
@@ -13,7 +13,7 @@ namespace vulkan
 		VkExtent2D swapChainExtent;
 	};
 
-	class VulkanTexture : public VoxelEngine::renderer::Texture
+	class VulkanTexture : public assets::Texture
 	{
 	private:
 		TextureCreateInfo _createInfo;

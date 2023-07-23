@@ -1,8 +1,6 @@
 #include "VulkanTexture.h"
 #include "VulkanBackend.h"
-
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
+#include <assets_management/AssetsProvider.h>
 
 namespace vulkan
 {
@@ -22,25 +20,21 @@ namespace vulkan
 	}   
 	void VulkanTexture::createTextureImage(const string& filepath)
 	{
-		int width, height, texChannels;
+		const auto& data = assets::AssetsProvider::loadTexture(filepath);
 
-		stbi_uc* pixels = stbi_load(filepath.c_str(), &width, &height, &texChannels, STBI_rgb_alpha);
-		VkDeviceSize imageSize = width * height * 4;
+		VkDeviceSize imageSize = data.width * data.height * 4;
+		_width = static_cast<uint32>(data.width);
+		_height = static_cast<uint32>(data.height);
+		_texChannels = static_cast<uint16>(data.texChannels);
 
-		_width = static_cast<uint32>(width);
-		_height = static_cast<uint32>(height);
-		_texChannels = static_cast<uint16>(texChannels);
-
-		VOXEL_CORE_ASSERT(pixels, "failed to load texture image on path '" + filepath + "'")
-		
 		VOXEL_CORE_TRACE("Creating texture '{0}' [W: {1}; H: {2}; Channels: {3}]...", _filepath, _width, _height, _texChannels);
 
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
 		vulkan::createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
-		memory::mapMemory(_createInfo.logicalDevice, stagingBufferMemory, 0, imageSize, 0, pixels);
-		stbi_image_free(pixels);
+		memory::mapMemory(_createInfo.logicalDevice, stagingBufferMemory, 0, imageSize, 0, data.nativePtr);
+		data.release();
 
 		_textureImage = memory::createImage(_createInfo.physicalDevice, _createInfo.logicalDevice, _width, _height, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _textureImageMemory);
 

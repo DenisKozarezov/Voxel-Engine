@@ -14,7 +14,7 @@ namespace VoxelEngine::input
     template<typename T, typename F>
     concept is_event_func = requires(T t, F && f)
     {
-        requires is_event<T>;
+        requires is_event<T> && std::invocable<F>;
         { f(t) } -> std::same_as<bool>;
     };
 

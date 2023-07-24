@@ -1,4 +1,5 @@
 #pragma once
+#include <vulkan/VulkanAlloc.h>
 #include <core/renderer/Buffers.h>
 
 namespace vulkan
@@ -6,13 +7,12 @@ namespace vulkan
 	class VulkanVertexBuffer : public VoxelEngine::renderer::VertexBuffer
 	{
 	private:
-		VkBuffer _vertexBuffer;
-		VkDeviceMemory _vertexBufferMemory;
+		memory::Buffer _vertexBuffer;
 	public:
 		VulkanVertexBuffer() = default;
 		VulkanVertexBuffer(const void* vertices, const size_t& bufferSize);
 
-		operator VkBuffer () const & { return _vertexBuffer; }
+		operator VkBuffer () const & { return _vertexBuffer.buffer; }
 
 		void bind() const override;
 		void release() const override;

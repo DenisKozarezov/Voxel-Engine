@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 #include "components/mesh/Mesh.h"
 
 namespace assets

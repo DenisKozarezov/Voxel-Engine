@@ -4,6 +4,12 @@
 
 namespace vulkan::memory
 {
+	struct Buffer
+	{
+		VkBuffer buffer;
+		VkDeviceMemory bufferMemory;
+	};
+
 	const uint32 findMemoryType(const VkPhysicalDevice& physicalDevice, const uint32& typeFilter, const VkMemoryPropertyFlags& properties);
 	
 	const VkDeviceMemory allocateMemory(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice, const VkMemoryRequirements& requirements, const VkMemoryPropertyFlags& properties);
@@ -18,7 +24,7 @@ namespace vulkan::memory
 		const VkMemoryMapFlags& flags, 
 		const void* data);
 
-	void createBuffer(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice, const VkDeviceSize& size, const VkBufferUsageFlags& usage, const VkMemoryPropertyFlags& properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+	const Buffer createBuffer(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice, const VkDeviceSize& size, const VkBufferUsageFlags& usage, const VkMemoryPropertyFlags& properties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 	void destroyBuffer(const VkDevice& logicalDevice, const VkBuffer& buffer);
 	void freeDeviceMemory(const VkDevice& logicalDevice, const VkDeviceMemory& memory);
 

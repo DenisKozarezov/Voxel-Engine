@@ -25,6 +25,8 @@
 	#define VOXEL_DEBUGBREAK()
 #endif
 
+#define BIND_CALLBACK(cb) [this](auto&&... args) -> decltype(auto) { return this->cb(std::forward<decltype(args)>(args)...); }
+
 namespace VoxelEngine
 {
 	template<typename T>

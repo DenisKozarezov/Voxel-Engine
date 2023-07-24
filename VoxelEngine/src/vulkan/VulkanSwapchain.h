@@ -179,6 +179,9 @@ namespace vulkan
 			bundle.frames[i].image = images[i];
 			bundle.frames[i].imageView = memory::createImageView(logicalDevice, images[i], bundle.format, components);
 		}
+
+		VOXEL_CORE_TRACE("Vulkan swap chain created.")
+
 		return bundle;
 	}
 

@@ -7,6 +7,7 @@
 #include "VulkanFramebuffer.h"
 #include "VulkanShader.h"
 #include "VulkanCommandBuffer.h"
+#include "VulkanUniformBuffer.h"
 #include "VulkanSync.h"
 #include "assets_management/AssetsProvider.h"
 
@@ -15,29 +16,39 @@ namespace vulkan
 	struct VulkanState
 	{
 		GLFWwindow* windowPtr;
+		
+		// Instance-related variables
 		const VoxelEngine::Window* window;
 		VkInstance instance;
 		VkDebugUtilsMessengerEXT debugUtilsMessenger;
 		VkDebugReportCallbackEXT debugReportMessenger;
+		VkSurfaceKHR surface;
+		
+		// Device-related variables
 		VkDevice logicalDevice;
 		VkPhysicalDevice physicalDevice;
-		VkCommandPool commandPool;
 		DeviceQueues queues;
-		VkPipelineCache pipelineCache;
-		QueueFamilyIndices queueFamilyIndices;
-		VkSurfaceKHR surface;
 		VkSwapchainKHR swapChain;
-		VkRenderPass renderPass;
-		VkDescriptorPool descriptorPool;
-		VkPipelineLayout pipelineLayout;
-		VkDescriptorSetLayout descriptorSetLayout;
-		VkPipeline graphicsPipeline;
 		VkFormat swapChainImageFormat;
 		VkExtent2D swapChainExtent;
 		std::vector<SwapChainFrame> swapChainFrames;
+		QueueFamilyIndices queueFamilyIndices;
+
+		// Command-related variables
+		VkCommandPool commandPool;
+
+		// Pipeline-related variables
+		VkPipelineLayout pipelineLayout;
+		VkPipelineCache pipelineCache;
+		VkPipeline graphicsPipeline;
+		VkRenderPass renderPass;
+		VkDescriptorPool descriptorPool;
+		VkDescriptorSetLayout descriptorSetLayout;
+		
 		bool framebufferResized = false;
 	} state;
 
+	VoxelEngine::components::mesh::TriangleMesh* triangle;
 	VoxelEngine::components::camera::Camera* FPVcamera;
 		
 	void framebufferResizeCallback(GLFWwindow* window, int width, int height)
@@ -76,29 +87,6 @@ namespace vulkan
 		}
 		return extensions;
 	}
-	constexpr const VkFormat findSupportedFormat(const VkPhysicalDevice& physicalDevice, const std::vector<VkFormat>& candidates, const VkImageTiling& tiling, const VkFormatFeatureFlags& features)
-	{	
-		for (const VkFormat& format : candidates) 
-		{
-			VkFormatProperties props;
-			vkGetPhysicalDeviceFormatProperties(physicalDevice, format, &props);
-
-			const bool isTilingLinear = tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features;
-			const bool isTilingOptimal = tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features;
-
-			if (isTilingLinear) return format;
-			else if (isTilingOptimal) return format;
-		}
-		throw std::runtime_error("failed to find supported format!");
-	}
-	constexpr const VkFormat& findDepthFormat(const VkPhysicalDevice& physicalDevice)
-	{
-		return findSupportedFormat(physicalDevice,
-			{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
-			VK_IMAGE_TILING_OPTIMAL,
-			VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
-		);
-	}	
 	void createInstance()
 	{
 		bool layersSupported = _enableValidationLayers && checkValidationLayerSupport();
@@ -178,6 +166,8 @@ namespace vulkan
 
 		VkResult err = vkCreateRenderPass(logicalDevice, &renderPassInfo, nullptr, &state.renderPass);
 		check_vk_result(err, "failed to create render pass!");
+
+		VOXEL_CORE_TRACE("Vulkan render pass created.")
 	}
 	void createGraphicsPipeline(
 		const VkDevice& logicalDevice, 
@@ -206,7 +196,7 @@ namespace vulkan
 		VkPipelineRasterizationStateCreateInfo rasterizer = vulkan::initializers::pipelineRasterizationStateCreateInfo(
 			VK_POLYGON_MODE_FILL, 
 			VK_CULL_MODE_BACK_BIT, 
-			VK_FRONT_FACE_COUNTER_CLOCKWISE);
+			VK_FRONT_FACE_CLOCKWISE);
 
 		VkPipelineMultisampleStateCreateInfo multisampling = vulkan::initializers::pipelineMultisampleStateCreateInfo(VK_SAMPLE_COUNT_1_BIT);
 
@@ -261,21 +251,31 @@ namespace vulkan
 
 		VkResult err = vkCreateCommandPool(logicalDevice, &poolInfo, nullptr, &state.commandPool);
 		check_vk_result(err, "failed to create command pool!");
+
+		VOXEL_CORE_TRACE("Vulkan command pool created.")
 	}
 	void createCommandBuffers()
 	{
-		for (auto& frame : state.swapChainFrames)
+		int i = 0;
+		for (SwapChainFrame& frame : state.swapChainFrames)
 		{
 			frame.commandBuffer = memory::CommandBuffer::allocate();
+
+			VOXEL_CORE_TRACE("Vulkan command buffer allocated for frame {0}.", i)
+			++i;
 		}
 	}
 	void createSyncObjects(const VkDevice& logicalDevice)
 	{
+		int i = 0;
 		for (SwapChainFrame& frame : state.swapChainFrames) 
 		{
 			frame.imageAvailableSemaphore = createSemaphore(logicalDevice);
 			frame.renderFinishedSemaphore = createSemaphore(logicalDevice);
 			frame.inFlightFence = createFence(logicalDevice);
+
+			VOXEL_CORE_TRACE("Vulkan sync objects created for frame {0}.", i)
+			++i;
 		}
 	}	
 	void initImGui()
@@ -331,6 +331,8 @@ namespace vulkan
 
 		VkResult err = vkCreateDescriptorPool(logicalDevice, &poolInfo, nullptr, &state.descriptorPool);
 		check_vk_result(err, "failed to create descriptor pool!");
+
+		VOXEL_CORE_TRACE("Vulkan descriptor pool created.")
 	}
 	void createDescriptorSetLayout(const VkDevice& logicalDevice)
 	{
@@ -351,6 +353,8 @@ namespace vulkan
 
 		VkResult err = vkCreateDescriptorSetLayout(logicalDevice, &layoutInfo, nullptr, &state.descriptorSetLayout);
 		check_vk_result(err, "failed to create descriptor set layout!");
+
+		VOXEL_CORE_TRACE("Vulkan descriptor set layout created.")
 	}
 	void recreateSwapChain(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice, const VkSurfaceKHR& surface, GLFWwindow* window)
 	{
@@ -400,6 +404,12 @@ namespace vulkan
 		}
 		else check_vk_result(err, "failed to present swap chain image!");
 	}
+	void prepareScene(const VkCommandBuffer& commandBuffer)
+	{
+		VkBuffer vertexBuffers[] = { triangle->vertexBuffer.buffer };
+		VkDeviceSize offsets[] = { 0 };
+		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+	}
 	void beginFrame() 
 	{
 		// Stage 1. ACQUIRE IMAGE FROM SWAPCHAIN
@@ -416,14 +426,6 @@ namespace vulkan
 		{
 			VOXEL_CORE_ASSERT(result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR, "failed to acquire swap chain image!")
 		}
-
-		VoxelEngine::renderer::UniformBufferObject ubo = {};
-		const float aspectRatio = (float)state.swapChainExtent.width / state.swapChainExtent.height;
-
-		ubo.model = glm::mat4(1.0f);
-		ubo.view = FPVcamera->viewMatrix();
-		ubo.proj = glm::perspective(glm::radians(60.0f), aspectRatio, 0.1f, 200.0f);
-		ubo.proj[1][1] *= -1;
 
 		resetFences(state.logicalDevice, 1, state.swapChainFrames[CURRENT_FRAME].inFlightFence);
 		memory::CommandBuffer::reset(state.swapChainFrames[CURRENT_FRAME].commandBuffer);
@@ -476,6 +478,10 @@ namespace vulkan
 		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
 		// =================== RENDER WHOLE STUFF HERE ! ===================
+		prepareScene(commandBuffer);
+
+		renderSceneObjects(commandBuffer, 3, 1, 0, 0);
+		
 		ImDrawData* main_draw_data = ImGui::GetDrawData();
 		ImGui_ImplVulkan_RenderDrawData(main_draw_data, commandBuffer);
 		// =================================================================
@@ -511,7 +517,7 @@ namespace vulkan
 	}
 
 	void init()
-	{		
+	{
 		createInstance();
 		setupDebugReportMessenger(state.instance, &state.debugReportMessenger);
 		state.surface = createSurface(state.instance, state.windowPtr);
@@ -537,6 +543,8 @@ namespace vulkan
 		createCommandBuffers();
 		createSyncObjects(state.logicalDevice);
 		initImGui();
+
+		triangle = new VoxelEngine::components::mesh::TriangleMesh(state.logicalDevice, state.physicalDevice);
 
 		VOXEL_CORE_WARN("Vulkan setup ended.")	
 	}
@@ -566,11 +574,14 @@ namespace vulkan
 		vkDestroyInstance(state.instance, nullptr);
 	}
 
-	void render(const VoxelEngine::Scene* scene)
+	void renderSceneObjects(
+		const VkCommandBuffer& commandBuffer, 
+		const uint32& vertexCount, 
+		const uint32& instanceCount, 
+		const uint32& firstVertex, 
+		const uint32& firstInstance)
 	{
-		beginFrame();
-
-		endFrame();
+		vkCmdDraw(commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
 	}
 
 	const VkDevice& getLogicalDevice()
@@ -595,21 +606,17 @@ namespace vulkan
 	{
 		return memory::allocateMemory(state.physicalDevice, state.logicalDevice, requirements, properties);
 	}
-	void createBuffer(
+	const memory::Buffer createBuffer(
 		const VkDeviceSize& size,
 		const VkBufferUsageFlags& usage,
-		const VkMemoryPropertyFlags& properties,
-		VkBuffer& buffer,
-		VkDeviceMemory& bufferMemory)
+		const VkMemoryPropertyFlags& properties)
 	{
-		memory::createBuffer(
+		return memory::createBuffer(
 			state.physicalDevice,
 			state.logicalDevice,
 			size,
 			usage,
-			properties,
-			buffer,
-			bufferMemory);
+			properties);
 	}
 	void destroyBuffer(const VkBuffer& buffer)
 	{

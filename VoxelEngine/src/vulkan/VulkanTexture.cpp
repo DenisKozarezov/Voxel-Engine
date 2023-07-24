@@ -33,21 +33,19 @@ namespace vulkan
 
 		VOXEL_CORE_TRACE("Creating texture '{0}' [W: {1}; H: {2}; Channels: {3}]...", _filepath, _width, _height, _texChannels);
 
-		VkBuffer stagingBuffer;
-		VkDeviceMemory stagingBufferMemory;
-		vulkan::createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+		const auto& stagingBuffer = vulkan::createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
 
-		memory::mapMemory(_createInfo.logicalDevice, stagingBufferMemory, 0, imageSize, 0, data.nativePtr);
+		memory::mapMemory(_createInfo.logicalDevice, stagingBuffer.bufferMemory, 0, imageSize, 0, data.nativePtr);
 		data.release();
 
 		_textureImage = memory::createImage(_createInfo.physicalDevice, _createInfo.logicalDevice, _width, _height, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _textureImageMemory);
 
 		transitionImageLayout(VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-		copyBufferToImage(stagingBuffer, _textureImage);
+		copyBufferToImage(stagingBuffer.buffer, _textureImage);
 		transitionImageLayout(VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-		vulkan::destroyBuffer(stagingBuffer);
-		vulkan::freeDeviceMemory(stagingBufferMemory);
+		vulkan::destroyBuffer(stagingBuffer.buffer);
+		vulkan::freeDeviceMemory(stagingBuffer.bufferMemory);
 	}
 	void VulkanTexture::createTextureImageView()
 	{

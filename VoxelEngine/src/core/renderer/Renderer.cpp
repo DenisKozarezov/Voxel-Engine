@@ -17,11 +17,10 @@ namespace VoxelEngine::renderer
     {
         return (float)glfwGetTime();
     }
-    void Renderer::init(const Window& window, components::camera::Camera* camera)
+    void Renderer::init(const Window& window)
     {
         VOXEL_CORE_WARN("Renderer initialization.")
         vulkan::setWindow(window);
-        vulkan::setCamera(camera);
         vulkan::init();
     }
     void Renderer::beginFrame()

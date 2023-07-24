@@ -21,6 +21,7 @@ namespace VoxelEngine::renderer
 		void detach();
 		void onUpdate(const Timestep& time);
 		void onImGuiRender();
+		void onEvent(input::Event& e);
 
 		std::deque<Layer*>::iterator begin() { return _layers.begin(); }
 		std::deque<Layer*>::iterator end() { return _layers.end(); }

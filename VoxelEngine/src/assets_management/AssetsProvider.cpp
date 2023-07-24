@@ -12,13 +12,13 @@
 
 namespace std 
 {
-    template<> struct hash<vulkan::Vertex> 
+   /* template<> struct hash<vulkan::Vertex> 
     {
         size_t operator()(vulkan::Vertex const& vertex) const 
         {
             return ((hash<glm::vec3>()(vertex.pos) ^ (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^ (hash<glm::vec2>()(vertex.texCoord) << 1);
         }
-    };
+    };*/
 }
 
 namespace assets
@@ -45,8 +45,8 @@ namespace assets
         bool isLoaded = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path.c_str());
         VOXEL_CORE_ASSERT(isLoaded, warn + err)
 
-        std::unordered_map<vulkan::Vertex, uint32> uniqueVertices{};
         Mesh* mesh = new Mesh;
+       /* std::unordered_map<vulkan::Vertex, uint32> uniqueVertices{};
 
         for (const auto& shape : shapes)
         {
@@ -75,7 +75,7 @@ namespace assets
                 }
                 mesh->indices.push_back(uniqueVertices[vertex]);
             }
-        }
+        }*/
 
         VOXEL_CORE_TRACE("Finished to load OBJ mesh at path '{0}'.", path);
 

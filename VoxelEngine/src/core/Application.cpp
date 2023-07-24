@@ -53,7 +53,7 @@ namespace VoxelEngine
 		{
 			VOXEL_CORE_WARN("Application initialization.")
 			pushOverlay(new renderer::ImGuiLayer());
-			renderer::Renderer::init(*_window.get(), &_camera);
+			renderer::Renderer::init(*_window.get());
 		}
 		catch (const std::exception& e)
 		{
@@ -92,30 +92,15 @@ namespace VoxelEngine
 		renderer::Renderer::cleanup();
 	}
 
-	void Application::moveCamera(const components::camera::CameraMovement& direction)
-	{
-		_camera.processKeyboard(direction, _deltaTime);
-	}
-	void Application::mouseMove(const float& x, const float& y)
-	{
-		_camera.processMouse(x, y);
-	}
-	void Application::setMouseDragging(const bool& isDragging)
-	{
-		_mouseState = isDragging ? input::MouseDraggingState::DragBegin : input::MouseDraggingState::None;
-	}
 	void Application::setupInputCallbacks()
 	{
 		_dispatcher.registerEvent<input::WindowCloseEvent>(BIND_CALLBACK(onWindowClose));
 		_dispatcher.registerEvent<input::WindowResizeEvent>(BIND_CALLBACK(onWindowResize));
-		_dispatcher.registerEvent<input::KeyPressedEvent>(BIND_CALLBACK(onKeyboardPressed));
-		_dispatcher.registerEvent<input::MouseButtonPressedEvent>(BIND_CALLBACK(onMousePressed));
-		_dispatcher.registerEvent<input::MouseButtonReleasedEvent>(BIND_CALLBACK(onMouseReleased));
-		_dispatcher.registerEvent<input::MouseMovedEvent>(BIND_CALLBACK(onMouseMoved));
 	}
 	void Application::onEvent(input::Event& e)
 	{
 		_dispatcher.dispatchEvent(e, std::launch::async);
+		_layerStack.onEvent(e);
 	}
 	bool Application::onWindowClose(const input::WindowCloseEvent& e)
 	{
@@ -131,64 +116,5 @@ namespace VoxelEngine
 		}
 		_minimized = false;
 		return false;
-	}
-	bool Application::onKeyboardPressed(const input::KeyPressedEvent& e)
-	{
-		switch (e.getKeyCode())
-		{
-		case input::W:
-			moveCamera(components::camera::CameraMovement::Forward);
-			break;
-		case input::S:
-			moveCamera(components::camera::CameraMovement::Backward);
-			break;
-		case input::A:
-			moveCamera(components::camera::CameraMovement::Left);
-			break;
-		case input::D:
-			moveCamera(components::camera::CameraMovement::Right);
-			break;
-		}
-		return true;
-	}
-	bool Application::onMousePressed(const input::MouseButtonPressedEvent& e)
-	{
-		switch (e.getKeyCode())
-		{
-		case input::ButtonRight:
-			setMouseDragging(true);
-			break;
-		}
-		return true;
-	}
-	bool Application::onMouseReleased(const input::MouseButtonReleasedEvent& e)
-	{
-		switch (e.getKeyCode())
-		{
-		case input::ButtonRight:
-			setMouseDragging(false);
-			break;
-		}
-		return true;
-	}
-	bool Application::onMouseMoved(const input::MouseMovedEvent& e)
-	{
-		const float x = e.getX();
-		const float y = e.getY();
-
-		if (_mouseState == input::MouseDraggingState::DragBegin)
-		{
-			_lastMouseX = x;
-			_lastMouseY = y;
-			_mouseState = input::MouseDraggingState::Dragging;
-		}
-
-		if (_mouseState == input::MouseDraggingState::Dragging)
-		{
-			mouseMove(x - _lastMouseX, _lastMouseY - y);
-			_lastMouseX = x;
-			_lastMouseY = y;
-		}
-		return true;
 	}
 }

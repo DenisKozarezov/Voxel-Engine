@@ -1,6 +1,5 @@
 #include "VulkanIndexBuffer.h"
 #include "VulkanBackend.h"
-#include "VulkanAlloc.h"
 
 namespace vulkan
 {
@@ -10,26 +9,24 @@ namespace vulkan
 	}
 	void VulkanIndexBuffer::bind() const
 	{
-		vkCmdBindIndexBuffer(vulkan::getCommandBuffer(), _indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+		vkCmdBindIndexBuffer(vulkan::getCommandBuffer(), _indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT16);
 	}
 	void VulkanIndexBuffer::release() const
 	{
-		vulkan::destroyBuffer(_indexBuffer);
-		vulkan::freeDeviceMemory(_indexBufferMemory);
+		vulkan::destroyBuffer(_indexBuffer.buffer);
+		vulkan::freeDeviceMemory(_indexBuffer.bufferMemory);
 	}
 	void VulkanIndexBuffer::setData(const void* data, const size_t& size)
 	{
-		VkBuffer stagingBuffer;
-		VkDeviceMemory stagingBufferMemory;
-		vulkan::createBuffer(size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+		const auto& stagingBuffer = vulkan::createBuffer(size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
 		VkDevice logicalDevice = vulkan::getLogicalDevice();
-		memory::mapMemory(logicalDevice, stagingBufferMemory, 0, size, 0, data);
+		memory::mapMemory(logicalDevice, stagingBuffer.bufferMemory, 0, size, 0, data);
 
-		vulkan::createBuffer(size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _indexBuffer, _indexBufferMemory);
-		vulkan::copyBuffer(stagingBuffer, _indexBuffer, size);
+		_indexBuffer = vulkan::createBuffer(size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		vulkan::copyBuffer(stagingBuffer.buffer, _indexBuffer.buffer, size);
 
-		vulkan::destroyBuffer(stagingBuffer);
-		vulkan::freeDeviceMemory(stagingBufferMemory);
+		vulkan::destroyBuffer(stagingBuffer.buffer);
+		vulkan::freeDeviceMemory(stagingBuffer.bufferMemory);
 	}
 }

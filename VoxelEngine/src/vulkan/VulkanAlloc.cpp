@@ -53,7 +53,7 @@ namespace vulkan::memory
 		vkUnmapMemory(logicalDevice, deviceMemory);
 	}
 	
-	void createBuffer(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice, const VkDeviceSize& size, const VkBufferUsageFlags& usage, const VkMemoryPropertyFlags& properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)
+	const Buffer createBuffer(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice, const VkDeviceSize& size, const VkBufferUsageFlags& usage, const VkMemoryPropertyFlags& properties)
 	{
 		VkBufferCreateInfo bufferInfo = {};
 		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -61,15 +61,23 @@ namespace vulkan::memory
 		bufferInfo.usage = usage;
 		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
+		VkBuffer buffer;
 		VkResult err = vkCreateBuffer(logicalDevice, &bufferInfo, nullptr, &buffer);
 		check_vk_result(err, "failed to create buffer!");
 
 		VkMemoryRequirements memRequirements;
 		vkGetBufferMemoryRequirements(logicalDevice, buffer, &memRequirements);
 
-		bufferMemory = allocateMemory(physicalDevice, logicalDevice, memRequirements, properties);
+		VkDeviceMemory bufferMemory = allocateMemory(physicalDevice, logicalDevice, memRequirements, properties);
 
 		vkBindBufferMemory(logicalDevice, buffer, bufferMemory, 0);
+
+		Buffer result =
+		{
+			.buffer = buffer,
+			.bufferMemory = bufferMemory
+		};
+		return result;
 	}
 	void destroyBuffer(const VkDevice& logicalDevice, const VkBuffer& buffer)
 	{

@@ -1,5 +1,4 @@
 #pragma once
-#include <core/PrimitiveTypes.h>
 #include <core/Base.h>
 #include <components/mesh/Mesh.h>
 

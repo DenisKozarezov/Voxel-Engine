@@ -1,5 +1,9 @@
 #include "VulkanTexture.h"
 #include "VulkanBackend.h"
+#include "VulkanAlloc.h"
+#include "VulkanUniformBuffer.h"
+#include <core/Log.h>
+#include "VulkanValidation.h"
 #include <assets_management/AssetsProvider.h>
 
 namespace vulkan

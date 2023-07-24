@@ -1,5 +1,6 @@
 #include "VulkanCommandBuffer.h"
 #include "VulkanBackend.h"
+#include "VulkanValidation.h"
 
 namespace vulkan::memory
 {

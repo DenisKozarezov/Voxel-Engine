@@ -1,6 +1,5 @@
-#include "Texture.h"
 #include "vulkan/VulkanTexture.h"
-#include <core/Log.h>
+#include "vulkan/VulkanBackend.h"
 
 namespace assets
 {
@@ -9,8 +8,8 @@ namespace assets
 		_vertexBuffer = VertexBuffer::Create(_vertices.data(), sizeof(_vertices[0]) * _vertices.size());
 		_indexBuffer = IndexBuffer::Create(_indices.data(), sizeof(_indices[0]) * _indices.size());
 
-		_uniformBuffers.resize(2);
-		for (size_t i = 0; i < 2; i++)
+		_uniformBuffers.resize(vulkan::MAX_FRAMES_IN_FLIGHT);
+		for (size_t i = 0; i < vulkan::MAX_FRAMES_IN_FLIGHT; i++)
 		{
 			_uniformBuffers[i] = UniformBuffer::Create(sizeof(VoxelEngine::renderer::UniformBufferObject));
 		}

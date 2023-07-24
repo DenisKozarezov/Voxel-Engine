@@ -1,6 +1,6 @@
 #pragma once
 #include "../Window.h"
-#include "components/camera/FirstPersonCamera.h"
+#include "components/camera/Camera.h"
 
 namespace VoxelEngine::renderer
 {

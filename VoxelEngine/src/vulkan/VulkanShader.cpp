@@ -1,5 +1,5 @@
 #include "VulkanShader.h"
-#include "VulkanBackend.h"
+#include "VulkanValidation.h"
 
 namespace vulkan::shaders
 {
@@ -15,11 +15,10 @@ namespace vulkan::shaders
 		check_vk_result(err, "failed to create shader module!");
 		return shaderModule;
 	}	
-	VulkanShader::VulkanShader(const string& filepath, const VkShaderStageFlagBits& shaderType) 
-		: Shader(filepath)
+	VulkanShader::VulkanShader(const VkDevice& logicalDevice, const string& filepath, const VkShaderStageFlagBits& shaderType) 
+		: Shader(filepath), 
+		_logicalDevice(logicalDevice)
 	{
-		_logicalDevice = vulkan::getLogicalDevice();
-
 		auto shaderProgram = readFile(filepath);
 
 		_shaderModule = createShaderModule(shaderProgram);

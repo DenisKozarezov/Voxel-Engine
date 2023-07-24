@@ -1,6 +1,5 @@
 #pragma once
 #include <core/renderer/Buffers.h>
-#include "VulkanVertex.h"
 
 namespace vulkan
 {

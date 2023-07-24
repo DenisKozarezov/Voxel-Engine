@@ -1,4 +1,5 @@
 #pragma once
+#include <core/Log.h>
 #include <assets_management/Texture.h>
 
 namespace vulkan

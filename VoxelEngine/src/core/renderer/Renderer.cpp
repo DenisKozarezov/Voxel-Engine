@@ -19,6 +19,7 @@ namespace VoxelEngine::renderer
     }
     void Renderer::init(const Window& window, components::camera::Camera* camera)
     {
+        VOXEL_CORE_WARN("Renderer initialization.")
         vulkan::setWindow(window);
         vulkan::setCamera(camera);
         vulkan::init();

@@ -1,6 +1,5 @@
 #include "AssetsProvider.h"
 #include <core/Assert.h>
-#include <vulkan/VulkanVertex.h>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>

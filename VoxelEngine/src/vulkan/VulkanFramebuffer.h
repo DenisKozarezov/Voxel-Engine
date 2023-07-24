@@ -1,22 +1,37 @@
 #pragma once
-#include <vulkan/vulkan.h>
-#include <vector>
+#include "VulkanSwapchain.h"
 
 namespace vulkan
 {
-	class Framebuffer
+	void createFramebuffers(
+		const VkDevice& logicalDevice,
+		const VkRenderPass& renderPass,
+		const VkExtent2D& swapChainExtent,
+		std::vector<SwapChainFrame>& frames) 
 	{
-	private:
-		VkFramebuffer _framebuffer;
-		VkDevice _logicalDevice;
-	public:
-		Framebuffer() = default;
-		Framebuffer(const VkDevice& logicalDevice, const VkRenderPass& renderPass, const std::vector<VkImageView>& attachments, const VkExtent2D& framebufferSize);
+		for (int i = 0; i < frames.size(); ++i) {
 
-		operator VkFramebuffer() const & { return _framebuffer; }
+			std::vector<VkImageView> attachments =
+			{
+				frames[i].imageView
+			};
+			
+			VkFramebufferCreateInfo framebufferInfo{};
+			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+			framebufferInfo.renderPass = renderPass;
+			framebufferInfo.attachmentCount = static_cast<uint32>(attachments.size());
+			framebufferInfo.pAttachments = attachments.data();
+			framebufferInfo.width = swapChainExtent.width;
+			framebufferInfo.height = swapChainExtent.height;
+			framebufferInfo.layers = 1;
 
-		void release() const;
+			VkResult err = vkCreateFramebuffer(logicalDevice, &framebufferInfo, nullptr, &frames[i].framebuffer);
+			check_vk_result(err, "failed to create framebuffer!");
+		}
+	}
 
-		~Framebuffer() = default;
-	};
+	void destroyFramebuffer(const VkDevice& logicalDevice, const VkFramebuffer& framebuffer)
+	{
+		vkDestroyFramebuffer(logicalDevice, framebuffer, nullptr);
+	}
 }

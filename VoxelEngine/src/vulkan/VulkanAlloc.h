@@ -1,5 +1,6 @@
 #pragma once
-#include "vulkan/VulkanCommandBuffer.h"
+#include <vulkan/vulkan.h>
+#include <core/PrimitiveTypes.h>
 
 namespace vulkan::memory
 {

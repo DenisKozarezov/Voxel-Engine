@@ -60,7 +60,6 @@ namespace vulkan
 		return VK_FALSE;
 	}
 
-
 	const VkResult createDebugUtilsMessengerEXT(
 		const VkInstance& instance, 
 		const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, 
@@ -138,7 +137,7 @@ namespace vulkan
 		std::vector<VkLayerProperties> availableLayers(layerCount);
 		vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
 
-		for (const char* layerName : _validationLayers)
+		for (const char* layerName : validationLayers)
 		{
 			bool layerFound = false;
 
@@ -156,7 +155,6 @@ namespace vulkan
 				return false;
 			}
 		}
-
 		return true;
 	}
 	void setupDebugReportMessenger(const VkInstance& instance, VkDebugReportCallbackEXT* debugReportFunc)
@@ -166,5 +164,7 @@ namespace vulkan
 		VkDebugReportCallbackCreateInfoEXT createInfo = populateDebugReportCreateInfo();
 		VkResult err = createDebugReportMessengerEXT(instance, &createInfo, nullptr, debugReportFunc);
 		check_vk_result(err, "failed to set up debug report messenger!");
+
+		VOXEL_CORE_TRACE("Vulkan debug report messenger set up.")
 	}		
 }

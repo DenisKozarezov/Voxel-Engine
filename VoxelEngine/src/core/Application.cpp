@@ -51,6 +51,7 @@ namespace VoxelEngine
 	{
 		try
 		{
+			VOXEL_CORE_WARN("Application initialization.")
 			pushOverlay(new renderer::ImGuiLayer());
 			renderer::Renderer::init(*_window.get(), &_camera);
 		}

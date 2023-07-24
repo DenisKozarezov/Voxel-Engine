@@ -1,5 +1,6 @@
 #include "VulkanVertexBuffer.h"
 #include "VulkanBackend.h"
+#include "VulkanAlloc.h"
 
 namespace vulkan
 {

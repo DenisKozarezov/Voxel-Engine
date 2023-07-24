@@ -11,13 +11,9 @@ namespace vulkan
 	constexpr bool _enableValidationLayers = true;
 #endif
 
-	const std::vector<const char*> _validationLayers =
+	const std::vector<const char*> validationLayers =
 	{
 		"VK_LAYER_KHRONOS_validation"
-	};
-	const std::vector<const char*> _deviceExtensions =
-	{
-		VK_KHR_SWAPCHAIN_EXTENSION_NAME
 	};
 
 	static void check_vk_result(const VkResult& vkResult, const std::string& exceptionMsg)

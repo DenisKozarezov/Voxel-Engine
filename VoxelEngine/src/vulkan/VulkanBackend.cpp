@@ -5,17 +5,22 @@
 #include <imgui_impl_vulkan.h>
 #include "VulkanDevice.h"
 #include "VulkanFramebuffer.h"
-#include "VulkanShader.h"
 #include "VulkanCommandBuffer.h"
 #include "VulkanUniformBuffer.h"
+#include "VulkanPipeline.h"
 #include "VulkanSync.h"
+#include "components/mesh/Mesh.h"
+#include "core/renderer/VertexManager.h"
 #include "assets_management/AssetsProvider.h"
 
 namespace vulkan
 {	
+	using namespace VoxelEngine::components::mesh;
+
 	struct VulkanState
 	{
 		GLFWwindow* windowPtr;
+		VoxelEngine::renderer::VertexManager* vertexManager;
 		
 		// Instance-related variables
 		const VoxelEngine::Window* window;
@@ -48,7 +53,6 @@ namespace vulkan
 		bool framebufferResized = false;
 	} state;
 
-	VoxelEngine::components::mesh::TriangleMesh* triangle;
 	VoxelEngine::components::camera::Camera* FPVcamera;
 		
 	void framebufferResizeCallback(GLFWwindow* window, int width, int height)
@@ -138,116 +142,11 @@ namespace vulkan
 
 		return surface;
 	}
-	void createRenderPass(const VkDevice& logicalDevice, const VkFormat& swapChainImageFormat)
-	{
-		VkAttachmentDescription colorAttachment = vulkan::initializers::renderPassColorAttachment(swapChainImageFormat);
-
-		VkAttachmentReference colorAttachmentRef{};
-		colorAttachmentRef.attachment = 0;
-		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-		VkSubpassDescription subpass = {};
-		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-		subpass.colorAttachmentCount = 1;
-		subpass.pColorAttachments = &colorAttachmentRef;
-
-		VkSubpassDependency dependency = {};
-		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-		dependency.dstSubpass = 0;
-		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-		dependency.srcAccessMask = 0;
-		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-
-		std::vector<VkAttachmentDescription> attachments = { colorAttachment };
-		std::vector<VkSubpassDescription> subpasses = { subpass };
-		std::vector<VkSubpassDependency> dependencies = { dependency };
-		VkRenderPassCreateInfo renderPassInfo = vulkan::initializers::renderPassCreateInfo(attachments, subpasses, dependencies);
-
-		VkResult err = vkCreateRenderPass(logicalDevice, &renderPassInfo, nullptr, &state.renderPass);
-		check_vk_result(err, "failed to create render pass!");
-
-		VOXEL_CORE_TRACE("Vulkan render pass created.")
-	}
-	void createGraphicsPipeline(
-		const VkDevice& logicalDevice, 
-		const VkRenderPass& renderPass, 
-		const VkDescriptorSetLayout& descriptorSetLayout)
-	{
-		shaders::VulkanShader vertexShader = shaders::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/vert.spv"), VK_SHADER_STAGE_VERTEX_BIT);
-		shaders::VulkanShader fragShader = shaders::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/frag.spv"), VK_SHADER_STAGE_FRAGMENT_BIT);
-
-		std::vector<VkPipelineShaderStageCreateInfo> shaderStages = { vertexShader.getStage(), fragShader.getStage() };
-		const auto& bindingDescription = Vertex::getBindingDescription();
-		const auto& attributeDescription = Vertex::getAttributeDescriptions();
-
-		VkPipelineVertexInputStateCreateInfo vertexInputInfo = vulkan::initializers::pipelineVertexInputStateCreateInfo(
-			&bindingDescription,
-			1,
-			attributeDescription.data(),
-			static_cast<uint32>(attributeDescription.size()));
-
-		VkPipelineInputAssemblyStateCreateInfo inputAssembly = vulkan::initializers::pipelineInputAssemblyStateCreateInfo(
-			VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, 
-			VK_FALSE);
-
-		VkPipelineViewportStateCreateInfo viewportState = vulkan::initializers::pipelineViewportStateCreateInfo(1, 1);
-
-		VkPipelineRasterizationStateCreateInfo rasterizer = vulkan::initializers::pipelineRasterizationStateCreateInfo(
-			VK_POLYGON_MODE_FILL, 
-			VK_CULL_MODE_BACK_BIT, 
-			VK_FRONT_FACE_CLOCKWISE);
-
-		VkPipelineMultisampleStateCreateInfo multisampling = vulkan::initializers::pipelineMultisampleStateCreateInfo(VK_SAMPLE_COUNT_1_BIT);
-
-		VkPipelineColorBlendAttachmentState colorBlendAttachment = vulkan::initializers::pipelineColorBlendAttachmentState(
-			VK_COLOR_COMPONENT_R_BIT | 
-			VK_COLOR_COMPONENT_G_BIT | 
-			VK_COLOR_COMPONENT_B_BIT | 
-			VK_COLOR_COMPONENT_A_BIT, 
-			VK_FALSE);
-		VkPipelineColorBlendStateCreateInfo colorBlending = vulkan::initializers::pipelineColorBlendStateCreateInfo(colorBlendAttachment);
-
-		std::vector<VkDynamicState> dynamicStates = 
-		{
-			VK_DYNAMIC_STATE_VIEWPORT,
-			VK_DYNAMIC_STATE_SCISSOR
-		};
-		VkPipelineDynamicStateCreateInfo dynamicStateCreateInfo = vulkan::initializers::pipelineDynamicStateCreateInfo(dynamicStates);
-
-		VkPipelineLayoutCreateInfo pipelineLayoutInfo = vulkan::initializers::pipelineLayoutCreateInfo(&descriptorSetLayout);
-
-		VkResult err = vkCreatePipelineLayout(logicalDevice, &pipelineLayoutInfo, nullptr, &state.pipelineLayout);
-		check_vk_result(err, "failed to create pipeline layout!");
-
-		VkGraphicsPipelineCreateInfo pipelineInfo = vulkan::initializers::pipelineCreateInfo();
-		pipelineInfo.stageCount = shaderStages.size();
-		pipelineInfo.pStages = shaderStages.data();
-		pipelineInfo.pVertexInputState = &vertexInputInfo;
-		pipelineInfo.pInputAssemblyState = &inputAssembly;
-		pipelineInfo.pViewportState = &viewportState;
-		pipelineInfo.pRasterizationState = &rasterizer;
-		pipelineInfo.pMultisampleState = &multisampling;
-		pipelineInfo.pColorBlendState = &colorBlending;
-		pipelineInfo.pDynamicState = &dynamicStateCreateInfo;
-		pipelineInfo.layout = state.pipelineLayout;
-		pipelineInfo.renderPass = renderPass;
-		pipelineInfo.subpass = 0;
-		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
-
-		err = vkCreateGraphicsPipelines(logicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &state.graphicsPipeline);
-		check_vk_result(err, "failed to create graphics pipeline!");
-
-		vertexShader.unbind();
-		fragShader.unbind();
-
-		VOXEL_CORE_TRACE("Vulkan graphics pipeline created.")
-	}
 	void createCommandPool(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice)
 	{
 		QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice, state.surface);
 
-		VkCommandPoolCreateInfo poolInfo = vulkan::initializers::commandPoolCreateInfo(queueFamilyIndices.graphicsFamily.value(), VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+		VkCommandPoolCreateInfo poolInfo = initializers::commandPoolCreateInfo(queueFamilyIndices.graphicsFamily.value(), VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 
 		VkResult err = vkCreateCommandPool(logicalDevice, &poolInfo, nullptr, &state.commandPool);
 		check_vk_result(err, "failed to create command pool!");
@@ -268,7 +167,7 @@ namespace vulkan
 	void createSyncObjects(const VkDevice& logicalDevice)
 	{
 		int i = 0;
-		for (SwapChainFrame& frame : state.swapChainFrames) 
+		for (SwapChainFrame& frame : state.swapChainFrames)
 		{
 			frame.imageAvailableSemaphore = createSemaphore(logicalDevice);
 			frame.renderFinishedSemaphore = createSemaphore(logicalDevice);
@@ -320,10 +219,10 @@ namespace vulkan
 	}
 	void createDescriptorPool(const VkDevice& logicalDevice)
 	{
-		const auto& pool_sizes = vulkan::initializers::descriptorPoolSize();
+		const auto& pool_sizes = initializers::descriptorPoolSize();
 
 		uint32 size = static_cast<uint32>(pool_sizes.size());
-		VkDescriptorPoolCreateInfo poolInfo = vulkan::initializers::descriptorPoolCreateInfo(
+		VkDescriptorPoolCreateInfo poolInfo = initializers::descriptorPoolCreateInfo(
 			pool_sizes.data(), 
 			size, 
 			1000 * size, 
@@ -336,20 +235,20 @@ namespace vulkan
 	}
 	void createDescriptorSetLayout(const VkDevice& logicalDevice)
 	{
-		VkDescriptorSetLayoutBinding uboLayoutBinding = vulkan::initializers::descriptorSetLayoutBinding(
+		VkDescriptorSetLayoutBinding uboLayoutBinding = initializers::descriptorSetLayoutBinding(
 			VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 
 			VK_SHADER_STAGE_VERTEX_BIT, 
 			0,
 			1);
 
-		VkDescriptorSetLayoutBinding samplerLayoutBinding = vulkan::initializers::descriptorSetLayoutBinding(
+		VkDescriptorSetLayoutBinding samplerLayoutBinding = initializers::descriptorSetLayoutBinding(
 			VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 
 			VK_SHADER_STAGE_FRAGMENT_BIT, 
 			1, 
 			1);
 
 		std::vector<VkDescriptorSetLayoutBinding> bindings = { uboLayoutBinding, samplerLayoutBinding };
-		VkDescriptorSetLayoutCreateInfo layoutInfo = vulkan::initializers::descriptorSetLayoutCreateInfo(bindings);
+		VkDescriptorSetLayoutCreateInfo layoutInfo = initializers::descriptorSetLayoutCreateInfo(bindings);
 
 		VkResult err = vkCreateDescriptorSetLayout(logicalDevice, &layoutInfo, nullptr, &state.descriptorSetLayout);
 		check_vk_result(err, "failed to create descriptor set layout!");
@@ -370,6 +269,7 @@ namespace vulkan
 		cleanupSwapChain(logicalDevice, state.swapChain);
 		createSwapChain(physicalDevice, logicalDevice, surface, state.window->getWidth(), state.window->getHeight());
 		createFramebuffers(logicalDevice, state.renderPass, state.swapChainExtent, state.swapChainFrames);
+		createSyncObjects(logicalDevice);
 	}	
 	void cleanupSwapChain(const VkDevice& logicalDevice, const VkSwapchainKHR& swapchain)
 	{
@@ -404,9 +304,9 @@ namespace vulkan
 		}
 		else check_vk_result(err, "failed to present swap chain image!");
 	}
-	void prepareScene(const VkCommandBuffer& commandBuffer)
+	void prepareScene(const VkCommandBuffer& commandBuffer, const VoxelEngine::Scene* scene)
 	{
-		VkBuffer vertexBuffers[] = { triangle->vertexBuffer.buffer };
+		VkBuffer vertexBuffers[] = { state.vertexManager->vertexBuffer.buffer };
 		VkDeviceSize offsets[] = { 0 };
 		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 	}
@@ -462,7 +362,7 @@ namespace vulkan
 
 		std::vector<VkClearValue> clearValues(1);
 		clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
-		VkRenderPassBeginInfo renderPassBeginInfo = vulkan::initializers::renderPassBeginInfo(
+		VkRenderPassBeginInfo renderPassBeginInfo = initializers::renderPassBeginInfo(
 			state.renderPass,
 			state.swapChainFrames[imageIndex].framebuffer,
 			state.swapChainExtent,
@@ -471,17 +371,23 @@ namespace vulkan
 
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.graphicsPipeline);
 		
-		VkViewport viewport = vulkan::initializers::viewport(state.swapChainExtent, 0.0f, 1.0f);
+		VkViewport viewport = initializers::viewport(state.swapChainExtent, 0.0f, 1.0f);
 		vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
-		VkRect2D scissor = vulkan::initializers::rect2D(state.swapChainExtent, { 0, 0 });
+		VkRect2D scissor = initializers::rect2D(state.swapChainExtent, { 0, 0 });
 		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
 		// =================== RENDER WHOLE STUFF HERE ! ===================
-		prepareScene(commandBuffer);
+		prepareScene(commandBuffer, scene);
 
-		renderSceneObjects(commandBuffer, 3, 1, 0, 0);
+		uint32 vertexCount = state.vertexManager->sizes[MeshType::Triangle];
+		uint32 firstVertex = state.vertexManager->offsets[MeshType::Triangle];
+		renderSceneObjects(commandBuffer, vertexCount, 1, firstVertex, 0);
 		
+		vertexCount = state.vertexManager->sizes[MeshType::Square];
+		firstVertex = state.vertexManager->offsets[MeshType::Square];
+		renderSceneObjects(commandBuffer, vertexCount, 1, firstVertex, 0);
+
 		ImDrawData* main_draw_data = ImGui::GetDrawData();
 		ImGui_ImplVulkan_RenderDrawData(main_draw_data, commandBuffer);
 		// =================================================================
@@ -494,7 +400,7 @@ namespace vulkan
 		VkSemaphore waitSemaphores[] = { state.swapChainFrames[CURRENT_FRAME].imageAvailableSemaphore };
 		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 
-		VkSubmitInfo submitInfo = vulkan::initializers::submitInfo(
+		VkSubmitInfo submitInfo = initializers::submitInfo(
 			waitSemaphores, 
 			signalSemaphores, 
 			commandBuffer, 
@@ -532,9 +438,21 @@ namespace vulkan
 		state.swapChain = swapChainBundle.swapchain;
 		state.swapChainFrames = swapChainBundle.frames;
 
-		createRenderPass(state.logicalDevice, state.swapChainImageFormat);
+		state.renderPass = createRenderPass(state.logicalDevice, state.swapChainImageFormat);
 		createDescriptorSetLayout(state.logicalDevice);
-		createGraphicsPipeline(state.logicalDevice, state.renderPass, state.descriptorSetLayout);
+		
+		GraphicsPipilineInputBundle graphicsInputBundle =
+		{
+			.logicalDevice = state.logicalDevice,
+			.renderPass = state.renderPass,
+			.descriptorSetLayout = state.descriptorSetLayout,
+			.vertexFilepath = ASSET_PATH("shaders/vert.spv"),
+			.fragmentFilepath = ASSET_PATH("shaders/frag.spv")
+		};
+		const auto& pipelineBundle = createGraphicsPipeline(graphicsInputBundle);
+		state.graphicsPipeline = pipelineBundle.pipeline;
+		state.pipelineLayout = pipelineBundle.layout;
+		
 		createCommandPool(state.physicalDevice, state.logicalDevice);	
 		
 		createFramebuffers(state.logicalDevice, state.renderPass, state.swapChainExtent, state.swapChainFrames);
@@ -544,9 +462,9 @@ namespace vulkan
 		createSyncObjects(state.logicalDevice);
 		initImGui();
 
-		triangle = new VoxelEngine::components::mesh::TriangleMesh(state.logicalDevice, state.physicalDevice);
-
 		VOXEL_CORE_WARN("Vulkan setup ended.")	
+
+		makeAssets();
 	}
 	void deviceWaitIdle()
 	{
@@ -555,6 +473,8 @@ namespace vulkan
 	void cleanup()
 	{
 		cleanupSwapChain(state.logicalDevice, state.swapChain);
+
+		delete state.vertexManager;
 		
 		vkDestroyPipeline(state.logicalDevice, state.graphicsPipeline, nullptr);
 		vkDestroyPipelineLayout(state.logicalDevice, state.pipelineLayout, nullptr);
@@ -572,6 +492,30 @@ namespace vulkan
 
 		vkDestroySurfaceKHR(state.instance, state.surface, nullptr);
 		vkDestroyInstance(state.instance, nullptr);
+	}
+
+	void makeAssets()
+	{
+		state.vertexManager = new VoxelEngine::renderer::VertexManager;
+
+		std::vector<Vertex> vertices = {
+			{{0.0f, -0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
+			{{0.5f, 0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+			{{-0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}}
+		};
+		state.vertexManager->concatMesh(MeshType::Triangle, vertices);
+
+		/*vertices = {
+			{{-0.5f,  0.5f, 1.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
+			{{-0.5f, -0.5f, 1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+			{{0.5f, -0.5f, 1.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
+			{{0.5f, -0.5f, 1.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
+			{{0.5f,  0.5f, 1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+			{{-0.5f,  0.5f, 1.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}}
+		};
+		state.vertexManager->concatMesh(MeshType::Square, vertices);*/
+
+		state.vertexManager->finalize(state.physicalDevice, state.logicalDevice);
 	}
 
 	void renderSceneObjects(

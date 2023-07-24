@@ -7,7 +7,7 @@ namespace vulkan
 {
 	const VkSemaphore createSemaphore(const VkDevice& logicalDevice) 
 	{
-		VkSemaphoreCreateInfo semaphoreInfo = vulkan::initializers::semaphoreCreateInfo();
+		VkSemaphoreCreateInfo semaphoreInfo = initializers::semaphoreCreateInfo();
 
 		VkSemaphore semaphore;
 		VkResult err = vkCreateSemaphore(logicalDevice, &semaphoreInfo, nullptr, &semaphore);
@@ -17,7 +17,7 @@ namespace vulkan
 
 	const VkFence createFence(const VkDevice& logicalDevice) 
 	{
-		VkFenceCreateInfo fenceInfo = vulkan::initializers::fenceCreateInfo(VK_FENCE_CREATE_SIGNALED_BIT);
+		VkFenceCreateInfo fenceInfo = initializers::fenceCreateInfo(VK_FENCE_CREATE_SIGNALED_BIT);
 
 		VkFence fence;
 		VkResult err = vkCreateFence(logicalDevice, &fenceInfo, nullptr, &fence);

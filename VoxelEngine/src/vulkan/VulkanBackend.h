@@ -19,10 +19,6 @@ namespace vulkan
 	const std::vector<const char*> getRequiredExtensions();	
 	void createInstance();
 	const VkSurfaceKHR createSurface(const VkInstance& instance, GLFWwindow* window);
-	void createRenderPass(const VkDevice& logicalDevice, const VkFormat& swapChainImageFormat);
-	void createGraphicsPipeline(const VkDevice& logicalDevice,
-		const VkRenderPass& renderPass,
-		const VkDescriptorSetLayout& descriptorSetLayout);
 	void createCommandPool(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice);
 	void createCommandBuffers();
 	void createSyncObjects(const VkDevice& logicalDevice);
@@ -33,7 +29,7 @@ namespace vulkan
 	void submitToQueue(const VkQueue& queue, const VkCommandBuffer& commandBuffer, const VkSemaphore* signalSemaphores = nullptr);
 	void cleanupSwapChain(const VkDevice& logicalDevice, const VkSwapchainKHR& swapchain);
 	void presentFrame(const uint32& imageIndex, VkSemaphore* signalSemaphores);
-	void prepareScene(const VkCommandBuffer& commandBuffer);
+	void prepareScene(const VkCommandBuffer& commandBuffer, const VoxelEngine::Scene* scene);
 	void initImGui();
 	static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
 
@@ -45,6 +41,7 @@ namespace vulkan
 	void deviceWaitIdle();
 	void cleanup();
 
+	void makeAssets();
 	void renderSceneObjects(const VkCommandBuffer& commandBuffer,
 		const uint32& vertexCount,
 		const uint32& instanceCount,

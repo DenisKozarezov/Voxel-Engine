@@ -1,5 +1,5 @@
 #pragma once
-#include <vulkan/VulkanAlloc.h>
+#include <vulkan/utils/VulkanAlloc.h>
 #include <core/renderer/Buffers.h>
 
 namespace vulkan

@@ -1,7 +1,6 @@
 #pragma once
-#include <vulkan/vulkan.h>
 #include "VulkanInitializers.h"
-#include "VulkanValidation.h"
+#include "../utils/VulkanValidation.h"
 
 namespace vulkan
 {

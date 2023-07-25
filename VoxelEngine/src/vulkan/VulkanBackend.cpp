@@ -1,15 +1,15 @@
-#define GLFW_EXPOSE_NATIVE_WIN32
 #include "VulkanBackend.h"
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
-#include "VulkanDevice.h"
-#include "VulkanFramebuffer.h"
-#include "VulkanCommandBuffer.h"
+#include "init/VulkanInstance.h"
+#include "init/VulkanDevice.h"
+#include "init/VulkanFramebuffer.h"
+#include "init/VulkanPipeline.h"
+#include "init/VulkanSync.h"
+#include "init/VulkanDescriptors.h"
+#include "utils/VulkanCommandBuffer.h"
 #include "VulkanUniformBuffer.h"
-#include "VulkanPipeline.h"
-#include "VulkanSync.h"
-#include "components/mesh/Mesh.h"
 #include "core/renderer/VertexManager.h"
 #include "assets_management/AssetsProvider.h"
 
@@ -47,6 +47,8 @@ namespace vulkan
 		VkPipelineCache pipelineCache;
 		VkPipeline graphicsPipeline;
 		VkRenderPass renderPass;
+
+		// Descriptors
 		VkDescriptorPool descriptorPool;
 		VkDescriptorSetLayout descriptorSetLayout;
 		
@@ -55,93 +57,11 @@ namespace vulkan
 
 	VoxelEngine::components::camera::Camera* FPVcamera;
 		
-	void framebufferResizeCallback(GLFWwindow* window, int width, int height)
+	static void framebufferResizeCallback(GLFWwindow* window, int width, int height)
 	{
 		state.framebufferResized = true;
 	}
-	
-	constexpr bool hasStencilComponent(const VkFormat& format)
-	{
-		return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
-	}	
-	const std::vector<const char*> getRequiredExtensions()
-	{
-		uint32 glfwExtensionCount = 0;
-		const char** glfwExtensions;
-		glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-
-		std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
-		extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
-		if (_enableValidationLayers)
-		{
-			extensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-			extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-
-			if (extensions.size() > 0)
-			{
-				std::stringstream ss;
-				for (const char* extensionName : extensions)
-				{
-					ss << '\t';
-					ss << extensionName;
-					ss << '\n';
-				}
-				VOXEL_CORE_TRACE("Device extensions to be requested:\n" + ss.str())
-			}
-		}
-		return extensions;
-	}
-	void createInstance()
-	{
-		bool layersSupported = _enableValidationLayers && checkValidationLayerSupport();
-		VOXEL_CORE_ASSERT(layersSupported, "validation layers requested, but not available!")
-
-		VkApplicationInfo appInfo = {};
-		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-		appInfo.pApplicationName = "Voxel Engine";
-		appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-		appInfo.pEngineName = "No Engine";
-		appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-		appInfo.apiVersion = VK_API_VERSION_1_3;
-
-		VkInstanceCreateInfo createInfo = {};
-		createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-		createInfo.pApplicationInfo = &appInfo;
-		createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
-		auto extensions = getRequiredExtensions();
-		createInfo.enabledExtensionCount = static_cast<uint32>(extensions.size());
-		createInfo.ppEnabledExtensionNames = extensions.data();
-
-		if (_enableValidationLayers)
-		{
-			createInfo.enabledLayerCount = static_cast<uint32>(validationLayers.size());
-			createInfo.ppEnabledLayerNames = validationLayers.data();			
-			VkDebugReportCallbackCreateInfoEXT debugCreateInfo = {};
-			debugCreateInfo = populateDebugReportCreateInfo();
-			createInfo.pNext = (VkDebugReportCallbackCreateInfoEXT*)&debugCreateInfo;
-		}
-		else
-		{
-			createInfo.enabledLayerCount = 0;
-			createInfo.pNext = nullptr;
-		}
-
-		VkResult err = vkCreateInstance(&createInfo, nullptr, &state.instance);
-		check_vk_result(err, "failed to create instance!");
-
-		VOXEL_CORE_TRACE("Vulkan instance created.")
-	}
-	
-	const VkSurfaceKHR createSurface(const VkInstance& instance, GLFWwindow* window)
-	{
-		VkSurfaceKHR surface;
-		VkResult err = glfwCreateWindowSurface(instance, window, nullptr, &surface);
-		check_vk_result(err, "failed to create window surface!");
-
-		VOXEL_CORE_TRACE("Vulkan surface created.")
-
-		return surface;
-	}
+			
 	void createCommandPool(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice)
 	{
 		QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice, state.surface);
@@ -163,6 +83,69 @@ namespace vulkan
 			VOXEL_CORE_TRACE("Vulkan command buffer allocated for frame {0}.", i)
 			++i;
 		}
+	}
+	void makeInstance()
+	{
+		state.instance = createInstance();
+		setupDebugReportMessenger(state.instance, &state.debugReportMessenger);
+		state.surface = createSurface(state.instance, state.windowPtr);
+	}
+	void makeDevice()
+	{
+		state.physicalDevice = pickPhysicalDevice(state.instance, state.surface, _enableValidationLayers);
+		state.queueFamilyIndices = findQueueFamilies(state.physicalDevice, state.surface);
+		state.logicalDevice = createLogicalDevice(state.physicalDevice, state.surface, _enableValidationLayers);
+		state.queues = getDeviceQueues(state.physicalDevice, state.logicalDevice, state.surface);
+	}
+	void makeSwapChain()
+	{
+		const auto& swapChainBundle = createSwapChain(state.physicalDevice, state.logicalDevice, state.surface, state.window->getWidth(), state.window->getHeight());
+		state.swapChainImageFormat = swapChainBundle.format;
+		state.swapChainExtent = swapChainBundle.extent;
+		state.swapChain = swapChainBundle.swapchain;
+		state.swapChainFrames = swapChainBundle.frames;
+		MAX_FRAMES_IN_FLIGHT = static_cast<int>(swapChainBundle.frames.size());
+	}
+	void makeDescriptorSetLayout()
+	{
+		DescriptorSetLayoutInputBundle bindings;
+		bindings.count = 2;
+		bindings.indices.push_back(0);
+		bindings.types.push_back(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+		bindings.stages.push_back(VK_SHADER_STAGE_VERTEX_BIT);
+		bindings.counts.push_back(0);
+
+		bindings.indices.push_back(1);
+		bindings.types.push_back(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+		bindings.stages.push_back(VK_SHADER_STAGE_FRAGMENT_BIT);
+		bindings.counts.push_back(1);
+		state.descriptorSetLayout = createDescriptorSetLayout(state.logicalDevice, bindings);
+	}
+	void makeGraphicsPipeline()
+	{
+		state.renderPass = createRenderPass(state.logicalDevice, state.swapChainImageFormat);
+
+		GraphicsPipilineInputBundle graphicsInputBundle =
+		{
+			.logicalDevice = state.logicalDevice,
+			.renderPass = state.renderPass,
+			.descriptorSetLayout = state.descriptorSetLayout,
+			.vertexFilepath = ASSET_PATH("shaders/vert.spv"),
+			.fragmentFilepath = ASSET_PATH("shaders/frag.spv")
+		};
+		const auto& pipelineBundle = createGraphicsPipeline(graphicsInputBundle);
+		state.graphicsPipeline = pipelineBundle.pipeline;
+		state.pipelineLayout = pipelineBundle.layout;
+	}
+	void finalizeSetup()
+	{
+		createFramebuffers(state.logicalDevice, state.renderPass, state.swapChainExtent, state.swapChainFrames);
+
+		createCommandPool(state.physicalDevice, state.logicalDevice);
+
+		state.descriptorPool = createDescriptorPool(state.logicalDevice);
+		createCommandBuffers();
+		createSyncObjects(state.logicalDevice);
 	}
 	void createSyncObjects(const VkDevice& logicalDevice)
 	{
@@ -217,44 +200,6 @@ namespace vulkan
 			ImGui_ImplVulkan_DestroyFontUploadObjects();
 		}
 	}
-	void createDescriptorPool(const VkDevice& logicalDevice)
-	{
-		const auto& pool_sizes = initializers::descriptorPoolSize();
-
-		uint32 size = static_cast<uint32>(pool_sizes.size());
-		VkDescriptorPoolCreateInfo poolInfo = initializers::descriptorPoolCreateInfo(
-			pool_sizes.data(), 
-			size, 
-			1000 * size, 
-			VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT);
-
-		VkResult err = vkCreateDescriptorPool(logicalDevice, &poolInfo, nullptr, &state.descriptorPool);
-		check_vk_result(err, "failed to create descriptor pool!");
-
-		VOXEL_CORE_TRACE("Vulkan descriptor pool created.")
-	}
-	void createDescriptorSetLayout(const VkDevice& logicalDevice)
-	{
-		VkDescriptorSetLayoutBinding uboLayoutBinding = initializers::descriptorSetLayoutBinding(
-			VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 
-			VK_SHADER_STAGE_VERTEX_BIT, 
-			0,
-			1);
-
-		VkDescriptorSetLayoutBinding samplerLayoutBinding = initializers::descriptorSetLayoutBinding(
-			VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 
-			VK_SHADER_STAGE_FRAGMENT_BIT, 
-			1, 
-			1);
-
-		std::vector<VkDescriptorSetLayoutBinding> bindings = { uboLayoutBinding, samplerLayoutBinding };
-		VkDescriptorSetLayoutCreateInfo layoutInfo = initializers::descriptorSetLayoutCreateInfo(bindings);
-
-		VkResult err = vkCreateDescriptorSetLayout(logicalDevice, &layoutInfo, nullptr, &state.descriptorSetLayout);
-		check_vk_result(err, "failed to create descriptor set layout!");
-
-		VOXEL_CORE_TRACE("Vulkan descriptor set layout created.")
-	}
 	void recreateSwapChain(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice, const VkSurfaceKHR& surface, GLFWwindow* window)
 	{
 		int width = 0, height = 0;
@@ -267,9 +212,10 @@ namespace vulkan
 		deviceWaitIdle();
 
 		cleanupSwapChain(logicalDevice, state.swapChain);
-		createSwapChain(physicalDevice, logicalDevice, surface, state.window->getWidth(), state.window->getHeight());
+		makeSwapChain();
 		createFramebuffers(logicalDevice, state.renderPass, state.swapChainExtent, state.swapChainFrames);
 		createSyncObjects(logicalDevice);
+		createCommandBuffers();
 	}	
 	void cleanupSwapChain(const VkDevice& logicalDevice, const VkSwapchainKHR& swapchain)
 	{
@@ -424,42 +370,18 @@ namespace vulkan
 
 	void init()
 	{
-		createInstance();
-		setupDebugReportMessenger(state.instance, &state.debugReportMessenger);
-		state.surface = createSurface(state.instance, state.windowPtr);
-		state.physicalDevice = pickPhysicalDevice(state.instance, state.surface, _enableValidationLayers);
-		state.queueFamilyIndices = findQueueFamilies(state.physicalDevice, state.surface);
-		state.logicalDevice = createLogicalDevice(state.physicalDevice, state.surface, _enableValidationLayers);
-		state.queues = getDeviceQueues(state.physicalDevice, state.logicalDevice, state.surface);
+		makeInstance();
 
-		const auto& swapChainBundle = createSwapChain(state.physicalDevice, state.logicalDevice, state.surface, state.window->getWidth(), state.window->getHeight());
-		state.swapChainImageFormat = swapChainBundle.format;
-		state.swapChainExtent = swapChainBundle.extent;
-		state.swapChain = swapChainBundle.swapchain;
-		state.swapChainFrames = swapChainBundle.frames;
+		makeDevice();
 
-		state.renderPass = createRenderPass(state.logicalDevice, state.swapChainImageFormat);
-		createDescriptorSetLayout(state.logicalDevice);
+		makeSwapChain();
+
+		makeDescriptorSetLayout();
 		
-		GraphicsPipilineInputBundle graphicsInputBundle =
-		{
-			.logicalDevice = state.logicalDevice,
-			.renderPass = state.renderPass,
-			.descriptorSetLayout = state.descriptorSetLayout,
-			.vertexFilepath = ASSET_PATH("shaders/vert.spv"),
-			.fragmentFilepath = ASSET_PATH("shaders/frag.spv")
-		};
-		const auto& pipelineBundle = createGraphicsPipeline(graphicsInputBundle);
-		state.graphicsPipeline = pipelineBundle.pipeline;
-		state.pipelineLayout = pipelineBundle.layout;
+		makeGraphicsPipeline();
 		
-		createCommandPool(state.physicalDevice, state.logicalDevice);	
-		
-		createFramebuffers(state.logicalDevice, state.renderPass, state.swapChainExtent, state.swapChainFrames);
-		
-		createDescriptorPool(state.logicalDevice);
-		createCommandBuffers();
-		createSyncObjects(state.logicalDevice);
+		finalizeSetup();
+
 		initImGui();
 
 		VOXEL_CORE_WARN("Vulkan setup ended.")	
@@ -504,16 +426,6 @@ namespace vulkan
 			{{-0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}}
 		};
 		state.vertexManager->concatMesh(MeshType::Triangle, vertices);
-
-		/*vertices = {
-			{{-0.5f,  0.5f, 1.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
-			{{-0.5f, -0.5f, 1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-			{{0.5f, -0.5f, 1.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
-			{{0.5f, -0.5f, 1.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
-			{{0.5f,  0.5f, 1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-			{{-0.5f,  0.5f, 1.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}}
-		};
-		state.vertexManager->concatMesh(MeshType::Square, vertices);*/
 
 		state.vertexManager->finalize(state.physicalDevice, state.logicalDevice);
 	}

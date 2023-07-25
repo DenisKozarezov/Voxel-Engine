@@ -1,37 +1,35 @@
 #pragma once
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#define VK_USE_PLATFORM_WIN32_KHR
-#define GLFW_INCLUDE_VULKAN
 #include <core/Window.h>
 #include <core/Scene.h>
 #include <GLFW/glfw3.h>
-#include <GLFW/glfw3native.h>
 #include <components/camera/Camera.h>
-#include <vulkan/VulkanAlloc.h>
+#include "utils/VulkanAlloc.h"
 
 namespace vulkan
 {
-	constexpr static int MAX_FRAMES_IN_FLIGHT = 2;
+	static int MAX_FRAMES_IN_FLIGHT = 3;
 	static uint32 CURRENT_FRAME = 0;
 	
-	constexpr bool hasStencilComponent(const VkFormat& format);
-	const std::vector<const char*> getRequiredExtensions();	
-	void createInstance();
-	const VkSurfaceKHR createSurface(const VkInstance& instance, GLFWwindow* window);
 	void createCommandPool(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice);
 	void createCommandBuffers();
+
+	void makeInstance();
+	void makeDevice();
+	void makeSwapChain();
+	void makeDescriptorSetLayout();
+	void makeGraphicsPipeline();
+	void finalizeSetup();
+
 	void createSyncObjects(const VkDevice& logicalDevice);
-	void createDescriptorPool(const VkDevice& logicalDevice);
-	void createDescriptorSetLayout(const VkDevice& logicalDevice);
 	void recreateSwapChain(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice, const VkSurfaceKHR& surface, GLFWwindow* window);
 	void recordCommandBuffer(const VkCommandBuffer& commandBuffer, const uint32& imageIndex, const VoxelEngine::Scene* scene);
 	void submitToQueue(const VkQueue& queue, const VkCommandBuffer& commandBuffer, const VkSemaphore* signalSemaphores = nullptr);
 	void cleanupSwapChain(const VkDevice& logicalDevice, const VkSwapchainKHR& swapchain);
 	void presentFrame(const uint32& imageIndex, VkSemaphore* signalSemaphores);
 	void prepareScene(const VkCommandBuffer& commandBuffer, const VoxelEngine::Scene* scene);
-	void initImGui();
-	static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
+	void initImGui();	
 
 	void setWindow(const VoxelEngine::Window& window);
 	void setCamera(VoxelEngine::components::camera::Camera* camera);

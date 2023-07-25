@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include <glm/glm.hpp>
-#include <vulkan/VulkanAlloc.h>
+#include <vulkan/utils/VulkanAlloc.h>
 
 namespace VoxelEngine
 {

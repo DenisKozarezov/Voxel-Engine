@@ -1,8 +1,8 @@
 #pragma once
 #include <pch.h>
-#include "VulkanQueueFamilies.h"
-#include "VulkanAlloc.h"
-#include "VulkanValidation.h"
+#include "../utils/VulkanQueueFamilies.h"
+#include "../utils/VulkanAlloc.h"
+#include "../utils/VulkanValidation.h"
 
 namespace vulkan
 {

@@ -3,7 +3,7 @@
 #include <core/PrimitiveTypes.h>
 #include <core/Assert.h>
 
-namespace vulkan
+namespace vkUtils
 {
 #ifdef VOXEL_RELEASE
 	constexpr bool _enableValidationLayers = false;

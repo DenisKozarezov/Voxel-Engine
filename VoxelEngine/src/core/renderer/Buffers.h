@@ -93,14 +93,7 @@ namespace VoxelEngine::renderer
 		virtual ~IndexBuffer() = default;
 
 		static IndexBuffer* Create(const void* data, const size_t& size);
-	};
-
-	struct UniformBufferObject
-	{
-		alignas(16) glm::mat4 model;
-		alignas(16) glm::mat4 view;
-		alignas(16) glm::mat4 proj;
-	};
+	};	
 
 	class UniformBuffer
 	{

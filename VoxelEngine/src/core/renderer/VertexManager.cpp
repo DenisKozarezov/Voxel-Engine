@@ -27,13 +27,13 @@ namespace VoxelEngine::renderer
 
 		VkDeviceSize size = sizeof(vertices[0]) * vertices.size();
 
-		const auto& stagingBuffer = vulkan::memory::createBuffer(
+		const auto& stagingBuffer = vkUtils::memory::createBuffer(
 			physicalDevice,
 			logicalDevice,
 			size,
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
 
-		vulkan::memory::mapMemory(
+		vkUtils::memory::mapMemory(
 			logicalDevice,
 			stagingBuffer.bufferMemory,
 			0,
@@ -41,7 +41,7 @@ namespace VoxelEngine::renderer
 			0,
 			vertices.data());
 
-		vertexBuffer = vulkan::memory::createBuffer(
+		vertexBuffer = vkUtils::memory::createBuffer(
 			physicalDevice,
 			logicalDevice,
 			size,
@@ -52,7 +52,7 @@ namespace VoxelEngine::renderer
 	}
 	VertexManager::~VertexManager()
 	{
-		vulkan::memory::destroyBuffer(logicalDevice, vertexBuffer.buffer);
-		vulkan::memory::freeDeviceMemory(logicalDevice, vertexBuffer.bufferMemory);
+		vkUtils::memory::destroyBuffer(logicalDevice, vertexBuffer.buffer);
+		vkUtils::memory::freeDeviceMemory(logicalDevice, vertexBuffer.bufferMemory);
 	}
 }

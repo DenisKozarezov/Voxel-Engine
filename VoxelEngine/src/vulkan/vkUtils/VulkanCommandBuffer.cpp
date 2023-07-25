@@ -1,8 +1,8 @@
 #include "VulkanCommandBuffer.h"
-#include "VulkanBackend.h"
 #include "VulkanValidation.h"
+#include "../VulkanBackend.h"
 
-namespace vulkan::memory
+namespace vkUtils::memory
 {
 	VkCommandBuffer CommandBuffer::allocate()
 	{

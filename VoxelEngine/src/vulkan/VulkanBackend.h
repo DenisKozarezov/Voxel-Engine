@@ -69,7 +69,7 @@ namespace vulkan
 
 	// ==================== MEMORY ALLOC / DEALLOC ====================
 	const VkDeviceMemory allocateMemory(const VkMemoryRequirements& requirements, const VkMemoryPropertyFlags& properties);
-	const memory::Buffer createBuffer(
+	const vkUtils::memory::Buffer createBuffer(
 		const VkDeviceSize& size,
 		const VkBufferUsageFlags& usage,
 		const VkMemoryPropertyFlags& properties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);

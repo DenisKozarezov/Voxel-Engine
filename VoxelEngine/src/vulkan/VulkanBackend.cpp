@@ -32,12 +32,12 @@ namespace vulkan
 		// Device-related variables
 		VkDevice logicalDevice;
 		VkPhysicalDevice physicalDevice;
-		DeviceQueues queues;
+		vkInit::DeviceQueues queues;
 		VkSwapchainKHR swapChain;
 		VkFormat swapChainImageFormat;
 		VkExtent2D swapChainExtent;
-		std::vector<SwapChainFrame> swapChainFrames;
-		QueueFamilyIndices queueFamilyIndices;
+		std::vector<vkInit::SwapChainFrame> swapChainFrames;
+		vkUtils::QueueFamilyIndices queueFamilyIndices;
 
 		// Command-related variables
 		VkCommandPool commandPool;
@@ -64,21 +64,21 @@ namespace vulkan
 			
 	void createCommandPool(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice)
 	{
-		QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice, state.surface);
+		vkUtils::QueueFamilyIndices queueFamilyIndices = vkUtils::findQueueFamilies(physicalDevice, state.surface);
 
-		VkCommandPoolCreateInfo poolInfo = initializers::commandPoolCreateInfo(queueFamilyIndices.graphicsFamily.value(), VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+		VkCommandPoolCreateInfo poolInfo = vkInit::commandPoolCreateInfo(queueFamilyIndices.graphicsFamily.value(), VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 
 		VkResult err = vkCreateCommandPool(logicalDevice, &poolInfo, nullptr, &state.commandPool);
-		check_vk_result(err, "failed to create command pool!");
+		vkUtils::check_vk_result(err, "failed to create command pool!");
 
 		VOXEL_CORE_TRACE("Vulkan command pool created.")
 	}
 	void createCommandBuffers()
 	{
 		int i = 0;
-		for (SwapChainFrame& frame : state.swapChainFrames)
+		for (vkInit::SwapChainFrame& frame : state.swapChainFrames)
 		{
-			frame.commandBuffer = memory::CommandBuffer::allocate();
+			frame.commandBuffer = vkUtils::memory::CommandBuffer::allocate();
 
 			VOXEL_CORE_TRACE("Vulkan command buffer allocated for frame {0}.", i)
 			++i;
@@ -86,20 +86,20 @@ namespace vulkan
 	}
 	void makeInstance()
 	{
-		state.instance = createInstance();
-		setupDebugReportMessenger(state.instance, &state.debugReportMessenger);
-		state.surface = createSurface(state.instance, state.windowPtr);
+		state.instance = vkInit::createInstance();
+		vkUtils::setupDebugReportMessenger(state.instance, &state.debugReportMessenger);
+		state.surface = vkInit::createSurface(state.instance, state.windowPtr);
 	}
 	void makeDevice()
 	{
-		state.physicalDevice = pickPhysicalDevice(state.instance, state.surface, _enableValidationLayers);
-		state.queueFamilyIndices = findQueueFamilies(state.physicalDevice, state.surface);
-		state.logicalDevice = createLogicalDevice(state.physicalDevice, state.surface, _enableValidationLayers);
-		state.queues = getDeviceQueues(state.physicalDevice, state.logicalDevice, state.surface);
+		state.physicalDevice = vkInit::pickPhysicalDevice(state.instance, state.surface, vkUtils::_enableValidationLayers);
+		state.queueFamilyIndices = vkUtils::findQueueFamilies(state.physicalDevice, state.surface);
+		state.logicalDevice = vkInit::createLogicalDevice(state.physicalDevice, state.surface, vkUtils::_enableValidationLayers);
+		state.queues = vkInit::getDeviceQueues(state.physicalDevice, state.logicalDevice, state.surface);
 	}
 	void makeSwapChain()
 	{
-		const auto& swapChainBundle = createSwapChain(state.physicalDevice, state.logicalDevice, state.surface, state.window->getWidth(), state.window->getHeight());
+		const auto& swapChainBundle = vkInit::createSwapChain(state.physicalDevice, state.logicalDevice, state.surface, state.window->getWidth(), state.window->getHeight());
 		state.swapChainImageFormat = swapChainBundle.format;
 		state.swapChainExtent = swapChainBundle.extent;
 		state.swapChain = swapChainBundle.swapchain;
@@ -108,7 +108,7 @@ namespace vulkan
 	}
 	void makeDescriptorSetLayout()
 	{
-		DescriptorSetLayoutInputBundle bindings;
+		vkInit::DescriptorSetLayoutInputBundle bindings;
 		bindings.count = 2;
 		bindings.indices.push_back(0);
 		bindings.types.push_back(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
@@ -123,9 +123,9 @@ namespace vulkan
 	}
 	void makeGraphicsPipeline()
 	{
-		state.renderPass = createRenderPass(state.logicalDevice, state.swapChainImageFormat);
+		state.renderPass = vkInit::createRenderPass(state.logicalDevice, state.swapChainImageFormat);
 
-		GraphicsPipilineInputBundle graphicsInputBundle =
+		vkInit::GraphicsPipilineInputBundle graphicsInputBundle =
 		{
 			.logicalDevice = state.logicalDevice,
 			.renderPass = state.renderPass,
@@ -133,28 +133,28 @@ namespace vulkan
 			.vertexFilepath = ASSET_PATH("shaders/vert.spv"),
 			.fragmentFilepath = ASSET_PATH("shaders/frag.spv")
 		};
-		const auto& pipelineBundle = createGraphicsPipeline(graphicsInputBundle);
+		const auto& pipelineBundle = vkInit::createGraphicsPipeline(graphicsInputBundle);
 		state.graphicsPipeline = pipelineBundle.pipeline;
 		state.pipelineLayout = pipelineBundle.layout;
 	}
 	void finalizeSetup()
 	{
-		createFramebuffers(state.logicalDevice, state.renderPass, state.swapChainExtent, state.swapChainFrames);
+		vkInit::createFramebuffers(state.logicalDevice, state.renderPass, state.swapChainExtent, state.swapChainFrames);
 
 		createCommandPool(state.physicalDevice, state.logicalDevice);
 
-		state.descriptorPool = createDescriptorPool(state.logicalDevice);
+		state.descriptorPool = vkInit::createDescriptorPool(state.logicalDevice);
 		createCommandBuffers();
 		createSyncObjects(state.logicalDevice);
 	}
 	void createSyncObjects(const VkDevice& logicalDevice)
 	{
 		int i = 0;
-		for (SwapChainFrame& frame : state.swapChainFrames)
+		for (vkInit::SwapChainFrame& frame : state.swapChainFrames)
 		{
-			frame.imageAvailableSemaphore = createSemaphore(logicalDevice);
-			frame.renderFinishedSemaphore = createSemaphore(logicalDevice);
-			frame.inFlightFence = createFence(logicalDevice);
+			frame.imageAvailableSemaphore = vkInit::createSemaphore(logicalDevice);
+			frame.renderFinishedSemaphore = vkInit::createSemaphore(logicalDevice);
+			frame.inFlightFence = vkInit::createFence(logicalDevice);
 
 			VOXEL_CORE_TRACE("Vulkan sync objects created for frame {0}.", i)
 			++i;
@@ -185,7 +185,7 @@ namespace vulkan
 
 			// Use any command queue
 			vkResetCommandPool(state.logicalDevice, state.commandPool, 0);
-			memory::CommandBuffer::beginCommand(commandBuffer);
+			vkUtils::memory::CommandBuffer::beginCommand(commandBuffer);
 
 			ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
 
@@ -193,7 +193,7 @@ namespace vulkan
 			end_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 			end_info.commandBufferCount = 1;
 			end_info.pCommandBuffers = &commandBuffer;
-			memory::CommandBuffer::endCommand(commandBuffer);
+			vkUtils::memory::CommandBuffer::endCommand(commandBuffer);
 			vkQueueSubmit(state.queues.graphicsQueue, 1, &end_info, VK_NULL_HANDLE);
 
 			deviceWaitIdle();
@@ -213,7 +213,7 @@ namespace vulkan
 
 		cleanupSwapChain(logicalDevice, state.swapChain);
 		makeSwapChain();
-		createFramebuffers(logicalDevice, state.renderPass, state.swapChainExtent, state.swapChainFrames);
+		vkInit::createFramebuffers(logicalDevice, state.renderPass, state.swapChainExtent, state.swapChainFrames);
 		createSyncObjects(logicalDevice);
 		createCommandBuffers();
 	}	
@@ -221,13 +221,13 @@ namespace vulkan
 	{
 		for (const auto& frame : state.swapChainFrames)
 		{
-			memory::destroyImageView(logicalDevice, frame.imageView);
-			destroyFramebuffer(logicalDevice, frame.framebuffer);
-			destroyFence(logicalDevice, frame.inFlightFence);
-			destroySemaphore(logicalDevice, frame.imageAvailableSemaphore);
-			destroySemaphore(logicalDevice, frame.renderFinishedSemaphore);
+			vkUtils::memory::destroyImageView(logicalDevice, frame.imageView);
+			vkInit::destroyFramebuffer(logicalDevice, frame.framebuffer);
+			vkInit::destroyFence(logicalDevice, frame.inFlightFence);
+			vkInit::destroySemaphore(logicalDevice, frame.imageAvailableSemaphore);
+			vkInit::destroySemaphore(logicalDevice, frame.renderFinishedSemaphore);
 		}
-		destroySwapChain(logicalDevice, swapchain);
+		vkInit::destroySwapChain(logicalDevice, swapchain);
 	}
 	void presentFrame(const uint32& imageIndex, VkSemaphore* signalSemaphores)
 	{
@@ -248,7 +248,7 @@ namespace vulkan
 			state.framebufferResized = false;
 			recreateSwapChain(state.physicalDevice, state.logicalDevice, state.surface, state.windowPtr);
 		}
-		else check_vk_result(err, "failed to present swap chain image!");
+		else vkUtils::check_vk_result(err, "failed to present swap chain image!");
 	}
 	void prepareScene(const VkCommandBuffer& commandBuffer, const VoxelEngine::Scene* scene)
 	{
@@ -259,7 +259,7 @@ namespace vulkan
 	void beginFrame() 
 	{
 		// Stage 1. ACQUIRE IMAGE FROM SWAPCHAIN
-		lockFences(state.logicalDevice, 1, state.swapChainFrames[CURRENT_FRAME].inFlightFence);
+		vkInit::lockFences(state.logicalDevice, 1, state.swapChainFrames[CURRENT_FRAME].inFlightFence);
 
 		uint32 imageIndex;
 		VkResult result = vkAcquireNextImageKHR(state.logicalDevice, state.swapChain, UINT64_MAX, state.swapChainFrames[CURRENT_FRAME].imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
@@ -273,8 +273,8 @@ namespace vulkan
 			VOXEL_CORE_ASSERT(result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR, "failed to acquire swap chain image!")
 		}
 
-		resetFences(state.logicalDevice, 1, state.swapChainFrames[CURRENT_FRAME].inFlightFence);
-		memory::CommandBuffer::reset(state.swapChainFrames[CURRENT_FRAME].commandBuffer);
+		vkInit::resetFences(state.logicalDevice, 1, state.swapChainFrames[CURRENT_FRAME].inFlightFence);
+		vkUtils::memory::CommandBuffer::reset(state.swapChainFrames[CURRENT_FRAME].commandBuffer);
 
 		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -304,11 +304,11 @@ namespace vulkan
 	}
 	void recordCommandBuffer(const VkCommandBuffer& commandBuffer, const uint32& imageIndex, const VoxelEngine::Scene* scene)
 	{
-		memory::CommandBuffer::beginCommand(commandBuffer);
+		vkUtils::memory::CommandBuffer::beginCommand(commandBuffer);
 
 		std::vector<VkClearValue> clearValues(1);
 		clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
-		VkRenderPassBeginInfo renderPassBeginInfo = initializers::renderPassBeginInfo(
+		VkRenderPassBeginInfo renderPassBeginInfo = vkInit::renderPassBeginInfo(
 			state.renderPass,
 			state.swapChainFrames[imageIndex].framebuffer,
 			state.swapChainExtent,
@@ -317,10 +317,10 @@ namespace vulkan
 
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.graphicsPipeline);
 		
-		VkViewport viewport = initializers::viewport(state.swapChainExtent, 0.0f, 1.0f);
+		VkViewport viewport = vkInit::viewport(state.swapChainExtent, 0.0f, 1.0f);
 		vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
-		VkRect2D scissor = initializers::rect2D(state.swapChainExtent, { 0, 0 });
+		VkRect2D scissor = vkInit::rect2D(state.swapChainExtent, { 0, 0 });
 		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
 		// =================== RENDER WHOLE STUFF HERE ! ===================
@@ -339,21 +339,21 @@ namespace vulkan
 		// =================================================================
 
 		vkCmdEndRenderPass(commandBuffer);
-		memory::CommandBuffer::endCommand(commandBuffer);
+		vkUtils::memory::CommandBuffer::endCommand(commandBuffer);
 	}
 	void submitToQueue(const VkQueue& queue, const VkCommandBuffer& commandBuffer, const VkSemaphore* signalSemaphores)
 	{
 		VkSemaphore waitSemaphores[] = { state.swapChainFrames[CURRENT_FRAME].imageAvailableSemaphore };
 		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 
-		VkSubmitInfo submitInfo = initializers::submitInfo(
+		VkSubmitInfo submitInfo = vkInit::submitInfo(
 			waitSemaphores, 
 			signalSemaphores, 
 			commandBuffer, 
 			waitStages);	
 
 		VkResult err = vkQueueSubmit(queue, 1, &submitInfo, state.swapChainFrames[CURRENT_FRAME].inFlightFence);
-		check_vk_result(err, "failed to submit draw command buffer! Possible reasons:\n 1) Incorrect shaders for submitting to the command queue. Please recompile your shaders!\n 2) Synchronization issues.");
+		vkUtils::check_vk_result(err, "failed to submit draw command buffer! Possible reasons:\n 1) Incorrect shaders for submitting to the command queue. Please recompile your shaders!\n 2) Synchronization issues.");
 	}
 	void setWindow(const VoxelEngine::Window& window)
 	{
@@ -407,9 +407,9 @@ namespace vulkan
 		vkDestroyCommandPool(state.logicalDevice, state.commandPool, nullptr);
 		vkDestroyDevice(state.logicalDevice, nullptr);
 
-		if (_enableValidationLayers)
+		if (vkUtils::_enableValidationLayers)
 		{
-			destroyDebugReportMessengerEXT(state.instance, state.debugReportMessenger, nullptr);
+			vkUtils::destroyDebugReportMessengerEXT(state.instance, state.debugReportMessenger, nullptr);
 		}
 
 		vkDestroySurfaceKHR(state.instance, state.surface, nullptr);
@@ -460,14 +460,14 @@ namespace vulkan
 	// ==================== MEMORY ALLOC / DEALLOC ====================
 	const VkDeviceMemory allocateMemory(const VkMemoryRequirements& requirements, const VkMemoryPropertyFlags& properties)
 	{
-		return memory::allocateMemory(state.physicalDevice, state.logicalDevice, requirements, properties);
+		return vkUtils::memory::allocateMemory(state.physicalDevice, state.logicalDevice, requirements, properties);
 	}
-	const memory::Buffer createBuffer(
+	const vkUtils::memory::Buffer createBuffer(
 		const VkDeviceSize& size,
 		const VkBufferUsageFlags& usage,
 		const VkMemoryPropertyFlags& properties)
 	{
-		return memory::createBuffer(
+		return vkUtils::memory::createBuffer(
 			state.physicalDevice,
 			state.logicalDevice,
 			size,
@@ -476,15 +476,15 @@ namespace vulkan
 	}
 	void destroyBuffer(const VkBuffer& buffer)
 	{
-		memory::destroyBuffer(state.logicalDevice, buffer);
+		vkUtils::memory::destroyBuffer(state.logicalDevice, buffer);
 	}
 	void freeDeviceMemory(const VkDeviceMemory& memory)
 	{
-		memory::freeDeviceMemory(state.logicalDevice, memory);
+		vkUtils::memory::freeDeviceMemory(state.logicalDevice, memory);
 	}
 	void endSingleTimeCommands(const VkCommandBuffer& commandBuffer)
 	{
-		memory::CommandBuffer::endCommand(commandBuffer);
+		vkUtils::memory::CommandBuffer::endCommand(commandBuffer);
 
 		VkSubmitInfo submitInfo = {};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -494,11 +494,11 @@ namespace vulkan
 		vkQueueSubmit(state.queues.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
 		vkQueueWaitIdle(state.queues.graphicsQueue);
 
-		memory::CommandBuffer::release(commandBuffer);
+		vkUtils::memory::CommandBuffer::release(commandBuffer);
 	}
 	void copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkDeviceSize& size)
 	{
-		VkCommandBuffer commandBuffer = memory::beginSingleTimeCommands();
+		VkCommandBuffer commandBuffer = vkUtils::memory::beginSingleTimeCommands();
 
 		VkBufferCopy copyRegion = {};
 		copyRegion.size = size;

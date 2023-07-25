@@ -1,7 +1,7 @@
 #pragma once
 #include "VulkanSwapchain.h"
 
-namespace vulkan
+namespace vkInit
 {
 	void createFramebuffers(
 		const VkDevice& logicalDevice,
@@ -26,7 +26,7 @@ namespace vulkan
 			framebufferInfo.layers = 1;
 
 			VkResult err = vkCreateFramebuffer(logicalDevice, &framebufferInfo, nullptr, &frames[i].framebuffer);
-			check_vk_result(err, "failed to create framebuffer!");
+			vkUtils::check_vk_result(err, "failed to create framebuffer!");
 
 			VOXEL_CORE_TRACE("Vulkan framebuffer allocated for frame {0}.", i)
 		}

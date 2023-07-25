@@ -8,7 +8,7 @@
 #include <vector>
 #include "../utils/VulkanValidation.h"
 
-namespace vulkan
+namespace vkInit
 {
 	const std::vector<const char*> getRequiredExtensions()
 	{
@@ -18,7 +18,7 @@ namespace vulkan
 
 		std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 		extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
-		if (_enableValidationLayers)
+		if (vkUtils::_enableValidationLayers)
 		{
 			extensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
 			extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
@@ -38,7 +38,7 @@ namespace vulkan
 
 	const VkInstance createInstance()
 	{
-		bool layersSupported = _enableValidationLayers && checkValidationLayerSupport();
+		bool layersSupported = vkUtils::_enableValidationLayers && vkUtils::checkValidationLayerSupport();
 		VOXEL_CORE_ASSERT(layersSupported, "validation layers requested, but not available!")
 
 		VkApplicationInfo appInfo = {};
@@ -57,12 +57,12 @@ namespace vulkan
 		createInfo.enabledExtensionCount = static_cast<uint32>(extensions.size());
 		createInfo.ppEnabledExtensionNames = extensions.data();
 
-		if (_enableValidationLayers)
+		if (vkUtils::_enableValidationLayers)
 		{
-			createInfo.enabledLayerCount = static_cast<uint32>(validationLayers.size());
-			createInfo.ppEnabledLayerNames = validationLayers.data();
+			createInfo.enabledLayerCount = static_cast<uint32>(vkUtils::validationLayers.size());
+			createInfo.ppEnabledLayerNames = vkUtils::validationLayers.data();
 			VkDebugReportCallbackCreateInfoEXT debugCreateInfo = {};
-			debugCreateInfo = populateDebugReportCreateInfo();
+			debugCreateInfo = vkUtils::populateDebugReportCreateInfo();
 			createInfo.pNext = (VkDebugReportCallbackCreateInfoEXT*)&debugCreateInfo;
 		}
 		else
@@ -73,7 +73,7 @@ namespace vulkan
 
 		VkInstance instance;
 		VkResult err = vkCreateInstance(&createInfo, nullptr, &instance);
-		check_vk_result(err, "failed to create instance!");
+		vkUtils::check_vk_result(err, "failed to create instance!");
 
 		VOXEL_CORE_TRACE("Vulkan instance created.")
 
@@ -84,7 +84,7 @@ namespace vulkan
 	{
 		VkSurfaceKHR surface;
 		VkResult err = glfwCreateWindowSurface(instance, window, nullptr, &surface);
-		check_vk_result(err, "failed to create window surface!");
+		vkUtils::check_vk_result(err, "failed to create window surface!");
 
 		VOXEL_CORE_TRACE("Vulkan surface created.")
 

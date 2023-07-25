@@ -14,7 +14,7 @@ namespace VoxelEngine::renderer
 		VkDevice logicalDevice;
 		size_t offset = 0;
 	public:
-		vulkan::memory::Buffer vertexBuffer;
+		vkUtils::memory::Buffer vertexBuffer;
 		std::vector<vulkan::Vertex> vertices;
 		std::unordered_map<MeshType, size_t> offsets;
 		std::unordered_map<MeshType, size_t> sizes;

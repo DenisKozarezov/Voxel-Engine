@@ -2,7 +2,7 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 
-namespace vulkan::initializers
+namespace vkInit
 {
 	inline constexpr VkMemoryAllocateInfo memoryAllocateInfo()
 	{

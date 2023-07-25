@@ -2,7 +2,7 @@
 #include "VulkanValidation.h"
 #include "VulkanCommandBuffer.h"
 
-namespace vulkan::memory
+namespace vkUtils::memory
 {
 	const uint32 findMemoryType(const VkPhysicalDevice& physicalDevice, const uint32& typeFilter, const VkMemoryPropertyFlags& properties)
 	{
@@ -28,7 +28,7 @@ namespace vulkan::memory
 		allocInfo.memoryTypeIndex = findMemoryType(physicalDevice, requirements.memoryTypeBits, properties);
 
 		VkResult err = vkAllocateMemory(logicalDevice, &allocInfo, nullptr, &memory);
-		check_vk_result(err, "failed to allocate memory!");
+		vkUtils::check_vk_result(err, "failed to allocate memory!");
 
 		return memory;
 	}
@@ -63,7 +63,7 @@ namespace vulkan::memory
 
 		VkBuffer buffer;
 		VkResult err = vkCreateBuffer(logicalDevice, &bufferInfo, nullptr, &buffer);
-		check_vk_result(err, "failed to create buffer!");
+		vkUtils::check_vk_result(err, "failed to create buffer!");
 
 		VkMemoryRequirements memRequirements;
 		vkGetBufferMemoryRequirements(logicalDevice, buffer, &memRequirements);
@@ -116,7 +116,7 @@ namespace vulkan::memory
 
 		VkImage image;
 		VkResult err = vkCreateImage(logicalDevice, &imageInfo, nullptr, &image);
-		check_vk_result(err, "failed to create image!");
+		vkUtils::check_vk_result(err, "failed to create image!");
 
 		VkMemoryRequirements memRequirements;
 		vkGetImageMemoryRequirements(logicalDevice, image, &memRequirements);
@@ -146,7 +146,7 @@ namespace vulkan::memory
 
 		VkImageView imageView;
 		VkResult err = vkCreateImageView(logicalDevice, &viewInfo, nullptr, &imageView);
-		check_vk_result(err, "failed to create image view!");
+		vkUtils::check_vk_result(err, "failed to create image view!");
 		return imageView;
 	}
 	const VkImageView createImageView(
@@ -170,7 +170,7 @@ namespace vulkan::memory
 
 		VkImageView imageView;
 		VkResult err = vkCreateImageView(logicalDevice, &viewInfo, nullptr, &imageView);
-		check_vk_result(err, "failed to create image view!");
+		vkUtils::check_vk_result(err, "failed to create image view!");
 		return imageView;
 	}
 	const VkSampler createTextureSampler(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice)
@@ -197,7 +197,7 @@ namespace vulkan::memory
 
 		VkSampler sampler;
 		VkResult err = vkCreateSampler(logicalDevice, &samplerInfo, nullptr, &sampler);
-		check_vk_result(err, "failed to create texture sampler!");
+		vkUtils::check_vk_result(err, "failed to create texture sampler!");
 		return sampler;
 	}
 

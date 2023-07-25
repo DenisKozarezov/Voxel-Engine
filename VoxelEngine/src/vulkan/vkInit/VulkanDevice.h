@@ -3,7 +3,7 @@
 #include "../utils/VulkanQueueFamilies.h"
 #include "../utils/VulkanValidation.h"
 
-namespace vulkan
+namespace vkInit
 {
 	const std::vector<const char*> deviceExtensions =
 	{
@@ -84,7 +84,7 @@ namespace vulkan
 		VkPhysicalDeviceFeatures supportedFeatures;
 		vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
 
-		return findQueueFamilies(device, surface).isComplete() && extensionsSupported && supportedFeatures.samplerAnisotropy;
+		return vkUtils::findQueueFamilies(device, surface).isComplete() && extensionsSupported && supportedFeatures.samplerAnisotropy;
 	}
 
 	const VkPhysicalDevice pickPhysicalDevice(
@@ -116,7 +116,7 @@ namespace vulkan
 		const VkSurfaceKHR& surface, 
 		const bool& enableValidation)
 	{
-		QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice, surface);
+		vkUtils::QueueFamilyIndices queueFamilyIndices = vkUtils::findQueueFamilies(physicalDevice, surface);
 
 		float queuePriority = 1.0f;
 		uint32 graphicsFamilyIndex = queueFamilyIndices.graphicsFamily.value();
@@ -140,14 +140,14 @@ namespace vulkan
 
 		if (enableValidation)
 		{
-			createInfo.enabledLayerCount = static_cast<uint32>(validationLayers.size());
-			createInfo.ppEnabledLayerNames = validationLayers.data();
+			createInfo.enabledLayerCount = static_cast<uint32>(vkUtils::validationLayers.size());
+			createInfo.ppEnabledLayerNames = vkUtils::validationLayers.data();
 		}
 		else createInfo.enabledLayerCount = 0;
 
 		VkDevice device;
 		VkResult err = vkCreateDevice(physicalDevice, &createInfo, nullptr, &device);
-		check_vk_result(err, "failed to create logical device!");
+		vkUtils::check_vk_result(err, "failed to create logical device!");
 		return device;
 	}
 
@@ -156,7 +156,7 @@ namespace vulkan
 		const VkDevice& logicalDevice, 
 		const VkSurfaceKHR& surface)
 	{
-		QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice, surface);
+		vkUtils::QueueFamilyIndices queueFamilyIndices = vkUtils::findQueueFamilies(physicalDevice, surface);
 		DeviceQueues queues;
 		vkGetDeviceQueue(logicalDevice, queueFamilyIndices.graphicsFamily.value(), 0, &queues.graphicsQueue);
 		vkGetDeviceQueue(logicalDevice, queueFamilyIndices.presentFamily.value(), 0, &queues.presentQueue);

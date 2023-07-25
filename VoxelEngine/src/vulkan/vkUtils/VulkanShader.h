@@ -2,7 +2,7 @@
 #include <vulkan/vulkan.h>
 #include <core/renderer/Shader.h>
 
-namespace vulkan::shaders
+namespace vkUtils
 {
 	class VulkanShader : public VoxelEngine::renderer::Shader
 	{

@@ -3,7 +3,7 @@
 #include <vulkan/vulkan.h>
 #include <core/PrimitiveTypes.h>
 
-namespace vulkan::memory
+namespace vkUtils::memory
 {
 	static class CommandBuffer
 	{

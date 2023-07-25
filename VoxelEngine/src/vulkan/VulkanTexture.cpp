@@ -3,6 +3,7 @@
 #include "VulkanUniformBuffer.h"
 #include <core/Log.h>
 #include <vulkan/utils/VulkanValidation.h>
+#include <vulkan/init/VulkanSwapChainFrame.h>
 #include <assets_management/AssetsProvider.h>
 
 namespace vulkan
@@ -34,10 +35,10 @@ namespace vulkan
 
 		const auto& stagingBuffer = vulkan::createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
 
-		memory::mapMemory(_createInfo.logicalDevice, stagingBuffer.bufferMemory, 0, imageSize, 0, data.nativePtr);
+		vkUtils::memory::mapMemory(_createInfo.logicalDevice, stagingBuffer.bufferMemory, 0, imageSize, 0, data.nativePtr);
 		data.release();
 
-		_textureImage = memory::createImage(_createInfo.physicalDevice, _createInfo.logicalDevice, _width, _height, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _textureImageMemory);
+		_textureImage = vkUtils::memory::createImage(_createInfo.physicalDevice, _createInfo.logicalDevice, _width, _height, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _textureImageMemory);
 
 		transitionImageLayout(VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 		copyBufferToImage(stagingBuffer.buffer, _textureImage);
@@ -48,11 +49,11 @@ namespace vulkan
 	}
 	void VulkanTexture::createTextureImageView()
 	{
-		_textureImageView = memory::createImageView(_createInfo.logicalDevice, _textureImage, VK_FORMAT_R8G8B8A8_SRGB);
+		_textureImageView = vkUtils::memory::createImageView(_createInfo.logicalDevice, _textureImage, VK_FORMAT_R8G8B8A8_SRGB);
 	}
 	void VulkanTexture::createTextureSampler()
 	{
-		_textureSampler = memory::createTextureSampler(_createInfo.physicalDevice, _createInfo.logicalDevice);
+		_textureSampler = vkUtils::memory::createTextureSampler(_createInfo.physicalDevice, _createInfo.logicalDevice);
 	}
 	void VulkanTexture::createDescriptorSets()
 	{
@@ -65,7 +66,7 @@ namespace vulkan
 
 		_descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
 		VkResult err = vkAllocateDescriptorSets(_createInfo.logicalDevice, &allocInfo, _descriptorSets.data());
-		check_vk_result(err, "failed to allocate descriptor sets!");
+		vkUtils::check_vk_result(err, "failed to allocate descriptor sets!");
 
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) 
 		{
@@ -73,7 +74,7 @@ namespace vulkan
 			auto uniformBuffer = dynamic_cast<VulkanUniformBuffer*>(_uniformBuffers[i]);
 			bufferInfo.buffer = uniformBuffer->operator VkBuffer();
 			bufferInfo.offset = 0;
-			bufferInfo.range = sizeof(VoxelEngine::renderer::UniformBufferObject);
+			bufferInfo.range = sizeof(vkInit::UniformBufferObject);
 
 			VkDescriptorImageInfo imageInfo = {};
 			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -117,10 +118,10 @@ namespace vulkan
 	{
 		Texture::release();
 
-		memory::destroyImageView(_createInfo.logicalDevice, _textureImageView);
-		memory::destroyTextureSampler(_createInfo.logicalDevice, _textureSampler);
-		memory::freeDeviceMemory(_createInfo.logicalDevice, _textureImageMemory);
-		memory::destroyImage(_createInfo.logicalDevice, _textureImage);
+		vkUtils::memory::destroyImageView(_createInfo.logicalDevice, _textureImageView);
+		vkUtils::memory::destroyTextureSampler(_createInfo.logicalDevice, _textureSampler);
+		vkUtils::memory::freeDeviceMemory(_createInfo.logicalDevice, _textureImageMemory);
+		vkUtils::memory::destroyImage(_createInfo.logicalDevice, _textureImage);
 
 		_textureImage = nullptr;
 		_textureImageView = nullptr;
@@ -129,7 +130,7 @@ namespace vulkan
 	}
 	void VulkanTexture::copyBufferToImage(const VkBuffer& buffer, const VkImage& image)
 	{
-		VkCommandBuffer commandBuffer = memory::beginSingleTimeCommands();
+		VkCommandBuffer commandBuffer = vkUtils::memory::beginSingleTimeCommands();
 
 		VkBufferImageCopy region = {};
 		region.bufferOffset = 0;
@@ -151,7 +152,7 @@ namespace vulkan
 	}
 	void VulkanTexture::transitionImageLayout(const VkFormat& format, const VkImageLayout& oldLayout, const VkImageLayout& newLayout) const
 	{
-		VkCommandBuffer commandBuffer = memory::beginSingleTimeCommands();
+		VkCommandBuffer commandBuffer = vkUtils::memory::beginSingleTimeCommands();
 
 		VkImageMemoryBarrier barrier = {};
 		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;

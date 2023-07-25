@@ -2,25 +2,25 @@
 #include "VulkanInitializers.h"
 #include "../utils/VulkanValidation.h"
 
-namespace vulkan
+namespace vkInit
 {
 	const VkSemaphore createSemaphore(const VkDevice& logicalDevice) 
 	{
-		VkSemaphoreCreateInfo semaphoreInfo = initializers::semaphoreCreateInfo();
+		VkSemaphoreCreateInfo semaphoreInfo = semaphoreCreateInfo();
 
 		VkSemaphore semaphore;
 		VkResult err = vkCreateSemaphore(logicalDevice, &semaphoreInfo, nullptr, &semaphore);
-		check_vk_result(err, "failed to create semaphore!");
+		vkUtils::check_vk_result(err, "failed to create semaphore!");
 		return semaphore;
 	}
 
 	const VkFence createFence(const VkDevice& logicalDevice) 
 	{
-		VkFenceCreateInfo fenceInfo = initializers::fenceCreateInfo(VK_FENCE_CREATE_SIGNALED_BIT);
+		VkFenceCreateInfo fenceInfo = fenceCreateInfo(VK_FENCE_CREATE_SIGNALED_BIT);
 
 		VkFence fence;
 		VkResult err = vkCreateFence(logicalDevice, &fenceInfo, nullptr, &fence);
-		check_vk_result(err, "failed to create fence!");
+		vkUtils::check_vk_result(err, "failed to create fence!");
 		return fence;
 	}
 

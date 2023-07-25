@@ -1,26 +1,17 @@
 #pragma once
 #include <pch.h>
+#include "VulkanSwapChainFrame.h"
 #include "../utils/VulkanQueueFamilies.h"
 #include "../utils/VulkanAlloc.h"
 #include "../utils/VulkanValidation.h"
 
-namespace vulkan
+namespace vkInit
 {
 	struct SwapChainSupportDetails
 	{
 		VkSurfaceCapabilitiesKHR capabilities;
 		std::vector<VkSurfaceFormatKHR> formats;
 		std::vector<VkPresentModeKHR> presentModes;
-	};
-
-	struct SwapChainFrame
-	{
-		VkImage image;
-		VkImageView imageView;
-		VkFramebuffer framebuffer;
-		VkCommandBuffer commandBuffer;
-		VkSemaphore imageAvailableSemaphore, renderFinishedSemaphore;
-		VkFence inFlightFence;
 	};
 
 	struct SwapChainBundle 
@@ -140,7 +131,7 @@ namespace vulkan
 		createInfo.clipped = VK_TRUE;
 		createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-		QueueFamilyIndices indices = findQueueFamilies(physicalDevice, surface);
+		vkUtils::QueueFamilyIndices indices = vkUtils::findQueueFamilies(physicalDevice, surface);
 		uint32 queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
 		if (indices.graphicsFamily != indices.presentFamily)
@@ -159,7 +150,7 @@ namespace vulkan
 		SwapChainBundle bundle;
 		VkSwapchainKHR swapchain;
 		VkResult err = vkCreateSwapchainKHR(logicalDevice, &createInfo, nullptr, &swapchain);
-		check_vk_result(err, "failed to create swap chain!");
+		vkUtils::check_vk_result(err, "failed to create swap chain!");
 
 		bundle.swapchain = swapchain;
 		bundle.format = surfaceFormat.format;
@@ -177,7 +168,7 @@ namespace vulkan
 				VK_COMPONENT_SWIZZLE_IDENTITY
 			};
 			bundle.frames[i].image = images[i];
-			bundle.frames[i].imageView = memory::createImageView(logicalDevice, images[i], bundle.format, components);
+			bundle.frames[i].imageView = vkUtils::memory::createImageView(logicalDevice, images[i], bundle.format, components);
 		}
 
 		VOXEL_CORE_TRACE("Vulkan swap chain created.")

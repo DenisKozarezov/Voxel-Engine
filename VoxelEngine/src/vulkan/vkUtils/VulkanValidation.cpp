@@ -1,6 +1,6 @@
 #include "VulkanValidation.h"
 
-namespace vulkan
+namespace vkUtils
 {
 	static VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsCallback(
 		VkDebugUtilsMessageSeverityFlagBitsEXT		messageSeverity,

@@ -2,7 +2,7 @@
 #include "VulkanInitializers.h"
 #include "../utils/VulkanValidation.h"
 
-namespace vulkan
+namespace vkInit
 {
 	struct DescriptorSetLayoutInputBundle
 	{
@@ -31,11 +31,11 @@ namespace vulkan
 			layoutBindings.push_back(layoutBinding);
 		}
 
-		VkDescriptorSetLayoutCreateInfo layoutInfo = initializers::descriptorSetLayoutCreateInfo(layoutBindings);
+		VkDescriptorSetLayoutCreateInfo layoutInfo = descriptorSetLayoutCreateInfo(layoutBindings);
 
 		VkDescriptorSetLayout layout;
 		VkResult err = vkCreateDescriptorSetLayout(logicalDevice, &layoutInfo, nullptr, &layout);
-		check_vk_result(err, "failed to create descriptor set layout!");
+		vkUtils::check_vk_result(err, "failed to create descriptor set layout!");
 
 		VOXEL_CORE_TRACE("Vulkan descriptor set layout created.")
 
@@ -44,10 +44,10 @@ namespace vulkan
 
 	const VkDescriptorPool createDescriptorPool(const VkDevice& logicalDevice)
 	{
-		const auto& pool_sizes = initializers::descriptorPoolSize();
+		const auto& pool_sizes = descriptorPoolSize();
 
 		uint32 size = static_cast<uint32>(pool_sizes.size());
-		VkDescriptorPoolCreateInfo poolInfo = initializers::descriptorPoolCreateInfo(
+		VkDescriptorPoolCreateInfo poolInfo = descriptorPoolCreateInfo(
 			pool_sizes.data(),
 			size,
 			1000 * size,
@@ -55,7 +55,7 @@ namespace vulkan
 
 		VkDescriptorPool pool;
 		VkResult err = vkCreateDescriptorPool(logicalDevice, &poolInfo, nullptr, &pool);
-		check_vk_result(err, "failed to create descriptor pool!");
+		vkUtils::check_vk_result(err, "failed to create descriptor pool!");
 
 		VOXEL_CORE_TRACE("Vulkan descriptor pool created.")
 

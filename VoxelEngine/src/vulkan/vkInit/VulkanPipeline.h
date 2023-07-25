@@ -4,7 +4,7 @@
 #include "../utils/VulkanShader.h"
 #include "../VulkanVertex.h"
 
-namespace vulkan
+namespace vkInit
 {
 	struct GraphicsPipilineInputBundle
 	{
@@ -23,7 +23,7 @@ namespace vulkan
 
 	const VkRenderPass createRenderPass(const VkDevice& logicalDevice, const VkFormat& swapChainImageFormat)
 	{
-		VkAttachmentDescription colorAttachment = initializers::renderPassColorAttachment(swapChainImageFormat);
+		VkAttachmentDescription colorAttachment = renderPassColorAttachment(swapChainImageFormat);
 
 		VkAttachmentReference colorAttachmentRef{};
 		colorAttachmentRef.attachment = 0;
@@ -45,11 +45,11 @@ namespace vulkan
 		std::vector<VkAttachmentDescription> attachments = { colorAttachment };
 		std::vector<VkSubpassDescription> subpasses = { subpass };
 		std::vector<VkSubpassDependency> dependencies = { dependency };
-		VkRenderPassCreateInfo renderPassInfo = initializers::renderPassCreateInfo(attachments, subpasses, dependencies);
+		VkRenderPassCreateInfo renderPassInfo = renderPassCreateInfo(attachments, subpasses, dependencies);
 
 		VkRenderPass renderPass;
 		VkResult err = vkCreateRenderPass(logicalDevice, &renderPassInfo, nullptr, &renderPass);
-		check_vk_result(err, "failed to create render pass!");
+		vkUtils::check_vk_result(err, "failed to create render pass!");
 
 		VOXEL_CORE_TRACE("Vulkan render pass created.")
 
@@ -58,54 +58,54 @@ namespace vulkan
 	
 	const GraphicsPipelineOutBundle createGraphicsPipeline(const GraphicsPipilineInputBundle& inputBundle)
 	{
-		shaders::VulkanShader vertexShader = shaders::VulkanShader(inputBundle.logicalDevice, inputBundle.vertexFilepath, VK_SHADER_STAGE_VERTEX_BIT);
-		shaders::VulkanShader fragShader = shaders::VulkanShader(inputBundle.logicalDevice, inputBundle.fragmentFilepath, VK_SHADER_STAGE_FRAGMENT_BIT);
+		vkUtils::VulkanShader vertexShader = vkUtils::VulkanShader(inputBundle.logicalDevice, inputBundle.vertexFilepath, VK_SHADER_STAGE_VERTEX_BIT);
+		vkUtils::VulkanShader fragShader = vkUtils::VulkanShader(inputBundle.logicalDevice, inputBundle.fragmentFilepath, VK_SHADER_STAGE_FRAGMENT_BIT);
 
 		std::vector<VkPipelineShaderStageCreateInfo> shaderStages = { vertexShader.getStage(), fragShader.getStage() };
-		const auto& bindingDescription = Vertex::getBindingDescription();
-		const auto& attributeDescription = Vertex::getAttributeDescriptions();
+		const auto& bindingDescription = vulkan::Vertex::getBindingDescription();
+		const auto& attributeDescription = vulkan::Vertex::getAttributeDescriptions();
 
-		VkPipelineVertexInputStateCreateInfo vertexInputInfo = initializers::pipelineVertexInputStateCreateInfo(
+		VkPipelineVertexInputStateCreateInfo vertexInputInfo = pipelineVertexInputStateCreateInfo(
 			&bindingDescription,
 			1,
 			attributeDescription.data(),
 			static_cast<uint32>(attributeDescription.size()));
 
-		VkPipelineInputAssemblyStateCreateInfo inputAssembly = initializers::pipelineInputAssemblyStateCreateInfo(
+		VkPipelineInputAssemblyStateCreateInfo inputAssembly = pipelineInputAssemblyStateCreateInfo(
 			VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
 			VK_FALSE);
 
-		VkPipelineViewportStateCreateInfo viewportState = initializers::pipelineViewportStateCreateInfo(1, 1);
+		VkPipelineViewportStateCreateInfo viewportState = pipelineViewportStateCreateInfo(1, 1);
 
-		VkPipelineRasterizationStateCreateInfo rasterizer = initializers::pipelineRasterizationStateCreateInfo(
+		VkPipelineRasterizationStateCreateInfo rasterizer = pipelineRasterizationStateCreateInfo(
 			VK_POLYGON_MODE_FILL,
 			VK_CULL_MODE_BACK_BIT,
 			VK_FRONT_FACE_CLOCKWISE);
 
-		VkPipelineMultisampleStateCreateInfo multisampling = initializers::pipelineMultisampleStateCreateInfo(VK_SAMPLE_COUNT_1_BIT);
+		VkPipelineMultisampleStateCreateInfo multisampling = pipelineMultisampleStateCreateInfo(VK_SAMPLE_COUNT_1_BIT);
 
-		VkPipelineColorBlendAttachmentState colorBlendAttachment = initializers::pipelineColorBlendAttachmentState(
+		VkPipelineColorBlendAttachmentState colorBlendAttachment = pipelineColorBlendAttachmentState(
 			VK_COLOR_COMPONENT_R_BIT |
 			VK_COLOR_COMPONENT_G_BIT |
 			VK_COLOR_COMPONENT_B_BIT |
 			VK_COLOR_COMPONENT_A_BIT,
 			VK_FALSE);
-		VkPipelineColorBlendStateCreateInfo colorBlending = initializers::pipelineColorBlendStateCreateInfo(colorBlendAttachment);
+		VkPipelineColorBlendStateCreateInfo colorBlending = pipelineColorBlendStateCreateInfo(colorBlendAttachment);
 
 		std::vector<VkDynamicState> dynamicStates =
 		{
 			VK_DYNAMIC_STATE_VIEWPORT,
 			VK_DYNAMIC_STATE_SCISSOR
 		};
-		VkPipelineDynamicStateCreateInfo dynamicStateCreateInfo = initializers::pipelineDynamicStateCreateInfo(dynamicStates);
+		VkPipelineDynamicStateCreateInfo dynamicStateCreateInfo = pipelineDynamicStateCreateInfo(dynamicStates);
 
-		VkPipelineLayoutCreateInfo pipelineLayoutInfo = initializers::pipelineLayoutCreateInfo(&inputBundle.descriptorSetLayout);
+		VkPipelineLayoutCreateInfo pipelineLayoutInfo = pipelineLayoutCreateInfo(&inputBundle.descriptorSetLayout);
 
 		VkPipelineLayout pipelineLayout;
 		VkResult err = vkCreatePipelineLayout(inputBundle.logicalDevice, &pipelineLayoutInfo, nullptr, &pipelineLayout);
-		check_vk_result(err, "failed to create pipeline layout!");
+		vkUtils::check_vk_result(err, "failed to create pipeline layout!");
 
-		VkGraphicsPipelineCreateInfo pipelineInfo = initializers::pipelineCreateInfo();
+		VkGraphicsPipelineCreateInfo pipelineInfo = pipelineCreateInfo();
 		pipelineInfo.stageCount = shaderStages.size();
 		pipelineInfo.pStages = shaderStages.data();
 		pipelineInfo.pVertexInputState = &vertexInputInfo;
@@ -122,7 +122,7 @@ namespace vulkan
 
 		VkPipeline pipeline;
 		err = vkCreateGraphicsPipelines(inputBundle.logicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline);
-		check_vk_result(err, "failed to create graphics pipeline!");
+		vkUtils::check_vk_result(err, "failed to create graphics pipeline!");
 
 		vertexShader.unbind();
 		fragShader.unbind();

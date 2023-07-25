@@ -2,7 +2,7 @@
 #include <optional>
 #include "VulkanValidation.h"
 
-namespace vulkan
+namespace vkUtils
 {
 	struct QueueFamilyIndices
 	{

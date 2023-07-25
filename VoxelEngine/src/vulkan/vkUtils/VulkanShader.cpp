@@ -1,7 +1,7 @@
 #include "VulkanShader.h"
 #include "VulkanValidation.h"
 
-namespace vulkan::shaders
+namespace vkUtils
 {
 	const VkShaderModule VulkanShader::createShaderModule(const std::vector<char>& code) const
 	{
@@ -12,7 +12,7 @@ namespace vulkan::shaders
 
 		VkShaderModule shaderModule;
 		VkResult err = vkCreateShaderModule(_logicalDevice, &createInfo, nullptr, &shaderModule);
-		check_vk_result(err, "failed to create shader module!");
+		vkUtils::check_vk_result(err, "failed to create shader module!");
 		return shaderModule;
 	}	
 	VulkanShader::VulkanShader(const VkDevice& logicalDevice, const string& filepath, const VkShaderStageFlagBits& shaderType) 

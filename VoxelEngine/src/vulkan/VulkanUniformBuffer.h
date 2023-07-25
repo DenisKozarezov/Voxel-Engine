@@ -7,7 +7,7 @@ namespace vulkan
 	class VulkanUniformBuffer : public VoxelEngine::renderer::UniformBuffer
 	{
 	private:
-		memory::Buffer _uniformBuffer;
+		vkUtils::memory::Buffer _uniformBuffer;
 		void* _uniformBufferMapped;
 	public:
 		VulkanUniformBuffer() = default;

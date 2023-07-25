@@ -1,7 +1,7 @@
 #pragma once
 #include "VulkanInitializers.h"
-#include "../utils/VulkanValidation.h"
-#include "../utils/VulkanShader.h"
+#include "../vkUtils/VulkanValidation.h"
+#include "../vkUtils/VulkanShader.h"
 #include "../VulkanVertex.h"
 
 namespace vkInit
@@ -80,7 +80,7 @@ namespace vkInit
 		VkPipelineRasterizationStateCreateInfo rasterizer = pipelineRasterizationStateCreateInfo(
 			VK_POLYGON_MODE_FILL,
 			VK_CULL_MODE_BACK_BIT,
-			VK_FRONT_FACE_CLOCKWISE);
+			VK_FRONT_FACE_COUNTER_CLOCKWISE);
 
 		VkPipelineMultisampleStateCreateInfo multisampling = pipelineMultisampleStateCreateInfo(VK_SAMPLE_COUNT_1_BIT);
 

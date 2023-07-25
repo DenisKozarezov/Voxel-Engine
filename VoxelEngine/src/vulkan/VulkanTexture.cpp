@@ -1,9 +1,8 @@
 #include "VulkanTexture.h"
 #include "VulkanBackend.h"
-#include "VulkanUniformBuffer.h"
-#include <core/Log.h>
-#include <vulkan/utils/VulkanValidation.h>
-#include <vulkan/init/VulkanSwapChainFrame.h>
+#include <vulkan/vkUtils/VulkanValidation.h>
+#include <vulkan/vkUtils/VulkanSwapChainFrame.h>
+#include <vulkan/vkUtils/VulkanUniformBuffer.h>
 #include <assets_management/AssetsProvider.h>
 
 namespace vulkan
@@ -71,10 +70,10 @@ namespace vulkan
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) 
 		{
 			VkDescriptorBufferInfo bufferInfo = {};
-			auto uniformBuffer = dynamic_cast<VulkanUniformBuffer*>(_uniformBuffers[i]);
+			auto uniformBuffer = dynamic_cast<vkUtils::VulkanUniformBuffer*>(_uniformBuffers[i]);
 			bufferInfo.buffer = uniformBuffer->operator VkBuffer();
 			bufferInfo.offset = 0;
-			bufferInfo.range = sizeof(vkInit::UniformBufferObject);
+			bufferInfo.range = sizeof(vkUtils::UniformBufferObject);
 
 			VkDescriptorImageInfo imageInfo = {};
 			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;

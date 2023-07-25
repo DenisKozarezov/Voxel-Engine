@@ -1,17 +1,18 @@
 #pragma once
-#include <vulkan/utils/VulkanAlloc.h>
 #include <core/renderer/Buffers.h>
+#include "VulkanAlloc.h"
 
-namespace vulkan
+namespace vkUtils
 {
 	class VulkanUniformBuffer : public VoxelEngine::renderer::UniformBuffer
 	{
 	private:
-		vkUtils::memory::Buffer _uniformBuffer;
+		VkDevice _logicalDevice;
+		memory::Buffer _uniformBuffer;
 		void* _uniformBufferMapped;
 	public:
 		VulkanUniformBuffer() = default;
-		VulkanUniformBuffer(const uint32& size);
+		VulkanUniformBuffer(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice, const uint32& size);
 
 		operator VkBuffer() const & { return _uniformBuffer.buffer; }
 

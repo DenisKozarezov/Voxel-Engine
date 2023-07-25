@@ -1,6 +1,6 @@
 #include "vulkan/VulkanTexture.h"
 #include "vulkan/VulkanBackend.h"
-#include "vulkan/init/VulkanSwapChainFrame.h"
+#include "vulkan/vkUtils/VulkanSwapChainFrame.h"
 
 namespace assets
 {
@@ -12,7 +12,7 @@ namespace assets
 		_uniformBuffers.resize(vulkan::MAX_FRAMES_IN_FLIGHT);
 		for (size_t i = 0; i < vulkan::MAX_FRAMES_IN_FLIGHT; i++)
 		{
-			_uniformBuffers[i] = UniformBuffer::Create(sizeof(vkInit::UniformBufferObject));
+			_uniformBuffers[i] = UniformBuffer::Create(sizeof(vkUtils::UniformBufferObject));
 		}
 	}
 

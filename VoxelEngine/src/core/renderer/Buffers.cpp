@@ -1,7 +1,7 @@
 #include "Buffers.h"
 #include "vulkan/VulkanVertexBuffer.h"
 #include "vulkan/VulkanIndexBuffer.h"
-#include "vulkan/VulkanUniformBuffer.h"
+#include "vulkan/vkUtils/VulkanUniformBuffer.h"
 
 namespace VoxelEngine::renderer
 {
@@ -17,6 +17,6 @@ namespace VoxelEngine::renderer
 
 	UniformBuffer* UniformBuffer::Create(const size_t& size)
 	{
-		return new vulkan::VulkanUniformBuffer(size);
+		return nullptr;
 	}
 }

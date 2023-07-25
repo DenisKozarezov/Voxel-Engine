@@ -1,6 +1,6 @@
 #pragma once
 #include "VulkanInitializers.h"
-#include "../utils/VulkanValidation.h"
+#include "../vkUtils/VulkanValidation.h"
 
 namespace vkInit
 {
@@ -60,5 +60,25 @@ namespace vkInit
 		VOXEL_CORE_TRACE("Vulkan descriptor pool created.")
 
 		return pool;
+	}
+
+	const VkDescriptorSet allocateDescriptorSet(
+		const VkDevice& logicalDevice,
+		const VkDescriptorPool& descriptorPool,
+		const VkDescriptorSetLayout& descriptorSetLayout)
+	{
+		VkDescriptorSetAllocateInfo allocInfo{};
+		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		allocInfo.descriptorPool = descriptorPool;
+		allocInfo.descriptorSetCount = 1;
+		allocInfo.pSetLayouts = &descriptorSetLayout;
+
+		VkDescriptorSet descriptorSet;
+		VkResult err = vkAllocateDescriptorSets(logicalDevice, &allocInfo, &descriptorSet);
+		vkUtils::check_vk_result(err, "failed to allocate descriptor set!");
+
+		VOXEL_CORE_TRACE("Vulkan descriptor set allocated.")
+
+		return descriptorSet;
 	}
 }

@@ -6,7 +6,7 @@
 #include <GLFW/glfw3native.h>
 #include <sstream>
 #include <vector>
-#include "../utils/VulkanValidation.h"
+#include "../vkUtils/VulkanValidation.h"
 
 namespace vkInit
 {

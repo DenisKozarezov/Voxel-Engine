@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include <unordered_map>
-#include <vulkan/utils/VulkanAlloc.h>
+#include <vulkan/vkUtils/VulkanAlloc.h>
 #include <components/mesh/Mesh.h>
 
 namespace VoxelEngine::renderer

@@ -77,8 +77,7 @@ namespace VoxelEditor
 		_mouseState = isDragging ? input::MouseDraggingState::DragBegin : input::MouseDraggingState::None;
 	}
 	void EditorLayer::moveCamera(const components::camera::CameraMovement& direction)
-	{
-		
+	{		
 		_camera.processKeyboard(direction, _deltaTime);
 	}
 
@@ -193,6 +192,8 @@ namespace VoxelEditor
 		_dispatcher.registerEvent<input::MouseButtonPressedEvent>(BIND_CALLBACK(EditorLayer::onMousePressed));
 		_dispatcher.registerEvent<input::MouseButtonReleasedEvent>(BIND_CALLBACK(EditorLayer::onMouseReleased));
 		_dispatcher.registerEvent<input::MouseMovedEvent>(BIND_CALLBACK(EditorLayer::onMouseMoved));
+	
+		renderer::Renderer::setCamera(&_camera);
 	}				  
 	void EditorLayer::onDetach()
 	{				  

@@ -2,14 +2,14 @@
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
-#include "init/VulkanInstance.h"
-#include "init/VulkanDevice.h"
-#include "init/VulkanFramebuffer.h"
-#include "init/VulkanPipeline.h"
-#include "init/VulkanSync.h"
-#include "init/VulkanDescriptors.h"
-#include "utils/VulkanCommandBuffer.h"
-#include "VulkanUniformBuffer.h"
+#include "vkInit/VulkanInstance.h"
+#include "vkInit/VulkanDevice.h"
+#include "vkInit/VulkanFramebuffer.h"
+#include "vkInit/VulkanPipeline.h"
+#include "vkInit/VulkanSync.h"
+#include "vkInit/VulkanDescriptors.h"
+#include "vkUtils/VulkanCommandBuffer.h"
+#include "vkUtils/VulkanUniformBuffer.h"
 #include "core/renderer/VertexManager.h"
 #include "assets_management/AssetsProvider.h"
 
@@ -36,7 +36,7 @@ namespace vulkan
 		VkSwapchainKHR swapChain;
 		VkFormat swapChainImageFormat;
 		VkExtent2D swapChainExtent;
-		std::vector<vkInit::SwapChainFrame> swapChainFrames;
+		std::vector<vkUtils::SwapChainFrame> swapChainFrames;
 		vkUtils::QueueFamilyIndices queueFamilyIndices;
 
 		// Command-related variables
@@ -55,14 +55,14 @@ namespace vulkan
 		bool framebufferResized = false;
 	} state;
 
-	VoxelEngine::components::camera::Camera* FPVcamera;
+	const VoxelEngine::components::camera::Camera* FPVcamera;
 		
 	static void framebufferResizeCallback(GLFWwindow* window, int width, int height)
 	{
 		state.framebufferResized = true;
 	}
 			
-	void createCommandPool(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice)
+	void makeCommandPool(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice)
 	{
 		vkUtils::QueueFamilyIndices queueFamilyIndices = vkUtils::findQueueFamilies(physicalDevice, state.surface);
 
@@ -73,10 +73,10 @@ namespace vulkan
 
 		VOXEL_CORE_TRACE("Vulkan command pool created.")
 	}
-	void createCommandBuffers()
+	void makeCommandBuffers()
 	{
 		int i = 0;
-		for (vkInit::SwapChainFrame& frame : state.swapChainFrames)
+		for (vkUtils::SwapChainFrame& frame : state.swapChainFrames)
 		{
 			frame.commandBuffer = vkUtils::memory::CommandBuffer::allocate();
 
@@ -113,7 +113,7 @@ namespace vulkan
 		bindings.indices.push_back(0);
 		bindings.types.push_back(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
 		bindings.stages.push_back(VK_SHADER_STAGE_VERTEX_BIT);
-		bindings.counts.push_back(0);
+		bindings.counts.push_back(1);
 
 		bindings.indices.push_back(1);
 		bindings.types.push_back(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
@@ -141,21 +141,31 @@ namespace vulkan
 	{
 		vkInit::createFramebuffers(state.logicalDevice, state.renderPass, state.swapChainExtent, state.swapChainFrames);
 
-		createCommandPool(state.physicalDevice, state.logicalDevice);
+		makeCommandPool(state.physicalDevice, state.logicalDevice);
+
+		makeCommandBuffers();
 
 		state.descriptorPool = vkInit::createDescriptorPool(state.logicalDevice);
-		createCommandBuffers();
-		createSyncObjects(state.logicalDevice);
+
+		makeFrameResources(state.logicalDevice);
 	}
-	void createSyncObjects(const VkDevice& logicalDevice)
+	void makeFrameResources(const VkDevice& logicalDevice)
 	{
 		int i = 0;
-		for (vkInit::SwapChainFrame& frame : state.swapChainFrames)
+		for (vkUtils::SwapChainFrame& frame : state.swapChainFrames)
 		{
 			frame.imageAvailableSemaphore = vkInit::createSemaphore(logicalDevice);
 			frame.renderFinishedSemaphore = vkInit::createSemaphore(logicalDevice);
 			frame.inFlightFence = vkInit::createFence(logicalDevice);
+			frame.descriptorSet = vkInit::allocateDescriptorSet(logicalDevice, state.descriptorPool, state.descriptorSetLayout);
 
+			VkDeviceSize size = sizeof(vkUtils::UniformBufferObject);
+			frame.uniformBuffer = new vkUtils::VulkanUniformBuffer(state.physicalDevice, logicalDevice, size);
+
+			frame.uniformBufferDescriptor.buffer = *frame.uniformBuffer;
+			frame.uniformBufferDescriptor.offset = 0;
+			frame.uniformBufferDescriptor.range = size;
+			
 			VOXEL_CORE_TRACE("Vulkan sync objects created for frame {0}.", i)
 			++i;
 		}
@@ -214,8 +224,8 @@ namespace vulkan
 		cleanupSwapChain(logicalDevice, state.swapChain);
 		makeSwapChain();
 		vkInit::createFramebuffers(logicalDevice, state.renderPass, state.swapChainExtent, state.swapChainFrames);
-		createSyncObjects(logicalDevice);
-		createCommandBuffers();
+		makeFrameResources(logicalDevice);
+		makeCommandBuffers();
 	}	
 	void cleanupSwapChain(const VkDevice& logicalDevice, const VkSwapchainKHR& swapchain)
 	{
@@ -226,6 +236,8 @@ namespace vulkan
 			vkInit::destroyFence(logicalDevice, frame.inFlightFence);
 			vkInit::destroySemaphore(logicalDevice, frame.imageAvailableSemaphore);
 			vkInit::destroySemaphore(logicalDevice, frame.renderFinishedSemaphore);
+
+			delete frame.uniformBuffer;
 		}
 		vkInit::destroySwapChain(logicalDevice, swapchain);
 	}
@@ -249,6 +261,22 @@ namespace vulkan
 			recreateSwapChain(state.physicalDevice, state.logicalDevice, state.surface, state.windowPtr);
 		}
 		else vkUtils::check_vk_result(err, "failed to present swap chain image!");
+	}
+	void prepareFrame(const uint32& imageIndex)
+	{
+		const float aspectRatio = (float)state.swapChainExtent.width / state.swapChainExtent.height;
+
+		vkUtils::UniformBufferObject ubo =
+		{
+			.model = glm::mat4(1.0f),
+			.view = FPVcamera->viewMatrix(),
+			.proj = glm::perspective(glm::radians(60.0f), aspectRatio, 0.1f, 200.0f),
+		};
+		ubo.proj[1][1] *= -1;
+
+		state.swapChainFrames[imageIndex].uniformBuffer->setData(&ubo, sizeof(ubo));
+
+		state.swapChainFrames[imageIndex].writeDescriptorSet(state.logicalDevice);
 	}
 	void prepareScene(const VkCommandBuffer& commandBuffer, const VoxelEngine::Scene* scene)
 	{
@@ -285,6 +313,8 @@ namespace vulkan
 		// Stage 2. GRAPHICS
 		ImGui::Render();
 
+		prepareFrame(CURRENT_FRAME);
+
 		recordCommandBuffer(state.swapChainFrames[CURRENT_FRAME].commandBuffer, CURRENT_FRAME, nullptr);
 
 		VkSemaphore signalSemaphores[] = { state.swapChainFrames[CURRENT_FRAME].renderFinishedSemaphore};
@@ -314,6 +344,8 @@ namespace vulkan
 			state.swapChainExtent,
 			clearValues);
 		vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelineLayout, 0, 1, &state.swapChainFrames[imageIndex].descriptorSet, 0, nullptr);
 
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.graphicsPipeline);
 		
@@ -363,7 +395,7 @@ namespace vulkan
 		int success = glfwVulkanSupported();
 		VOXEL_CORE_ASSERT(success, "GLFW: Vulkan Not Supported")
 	}
-	void setCamera(VoxelEngine::components::camera::Camera* camera)
+	void setCamera(const VoxelEngine::components::camera::Camera* camera)
 	{
 		FPVcamera = camera;
 	}

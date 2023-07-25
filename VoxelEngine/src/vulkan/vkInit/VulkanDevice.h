@@ -1,7 +1,7 @@
 #pragma once
 #include <pch.h>
-#include "../utils/VulkanQueueFamilies.h"
-#include "../utils/VulkanValidation.h"
+#include "../vkUtils/VulkanQueueFamilies.h"
+#include "../vkUtils/VulkanValidation.h"
 
 namespace vkInit
 {

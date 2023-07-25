@@ -7,7 +7,7 @@ namespace vkInit
 		const VkDevice& logicalDevice,
 		const VkRenderPass& renderPass,
 		const VkExtent2D& swapChainExtent,
-		std::vector<SwapChainFrame>& frames) 
+		std::vector<vkUtils::SwapChainFrame>& frames) 
 	{
 		for (int i = 0; i < frames.size(); ++i) {
 

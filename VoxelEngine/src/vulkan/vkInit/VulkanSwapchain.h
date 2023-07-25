@@ -1,9 +1,9 @@
 #pragma once
 #include <pch.h>
-#include "VulkanSwapChainFrame.h"
-#include "../utils/VulkanQueueFamilies.h"
-#include "../utils/VulkanAlloc.h"
-#include "../utils/VulkanValidation.h"
+#include "../vkUtils/VulkanSwapChainFrame.h"
+#include "../vkUtils/VulkanQueueFamilies.h"
+#include "../vkUtils/VulkanAlloc.h"
+#include "../vkUtils/VulkanValidation.h"
 
 namespace vkInit
 {
@@ -17,7 +17,7 @@ namespace vkInit
 	struct SwapChainBundle 
 	{
 		VkSwapchainKHR swapchain;
-		std::vector<SwapChainFrame> frames;
+		std::vector<vkUtils::SwapChainFrame> frames;
 		VkFormat format;
 		VkExtent2D extent;
 	};

@@ -1,6 +1,6 @@
 #pragma once
 #include "VulkanInitializers.h"
-#include "../utils/VulkanValidation.h"
+#include "../vkUtils/VulkanValidation.h"
 
 namespace vkInit
 {

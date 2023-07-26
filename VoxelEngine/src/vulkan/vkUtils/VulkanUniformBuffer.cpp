@@ -2,8 +2,11 @@
 
 namespace vkUtils
 {
-	VulkanUniformBuffer::VulkanUniformBuffer(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice, const uint32& size)
-		: UniformBuffer(size), logicalDevice(logicalDevice)
+	VulkanUniformBuffer::VulkanUniformBuffer(
+		const VkPhysicalDevice& physicalDevice, 
+		const VkDevice& logicalDevice, 
+		const uint32& size)
+		: logicalDevice(logicalDevice)
 	{
 		uniformBuffer = memory::createBuffer(
 			physicalDevice, 

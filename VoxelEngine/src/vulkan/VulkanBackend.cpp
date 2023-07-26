@@ -55,6 +55,8 @@ namespace vulkan
 
 	const VoxelEngine::components::camera::Camera* FPVcamera;
 	const VoxelEngine::Scene* currentScene;
+
+	static constexpr float FOV = 60.0f;
 		
 	static void framebufferResizeCallback(GLFWwindow* window, int width, int height)
 	{
@@ -265,7 +267,7 @@ namespace vulkan
 		vkUtils::UniformBufferObject ubo =
 		{
 			.view = FPVcamera->viewMatrix(),
-			.proj = glm::perspective(glm::radians(60.0f), aspectRatio, 0.1f, 200.0f),
+			.proj = glm::perspective(glm::radians(FOV), aspectRatio, 0.1f, 200.0f),
 		};
 		ubo.proj[1][1] *= -1;
 		ubo.viewproj = ubo.proj * ubo.view;

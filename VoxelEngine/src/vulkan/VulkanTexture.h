@@ -1,7 +1,6 @@
 #pragma once
 #include <vulkan/vulkan.h>
 #include <core/Log.h>
-#include <assets_management/Texture.h>
 
 namespace vulkan
 {
@@ -15,7 +14,7 @@ namespace vulkan
 		VkExtent2D swapChainExtent;
 	};
 
-	class VulkanTexture : public assets::Texture
+	class VulkanTexture
 	{
 	private:
 		TextureCreateInfo _createInfo;
@@ -26,10 +25,10 @@ namespace vulkan
 		VkSampler _textureSampler;
 		std::vector<VkDescriptorSet> _descriptorSets;
 
-		void generateQuad() override;
-		void createTextureImage(const string& filepath) override;
-		void createTextureImageView() override;
-		void createTextureSampler() override;
+		void generateQuad();
+		void createTextureImage(const string& filepath);
+		void createTextureImageView();
+		void createTextureSampler();
 		void createDescriptorSets();
 		void copyBufferToImage(const VkBuffer& buffer, const VkImage& image);
 		void transitionImageLayout(const VkFormat& format, const VkImageLayout& oldLayout, const VkImageLayout& newLayout) const;
@@ -37,9 +36,9 @@ namespace vulkan
 		VulkanTexture() = delete;
 		VulkanTexture(const std::string& path, const TextureCreateInfo& createInfo);
 
-		void setUniformBuffer(const void* ubo, const size_t& size) override;
-		void render() override;
-		void release() override;
+		void setUniformBuffer(const void* ubo, const size_t& size);
+		void render();
+		void release();
 
 		~VulkanTexture();
 	};

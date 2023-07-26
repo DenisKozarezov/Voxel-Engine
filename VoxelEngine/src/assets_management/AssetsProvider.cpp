@@ -1,6 +1,7 @@
 #include "AssetsProvider.h"
 #include <core/Assert.h>
 
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 
@@ -12,13 +13,13 @@
 
 namespace std 
 {
-   /* template<> struct hash<vulkan::Vertex> 
+    template<> struct hash<vulkan::Vertex> 
     {
         size_t operator()(vulkan::Vertex const& vertex) const 
         {
-            return ((hash<glm::vec3>()(vertex.pos) ^ (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^ (hash<glm::vec2>()(vertex.texCoord) << 1);
+            return ((hash<glm::vec3>()(vertex.pos) ^ (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^ (hash<glm::vec3>()(vertex.normal) << 1);
         }
-    };*/
+    };
 }
 
 namespace assets
@@ -33,7 +34,7 @@ namespace assets
 
         return data;
     }
-    const VoxelEngine::SharedRef<Mesh*> AssetsProvider::loadObjMesh(const string& path)
+    const VoxelEngine::SharedRef<Mesh> AssetsProvider::loadObjMesh(const string& path)
     {
         tinyobj::attrib_t attrib;
         std::vector<tinyobj::shape_t> shapes;
@@ -46,7 +47,8 @@ namespace assets
         VOXEL_CORE_ASSERT(isLoaded, warn + err)
 
         Mesh* mesh = new Mesh;
-       /* std::unordered_map<vulkan::Vertex, uint32> uniqueVertices{};
+        glm::mat4 preTransform = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        std::unordered_map<vulkan::Vertex, uint32> uniqueVertices{};
 
         for (const auto& shape : shapes)
         {
@@ -60,13 +62,15 @@ namespace assets
                         attrib.vertices[3 * index.vertex_index + 1],
                         attrib.vertices[3 * index.vertex_index + 2]
                     },
-                    .color = { 1.0f, 1.0f, 1.0f },
-                    .texCoord =
+                    .normal =
                     {
-                        attrib.texcoords[2 * index.texcoord_index + 0],
-                        1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
+                        attrib.normals[3 * index.normal_index + 0],
+                        attrib.normals[3 * index.normal_index + 1],
+                        attrib.normals[3 * index.normal_index + 2],
                     }
                 };
+                vertex.pos = glm::vec3(preTransform * glm::vec4(vertex.pos, 1.0f));
+                vertex.normal = glm::vec3(preTransform * glm::vec4(vertex.normal, 1.0f));
 
                 if (uniqueVertices.count(vertex) == 0)
                 {
@@ -75,11 +79,11 @@ namespace assets
                 }
                 mesh->indices.push_back(uniqueVertices[vertex]);
             }
-        }*/
+        }
 
         VOXEL_CORE_TRACE("Finished to load OBJ mesh at path '{0}'.", path);
 
-        return VoxelEngine::MakeShared<Mesh*>(mesh);
+        return VoxelEngine::MakeShared<Mesh>(*mesh);
     }
     void TextureData::release() const
     {

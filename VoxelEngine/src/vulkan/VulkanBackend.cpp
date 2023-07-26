@@ -10,7 +10,7 @@
 #include "vkInit/VulkanDescriptors.h"
 #include "vkUtils/VulkanCommandBuffer.h"
 #include "vkUtils/VulkanUniformBuffer.h"
-#include "core/renderer/VertexManager.h"0
+#include "core/renderer/VertexManager.h"
 #include "assets_management/AssetsProvider.h"
 
 namespace vulkan
@@ -56,7 +56,7 @@ namespace vulkan
 	const VoxelEngine::components::camera::Camera* FPVcamera;
 	const VoxelEngine::Scene* currentScene;
 
-	static constexpr float FOV = 60.0f;
+	static constexpr float FOV = 45.0f;
 		
 	static void framebufferResizeCallback(GLFWwindow* window, int width, int height)
 	{
@@ -372,7 +372,7 @@ namespace vulkan
 		prepareScene(commandBuffer);
 
 		uint32 startInstance = 0;
-		renderSceneObjects(commandBuffer, MeshType::Triangle, startInstance, static_cast<uint32>(currentScene->vertices.size()));
+		renderSceneObjects(commandBuffer, MeshType::Polygone, startInstance, static_cast<uint32>(currentScene->vertices.size()));
 		
 		ImDrawData* main_draw_data = ImGui::GetDrawData();
 		ImGui_ImplVulkan_RenderDrawData(main_draw_data, commandBuffer);
@@ -465,13 +465,9 @@ namespace vulkan
 	{
 		state.vertexManager = new VoxelEngine::renderer::VertexManager;
 
-		std::vector<Vertex> vertices = {
-			{{0.0f, -0.1f, 0.0f}, {1.0f, 1.0f, 1.0f}},
-			{{0.1f, 0.1f, 0.0f}, {0.0f, 1.0f, 0.0f}},
-			{{-0.1f, 0.1f, 0.0f}, {0.0f, 0.0f, 1.0f}}
-		};
-		std::vector<uint32> indices = { 0, 1, 2 };
-		state.vertexManager->concatMesh(MeshType::Triangle, vertices, indices);
+		const auto& mesh = assets::AssetsProvider::loadObjMesh(ASSET_PATH("models/viking_room.obj"));
+
+		state.vertexManager->concatMesh(MeshType::Polygone, mesh->vertices, mesh->indices);
 
 		state.vertexManager->finalize(state.physicalDevice, state.logicalDevice);
 	}

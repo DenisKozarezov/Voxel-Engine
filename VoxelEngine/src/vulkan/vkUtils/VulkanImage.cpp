@@ -4,7 +4,7 @@
 
 namespace vkUtils
 {
-	const VkFormat findSupportedFormat(
+	constexpr const VkFormat findSupportedFormat(
 		const VkPhysicalDevice& physicalDevice, 
 		const std::vector<VkFormat>& candidates, 
 		const VkImageTiling& tiling, 
@@ -24,7 +24,7 @@ namespace vkUtils
 		throw std::runtime_error("failed to find supported format!");
 	}
 
-	const VkFormat& findDepthFormat(const VkPhysicalDevice& physicalDevice)
+	const VkFormat findDepthFormat(const VkPhysicalDevice& physicalDevice)
 	{
 		return findSupportedFormat(physicalDevice,
 			{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },

@@ -1,5 +1,5 @@
 #pragma once
-#include <list>
+#include <vector>
 #include <core/PrimitiveTypes.h>
 #include <vulkan/VulkanVertex.h>
 
@@ -10,18 +10,16 @@ namespace VoxelEngine::components::mesh
 		Triangle = 0,
 		Square = 1,
 		Polygone = 2,
+		Cube = 3
 	};
 
 	struct Mesh
 	{
-		std::list<vulkan::Vertex> vertices;
-		std::list<uint32> indices;
+		std::vector<vulkan::Vertex> vertices;
+		std::vector<vulkan::Vertex> normals;
+		std::vector<uint32> indices;
 
 		Mesh() noexcept = default;
-
-		~Mesh()
-		{
-
-		}
+		~Mesh() noexcept = default;
 	};
 }

@@ -1,4 +1,5 @@
 #pragma once
+#include <vulkan/vulkan.h>
 #include <core/Log.h>
 #include <assets_management/Texture.h>
 

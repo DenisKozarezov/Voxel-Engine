@@ -1,8 +1,6 @@
 #pragma once
-#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #include <pch.h>
 #include <glm/mat4x4.hpp>
-#include <vulkan/VulkanVertex.h>
 #include <core/PrimitiveTypes.h>
 
 namespace VoxelEngine::renderer
@@ -72,7 +70,6 @@ namespace VoxelEngine::renderer
 	public:
 		VertexBuffer() = default;
 
-		virtual void bind() const = 0;
 		virtual void release() const = 0;
 		virtual void setData(const void* data, const size_t& size) = 0;
 

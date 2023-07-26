@@ -1,5 +1,6 @@
 #pragma once
 #include <pch.h>
+#include <vulkan/VulkanVertex.h>
 #include <core/renderer/Buffers.h>
 
 namespace assets

@@ -71,7 +71,7 @@ namespace vulkan
 		{
 			VkDescriptorBufferInfo bufferInfo = {};
 			auto uniformBuffer = dynamic_cast<vkUtils::VulkanUniformBuffer*>(_uniformBuffers[i]);
-			bufferInfo.buffer = uniformBuffer->operator VkBuffer();
+			bufferInfo.buffer = *uniformBuffer;
 			bufferInfo.offset = 0;
 			bufferInfo.range = sizeof(vkUtils::UniformBufferObject);
 

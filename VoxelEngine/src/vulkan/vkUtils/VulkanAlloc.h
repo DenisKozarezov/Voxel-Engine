@@ -6,8 +6,16 @@ namespace vkUtils::memory
 {
 	struct Buffer
 	{
+	public:
 		VkBuffer buffer;
 		VkDeviceMemory bufferMemory;
+
+		void release(const VkDevice& logicalDevice) const
+		{
+			vkUnmapMemory(logicalDevice, bufferMemory);
+			vkDestroyBuffer(logicalDevice, buffer, nullptr);
+			vkFreeMemory(logicalDevice, bufferMemory, nullptr);
+		}
 	};
 
 	const uint32 findMemoryType(const VkPhysicalDevice& physicalDevice, const uint32& typeFilter, const VkMemoryPropertyFlags& properties);

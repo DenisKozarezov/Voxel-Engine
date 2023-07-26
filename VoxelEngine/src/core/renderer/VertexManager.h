@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include <unordered_map>
-#include <vulkan/vkUtils/VulkanAlloc.h>
+#include <vulkan/vkUtils/VulkanVertexBuffer.h>
 #include <components/mesh/Mesh.h>
 
 namespace VoxelEngine::renderer
@@ -14,7 +14,7 @@ namespace VoxelEngine::renderer
 		VkDevice logicalDevice;
 		size_t offset = 0;
 	public:
-		vkUtils::memory::Buffer vertexBuffer;
+		vkUtils::VulkanVertexBuffer* vertexBuffer;
 		std::vector<vulkan::Vertex> vertices;
 		std::unordered_map<MeshType, size_t> offsets;
 		std::unordered_map<MeshType, size_t> sizes;

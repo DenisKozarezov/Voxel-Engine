@@ -116,8 +116,8 @@ namespace vulkan
 		bindings.counts.push_back(1);
 
 		bindings.indices.push_back(1);
-		bindings.types.push_back(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
-		bindings.stages.push_back(VK_SHADER_STAGE_FRAGMENT_BIT);
+		bindings.types.push_back(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER);
+		bindings.stages.push_back(VK_SHADER_STAGE_VERTEX_BIT);
 		bindings.counts.push_back(1);
 		state.descriptorSetLayout = createDescriptorSetLayout(state.logicalDevice, bindings);
 	}
@@ -159,12 +159,7 @@ namespace vulkan
 			frame.inFlightFence = vkInit::createFence(logicalDevice);
 			frame.descriptorSet = vkInit::allocateDescriptorSet(logicalDevice, state.descriptorPool, state.descriptorSetLayout);
 
-			VkDeviceSize size = sizeof(vkUtils::UniformBufferObject);
-			frame.uniformBuffer = new vkUtils::VulkanUniformBuffer(state.physicalDevice, logicalDevice, size);
-
-			frame.uniformBufferDescriptor.buffer = *frame.uniformBuffer;
-			frame.uniformBufferDescriptor.offset = 0;
-			frame.uniformBufferDescriptor.range = size;
+			frame.makeDescriptorResources(state.physicalDevice, logicalDevice);
 			
 			VOXEL_CORE_TRACE("Vulkan sync objects created for frame {0}.", i)
 			++i;
@@ -237,7 +232,8 @@ namespace vulkan
 			vkInit::destroySemaphore(logicalDevice, frame.imageAvailableSemaphore);
 			vkInit::destroySemaphore(logicalDevice, frame.renderFinishedSemaphore);
 
-			delete frame.uniformBuffer;
+			frame.uniformBuffer.release();
+			frame.modelBuffer.release(logicalDevice);
 		}
 		vkInit::destroySwapChain(logicalDevice, swapchain);
 	}
@@ -264,23 +260,31 @@ namespace vulkan
 	}
 	void prepareFrame(const uint32& imageIndex)
 	{
+		vkUtils::SwapChainFrame& frame = state.swapChainFrames[imageIndex];
 		const float aspectRatio = (float)state.swapChainExtent.width / state.swapChainExtent.height;
 
 		vkUtils::UniformBufferObject ubo =
 		{
-			.model = glm::mat4(1.0f),
 			.view = FPVcamera->viewMatrix(),
 			.proj = glm::perspective(glm::radians(60.0f), aspectRatio, 0.1f, 200.0f),
 		};
 		ubo.proj[1][1] *= -1;
+		ubo.viewproj = ubo.proj * ubo.view;
 
-		state.swapChainFrames[imageIndex].uniformBuffer->setData(&ubo, sizeof(ubo));
+		frame.uniformBuffer.setData(&ubo, sizeof(ubo));
 
-		state.swapChainFrames[imageIndex].writeDescriptorSet(state.logicalDevice);
+		size_t i = 0;
+		for (const auto& vertex : state.vertexManager->vertices)
+		{
+			frame.modelTransforms[i++] = glm::translate(glm::mat4(1.0f), vertex.pos);
+		}
+		memcpy(frame.modelBufferMappedMemory, frame.modelTransforms.data(), i * sizeof(glm::mat4(1.0f)));
+
+		frame.writeDescriptorSet(state.logicalDevice);
 	}
 	void prepareScene(const VkCommandBuffer& commandBuffer, const VoxelEngine::Scene* scene)
 	{
-		VkBuffer vertexBuffers[] = { state.vertexManager->vertexBuffer.buffer };
+		VkBuffer vertexBuffers[] = { *state.vertexManager->vertexBuffer };
 		VkDeviceSize offsets[] = { 0 };
 		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 	}

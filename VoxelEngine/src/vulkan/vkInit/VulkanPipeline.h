@@ -21,7 +21,7 @@ namespace vkInit
 		VkPipelineLayout layout;
 	};
 
-	const VkRenderPass createRenderPass(const VkDevice& logicalDevice, const VkFormat& swapChainImageFormat)
+	const VkRenderPass createRenderPass(const VkDevice& logicalDevice, const VkFormat& swapChainImageFormat, const VkFormat depthFormat)
 	{
 		VkAttachmentDescription colorAttachment = renderPassColorAttachment(swapChainImageFormat);
 
@@ -29,10 +29,17 @@ namespace vkInit
 		colorAttachmentRef.attachment = 0;
 		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
+		VkAttachmentDescription depthAttachment = renderPassDepthAttachment(depthFormat);
+
+		VkAttachmentReference depthAttachmentRef{};
+		depthAttachmentRef.attachment = 1;
+		depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
 		VkSubpassDescription subpass = {};
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 		subpass.colorAttachmentCount = 1;
 		subpass.pColorAttachments = &colorAttachmentRef;
+		subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
 		VkSubpassDependency dependency = {};
 		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -40,9 +47,9 @@ namespace vkInit
 		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 		dependency.srcAccessMask = 0;
 		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
-		std::vector<VkAttachmentDescription> attachments = { colorAttachment };
+		std::vector<VkAttachmentDescription> attachments = { colorAttachment, depthAttachment };
 		std::vector<VkSubpassDescription> subpasses = { subpass };
 		std::vector<VkSubpassDependency> dependencies = { dependency };
 		VkRenderPassCreateInfo renderPassInfo = renderPassCreateInfo(attachments, subpasses, dependencies);
@@ -92,6 +99,11 @@ namespace vkInit
 			VK_FALSE);
 		VkPipelineColorBlendStateCreateInfo colorBlending = pipelineColorBlendStateCreateInfo(colorBlendAttachment);
 
+		VkPipelineDepthStencilStateCreateInfo depthStencil = pipelineDepthStencilStateCreateInfo(
+			VK_TRUE,
+			VK_TRUE,
+			VK_COMPARE_OP_LESS);
+
 		std::vector<VkDynamicState> dynamicStates =
 		{
 			VK_DYNAMIC_STATE_VIEWPORT,
@@ -114,6 +126,7 @@ namespace vkInit
 		pipelineInfo.pRasterizationState = &rasterizer;
 		pipelineInfo.pMultisampleState = &multisampling;
 		pipelineInfo.pColorBlendState = &colorBlending;
+		pipelineInfo.pDepthStencilState = &depthStencil;
 		pipelineInfo.pDynamicState = &dynamicStateCreateInfo;
 		pipelineInfo.layout = pipelineLayout;
 		pipelineInfo.renderPass = inputBundle.renderPass;

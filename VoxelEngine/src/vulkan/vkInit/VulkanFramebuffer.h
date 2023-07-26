@@ -13,7 +13,8 @@ namespace vkInit
 
 			std::vector<VkImageView> attachments =
 			{
-				frames[i].imageView
+				frames[i].imageView,
+				frames[i].depthImageView
 			};
 			
 			VkFramebufferCreateInfo framebufferInfo{};

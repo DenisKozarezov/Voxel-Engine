@@ -10,7 +10,7 @@
 #include "vkInit/VulkanDescriptors.h"
 #include "vkUtils/VulkanCommandBuffer.h"
 #include "vkUtils/VulkanUniformBuffer.h"
-#include "core/renderer/VertexManager.h"
+#include "core/renderer/VertexManager.h"0
 #include "assets_management/AssetsProvider.h"
 
 namespace vulkan
@@ -106,6 +106,16 @@ namespace vulkan
 		state.swapChain = swapChainBundle.swapchain;
 		state.swapChainFrames = swapChainBundle.frames;
 		MAX_FRAMES_IN_FLIGHT = static_cast<int>(swapChainBundle.frames.size());
+
+		for (vkUtils::SwapChainFrame& frame : state.swapChainFrames)
+		{
+			frame.physicalDevice = state.physicalDevice;
+			frame.logicalDevice = state.logicalDevice;
+			frame.width = swapChainBundle.extent.width;
+			frame.height = swapChainBundle.extent.height;
+
+			frame.makeDepthResources();
+		}
 	}
 	void makeDescriptorSetLayout()
 	{
@@ -124,7 +134,7 @@ namespace vulkan
 	}
 	void makeGraphicsPipeline()
 	{
-		state.renderPass = vkInit::createRenderPass(state.logicalDevice, state.swapChainImageFormat);
+		state.renderPass = vkInit::createRenderPass(state.logicalDevice, state.swapChainImageFormat, state.swapChainFrames[0].depthFormat);
 
 		vkInit::GraphicsPipilineInputBundle graphicsInputBundle =
 		{
@@ -160,7 +170,7 @@ namespace vulkan
 			frame.inFlightFence = vkInit::createFence(logicalDevice);
 			frame.descriptorSet = vkInit::allocateDescriptorSet(logicalDevice, state.descriptorPool, state.descriptorSetLayout);
 
-			frame.makeDescriptorResources(state.physicalDevice, logicalDevice);
+			frame.makeDescriptorResources();
 			
 			VOXEL_CORE_TRACE("Vulkan sync objects created for frame {0}.", i)
 			++i;
@@ -227,16 +237,9 @@ namespace vulkan
 	{
 		for (const auto& frame : state.swapChainFrames)
 		{
-			vkUtils::memory::destroyImageView(logicalDevice, frame.imageView);
-			vkInit::destroyFramebuffer(logicalDevice, frame.framebuffer);
-			vkInit::destroyFence(logicalDevice, frame.inFlightFence);
-			vkInit::destroySemaphore(logicalDevice, frame.imageAvailableSemaphore);
-			vkInit::destroySemaphore(logicalDevice, frame.renderFinishedSemaphore);
-
-			frame.uniformBuffer.release();
-			frame.modelBuffer.release(logicalDevice);
+			frame.release();
 		}
-		vkInit::destroySwapChain(logicalDevice, swapchain);
+		vkDestroySwapchainKHR(logicalDevice, swapchain, nullptr);
 	}
 	void presentFrame(const uint32& imageIndex, VkSemaphore* signalSemaphores)
 	{
@@ -281,7 +284,7 @@ namespace vulkan
 		}
 		memcpy(frame.modelBufferMappedMemory, frame.modelTransforms.data(), i * sizeof(glm::mat4));
 
-		frame.writeDescriptorSet(state.logicalDevice);
+		frame.writeDescriptorSet();
 	}
 	void prepareScene(const VkCommandBuffer& commandBuffer)
 	{
@@ -340,18 +343,22 @@ namespace vulkan
 	}
 	void recordCommandBuffer(const VkCommandBuffer& commandBuffer, const uint32& imageIndex)
 	{
+		vkUtils::SwapChainFrame frame = state.swapChainFrames[imageIndex];
+
 		vkUtils::memory::CommandBuffer::beginCommand(commandBuffer);
 
-		std::vector<VkClearValue> clearValues(1);
+		std::vector<VkClearValue> clearValues(2);
 		clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
+		clearValues[1].depthStencil = { 1.0f, 0 };
+
 		VkRenderPassBeginInfo renderPassBeginInfo = vkInit::renderPassBeginInfo(
 			state.renderPass,
-			state.swapChainFrames[imageIndex].framebuffer,
+			frame.framebuffer,
 			state.swapChainExtent,
 			clearValues);
 		vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelineLayout, 0, 1, &state.swapChainFrames[imageIndex].descriptorSet, 0, nullptr);
+		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelineLayout, 0, 1, &frame.descriptorSet, 0, nullptr);
 
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.graphicsPipeline);
 		

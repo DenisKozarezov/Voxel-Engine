@@ -2,8 +2,7 @@
 #include <pch.h>
 #include "../vkUtils/VulkanSwapChainFrame.h"
 #include "../vkUtils/VulkanQueueFamilies.h"
-#include "../vkUtils/VulkanAlloc.h"
-#include "../vkUtils/VulkanValidation.h"
+#include "../vkUtils/VulkanImage.h"
 
 namespace vkInit
 {
@@ -168,16 +167,11 @@ namespace vkInit
 				VK_COMPONENT_SWIZZLE_IDENTITY
 			};
 			bundle.frames[i].image = images[i];
-			bundle.frames[i].imageView = vkUtils::memory::createImageView(logicalDevice, images[i], bundle.format, components);
+			bundle.frames[i].imageView = vkUtils::createImageView(logicalDevice, images[i], bundle.format, components);
 		}
 
 		VOXEL_CORE_TRACE("Vulkan swap chain created.")
 
 		return bundle;
-	}
-
-	void destroySwapChain(const VkDevice& logicalDevice, const VkSwapchainKHR& swapchain)
-	{
-		vkDestroySwapchainKHR(logicalDevice, swapchain, nullptr);
 	}
 }

@@ -1,7 +1,7 @@
 #pragma once
+#include <vulkan/vulkan.h>
 #include <array>
 #include <glm/glm.hpp>
-#include <vulkan/vulkan.h>
 
 namespace vulkan
 {

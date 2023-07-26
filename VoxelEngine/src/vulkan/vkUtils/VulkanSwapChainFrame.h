@@ -35,16 +35,23 @@ namespace vkUtils
 
 		void makeDescriptorResources(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice)
 		{
+			// UNIFORM BUFFER
 			VkDeviceSize size = sizeof(vkUtils::UniformBufferObject);
 			uniformBuffer = vkUtils::VulkanUniformBuffer(physicalDevice, logicalDevice, size);
 
+			uniformBufferDescriptor.buffer = uniformBuffer;
+			uniformBufferDescriptor.offset = 0;
+			uniformBufferDescriptor.range = size;
+
+			// STORAGE BUFFER
+			size = 1024 * sizeof(glm::mat4);
 			modelBuffer = vkUtils::memory::createBuffer(
 				physicalDevice,
 				logicalDevice,
-				1024 * sizeof(glm::mat4(1.0f)),
+				size,
 				VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
 
-			vkMapMemory(logicalDevice, modelBuffer.bufferMemory, 0, 1024 * sizeof(glm::mat4(1.0f)), 0, &modelBufferMappedMemory);
+			vkMapMemory(logicalDevice, modelBuffer.bufferMemory, 0, size, 0, &modelBufferMappedMemory);
 
 			modelTransforms.reserve(1024);
 			for (int i = 0; i < 1024; ++i)
@@ -52,13 +59,9 @@ namespace vkUtils
 				modelTransforms.push_back(glm::mat4(1.0f));
 			}
 
-			uniformBufferDescriptor.buffer = uniformBuffer;
-			uniformBufferDescriptor.offset = 0;
-			uniformBufferDescriptor.range = size;
-
 			modelBufferDescriptor.buffer = modelBuffer.buffer;
 			modelBufferDescriptor.offset = 0;
-			modelBufferDescriptor.range = 1024 * sizeof(glm::mat4(1.0f));
+			modelBufferDescriptor.range = size;
 		}
 
 		void writeDescriptorSet(const VkDevice& logicalDevice)

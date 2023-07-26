@@ -15,8 +15,6 @@
 
 namespace vulkan
 {	
-	using namespace VoxelEngine::components::mesh;
-
 	struct VulkanState
 	{
 		GLFWwindow* windowPtr;
@@ -56,6 +54,7 @@ namespace vulkan
 	} state;
 
 	const VoxelEngine::components::camera::Camera* FPVcamera;
+	const VoxelEngine::Scene* currentScene;
 		
 	static void framebufferResizeCallback(GLFWwindow* window, int width, int height)
 	{
@@ -274,19 +273,20 @@ namespace vulkan
 		frame.uniformBuffer.setData(&ubo, sizeof(ubo));
 
 		size_t i = 0;
-		for (const auto& vertex : state.vertexManager->vertices)
+		for (const auto& position : currentScene->vertices)
 		{
-			frame.modelTransforms[i++] = glm::translate(glm::mat4(1.0f), vertex.pos);
+			frame.modelTransforms[i++] = glm::translate(glm::mat4(1.0f), position);
 		}
-		memcpy(frame.modelBufferMappedMemory, frame.modelTransforms.data(), i * sizeof(glm::mat4(1.0f)));
+		memcpy(frame.modelBufferMappedMemory, frame.modelTransforms.data(), i * sizeof(glm::mat4));
 
 		frame.writeDescriptorSet(state.logicalDevice);
 	}
-	void prepareScene(const VkCommandBuffer& commandBuffer, const VoxelEngine::Scene* scene)
+	void prepareScene(const VkCommandBuffer& commandBuffer)
 	{
 		VkBuffer vertexBuffers[] = { *state.vertexManager->vertexBuffer };
 		VkDeviceSize offsets[] = { 0 };
 		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+		vkCmdBindIndexBuffer(commandBuffer, *state.vertexManager->indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 	}
 	void beginFrame() 
 	{
@@ -319,7 +319,7 @@ namespace vulkan
 
 		prepareFrame(CURRENT_FRAME);
 
-		recordCommandBuffer(state.swapChainFrames[CURRENT_FRAME].commandBuffer, CURRENT_FRAME, nullptr);
+		recordCommandBuffer(state.swapChainFrames[CURRENT_FRAME].commandBuffer, CURRENT_FRAME);
 
 		VkSemaphore signalSemaphores[] = { state.swapChainFrames[CURRENT_FRAME].renderFinishedSemaphore};
 		submitToQueue(state.queues.graphicsQueue, state.swapChainFrames[CURRENT_FRAME].commandBuffer, signalSemaphores);
@@ -336,7 +336,7 @@ namespace vulkan
 
 		CURRENT_FRAME = (CURRENT_FRAME + 1) % MAX_FRAMES_IN_FLIGHT;
 	}
-	void recordCommandBuffer(const VkCommandBuffer& commandBuffer, const uint32& imageIndex, const VoxelEngine::Scene* scene)
+	void recordCommandBuffer(const VkCommandBuffer& commandBuffer, const uint32& imageIndex)
 	{
 		vkUtils::memory::CommandBuffer::beginCommand(commandBuffer);
 
@@ -360,16 +360,11 @@ namespace vulkan
 		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
 		// =================== RENDER WHOLE STUFF HERE ! ===================
-		prepareScene(commandBuffer, scene);
+		prepareScene(commandBuffer);
 
-		uint32 vertexCount = state.vertexManager->sizes[MeshType::Triangle];
-		uint32 firstVertex = state.vertexManager->offsets[MeshType::Triangle];
-		renderSceneObjects(commandBuffer, vertexCount, 1, firstVertex, 0);
+		uint32 startInstance = 0;
+		renderSceneObjects(commandBuffer, MeshType::Triangle, startInstance, static_cast<uint32>(currentScene->vertices.size()));
 		
-		vertexCount = state.vertexManager->sizes[MeshType::Square];
-		firstVertex = state.vertexManager->offsets[MeshType::Square];
-		renderSceneObjects(commandBuffer, vertexCount, 1, firstVertex, 0);
-
 		ImDrawData* main_draw_data = ImGui::GetDrawData();
 		ImGui_ImplVulkan_RenderDrawData(main_draw_data, commandBuffer);
 		// =================================================================
@@ -402,6 +397,11 @@ namespace vulkan
 	void setCamera(const VoxelEngine::components::camera::Camera* camera)
 	{
 		FPVcamera = camera;
+	}
+
+	void setScene(const VoxelEngine::Scene* scene)
+	{
+		currentScene = scene;
 	}
 
 	void init()
@@ -457,23 +457,28 @@ namespace vulkan
 		state.vertexManager = new VoxelEngine::renderer::VertexManager;
 
 		std::vector<Vertex> vertices = {
-			{{0.0f, -0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
-			{{0.5f, 0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-			{{-0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}}
+			{{0.0f, -0.1f, 0.0f}, {1.0f, 1.0f, 1.0f}},
+			{{0.1f, 0.1f, 0.0f}, {0.0f, 1.0f, 0.0f}},
+			{{-0.1f, 0.1f, 0.0f}, {0.0f, 0.0f, 1.0f}}
 		};
-		state.vertexManager->concatMesh(MeshType::Triangle, vertices);
+		std::vector<uint32> indices = { 0, 1, 2 };
+		state.vertexManager->concatMesh(MeshType::Triangle, vertices, indices);
 
 		state.vertexManager->finalize(state.physicalDevice, state.logicalDevice);
 	}
 
 	void renderSceneObjects(
-		const VkCommandBuffer& commandBuffer, 
-		const uint32& vertexCount, 
-		const uint32& instanceCount, 
-		const uint32& firstVertex, 
-		const uint32& firstInstance)
+		const VkCommandBuffer& commandBuffer,
+		const MeshType& objectType,
+		uint32& startInstance,
+		const uint32& instanceCount)
 	{
-		vkCmdDraw(commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
+		int indexCount = state.vertexManager->indexCounts.find(objectType)->second;
+		int firstIndex = state.vertexManager->firstIndices.find(objectType)->second;
+
+		vkCmdDrawIndexed(commandBuffer, indexCount, instanceCount, firstIndex, 0, startInstance);
+	
+		startInstance += instanceCount;
 	}
 
 	const VkDevice& getLogicalDevice()

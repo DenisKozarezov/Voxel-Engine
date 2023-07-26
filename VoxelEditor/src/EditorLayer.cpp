@@ -194,6 +194,7 @@ namespace VoxelEditor
 		_dispatcher.registerEvent<input::MouseMovedEvent>(BIND_CALLBACK(EditorLayer::onMouseMoved));
 	
 		renderer::Renderer::setCamera(&_camera);
+		renderer::Renderer::setScene(new Scene());
 	}				  
 	void EditorLayer::onDetach()
 	{				  

@@ -1,6 +1,7 @@
 #pragma once
 #include "../Window.h"
 #include "components/camera/Camera.h"
+#include "core/Scene.h"
 
 namespace VoxelEngine::renderer
 {
@@ -33,6 +34,7 @@ namespace VoxelEngine::renderer
 		static void beginFrame();
 		static void endFrame();
 		static void setCamera(const components::camera::Camera* camera);
+		static void setScene(const VoxelEngine::Scene* scene);
 		static void deviceWaitIdle();
 		static void cleanup();
 	};

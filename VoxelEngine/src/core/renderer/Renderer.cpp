@@ -35,6 +35,10 @@ namespace VoxelEngine::renderer
     {
         vulkan::setCamera(camera);
     }
+    void Renderer::setScene(const VoxelEngine::Scene* scene)
+    {
+        vulkan::setScene(scene);
+    }
     void Renderer::deviceWaitIdle()
     {
         vulkan::deviceWaitIdle();

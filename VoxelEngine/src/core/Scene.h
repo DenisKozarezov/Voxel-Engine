@@ -1,7 +1,6 @@
 #pragma once
 #include <vector>
-#include <glm/glm.hpp>
-#include <vulkan/vkUtils/VulkanAlloc.h>
+#include <vulkan/VulkanVertex.h>
 
 namespace VoxelEngine
 {
@@ -9,8 +8,7 @@ namespace VoxelEngine
 	{
 	public:
 		std::vector<glm::vec3> vertices;
-		std::vector<glm::vec2> indices;
 
-		vkUtils::memory::Buffer vertexBuffer;
+		Scene();
 	};
 }

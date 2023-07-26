@@ -3,27 +3,36 @@
 
 namespace vkUtils
 {
-	VulkanVertexBuffer::VulkanVertexBuffer(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice, const void* vertices, const size_t& bufferSize)
+	VulkanVertexBuffer::VulkanVertexBuffer(
+		const VkPhysicalDevice& physicalDevice, 
+		const VkDevice& logicalDevice, 
+		const void* vertices, 
+		const size_t& bufferSize)
+		: logicalDevice(logicalDevice)
 	{ 
-		setData(vertices, bufferSize);
+		const auto& stagingBuffer = memory::createBuffer(
+			physicalDevice,
+			logicalDevice,
+			bufferSize, 
+			VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
+
+		memory::mapMemory(logicalDevice, stagingBuffer.bufferMemory, 0, bufferSize, 0, vertices);
+
+		vertexBuffer = memory::createBuffer(
+			physicalDevice,
+			logicalDevice,
+			bufferSize, 
+			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, 
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		vulkan::copyBuffer(stagingBuffer.buffer, vertexBuffer.buffer, bufferSize);
+
+		memory::destroyBuffer(logicalDevice, stagingBuffer.buffer);
+		memory::freeDeviceMemory(logicalDevice, stagingBuffer.bufferMemory);
 	}
 
 	void VulkanVertexBuffer::release() const
 	{
 		vertexBuffer.release(logicalDevice);
-	}
-	void VulkanVertexBuffer::setData(const void* data, const size_t& size)
-	{
-		const auto& stagingBuffer = vulkan::createBuffer(size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-
-		logicalDevice = vulkan::getLogicalDevice();
-		vkUtils::memory::mapMemory(logicalDevice, stagingBuffer.bufferMemory, 0, size, 0, data);
-
-		vertexBuffer = vulkan::createBuffer(size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-		vulkan::copyBuffer(stagingBuffer.buffer, vertexBuffer.buffer, size);
-
-		vulkan::destroyBuffer(stagingBuffer.buffer);
-		vulkan::freeDeviceMemory(stagingBuffer.bufferMemory);
 	}
 
 	VulkanVertexBuffer::~VulkanVertexBuffer()

@@ -10,12 +10,15 @@ namespace vkUtils
 		vkUtils::memory::Buffer vertexBuffer;
 	public:
 		VulkanVertexBuffer() = default;
-		VulkanVertexBuffer(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice, const void* vertices, const size_t& bufferSize);
+		VulkanVertexBuffer(
+			const VkPhysicalDevice& physicalDevice, 
+			const VkDevice& logicalDevice, 
+			const void* vertices, 
+			const size_t& bufferSize);
 
 		operator const VkBuffer&() const & { return vertexBuffer.buffer; }
 
 		void release() const;
-		void setData(const void* data, const size_t& size);
 
 		~VulkanVertexBuffer();
 	};	

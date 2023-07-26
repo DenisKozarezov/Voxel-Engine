@@ -2,6 +2,7 @@
 #include <vector>
 #include <unordered_map>
 #include <vulkan/vkUtils/VulkanVertexBuffer.h>
+#include <vulkan/vkUtils/VulkanIndexBuffer.h>
 #include <components/mesh/Mesh.h>
 
 namespace VoxelEngine::renderer
@@ -12,12 +13,14 @@ namespace VoxelEngine::renderer
 	{
 	private:
 		VkDevice logicalDevice;
-		size_t offset = 0;
+		size_t indexOffset = 0;
+		std::vector<uint32> indices;
 	public:
-		vkUtils::VulkanVertexBuffer* vertexBuffer;
 		std::vector<vulkan::Vertex> vertices;
-		std::unordered_map<MeshType, size_t> offsets;
-		std::unordered_map<MeshType, size_t> sizes;
+		vkUtils::VulkanVertexBuffer* vertexBuffer;
+		vkUtils::VulkanIndexBuffer* indexBuffer;
+		std::unordered_map<MeshType, size_t> firstIndices;
+		std::unordered_map<MeshType, size_t> indexCounts;
 
 		VertexManager();
 		VertexManager(VertexManager const&) noexcept = delete;
@@ -25,7 +28,10 @@ namespace VoxelEngine::renderer
 		VertexManager& operator=(VertexManager const& rhs) noexcept = delete;
 		VertexManager& operator=(VertexManager&& rhs) noexcept = delete;
 
-		void concatMesh(const MeshType& type, const std::vector<vulkan::Vertex>& vertices);
+		void concatMesh(
+			const MeshType& type, 
+			const std::vector<vulkan::Vertex>& vertices, 
+			const std::vector<uint32>& indices);
 		void finalize(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice);
 
 		~VertexManager();

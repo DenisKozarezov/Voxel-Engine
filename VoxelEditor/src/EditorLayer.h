@@ -3,11 +3,25 @@
 
 namespace VoxelEditor
 {
+	using namespace VoxelEngine;
+
 	class EditorLayer : public VoxelEngine::renderer::Layer
 	{
 	private:
-		const bool onKeyPressed(const VoxelEngine::input::KeyPressedEvent& e) const;
-		const bool onMouseButtonPressed(const VoxelEngine::input::MouseButtonPressedEvent& e) const;
+		input::MouseDraggingState _mouseState;
+		input::EventDispatcher _dispatcher;
+		components::camera::FirstPersonCamera _camera{ glm::vec3(0.0f, 0.0f, 5.0f) };
+		float _lastMouseX = 0.0f, _lastMouseY = 0.0f;
+		float _deltaTime = 0.0f;
+
+		bool onKeyboardPressed(const input::KeyPressedEvent& e);
+		bool onMousePressed(const input::MouseButtonPressedEvent& e);
+		bool onMouseReleased(const input::MouseButtonReleasedEvent& e);
+		bool onMouseMoved(const input::MouseMovedEvent& e);
+
+		void setMouseDragging(const bool& isDragging);
+		void moveCamera(const components::camera::CameraMovement& direction);
+		void mouseMove(const float& x, const float& y);
 		void drawMenuBar();
 		void drawHierarchy();
 		void drawRenderPerformance();

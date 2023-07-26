@@ -1,34 +1,50 @@
 #include "Renderer.h"
-#include <platform/Vulkan/VulkanRenderer.h>
+#include <vulkan/VulkanBackend.h>
+#include <imgui.h>
+#include "core/Application.h"
 
 namespace VoxelEngine::renderer
 {
-    static SharedRef<VulkanRenderer> renderer = 0;
+    RenderPerformanceStats renderPerformanceStats;
 
-    float Renderer::getTime() noexcept
+    const RenderPerformanceStats& Renderer::getStats()
+    {
+        renderPerformanceStats.deltaTime = Application::getInstance().getDeltaTime();
+        renderPerformanceStats.fps = ImGui::GetIO().Framerate;
+        return renderPerformanceStats;
+    }
+    const float Renderer::getTime()
     {
         return (float)glfwGetTime();
     }
     void Renderer::init(const Window& window)
     {
-        renderer = VulkanRenderer::getInstance();
-        renderer->setWindow(window);
-        renderer->init();
+        VOXEL_CORE_WARN("Renderer initialization.")
+        vulkan::setWindow(window);
+        vulkan::init();
     }
     void Renderer::beginFrame()
     {
-        renderer->beginFrame();
+        vulkan::beginFrame();
     }
     void Renderer::endFrame()
     {
-        renderer->endFrame();
+        vulkan::endFrame();
+    }
+    void Renderer::setCamera(const components::camera::Camera* camera)
+    {
+        vulkan::setCamera(camera);
+    }
+    void Renderer::setScene(const VoxelEngine::Scene* scene)
+    {
+        vulkan::setScene(scene);
     }
     void Renderer::deviceWaitIdle()
     {
-        renderer->deviceWaitIdle();
+        vulkan::deviceWaitIdle();
     }
     void Renderer::cleanup()
     {
-        renderer->cleanup();
+        vulkan::cleanup();
     }
 }

@@ -2,8 +2,6 @@
 #include <cstdint>
 #include <string>
 
-namespace VoxelEngine
-{
 	// ------- unsigned -------
 	using ulong = unsigned long;
 	using uint64 = uint64_t;
@@ -24,4 +22,3 @@ namespace VoxelEngine
 	using string = std::string;
 
 #define BIT(x) (1 << x)
-}

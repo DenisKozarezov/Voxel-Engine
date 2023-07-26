@@ -1,5 +1,6 @@
 #pragma once
 #include "input/events/ApplicationEvent.h"
+#include "input/events/EventDispatcher.h"
 #include "Window.h"
 #include "Assert.h"
 #include "LayerStack.h"
@@ -37,18 +38,19 @@ struct ApplicationSpecification
 
 namespace VoxelEngine
 {
-#define BIND_CALLBACK(method) std::bind(&Application::method, this, std::placeholders::_1)
-
 	class VOXEL_API Application
 	{
 	private:
 		ApplicationSpecification _specification;
 		UniqueRef<Window> _window;
 		renderer::LayerStack _layerStack;
+		input::EventDispatcher _dispatcher;
 		bool _running = false;
 		bool _minimized = false;
-		float _lastFrameTime = 0.0f;
+		float _deltaTime;
 		static Application* _instance;
+
+		void setupInputCallbacks();
 
 		void onEvent(input::Event& e);
 		bool onWindowClose(const input::WindowCloseEvent& e);
@@ -58,11 +60,14 @@ namespace VoxelEngine
 		void pushLayer(renderer::Layer* layer);
 		void pushOverlay(renderer::Layer* layer);
 	public:
-		Application() = delete;
-		Application(const Application&) = delete;
-		Application(Application&&) = delete;
+		Application() noexcept = delete;
+		Application(const Application&) noexcept = delete;
+		Application(Application&&) noexcept = delete;
+		Application& operator= (Application const& rhs) noexcept = delete;
+		Application& operator= (Application&& rhs) noexcept = delete;
 
-		static const SharedRef<Application> getInstance();
+		static Application& getInstance();
+		const float& getDeltaTime() const;
 
 		void init();
 		void run();

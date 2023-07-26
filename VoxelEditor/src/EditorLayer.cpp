@@ -9,16 +9,81 @@ namespace VoxelEditor
 
 	EditorLayer::EditorLayer() : Layer("EditorLayer")
 	{
-
+		_mouseState = input::MouseDraggingState::None;
 	}
 
-	const bool EditorLayer::onKeyPressed(const VoxelEngine::input::KeyPressedEvent& e) const
+	bool EditorLayer::onKeyboardPressed(const input::KeyPressedEvent& e)
 	{
-		return false;
+		switch (e.getKeyCode())
+		{
+		case input::W:
+			moveCamera(components::camera::CameraMovement::Forward);
+			break;
+		case input::S:
+			moveCamera(components::camera::CameraMovement::Backward);
+			break;
+		case input::A:
+			moveCamera(components::camera::CameraMovement::Left);
+			break;
+		case VoxelEngine::input::D:
+			moveCamera(components::camera::CameraMovement::Right);
+			break;
+		}
+		return true;
 	}
-	const bool EditorLayer::onMouseButtonPressed(const VoxelEngine::input::MouseButtonPressedEvent& e) const
+	bool EditorLayer::onMousePressed(const input::MouseButtonPressedEvent& e)
 	{
-		return false;
+		switch (e.getKeyCode())
+		{
+		case input::ButtonRight:
+			setMouseDragging(true);
+			break;
+		}
+		return true;
+	}
+	bool EditorLayer::onMouseReleased(const input::MouseButtonReleasedEvent& e)
+	{
+		switch (e.getKeyCode())
+		{
+		case input::ButtonRight:
+			setMouseDragging(false);
+			break;
+		}
+		return true;
+	}
+	bool EditorLayer::onMouseMoved(const input::MouseMovedEvent& e)
+	{
+		const float x = e.getX();
+		const float y = e.getY();
+
+		if (_mouseState == input::MouseDraggingState::DragBegin)
+		{
+			_lastMouseX = x;
+			_lastMouseY = y;
+			_mouseState = input::MouseDraggingState::Dragging;
+		}
+
+		if (_mouseState == input::MouseDraggingState::Dragging)
+		{
+			mouseMove(x - _lastMouseX, _lastMouseY - y);
+			_lastMouseX = x;
+			_lastMouseY = y;
+		}
+		return true;
+	}
+
+	void EditorLayer::setMouseDragging(const bool& isDragging)
+	{
+		_mouseState = isDragging ? input::MouseDraggingState::DragBegin : input::MouseDraggingState::None;
+	}
+	void EditorLayer::moveCamera(const components::camera::CameraMovement& direction)
+	{		
+		_camera.processKeyboard(direction, _deltaTime);
+	}
+
+	void EditorLayer::mouseMove(const float& x, const float& y)
+	{
+		_camera.processMouse(x, y);
 	}
 
 	void EditorLayer::drawMenuBar()
@@ -86,6 +151,8 @@ namespace VoxelEditor
 		ImGuiWindowFlags flags = ImGuiWindowFlags_::ImGuiWindowFlags_NoCollapse;
 		if (show_performance && ImGui::Begin("Performance", &show_performance, flags))
 		{
+			auto stats = VoxelEngine::renderer::Renderer::getStats();
+
 			if (ImGui::CollapsingHeader("Statistics", ImGuiTreeNodeFlags_DefaultOpen))
 			{
 				ImGui::BeginColumns("##statistics", 2);
@@ -99,8 +166,7 @@ namespace VoxelEditor
 
 				ImGui::Separator();
 
-				ImGuiIO& io = ImGui::GetIO();
-				ImGui::Text("Rendering: %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+				ImGui::Text("Rendering: %.5f ms/frame (%.1f FPS)", stats.deltaTime, stats.fps);
 			}
 
 			if (ImGui::CollapsingHeader("Memory"))
@@ -122,13 +188,20 @@ namespace VoxelEditor
 
 	void EditorLayer::onAttach()
 	{				  
-		
+		_dispatcher.registerEvent<input::KeyPressedEvent>(BIND_CALLBACK(EditorLayer::onKeyboardPressed));
+		_dispatcher.registerEvent<input::MouseButtonPressedEvent>(BIND_CALLBACK(EditorLayer::onMousePressed));
+		_dispatcher.registerEvent<input::MouseButtonReleasedEvent>(BIND_CALLBACK(EditorLayer::onMouseReleased));
+		_dispatcher.registerEvent<input::MouseMovedEvent>(BIND_CALLBACK(EditorLayer::onMouseMoved));
+	
+		renderer::Renderer::setCamera(&_camera);
+		renderer::Renderer::setScene(new Scene());
 	}				  
 	void EditorLayer::onDetach()
 	{				  
 	}				  
 	void EditorLayer::onUpdate(const VoxelEngine::Timestep& ts)
 	{				  
+		_deltaTime = ts;
 	}				  
 	void EditorLayer::onImGuiRender()
 	{
@@ -162,5 +235,6 @@ namespace VoxelEditor
 	}				  
 	void EditorLayer::onEvent(VoxelEngine::input::Event& e)
 	{
+		_dispatcher.dispatchEvent(e, std::launch::async);
 	}
 }

@@ -1,5 +1,7 @@
 #pragma once
 #include "../Window.h"
+#include "components/camera/Camera.h"
+#include "core/Scene.h"
 
 namespace VoxelEngine::renderer
 {
@@ -19,17 +21,20 @@ namespace VoxelEngine::renderer
 		uint64 indices;
 		uint32 voxels;
 		uint32 batches;
+		float fps;
+		float deltaTime;
 	};
 
 	class Renderer
 	{
-	private:
-		static RenderPerformanceStats _stats;
 	public:
-		static float getTime() noexcept;
+		static const RenderPerformanceStats& getStats();
+		static const float getTime();
 		static void init(const Window& window);
 		static void beginFrame();
 		static void endFrame();
+		static void setCamera(const components::camera::Camera* camera);
+		static void setScene(const VoxelEngine::Scene* scene);
 		static void deviceWaitIdle();
 		static void cleanup();
 	};

@@ -9,7 +9,12 @@ namespace VoxelEngine::renderer
 	private:
 		string _debugName;
 	public:
+		Layer() = default;
 		Layer(const string& name = "Layer") : _debugName(name) { }
+		Layer(Layer const&) noexcept = delete;
+		Layer(Layer&&) noexcept = delete;
+		Layer& operator= (Layer const& rhs) noexcept = delete;
+		Layer& operator= (Layer&& rhs) noexcept = delete;
 
 		virtual void onAttach() {}
 		virtual void onDetach() {}

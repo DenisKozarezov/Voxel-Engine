@@ -55,4 +55,11 @@ namespace VoxelEngine::renderer
 			(*it)->onImGuiRender();
 		}
 	}
+	void LayerStack::onEvent(input::Event& e)
+	{
+		for (auto it = begin(); it != end(); ++it)
+		{
+			(*it)->onEvent(e);
+		}
+	}
 }

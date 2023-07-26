@@ -13,7 +13,7 @@ namespace VoxelEngine::input
         KeyboardEvent(const KeyboardEvent& e) : _keyCode(e._keyCode) { }
         KeyboardEvent(const KeyCode& key) : _keyCode(key) { }
 
-        inline const KeyCode& getKeyCode() const { return _keyCode; }
+        inline const KeyCode& getKeyCode() const & { return _keyCode; }
         const string toString() const override
         {
             std::stringstream ss;

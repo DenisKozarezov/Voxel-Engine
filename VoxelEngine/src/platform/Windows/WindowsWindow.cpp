@@ -100,6 +100,13 @@ namespace VoxelEngine
 			}
 			}
 		});
+
+		glfwSetCursorPosCallback(_window, [](GLFWwindow* window, double xpos, double ypos)
+		{
+			WindowsOSData& data = *(WindowsOSData*)glfwGetWindowUserPointer(window);
+			input::MouseMovedEvent e(xpos, ypos);
+			data.EventCallback(e);
+		});
 	}
 	void WindowsWindow::shutdown()
 	{

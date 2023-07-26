@@ -5,13 +5,13 @@
 
 namespace vkUtils
 {
-	const VkFormat findSupportedFormat(
+	constexpr const VkFormat findSupportedFormat(
 		const VkPhysicalDevice& physicalDevice, 
 		const std::vector<VkFormat>& candidates, 
 		const VkImageTiling& tiling, 
 		const VkFormatFeatureFlags& features);
 
-	const VkFormat& findDepthFormat(const VkPhysicalDevice& physicalDevice);
+	const VkFormat findDepthFormat(const VkPhysicalDevice& physicalDevice);
 
 	constexpr bool hasStencilComponent(const VkFormat& format);
 

@@ -45,6 +45,6 @@ namespace assets
 	{
 	public:
 		static const TextureData loadTexture(const string& path, ImageColorFormat req_comp = ImageColorFormat::RGB_alpha);
-		static const VoxelEngine::SharedRef<Mesh*> loadObjMesh(const string& path);
+		static const VoxelEngine::SharedRef<Mesh> loadObjMesh(const string& path);
 	};
 }

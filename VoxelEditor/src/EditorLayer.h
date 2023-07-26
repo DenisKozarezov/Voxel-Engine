@@ -10,7 +10,7 @@ namespace VoxelEditor
 	private:
 		input::MouseDraggingState _mouseState;
 		input::EventDispatcher _dispatcher;
-		components::camera::FirstPersonCamera _camera{ glm::vec3(0.0f, 0.0f, 5.0f) };
+		components::camera::FirstPersonCamera _camera{ glm::vec3(2.0f, 2.0f, 2.0f) };
 		float _lastMouseX = 0.0f, _lastMouseY = 0.0f;
 		float _deltaTime = 0.0f;
 

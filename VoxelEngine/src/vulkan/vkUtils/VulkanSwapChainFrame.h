@@ -18,17 +18,10 @@ namespace vkUtils
 		VkPhysicalDevice physicalDevice;
 		VkDevice logicalDevice;
 
-		// Swap Chain
-		uint32 width, height;
-
 		VkImage image;
 		VkImageView imageView;
 		VkFramebuffer framebuffer;
 		VkCommandBuffer commandBuffer;
-		VkFormat depthFormat;
-		VkImage depthImage;
-		VkImageView depthImageView;
-		VkDeviceMemory depthImageMemory;
 
 		// Synchronization
 		VkSemaphore imageAvailableSemaphore, renderFinishedSemaphore;
@@ -44,8 +37,6 @@ namespace vkUtils
 		std::vector<glm::mat4> modelTransforms;
 
 		void makeDescriptorResources();
-
-		void makeDepthResources();
 
 		void writeDescriptorSet() const;
 

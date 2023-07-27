@@ -31,10 +31,8 @@ namespace vulkan
 		VkDevice logicalDevice;
 		VkPhysicalDevice physicalDevice;
 		vkInit::DeviceQueues queues;
-		VkSwapchainKHR swapChain;
-		VkFormat swapChainImageFormat;
-		VkExtent2D swapChainExtent;
-		std::vector<vkUtils::SwapChainFrame> swapChainFrames;
+		vkInit::SwapChainBundle swapChainBundle;
+
 		vkUtils::QueueFamilyIndices queueFamilyIndices;
 
 		// Command-related variables
@@ -77,7 +75,7 @@ namespace vulkan
 	void makeCommandBuffers()
 	{
 		int i = 0;
-		for (vkUtils::SwapChainFrame& frame : state.swapChainFrames)
+		for (vkUtils::SwapChainFrame& frame : state.swapChainBundle.frames)
 		{
 			frame.commandBuffer = vkUtils::memory::CommandBuffer::allocate();
 
@@ -100,22 +98,23 @@ namespace vulkan
 	}
 	void makeSwapChain()
 	{
-		const auto& swapChainBundle = vkInit::createSwapChain(state.physicalDevice, state.logicalDevice, state.surface, state.window->getWidth(), state.window->getHeight());
-		state.swapChainImageFormat = swapChainBundle.format;
-		state.swapChainExtent = swapChainBundle.extent;
-		state.swapChain = swapChainBundle.swapchain;
-		state.swapChainFrames = swapChainBundle.frames;
-		MAX_FRAMES_IN_FLIGHT = static_cast<int>(swapChainBundle.frames.size());
+		state.swapChainBundle = vkInit::createSwapChain(state.physicalDevice, state.logicalDevice, state.surface, state.window->getWidth(), state.window->getHeight());
 
-		for (vkUtils::SwapChainFrame& frame : state.swapChainFrames)
+		MAX_FRAMES_IN_FLIGHT = static_cast<int>(state.swapChainBundle.frames.size());
+
+		for (vkUtils::SwapChainFrame& frame : state.swapChainBundle.frames)
 		{
 			frame.physicalDevice = state.physicalDevice;
 			frame.logicalDevice = state.logicalDevice;
-			frame.width = swapChainBundle.extent.width;
-			frame.height = swapChainBundle.extent.height;
-
-			frame.makeDepthResources();
 		}
+	}
+	void makeFramebuffers()
+	{
+		VkExtent2D swapChainExtent = state.swapChainBundle.extent;
+		VkImageView depthImageView = state.swapChainBundle.depthImageView;
+		auto& frames = state.swapChainBundle.frames;
+
+		vkInit::createFramebuffers(state.logicalDevice, state.renderPass, swapChainExtent, depthImageView, frames);
 	}
 	void makeDescriptorSetLayout()
 	{
@@ -134,12 +133,16 @@ namespace vulkan
 	}
 	void makeGraphicsPipeline()
 	{
-		state.renderPass = vkInit::createRenderPass(state.logicalDevice, state.swapChainImageFormat, state.swapChainFrames[0].depthFormat);
+		VkFormat swapChainImageFormat = state.swapChainBundle.format;
+		VkFormat depthFormat = state.swapChainBundle.depthFormat;
+		VkSampleCountFlagBits msaaSamples = state.swapChainBundle.msaaSamples;
+		state.renderPass = vkInit::createRenderPass(state.logicalDevice, swapChainImageFormat, depthFormat, msaaSamples);
 
 		vkInit::GraphicsPipilineInputBundle graphicsInputBundle =
 		{
 			.logicalDevice = state.logicalDevice,
 			.renderPass = state.renderPass,
+			.msaaSamples = msaaSamples,
 			.descriptorSetLayout = state.descriptorSetLayout,
 			.vertexFilepath = ASSET_PATH("shaders/vert.spv"),
 			.fragmentFilepath = ASSET_PATH("shaders/frag.spv")
@@ -150,7 +153,7 @@ namespace vulkan
 	}
 	void finalizeSetup()
 	{
-		vkInit::createFramebuffers(state.logicalDevice, state.renderPass, state.swapChainExtent, state.swapChainFrames);
+		makeFramebuffers();
 
 		makeCommandPool(state.physicalDevice, state.logicalDevice);
 
@@ -163,7 +166,7 @@ namespace vulkan
 	void makeFrameResources(const VkDevice& logicalDevice)
 	{
 		int i = 0;
-		for (vkUtils::SwapChainFrame& frame : state.swapChainFrames)
+		for (vkUtils::SwapChainFrame& frame : state.swapChainBundle.frames)
 		{
 			frame.imageAvailableSemaphore = vkInit::createSemaphore(logicalDevice);
 			frame.renderFinishedSemaphore = vkInit::createSemaphore(logicalDevice);
@@ -197,7 +200,7 @@ namespace vulkan
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 		io.Fonts->AddFontDefault();
 		{
-			VkCommandBuffer commandBuffer = state.swapChainFrames[CURRENT_FRAME].commandBuffer;
+			VkCommandBuffer commandBuffer = state.swapChainBundle.frames[CURRENT_FRAME].commandBuffer;
 
 			// Use any command queue
 			vkResetCommandPool(state.logicalDevice, state.commandPool, 0);
@@ -227,23 +230,19 @@ namespace vulkan
 		}
 		deviceWaitIdle();
 
-		cleanupSwapChain(logicalDevice, state.swapChain);
+		cleanupSwapChain();
 		makeSwapChain();
-		vkInit::createFramebuffers(logicalDevice, state.renderPass, state.swapChainExtent, state.swapChainFrames);
+		makeFramebuffers();
 		makeFrameResources(logicalDevice);
 		makeCommandBuffers();
 	}	
-	void cleanupSwapChain(const VkDevice& logicalDevice, const VkSwapchainKHR& swapchain)
+	void cleanupSwapChain()
 	{
-		for (const auto& frame : state.swapChainFrames)
-		{
-			frame.release();
-		}
-		vkDestroySwapchainKHR(logicalDevice, swapchain, nullptr);
+		state.swapChainBundle.release(state.logicalDevice);		
 	}
 	void presentFrame(const uint32& imageIndex, VkSemaphore* signalSemaphores)
 	{
-		VkSwapchainKHR swapChains[] = { state.swapChain };
+		VkSwapchainKHR swapChains[] = { state.swapChainBundle.swapchain };
 
 		VkPresentInfoKHR presentInfo = {};
 		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -264,8 +263,9 @@ namespace vulkan
 	}
 	void prepareFrame(const uint32& imageIndex)
 	{
-		vkUtils::SwapChainFrame& frame = state.swapChainFrames[imageIndex];
-		const float aspectRatio = (float)state.swapChainExtent.width / state.swapChainExtent.height;
+		vkUtils::SwapChainFrame& frame = state.swapChainBundle.frames[imageIndex];
+		VkExtent2D swapChainExtent = state.swapChainBundle.extent;
+		const float aspectRatio = (float)swapChainExtent.width / swapChainExtent.height;
 
 		vkUtils::UniformBufferObject ubo =
 		{
@@ -295,11 +295,13 @@ namespace vulkan
 	}
 	void beginFrame() 
 	{
+		vkUtils::SwapChainFrame& frame = state.swapChainBundle.frames[CURRENT_FRAME];
+
 		// Stage 1. ACQUIRE IMAGE FROM SWAPCHAIN
-		vkInit::lockFences(state.logicalDevice, 1, state.swapChainFrames[CURRENT_FRAME].inFlightFence);
+		vkInit::lockFences(state.logicalDevice, 1, frame.inFlightFence);
 
 		uint32 imageIndex;
-		VkResult result = vkAcquireNextImageKHR(state.logicalDevice, state.swapChain, UINT64_MAX, state.swapChainFrames[CURRENT_FRAME].imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+		VkResult result = vkAcquireNextImageKHR(state.logicalDevice, state.swapChainBundle.swapchain, UINT64_MAX, frame.imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
 		if (result == VK_ERROR_OUT_OF_DATE_KHR)
 		{
 			recreateSwapChain(state.physicalDevice, state.logicalDevice, state.surface, state.windowPtr);
@@ -310,8 +312,8 @@ namespace vulkan
 			VOXEL_CORE_ASSERT(result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR, "failed to acquire swap chain image!")
 		}
 
-		vkInit::resetFences(state.logicalDevice, 1, state.swapChainFrames[CURRENT_FRAME].inFlightFence);
-		vkUtils::memory::CommandBuffer::reset(state.swapChainFrames[CURRENT_FRAME].commandBuffer);
+		vkInit::resetFences(state.logicalDevice, 1, frame.inFlightFence);
+		vkUtils::memory::CommandBuffer::reset(frame.commandBuffer);
 
 		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -319,15 +321,17 @@ namespace vulkan
 	}
 	void endFrame()
 	{
+		vkUtils::SwapChainFrame& frame = state.swapChainBundle.frames[CURRENT_FRAME];
+
 		// Stage 2. GRAPHICS
 		ImGui::Render();
 
 		prepareFrame(CURRENT_FRAME);
 
-		recordCommandBuffer(state.swapChainFrames[CURRENT_FRAME].commandBuffer, CURRENT_FRAME);
+		recordCommandBuffer(frame.commandBuffer, CURRENT_FRAME);
 
-		VkSemaphore signalSemaphores[] = { state.swapChainFrames[CURRENT_FRAME].renderFinishedSemaphore};
-		submitToQueue(state.queues.graphicsQueue, state.swapChainFrames[CURRENT_FRAME].commandBuffer, signalSemaphores);
+		VkSemaphore signalSemaphores[] = { frame.renderFinishedSemaphore};
+		submitToQueue(state.queues.graphicsQueue, frame.commandBuffer, signalSemaphores);
 
 		// Stage 3. PRESENT
 		ImGuiIO& io = ImGui::GetIO();
@@ -343,7 +347,8 @@ namespace vulkan
 	}
 	void recordCommandBuffer(const VkCommandBuffer& commandBuffer, const uint32& imageIndex)
 	{
-		vkUtils::SwapChainFrame frame = state.swapChainFrames[imageIndex];
+		vkUtils::SwapChainFrame& frame = state.swapChainBundle.frames[imageIndex];
+		VkExtent2D swapChainExtent = state.swapChainBundle.extent;
 
 		vkUtils::memory::CommandBuffer::beginCommand(commandBuffer);
 
@@ -354,7 +359,7 @@ namespace vulkan
 		VkRenderPassBeginInfo renderPassBeginInfo = vkInit::renderPassBeginInfo(
 			state.renderPass,
 			frame.framebuffer,
-			state.swapChainExtent,
+			swapChainExtent,
 			clearValues);
 		vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
@@ -362,10 +367,10 @@ namespace vulkan
 
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.graphicsPipeline);
 		
-		VkViewport viewport = vkInit::viewport(state.swapChainExtent, 0.0f, 1.0f);
+		VkViewport viewport = vkInit::viewport(swapChainExtent, 0.0f, 1.0f);
 		vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
-		VkRect2D scissor = vkInit::rect2D(state.swapChainExtent, { 0, 0 });
+		VkRect2D scissor = vkInit::rect2D(swapChainExtent, { 0, 0 });
 		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
 		// =================== RENDER WHOLE STUFF HERE ! ===================
@@ -383,7 +388,9 @@ namespace vulkan
 	}
 	void submitToQueue(const VkQueue& queue, const VkCommandBuffer& commandBuffer, const VkSemaphore* signalSemaphores)
 	{
-		VkSemaphore waitSemaphores[] = { state.swapChainFrames[CURRENT_FRAME].imageAvailableSemaphore };
+		vkUtils::SwapChainFrame& frame = state.swapChainBundle.frames[CURRENT_FRAME];
+
+		VkSemaphore waitSemaphores[] = { frame.imageAvailableSemaphore };
 		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 
 		VkSubmitInfo submitInfo = vkInit::submitInfo(
@@ -392,7 +399,7 @@ namespace vulkan
 			commandBuffer, 
 			waitStages);	
 
-		VkResult err = vkQueueSubmit(queue, 1, &submitInfo, state.swapChainFrames[CURRENT_FRAME].inFlightFence);
+		VkResult err = vkQueueSubmit(queue, 1, &submitInfo, frame.inFlightFence);
 		vkUtils::check_vk_result(err, "failed to submit draw command buffer! Possible reasons:\n 1) Incorrect shaders for submitting to the command queue. Please recompile your shaders!\n 2) Synchronization issues.");
 	}
 	void setWindow(const VoxelEngine::Window& window)
@@ -439,7 +446,7 @@ namespace vulkan
 	}
 	void cleanup()
 	{
-		cleanupSwapChain(state.logicalDevice, state.swapChain);
+		cleanupSwapChain();
 
 		delete state.vertexManager;
 		
@@ -496,7 +503,7 @@ namespace vulkan
 	}
 	const VkCommandBuffer& getCommandBuffer()
 	{
-		return state.swapChainFrames[CURRENT_FRAME].commandBuffer;
+		return state.swapChainBundle.frames[CURRENT_FRAME].commandBuffer;
 	}
 	const VkCommandPool& getCommandPool()
 	{

@@ -10,6 +10,7 @@ namespace vkInit
 	{
 		VkDevice logicalDevice;
 		VkRenderPass& renderPass;
+		VkSampleCountFlagBits msaaSamples;
 		VkDescriptorSetLayout descriptorSetLayout;
 		string vertexFilepath;
 		string fragmentFilepath;
@@ -21,20 +22,24 @@ namespace vkInit
 		VkPipelineLayout layout;
 	};
 
-	const VkRenderPass createRenderPass(const VkDevice& logicalDevice, const VkFormat& swapChainImageFormat, const VkFormat depthFormat)
+	const VkRenderPass createRenderPass(
+		const VkDevice& logicalDevice, 
+		const VkFormat& swapChainImageFormat, 
+		const VkFormat depthFormat,
+		const VkSampleCountFlagBits& msaaSamples)
 	{
-		VkAttachmentDescription colorAttachment = renderPassColorAttachment(swapChainImageFormat);
+		VkAttachmentDescription colorAttachment = renderPassColorAttachment(swapChainImageFormat, msaaSamples);
+
+		VkAttachmentDescription depthAttachment = renderPassDepthAttachment(depthFormat, msaaSamples);
 
 		VkAttachmentReference colorAttachmentRef{};
 		colorAttachmentRef.attachment = 0;
 		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-		VkAttachmentDescription depthAttachment = renderPassDepthAttachment(depthFormat);
-
 		VkAttachmentReference depthAttachmentRef{};
 		depthAttachmentRef.attachment = 1;
 		depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
+		
 		VkSubpassDescription subpass = {};
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 		subpass.colorAttachmentCount = 1;
@@ -89,7 +94,7 @@ namespace vkInit
 			VK_CULL_MODE_BACK_BIT,
 			VK_FRONT_FACE_COUNTER_CLOCKWISE);
 
-		VkPipelineMultisampleStateCreateInfo multisampling = pipelineMultisampleStateCreateInfo(VK_SAMPLE_COUNT_1_BIT);
+		VkPipelineMultisampleStateCreateInfo multisampling = pipelineMultisampleStateCreateInfo(inputBundle.msaaSamples);
 
 		VkPipelineColorBlendAttachmentState colorBlendAttachment = pipelineColorBlendAttachmentState(
 			VK_COLOR_COMPONENT_R_BIT |

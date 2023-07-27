@@ -19,7 +19,52 @@ namespace vkInit
 		std::vector<vkUtils::SwapChainFrame> frames;
 		VkFormat format;
 		VkExtent2D extent;
+		VkSampleCountFlagBits msaaSamples;
+
+		// Depth buffering
+		VkFormat depthFormat;
+		VkImage depthImage;
+		VkImageView depthImageView;
+		VkDeviceMemory depthImageMemory;
+
+		// Multisampling
+		VkImage colorImage;
+		VkDeviceMemory colorImageMemory;
+		VkImageView colorImageView;
+
+		void release(const VkDevice& logicalDevice) const
+		{
+			for (const auto& frame : frames)
+			{
+				frame.release();
+			}
+
+			vkDestroyImage(logicalDevice, colorImage, nullptr);
+			vkDestroyImageView(logicalDevice, colorImageView, nullptr);
+			vkFreeMemory(logicalDevice, colorImageMemory, nullptr);
+			
+			vkDestroyImage(logicalDevice, depthImage, nullptr);
+			vkDestroyImageView(logicalDevice, depthImageView, nullptr);
+			vkFreeMemory(logicalDevice, depthImageMemory, nullptr);
+
+			vkDestroySwapchainKHR(logicalDevice, swapchain, nullptr);
+		}
 	};
+
+	const VkSampleCountFlagBits findMaxSamplesCount(const VkPhysicalDevice& physicalDevice)
+	{
+		VkPhysicalDeviceProperties properties;
+		vkGetPhysicalDeviceProperties(physicalDevice, &properties);
+		const VkSampleCountFlags samplesCount = properties.limits.framebufferColorSampleCounts & properties.limits.framebufferDepthSampleCounts;
+
+		for (int i = 64; i != 1; i >>= 1)
+		{
+			if (samplesCount & i)
+				return (VkSampleCountFlagBits)i;
+		}
+
+		return VK_SAMPLE_COUNT_1_BIT;
+	}
 
 	constexpr const VkSurfaceFormatKHR& chooseSwapChainSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
 	{
@@ -106,6 +151,66 @@ namespace vkInit
 		return vector;
 	}
 
+	void createDepthResources(
+		const VkPhysicalDevice& physicalDevice,
+		const VkDevice& logicalDevice,
+		const uint32& width,
+		const uint32& height,
+		const VkSampleCountFlagBits& msaaSamples,
+		VkFormat& depthFormat,
+		VkImage& depthImage,
+		VkImageView& depthImageView,
+		VkDeviceMemory& depthImageMemory)
+	{
+		depthFormat = vkUtils::findDepthFormat(physicalDevice);
+		depthImage = vkUtils::createImage(
+			physicalDevice,
+			logicalDevice,
+			width, height,
+			depthFormat,
+			msaaSamples,
+			VK_IMAGE_TILING_OPTIMAL,
+			VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+			depthImageMemory);
+
+		depthImageView = vkUtils::createImageView(
+			logicalDevice,
+			depthImage,
+			depthFormat,
+			VK_IMAGE_ASPECT_DEPTH_BIT);
+	}
+	
+	void createColorResources(
+		const VkPhysicalDevice& physicalDevice,
+		const VkDevice& logicalDevice,
+		const uint32& width,
+		const uint32& height,
+		const VkSampleCountFlagBits& msaaSamples, 
+		const VkFormat& colorFormat,
+		VkImage& colorImage,
+		VkImageView& colorImageView,
+		VkDeviceMemory& colorImageMemory)
+	{
+		colorImage = vkUtils::createImage(
+			physicalDevice,
+			logicalDevice,
+			width, height,
+			colorFormat,
+			msaaSamples,
+			VK_IMAGE_TILING_OPTIMAL,
+			VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, 
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
+			colorImageMemory);
+
+		colorImageView = vkUtils::createImageView(
+			logicalDevice,
+			colorImage,
+			colorFormat,
+			VK_IMAGE_ASPECT_COLOR_BIT
+		);
+	}
+
 	const SwapChainBundle createSwapChain(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice, const VkSurfaceKHR& surface, const uint32& width, const uint32& height)
 	{
 		SwapChainSupportDetails swapChainSupport = querySwapChainSupport(physicalDevice, surface);
@@ -154,6 +259,27 @@ namespace vkInit
 		bundle.swapchain = swapchain;
 		bundle.format = surfaceFormat.format;
 		bundle.extent = extent;
+		bundle.msaaSamples = VK_SAMPLE_COUNT_1_BIT;
+		
+	/*	createColorResources(
+			physicalDevice,
+			logicalDevice,
+			width, height,
+			bundle.msaaSamples,
+			bundle.format,
+			bundle.colorImage,
+			bundle.colorImageView,
+			bundle.colorImageMemory);*/
+
+		createDepthResources(
+			physicalDevice,
+			logicalDevice,
+			width, height,
+			bundle.msaaSamples,
+			bundle.depthFormat,
+			bundle.depthImage,
+			bundle.depthImageView,
+			bundle.depthImageMemory);		
 
 		std::vector<VkImage> images = getSwapChainImagesKHR(logicalDevice, bundle.swapchain, &imageCount, surface);
 		bundle.frames.resize(images.size());

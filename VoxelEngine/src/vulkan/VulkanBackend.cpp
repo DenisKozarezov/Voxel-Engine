@@ -111,10 +111,11 @@ namespace vulkan
 	void makeFramebuffers()
 	{
 		VkExtent2D swapChainExtent = state.swapChainBundle.extent;
+		VkImageView colorView = state.swapChainBundle.colorImageView;
 		VkImageView depthImageView = state.swapChainBundle.depthImageView;
 		auto& frames = state.swapChainBundle.frames;
 
-		vkInit::createFramebuffers(state.logicalDevice, state.renderPass, swapChainExtent, depthImageView, frames);
+		vkInit::createFramebuffers(state.logicalDevice, state.renderPass, swapChainExtent, colorView, depthImageView, frames);
 	}
 	void makeDescriptorSetLayout()
 	{
@@ -192,7 +193,7 @@ namespace vulkan
 		init_info.Subpass = 0;
 		init_info.MinImageCount = MAX_FRAMES_IN_FLIGHT;
 		init_info.ImageCount = MAX_FRAMES_IN_FLIGHT;
-		init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+		init_info.MSAASamples = state.swapChainBundle.msaaSamples;
 		init_info.Allocator = nullptr;
 		ImGui_ImplGlfw_InitForVulkan(state.windowPtr, true);
 		ImGui_ImplVulkan_Init(&init_info, state.renderPass);

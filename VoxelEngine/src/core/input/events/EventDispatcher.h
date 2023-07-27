@@ -1,6 +1,7 @@
 #pragma once
 #include <pch.h>
 #include <mutex>
+#include <core/Log.h>
 #include "EventHandler.h"
 
 namespace VoxelEngine::input
@@ -121,6 +122,15 @@ namespace VoxelEngine::input
                 if (ie)
                 {
                     std::future<void> future = ie->invoke_async(arg, launch);
+                    
+                    try
+                    {
+                        future.get();
+                    }
+                    catch (const std::exception& e)
+                    {
+                        VOXEL_CORE_CRITICAL(e.what())
+                    }
                 }
             }
         }

@@ -19,7 +19,6 @@ namespace vkInit
 		std::vector<vkUtils::SwapChainFrame> frames;
 		VkFormat format;
 		VkExtent2D extent;
-		VkSampleCountFlagBits msaaSamples;
 
 		// Depth buffering
 		VkFormat depthFormat;
@@ -211,7 +210,13 @@ namespace vkInit
 		);
 	}
 
-	const SwapChainBundle createSwapChain(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice, const VkSurfaceKHR& surface, const uint32& width, const uint32& height)
+	const SwapChainBundle createSwapChain(
+		const VkPhysicalDevice& physicalDevice, 
+		const VkDevice& logicalDevice, 
+		const VkSurfaceKHR& surface, 
+		const uint32& width, 
+		const uint32& height,
+		const VkSampleCountFlagBits& msaaSamples)
 	{
 		SwapChainSupportDetails swapChainSupport = querySwapChainSupport(physicalDevice, surface);
 		VkSurfaceFormatKHR surfaceFormat = chooseSwapChainSurfaceFormat(swapChainSupport.formats);
@@ -259,13 +264,12 @@ namespace vkInit
 		bundle.swapchain = swapchain;
 		bundle.format = surfaceFormat.format;
 		bundle.extent = extent;
-		bundle.msaaSamples = findMaxSamplesCount(physicalDevice);
-		
+
 		createColorResources(
 			physicalDevice,
 			logicalDevice,
 			width, height,
-			bundle.msaaSamples,
+			msaaSamples,
 			bundle.format,
 			bundle.colorImage,
 			bundle.colorImageView,
@@ -275,7 +279,7 @@ namespace vkInit
 			physicalDevice,
 			logicalDevice,
 			width, height,
-			bundle.msaaSamples,
+			msaaSamples,
 			bundle.depthFormat,
 			bundle.depthImage,
 			bundle.depthImageView,

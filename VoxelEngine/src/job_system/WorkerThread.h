@@ -9,7 +9,7 @@ namespace VoxelEngine::threading
 	using ThreadID = uint32;
 	using Task = std::function<void(ThreadID threadId, ThreadID threadsCountForTask)>;
 
-	class ThreadObject final
+	class WorkerThread final
 	{
 	private:
 		ThreadID _threadId;
@@ -17,16 +17,16 @@ namespace VoxelEngine::threading
 		std::unique_ptr<std::thread> _thread;
 		std::atomic_bool _busy = false;
 	public:
-		explicit ThreadObject(const ThreadID& threadId, const Task& task);
+		explicit WorkerThread(const ThreadID& threadId, const Task& task);
 
-		ThreadObject() noexcept = delete;
-		ThreadObject(ThreadObject const&) noexcept = delete;
-		ThreadObject(ThreadObject&&) noexcept = delete;
-		ThreadObject& operator=(ThreadObject const&) noexcept = delete;
-		ThreadObject& operator=(ThreadObject&&) noexcept = delete;
+		WorkerThread() noexcept = delete;
+		WorkerThread(WorkerThread const&) noexcept = delete;
+		WorkerThread(WorkerThread&&) noexcept = delete;
+		WorkerThread& operator=(WorkerThread const&) noexcept = delete;
+		WorkerThread& operator=(WorkerThread&&) noexcept = delete;
 
 		void join() const;
 
-		~ThreadObject();
+		~WorkerThread();
 	};
 }

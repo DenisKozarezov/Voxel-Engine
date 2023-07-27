@@ -32,6 +32,7 @@ namespace vulkan
 		VkPhysicalDevice physicalDevice;
 		vkInit::DeviceQueues queues;
 		vkInit::SwapChainBundle swapChainBundle;
+		VkSampleCountFlagBits msaaSamples;
 
 		vkUtils::QueueFamilyIndices queueFamilyIndices;
 
@@ -95,10 +96,19 @@ namespace vulkan
 		state.queueFamilyIndices = vkUtils::findQueueFamilies(state.physicalDevice, state.surface);
 		state.logicalDevice = vkInit::createLogicalDevice(state.physicalDevice, state.surface, vkUtils::_enableValidationLayers);
 		state.queues = vkInit::getDeviceQueues(state.physicalDevice, state.logicalDevice, state.surface);
+		state.msaaSamples = vkInit::findMaxSamplesCount(state.physicalDevice);
+
+		VOXEL_CORE_TRACE("Device max samples count: {0}.", (int)state.msaaSamples);
 	}
 	void makeSwapChain()
 	{
-		state.swapChainBundle = vkInit::createSwapChain(state.physicalDevice, state.logicalDevice, state.surface, state.window->getWidth(), state.window->getHeight());
+		state.swapChainBundle = vkInit::createSwapChain(
+			state.physicalDevice, 
+			state.logicalDevice, 
+			state.surface, 
+			state.window->getWidth(), 
+			state.window->getHeight(), 
+			state.msaaSamples);
 
 		MAX_FRAMES_IN_FLIGHT = static_cast<int>(state.swapChainBundle.frames.size());
 
@@ -136,14 +146,13 @@ namespace vulkan
 	{
 		VkFormat swapChainImageFormat = state.swapChainBundle.format;
 		VkFormat depthFormat = state.swapChainBundle.depthFormat;
-		VkSampleCountFlagBits msaaSamples = state.swapChainBundle.msaaSamples;
-		state.renderPass = vkInit::createRenderPass(state.logicalDevice, swapChainImageFormat, depthFormat, msaaSamples);
+		state.renderPass = vkInit::createRenderPass(state.logicalDevice, swapChainImageFormat, depthFormat, state.msaaSamples);
 
 		vkInit::GraphicsPipilineInputBundle graphicsInputBundle =
 		{
 			.logicalDevice = state.logicalDevice,
 			.renderPass = state.renderPass,
-			.msaaSamples = msaaSamples,
+			.msaaSamples = state.msaaSamples,
 			.descriptorSetLayout = state.descriptorSetLayout,
 			.vertexFilepath = ASSET_PATH("shaders/vert.spv"),
 			.fragmentFilepath = ASSET_PATH("shaders/frag.spv")
@@ -176,7 +185,7 @@ namespace vulkan
 
 			frame.makeDescriptorResources();
 			
-			VOXEL_CORE_TRACE("Vulkan sync objects created for frame {0}.", i)
+			VOXEL_CORE_TRACE("Vulkan frame resources created for frame {0}.", i)
 			++i;
 		}
 	}	
@@ -193,7 +202,7 @@ namespace vulkan
 		init_info.Subpass = 0;
 		init_info.MinImageCount = MAX_FRAMES_IN_FLIGHT;
 		init_info.ImageCount = MAX_FRAMES_IN_FLIGHT;
-		init_info.MSAASamples = state.swapChainBundle.msaaSamples;
+		init_info.MSAASamples = state.msaaSamples;
 		init_info.Allocator = nullptr;
 		ImGui_ImplGlfw_InitForVulkan(state.windowPtr, true);
 		ImGui_ImplVulkan_Init(&init_info, state.renderPass);
@@ -474,6 +483,55 @@ namespace vulkan
 		state.vertexManager = new VoxelEngine::renderer::VertexManager;
 
 		const auto& mesh = assets::AssetsProvider::loadObjMesh(ASSET_PATH("models/viking_room.obj"));
+
+		//std::vector<Vertex> vertices = {
+		//	{{-1.0f, -1.0f, -1.0f}, {1.0f,1.0f,1.0f}},	// 0
+		//	{{-1.0f, -1.0f,  1.0f},	{1.0f,1.0f,1.0f}},	// 1
+		//	{{-1.0f,  1.0f,  1.0f},	{1.0f,1.0f,1.0f}},	// 2
+		//	{{ 1.0f,  1.0f, -1.0f},	{1.0f,1.0f,1.0f}},	// 3
+		//	{{-1.0f, -1.0f, -1.0f},	{1.0f,1.0f,1.0f}},	// 4
+		//	{{-1.0f,  1.0f, -1.0f},	{1.0f,1.0f,1.0f}},	// 5
+
+		//	{{ 1.0f, -1.0f,  1.0f},	{0.0f,1.0f,1.0f}},	// 6
+		//	{{-1.0f, -1.0f, -1.0f},	{0.0f,1.0f,1.0f}},	// 7
+		//	{{ 1.0f, -1.0f, -1.0f},	{0.0f,1.0f,1.0f}},	// 8
+		//	{{ 1.0f,  1.0f, -1.0f},	{0.0f,1.0f,1.0f}},	// 9
+		//	{{ 1.0f, -1.0f, -1.0f},	{0.0f,1.0f,1.0f}},	// 10
+		//	{{-1.0f, -1.0f, -1.0f},	{0.0f,1.0f,1.0f}},	// 11
+
+		//	{{-1.0f, -1.0f, -1.0f},	{0.0f,0.0f,1.0f}},	// 12
+		//	{{-1.0f,  1.0f,  1.0f},	{0.0f,0.0f,1.0f}},	// 13
+		//	{{-1.0f,  1.0f, -1.0f},	{0.0f,0.0f,1.0f}},	// 14
+		//	{{ 1.0f, -1.0f,  1.0f},	{0.0f,0.0f,1.0f}},	// 15
+		//	{{-1.0f, -1.0f,  1.0f},	{0.0f,0.0f,1.0f}},	// 16
+		//	{{-1.0f, -1.0f, -1.0f},	{0.0f,0.0f,1.0f}},	// 17
+
+		//	{{-1.0f,  1.0f,  1.0f},	{1.0f,0.0f,0.0f}},	// 18
+		//	{{-1.0f, -1.0f,  1.0f},	{1.0f,0.0f,0.0f}},	// 19
+		//	{{ 1.0f, -1.0f,  1.0f},	{1.0f,0.0f,0.0f}},	// 20
+		//	{{ 1.0f,  1.0f,  1.0f},	{1.0f,0.0f,0.0f}},	// 21
+		//	{{ 1.0f, -1.0f, -1.0f},	{1.0f,0.0f,0.0f}},	// 22
+		//	{{ 1.0f,  1.0f, -1.0f},	{1.0f,0.0f,0.0f}},	// 23
+
+		//	{{ 1.0f, -1.0f, -1.0f},	{0.0f,1.0f,0.0f}},	// 24
+		//	{{ 1.0f,  1.0f,  1.0f},	{0.0f,1.0f,0.0f}},	// 25
+		//	{{ 1.0f, -1.0f,  1.0f},	{0.0f,1.0f,0.0f}},	// 26
+		//	{{ 1.0f,  1.0f,  1.0f},	{0.0f,1.0f,0.0f}},	// 27
+		//	{{ 1.0f,  1.0f, -1.0f},	{0.0f,1.0f,0.0f}},	// 28
+		//	{{-1.0f,  1.0f, -1.0f},	{0.0f,1.0f,0.0f}},	// 29
+
+		//	{{ 1.0f,  1.0f,  1.0f},	{0.0f,0.0f,1.0f}},	// 30
+		//	{{-1.0f,  1.0f, -1.0f},	{0.0f,0.0f,1.0f}},	// 31
+		//	{{-1.0f,  1.0f,  1.0f},	{0.0f,0.0f,1.0f}},	// 32
+		//	{{ 1.0f,  1.0f,  1.0f},	{0.0f,0.0f,1.0f}},	// 33
+		//	{{-1.0f,  1.0f,  1.0f},	{0.0f,0.0f,1.0f}},	// 34
+		//	{{ 1.0f, -1.0f,  1.0f},	{0.0f,0.0f,1.0f}}	// 35
+		//};
+
+		/*std::vector<uint32> indices =
+		{
+
+		};*/
 
 		state.vertexManager->concatMesh(MeshType::Polygone, mesh->vertices, mesh->indices);
 

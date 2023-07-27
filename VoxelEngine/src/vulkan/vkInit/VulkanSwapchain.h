@@ -259,9 +259,9 @@ namespace vkInit
 		bundle.swapchain = swapchain;
 		bundle.format = surfaceFormat.format;
 		bundle.extent = extent;
-		bundle.msaaSamples = VK_SAMPLE_COUNT_1_BIT;
+		bundle.msaaSamples = findMaxSamplesCount(physicalDevice);
 		
-	/*	createColorResources(
+		createColorResources(
 			physicalDevice,
 			logicalDevice,
 			width, height,
@@ -269,7 +269,7 @@ namespace vkInit
 			bundle.format,
 			bundle.colorImage,
 			bundle.colorImageView,
-			bundle.colorImageMemory);*/
+			bundle.colorImageMemory);
 
 		createDepthResources(
 			physicalDevice,

@@ -7,6 +7,7 @@ namespace vkInit
 		const VkDevice& logicalDevice,
 		const VkRenderPass& renderPass,
 		const VkExtent2D& swapChainExtent,
+		const VkImageView& colorView,
 		const VkImageView& depthImageView,
 		std::vector<vkUtils::SwapChainFrame>& frames) 
 	{
@@ -14,8 +15,9 @@ namespace vkInit
 
 			std::vector<VkImageView> attachments =
 			{
-				frames[i].imageView,
-				depthImageView
+				colorView,
+				depthImageView,
+				frames[i].imageView
 			};
 			
 			VkFramebufferCreateInfo framebufferInfo{};

@@ -21,6 +21,7 @@ namespace vulkan
 	void makeInstance();
 	void makeDevice();
 	void makeSwapChain();
+	void makeFramebuffers();
 	void makeDescriptorSetLayout();
 	void makeGraphicsPipeline();
 	void makeFrameResources(const VkDevice& logicalDevice);
@@ -29,7 +30,7 @@ namespace vulkan
 	void recreateSwapChain(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice, const VkSurfaceKHR& surface, GLFWwindow* window);
 	void recordCommandBuffer(const VkCommandBuffer& commandBuffer, const uint32& imageIndex);
 	void submitToQueue(const VkQueue& queue, const VkCommandBuffer& commandBuffer, const VkSemaphore* signalSemaphores = nullptr);
-	void cleanupSwapChain(const VkDevice& logicalDevice, const VkSwapchainKHR& swapchain);
+	void cleanupSwapChain();
 	void presentFrame(const uint32& imageIndex, VkSemaphore* signalSemaphores);
 	void prepareFrame(const uint32& imageIndex);
 	void prepareScene(const VkCommandBuffer& commandBuffer);

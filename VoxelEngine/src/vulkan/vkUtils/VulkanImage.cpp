@@ -44,6 +44,7 @@ namespace vkUtils
 		const uint32& width,
 		const uint32& height,
 		const VkFormat& format,
+		const VkSampleCountFlagBits& msaaSamples,
 		const VkImageTiling& tiling,
 		const VkImageUsageFlags& usage,
 		const VkMemoryPropertyFlags& properties,
@@ -61,7 +62,7 @@ namespace vkUtils
 		imageInfo.tiling = tiling;
 		imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 		imageInfo.usage = usage;
-		imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+		imageInfo.samples = msaaSamples;
 		imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
 		VkImage image;

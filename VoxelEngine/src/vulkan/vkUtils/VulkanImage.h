@@ -21,6 +21,7 @@ namespace vkUtils
 		const uint32& width,
 		const uint32& height,
 		const VkFormat& format,
+		const VkSampleCountFlagBits& msaaSamples,
 		const VkImageTiling& tiling,
 		const VkImageUsageFlags& usage,
 		const VkMemoryPropertyFlags& properties,

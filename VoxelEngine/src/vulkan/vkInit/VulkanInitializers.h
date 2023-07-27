@@ -54,11 +54,11 @@ namespace vkInit
 		return cmdBufferInheritanceInfo;
 	}
 
-	inline constexpr VkAttachmentDescription renderPassColorAttachment(const VkFormat& swapChainImageFormat)
+	inline constexpr VkAttachmentDescription renderPassColorAttachment(const VkFormat& swapChainImageFormat, const VkSampleCountFlagBits& msaaSamples)
 	{
 		VkAttachmentDescription colorAttachment{};
 		colorAttachment.format = swapChainImageFormat;
-		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+		colorAttachment.samples = msaaSamples;
 		colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 		colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 		colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
@@ -68,11 +68,11 @@ namespace vkInit
 		return colorAttachment;
 	}
 
-	inline constexpr VkAttachmentDescription renderPassDepthAttachment(const VkFormat& depthFormat)
+	inline constexpr VkAttachmentDescription renderPassDepthAttachment(const VkFormat& depthFormat, const VkSampleCountFlagBits& msaaSamples)
 	{
 		VkAttachmentDescription depthAttachment{};
 		depthAttachment.format = depthFormat;
-		depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+		depthAttachment.samples = msaaSamples;
 		depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 		depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 		depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;

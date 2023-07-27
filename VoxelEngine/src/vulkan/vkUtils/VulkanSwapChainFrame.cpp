@@ -1,6 +1,5 @@
 #include "VulkanSwapChainFrame.h"
 #include <array>
-#include "../vkUtils/VulkanImage.h"
 
 namespace vkUtils
 {
@@ -33,27 +32,6 @@ namespace vkUtils
 		modelBufferDescriptor.buffer = modelBuffer.buffer;
 		modelBufferDescriptor.offset = 0;
 		modelBufferDescriptor.range = size;
-	}
-
-	void SwapChainFrame::makeDepthResources()
-	{
-		depthFormat = vkUtils::findDepthFormat(physicalDevice);
-
-		depthImage = vkUtils::createImage(
-			physicalDevice,
-			logicalDevice, 
-			width, height,
-			depthFormat,
-			VK_IMAGE_TILING_OPTIMAL,
-			VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-			depthImageMemory);
-
-		depthImageView = vkUtils::createImageView(
-			logicalDevice,
-			depthImage,
-			depthFormat,
-			VkImageAspectFlagBits::VK_IMAGE_ASPECT_DEPTH_BIT);
 	}
 
 	void SwapChainFrame::writeDescriptorSet() const
@@ -89,9 +67,5 @@ namespace vkUtils
 
 		uniformBuffer.release();
 		modelBuffer.release(logicalDevice);
-
-		vkDestroyImage(logicalDevice, depthImage, nullptr);
-		vkDestroyImageView(logicalDevice, depthImageView, nullptr);
-		vkFreeMemory(logicalDevice, depthImageMemory, nullptr);
 	}
 }

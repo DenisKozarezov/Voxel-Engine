@@ -16,6 +16,21 @@ namespace vkInit
 		VkQueue presentQueue;
 	};	
 
+	constexpr string parseDeviceTypeToString(const VkPhysicalDeviceType& deviceType)
+	{
+		string str;
+
+		switch (deviceType)
+		{
+		case VK_PHYSICAL_DEVICE_TYPE_MAX_ENUM:		return "VK_PHYSICAL_DEVICE_TYPE_MAX_ENUM";
+		case VK_PHYSICAL_DEVICE_TYPE_CPU: 			return "VK_PHYSICAL_DEVICE_TYPE_CPU";
+		case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:	return "VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU";
+		case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:	return "VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU";
+		case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:return "VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU";
+		default: return "VK_PHYSICAL_DEVICE_TYPE_OTHER";
+		}
+	}
+
 	const bool checkDeviceExtensionSupport(
 		const VkPhysicalDevice& device,
 		const bool& enableValidation)
@@ -75,6 +90,12 @@ namespace vkInit
 		VkPhysicalDevice physicalDevice;
 		for (const auto& device : devices)
 		{
+			VkPhysicalDeviceProperties deviceProperties;
+			vkGetPhysicalDeviceProperties(device, &deviceProperties);
+
+			VOXEL_CORE_TRACE("Physical device candidate: {0}.", deviceProperties.deviceName);
+			VOXEL_CORE_TRACE("Device type: {0}.", parseDeviceTypeToString(deviceProperties.deviceType));
+
 			if (isDeviceSuitable(device, surface, enableValidation))
 			{
 				return device;
@@ -129,9 +150,15 @@ namespace vkInit
 		const VkSurfaceKHR& surface)
 	{
 		vkUtils::QueueFamilyIndices queueFamilyIndices = vkUtils::findQueueFamilies(physicalDevice, surface);
+		
+		VOXEL_CORE_TRACE("Device graphics family: {0}.", queueFamilyIndices.graphicsFamily.value());
+		VOXEL_CORE_TRACE("Device present family: {0}.", queueFamilyIndices.presentFamily.value());
+		VOXEL_CORE_TRACE("Device hardware concurrency: {0}.", std::thread::hardware_concurrency());
+
 		DeviceQueues queues;
 		vkGetDeviceQueue(logicalDevice, queueFamilyIndices.graphicsFamily.value(), 0, &queues.graphicsQueue);
 		vkGetDeviceQueue(logicalDevice, queueFamilyIndices.presentFamily.value(), 0, &queues.presentQueue);
+
 		return queues;
 	}
 

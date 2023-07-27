@@ -24,16 +24,6 @@ namespace vkInit
 		return fence;
 	}
 
-	void destroySemaphore(const VkDevice& logicalDevice, const VkSemaphore& semaphore)
-	{
-		vkDestroySemaphore(logicalDevice, semaphore, nullptr);
-	}
-
-	void destroyFence(const VkDevice& logicalDevice, const VkFence& fence)
-	{
-		vkDestroyFence(logicalDevice, fence, nullptr);
-	}
-
 	void lockFences(const VkDevice& logicalDevice, const uint32& fenceCount, const VkFence& fence)
 	{
 		vkWaitForFences(logicalDevice, 1, &fence, VK_TRUE, UINT64_MAX);

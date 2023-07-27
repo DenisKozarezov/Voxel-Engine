@@ -1,5 +1,6 @@
 #include "VulkanSwapChainFrame.h"
 #include <array>
+#include "../vkInit/VulkanInitializers.h"
 
 namespace vkUtils
 {
@@ -38,21 +39,17 @@ namespace vkUtils
 	{
 		std::array<VkWriteDescriptorSet, 2> descriptorWrites = {};
 
-		descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrites[0].dstSet = descriptorSet;
-		descriptorWrites[0].dstBinding = 0;
-		descriptorWrites[0].dstArrayElement = 0; // byte offset within binding for inline uniform blocks
-		descriptorWrites[0].descriptorCount = 1;
-		descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		descriptorWrites[0].pBufferInfo = &uniformBufferDescriptor;
+		descriptorWrites[0] = vkInit::writeDescriptorSet(
+			descriptorSet,
+			VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+			0,
+			&uniformBufferDescriptor);
 
-		descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrites[1].dstSet = descriptorSet;
-		descriptorWrites[1].dstBinding = 1;
-		descriptorWrites[1].dstArrayElement = 0; // byte offset within binding for inline uniform blocks
-		descriptorWrites[1].descriptorCount = 1;
-		descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-		descriptorWrites[1].pBufferInfo = &modelBufferDescriptor;
+		descriptorWrites[1] = vkInit::writeDescriptorSet(
+			descriptorSet,
+			VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+			1,
+			&modelBufferDescriptor);
 
 		vkUpdateDescriptorSets(logicalDevice, static_cast<uint32>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}

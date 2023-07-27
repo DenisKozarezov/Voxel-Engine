@@ -419,11 +419,11 @@ namespace vkInit
 	}
 
 	inline constexpr VkWriteDescriptorSet writeDescriptorSet(
-		VkDescriptorSet dstSet,
-		VkDescriptorType type,
-		uint32_t binding,
-		VkDescriptorBufferInfo* bufferInfo,
-		uint32_t descriptorCount = 1)
+		const VkDescriptorSet dstSet,
+		const VkDescriptorType& type,
+		const uint32& binding,
+		const VkDescriptorBufferInfo* bufferInfo,
+		const uint32& descriptorCount = 1)
 	{
 		VkWriteDescriptorSet writeDescriptorSet{};
 		writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -436,11 +436,11 @@ namespace vkInit
 	}
 
 	inline constexpr VkWriteDescriptorSet writeDescriptorSet(
-		VkDescriptorSet dstSet,
-		VkDescriptorType type,
-		uint32_t binding,
-		VkDescriptorImageInfo* imageInfo,
-		uint32_t descriptorCount = 1)
+		const VkDescriptorSet& dstSet,
+		const VkDescriptorType& type,
+		const uint32& binding,
+		const VkDescriptorImageInfo* imageInfo,
+		const uint32& descriptorCount = 1)
 	{
 		VkWriteDescriptorSet writeDescriptorSet{};
 		writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -453,8 +453,8 @@ namespace vkInit
 	}
 
 	inline constexpr VkVertexInputBindingDescription vertexInputBindingDescription(
-		uint32_t binding,
-		uint32_t stride,
+		uint32 binding,
+		uint32 stride,
 		VkVertexInputRate inputRate)
 	{
 		VkVertexInputBindingDescription vInputBindDescription{};
@@ -465,10 +465,10 @@ namespace vkInit
 	}
 
 	inline constexpr VkVertexInputAttributeDescription vertexInputAttributeDescription(
-		uint32_t binding,
-		uint32_t location,
+		uint32 binding,
+		uint32 location,
 		VkFormat format,
-		uint32_t offset)
+		uint32 offset)
 	{
 		VkVertexInputAttributeDescription vInputAttribDescription{};
 		vInputAttribDescription.location = location;

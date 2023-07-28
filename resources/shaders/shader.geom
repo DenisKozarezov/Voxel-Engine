@@ -3,9 +3,10 @@
 layout (points) in;
 layout (triangle_strip, max_vertices = 18) out;
 
-layout (binding = 0) uniform MVPBuffer {
-    mat4 projection;
+layout (binding = 0) uniform UniformBufferObject {
     mat4 view;
+    mat4 proj;
+    mat4 viewproj;
 } MVP;
 
 layout (location = 0) out vec3 fragColor;
@@ -24,34 +25,34 @@ void main() {
     vec4 v6 = center + vec4(-voxelSize, voxelSize, -voxelSize, 0.0);
     vec4 v7 = center + vec4(-voxelSize, -voxelSize, -voxelSize, 0.0);
 
-    gl_Position = MVP.projection * MVP.view * v0;
+    gl_Position = MVP.viewproj * v0;
     EmitVertex();
 
-    gl_Position = MVP.projection * MVP.view * v1;
+    gl_Position = MVP.viewproj * v1;
     EmitVertex();
 
-    gl_Position = MVP.projection * MVP.view * v2;
+    gl_Position = MVP.viewproj * v2;
     EmitVertex();
 
-    gl_Position = MVP.projection * MVP.view * v3;
+    gl_Position = MVP.viewproj * v3;
     EmitVertex();
 
-    gl_Position = MVP.projection * MVP.view * v4;
+    gl_Position = MVP.viewproj * v4;
     EmitVertex();
 
-    gl_Position = MVP.projection * MVP.view * v5;
+    gl_Position = MVP.viewproj * v5;
     EmitVertex();
 
-    gl_Position = MVP.projection * MVP.view * v6;
+    gl_Position = MVP.viewproj * v6;
     EmitVertex();
 
-    gl_Position = MVP.projection * MVP.view * v7;
+    gl_Position = MVP.viewproj * v7;
     EmitVertex();
 
-    gl_Position = MVP.projection * MVP.view * v0;
+    gl_Position = MVP.viewproj * v0;
     EmitVertex();
 
-    gl_Position = MVP.projection * MVP.view * v1;
+    gl_Position = MVP.viewproj * v1;
     EmitVertex();
 
     EndPrimitive();

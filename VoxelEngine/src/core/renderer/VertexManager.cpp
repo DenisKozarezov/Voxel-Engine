@@ -32,10 +32,10 @@ namespace VoxelEngine::renderer
 	}
 	void VertexManager::finalize(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice)
 	{
-		VkDeviceSize verticesSize = sizeof(vertices[0]) * vertices.size();
+		VkDeviceSize verticesSize = sizeof(vulkan::Vertex) * vertices.size();
 		vertexBuffer = new vkUtils::VulkanVertexBuffer(physicalDevice, logicalDevice, vertices.data(), verticesSize);
 	
-		VkDeviceSize indicesSize = sizeof(indices[0]) * indices.size();
+		VkDeviceSize indicesSize = sizeof(uint32) * indices.size();
 		indexBuffer = new vkUtils::VulkanIndexBuffer(physicalDevice, logicalDevice, indices.data(), indicesSize);
 	}
 	VertexManager::~VertexManager()

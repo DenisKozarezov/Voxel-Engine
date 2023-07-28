@@ -31,6 +31,11 @@ namespace vkInit
 		}
 	}
 
+	inline const int getHardwareConcurrency()
+	{
+		return std::thread::hardware_concurrency();
+	}
+
 	const bool checkDeviceExtensionSupport(
 		const VkPhysicalDevice& device,
 		const bool& enableValidation)
@@ -95,6 +100,7 @@ namespace vkInit
 
 			VOXEL_CORE_TRACE("Physical device candidate: {0}.", deviceProperties.deviceName);
 			VOXEL_CORE_TRACE("Device type: {0}.", parseDeviceTypeToString(deviceProperties.deviceType));
+			VOXEL_CORE_TRACE("Device hardware concurrency: {0}.", getHardwareConcurrency());
 
 			if (isDeviceSuitable(device, surface, enableValidation))
 			{
@@ -153,7 +159,6 @@ namespace vkInit
 		
 		VOXEL_CORE_TRACE("Device graphics family: {0}.", queueFamilyIndices.graphicsFamily.value());
 		VOXEL_CORE_TRACE("Device present family: {0}.", queueFamilyIndices.presentFamily.value());
-		VOXEL_CORE_TRACE("Device hardware concurrency: {0}.", std::thread::hardware_concurrency());
 
 		DeviceQueues queues;
 		vkGetDeviceQueue(logicalDevice, queueFamilyIndices.graphicsFamily.value(), 0, &queues.graphicsQueue);

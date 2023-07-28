@@ -15,6 +15,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
+#include <unordered_map>
 #include <optional>
 #include <ostream>
 #include <array>
@@ -28,5 +29,7 @@
 #include <fstream>
 #include <chrono>
 #include <concepts>
+#include <thread>
+#include <mutex>
 
 #endif //PCH_H

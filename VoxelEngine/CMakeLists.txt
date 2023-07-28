@@ -32,7 +32,11 @@ add_library(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME} PUBLIC ${SOURCE_DIR})
 
 # ============= PREPROCESSOR DEFINES ==============
-if (MSVC)
+if(UNIX AND NOT APPLE)
+    set(LINUX TRUE)
+endif()
+
+if(MSVC)
     target_compile_options(${PROJECT_NAME} 
         PRIVATE
             /W4         # Warning Level 4

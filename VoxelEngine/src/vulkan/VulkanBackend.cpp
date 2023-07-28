@@ -42,7 +42,7 @@ namespace vulkan
 		// Pipeline-related variables
 		VkPipelineLayout pipelineLayout;
 		VkPipelineCache pipelineCache;
-		VkPipeline graphicsPipeline;
+		VkPipeline solidPipeline, normalsPipeline;
 		VkRenderPass renderPass;
 
 		// Descriptors
@@ -131,15 +131,17 @@ namespace vulkan
 	{
 		vkInit::DescriptorSetLayoutInputBundle bindings;
 		bindings.count = 2;
+
 		bindings.indices.push_back(0);
 		bindings.types.push_back(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
 		bindings.stages.push_back(VK_SHADER_STAGE_VERTEX_BIT);
 		bindings.counts.push_back(1);
 
 		bindings.indices.push_back(1);
-		bindings.types.push_back(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER);
-		bindings.stages.push_back(VK_SHADER_STAGE_VERTEX_BIT);
+		bindings.types.push_back(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+		bindings.stages.push_back(VK_SHADER_STAGE_GEOMETRY_BIT);
 		bindings.counts.push_back(1);
+
 		state.descriptorSetLayout = createDescriptorSetLayout(state.logicalDevice, bindings);
 	}
 	void makeGraphicsPipeline()
@@ -155,10 +157,12 @@ namespace vulkan
 			.msaaSamples = state.msaaSamples,
 			.descriptorSetLayout = state.descriptorSetLayout,
 			.vertexFilepath = ASSET_PATH("shaders/vert.spv"),
-			.fragmentFilepath = ASSET_PATH("shaders/frag.spv")
+			.fragmentFilepath = ASSET_PATH("shaders/frag.spv"),
+			.geometryFilepath = ASSET_PATH("shaders/geom.spv")
 		};
 		const auto& pipelineBundle = vkInit::createGraphicsPipeline(graphicsInputBundle);
-		state.graphicsPipeline = pipelineBundle.pipeline;
+		state.solidPipeline = pipelineBundle.solidPipeline;
+		state.normalsPipeline = pipelineBundle.normalsPipeline;
 		state.pipelineLayout = pipelineBundle.layout;
 	}
 	void finalizeSetup()
@@ -285,14 +289,8 @@ namespace vulkan
 		ubo.proj[1][1] *= -1;
 		ubo.viewproj = ubo.proj * ubo.view;
 
-		frame.uniformBuffer.setData(&ubo, sizeof(ubo));
-
-		size_t i = 0;
-		for (const auto& position : currentScene->vertices)
-		{
-			frame.modelTransforms[i++] = glm::translate(glm::mat4(1.0f), position);
-		}
-		memcpy(frame.modelBufferMappedMemory, frame.modelTransforms.data(), i * sizeof(glm::mat4));
+		frame.VSuniformBuffer.setData(&ubo, sizeof(ubo));
+		frame.GSuniformBuffer.setData(&ubo, sizeof(ubo));
 
 		frame.writeDescriptorSet();
 	}
@@ -374,9 +372,7 @@ namespace vulkan
 		vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelineLayout, 0, 1, &frame.descriptorSet, 0, nullptr);
-
-		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.graphicsPipeline);
-		
+				
 		VkViewport viewport = vkInit::viewport(swapChainExtent, 0.0f, 1.0f);
 		vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
@@ -384,14 +380,21 @@ namespace vulkan
 		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
 		// =================== RENDER WHOLE STUFF HERE ! ===================
+		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.solidPipeline);
 		prepareScene(commandBuffer);
 
 		uint32 startInstance = 0;
 		renderSceneObjects(commandBuffer, MeshType::Polygone, startInstance, static_cast<uint32>(currentScene->vertices.size()));
 		
+		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.normalsPipeline);
+
+		startInstance = 0;
+		renderSceneObjects(commandBuffer, MeshType::Polygone, startInstance, static_cast<uint32>(currentScene->vertices.size()));
+		// =================================================================
+
+
 		ImDrawData* main_draw_data = ImGui::GetDrawData();
 		ImGui_ImplVulkan_RenderDrawData(main_draw_data, commandBuffer);
-		// =================================================================
 
 		vkCmdEndRenderPass(commandBuffer);
 		vkUtils::memory::CommandBuffer::endCommand(commandBuffer);
@@ -460,7 +463,8 @@ namespace vulkan
 
 		delete state.vertexManager;
 		
-		vkDestroyPipeline(state.logicalDevice, state.graphicsPipeline, nullptr);
+		vkDestroyPipeline(state.logicalDevice, state.solidPipeline, nullptr);
+		vkDestroyPipeline(state.logicalDevice, state.normalsPipeline, nullptr);
 		vkDestroyPipelineLayout(state.logicalDevice, state.pipelineLayout, nullptr);
 		vkDestroyRenderPass(state.logicalDevice, state.renderPass, nullptr);
 		vkDestroyDescriptorPool(state.logicalDevice, state.descriptorPool, nullptr);
@@ -482,7 +486,7 @@ namespace vulkan
 	{
 		state.vertexManager = new VoxelEngine::renderer::VertexManager;
 
-		const auto& mesh = assets::AssetsProvider::loadObjMesh(ASSET_PATH("models/viking_room.obj"));
+		const auto mesh = assets::AssetsProvider::loadObjMesh(ASSET_PATH("models/FinalBaseMesh.obj"));
 
 		state.vertexManager->concatMesh(MeshType::Polygone, mesh->vertices, mesh->indices);
 

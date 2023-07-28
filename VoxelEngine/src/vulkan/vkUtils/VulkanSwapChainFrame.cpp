@@ -8,48 +8,33 @@ namespace vkUtils
 	{
 		// UNIFORM BUFFER
 		VkDeviceSize size = sizeof(vkUtils::UniformBufferObject);
-		uniformBuffer = vkUtils::VulkanUniformBuffer(physicalDevice, logicalDevice, size);
+		VSuniformBuffer = vkUtils::VulkanUniformBuffer(physicalDevice, logicalDevice, size);
 
-		uniformBufferDescriptor.buffer = uniformBuffer;
-		uniformBufferDescriptor.offset = 0;
-		uniformBufferDescriptor.range = size;
+		VSuniformBufferDescriptor.buffer = VSuniformBuffer;
+		VSuniformBufferDescriptor.offset = 0;
+		VSuniformBufferDescriptor.range = size;
+		
+		GSuniformBuffer = vkUtils::VulkanUniformBuffer(physicalDevice, logicalDevice, size);
 
-		// STORAGE BUFFER
-		size = 1024 * sizeof(glm::mat4);
-		modelBuffer = vkUtils::memory::createBuffer(
-			physicalDevice,
-			logicalDevice,
-			size,
-			VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
-
-		vkMapMemory(logicalDevice, modelBuffer.bufferMemory, 0, size, 0, &modelBufferMappedMemory);
-
-		modelTransforms.reserve(1024);
-		for (int i = 0; i < 1024; ++i)
-		{
-			modelTransforms.push_back(glm::mat4(1.0f));
-		}
-
-		modelBufferDescriptor.buffer = modelBuffer.buffer;
-		modelBufferDescriptor.offset = 0;
-		modelBufferDescriptor.range = size;
+		GSuniformBufferDescriptor.buffer = GSuniformBuffer;
+		GSuniformBufferDescriptor.offset = 0;
+		GSuniformBufferDescriptor.range = size;
 	}
 
 	void SwapChainFrame::writeDescriptorSet() const
 	{
 		std::array<VkWriteDescriptorSet, 2> descriptorWrites = {};
-
 		descriptorWrites[0] = vkInit::writeDescriptorSet(
 			descriptorSet,
 			VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
 			0,
-			&uniformBufferDescriptor);
+			&VSuniformBufferDescriptor);
 
 		descriptorWrites[1] = vkInit::writeDescriptorSet(
 			descriptorSet,
-			VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+			VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
 			1,
-			&modelBufferDescriptor);
+			&GSuniformBufferDescriptor);
 
 		vkUpdateDescriptorSets(logicalDevice, static_cast<uint32>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}
@@ -62,7 +47,7 @@ namespace vkUtils
 		vkDestroySemaphore(logicalDevice, imageAvailableSemaphore, nullptr);
 		vkDestroySemaphore(logicalDevice, renderFinishedSemaphore, nullptr);
 
-		uniformBuffer.release();
-		modelBuffer.release(logicalDevice);
+		VSuniformBuffer.release();
+		GSuniformBuffer.release();
 	}
 }

@@ -14,11 +14,13 @@ namespace vkInit
 		VkDescriptorSetLayout descriptorSetLayout;
 		string vertexFilepath;
 		string fragmentFilepath;
+		string geometryFilepath;
 	};
 
 	struct GraphicsPipelineOutBundle
 	{
-		VkPipeline pipeline;
+		VkPipeline solidPipeline;
+		VkPipeline normalsPipeline;
 		VkPipelineLayout layout;
 	};
 
@@ -80,10 +82,7 @@ namespace vkInit
 	
 	const GraphicsPipelineOutBundle createGraphicsPipeline(const GraphicsPipilineInputBundle& inputBundle)
 	{
-		vkUtils::VulkanShader vertexShader = vkUtils::VulkanShader(inputBundle.logicalDevice, inputBundle.vertexFilepath, VK_SHADER_STAGE_VERTEX_BIT);
-		vkUtils::VulkanShader fragShader = vkUtils::VulkanShader(inputBundle.logicalDevice, inputBundle.fragmentFilepath, VK_SHADER_STAGE_FRAGMENT_BIT);
-
-		std::vector<VkPipelineShaderStageCreateInfo> shaderStages = { vertexShader.getStage(), fragShader.getStage() };
+		std::array<VkPipelineShaderStageCreateInfo, 3> shaderStages;
 		const auto& bindingDescription = vulkan::Vertex::getBindingDescription();
 		const auto& attributeDescription = vulkan::Vertex::getAttributeDescriptions();
 
@@ -101,8 +100,8 @@ namespace vkInit
 
 		VkPipelineRasterizationStateCreateInfo rasterizer = pipelineRasterizationStateCreateInfo(
 			VK_POLYGON_MODE_FILL,
-			VK_CULL_MODE_BACK_BIT,
-			VK_FRONT_FACE_COUNTER_CLOCKWISE);
+			VK_CULL_MODE_NONE,
+			VK_FRONT_FACE_CLOCKWISE);
 
 		VkPipelineMultisampleStateCreateInfo multisampling = pipelineMultisampleStateCreateInfo(inputBundle.msaaSamples);
 
@@ -128,8 +127,9 @@ namespace vkInit
 
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo = pipelineLayoutCreateInfo(&inputBundle.descriptorSetLayout);
 
-		VkPipelineLayout pipelineLayout;
-		VkResult err = vkCreatePipelineLayout(inputBundle.logicalDevice, &pipelineLayoutInfo, nullptr, &pipelineLayout);
+		GraphicsPipelineOutBundle bundle;
+
+		VkResult err = vkCreatePipelineLayout(inputBundle.logicalDevice, &pipelineLayoutInfo, nullptr, &bundle.layout);
 		vkUtils::check_vk_result(err, "failed to create pipeline layout!");
 
 		VkGraphicsPipelineCreateInfo pipelineInfo = pipelineCreateInfo();
@@ -143,25 +143,45 @@ namespace vkInit
 		pipelineInfo.pColorBlendState = &colorBlending;
 		pipelineInfo.pDepthStencilState = &depthStencil;
 		pipelineInfo.pDynamicState = &dynamicStateCreateInfo;
-		pipelineInfo.layout = pipelineLayout;
+		pipelineInfo.layout = bundle.layout;
 		pipelineInfo.renderPass = inputBundle.renderPass;
 		pipelineInfo.subpass = 0;
 		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-		VkPipeline pipeline;
-		err = vkCreateGraphicsPipelines(inputBundle.logicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline);
-		vkUtils::check_vk_result(err, "failed to create graphics pipeline!");
+		// Normals pipeline
+		{
+			vkUtils::VulkanShader vertexShader = vkUtils::VulkanShader(inputBundle.logicalDevice, "resources/shaders/NormalVert.spv", VK_SHADER_STAGE_VERTEX_BIT);
+			vkUtils::VulkanShader fragShader = vkUtils::VulkanShader(inputBundle.logicalDevice, "resources/shaders/NormalFrag.spv", VK_SHADER_STAGE_FRAGMENT_BIT);
+			vkUtils::VulkanShader geomShader = vkUtils::VulkanShader(inputBundle.logicalDevice, "resources/shaders/NormalGeom.spv", VK_SHADER_STAGE_GEOMETRY_BIT);
+			shaderStages[0] = vertexShader.getStage();
+			shaderStages[1] = fragShader.getStage();
+			shaderStages[2] = geomShader.getStage();
 
-		vertexShader.unbind();
-		fragShader.unbind();
+			err = vkCreateGraphicsPipelines(inputBundle.logicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &bundle.normalsPipeline);
+			vkUtils::check_vk_result(err, "failed to create graphics pipeline!");
+
+			vertexShader.unbind();
+			fragShader.unbind();
+			geomShader.unbind(); 
+		}
+
+		// Solid pipeline	
+		{
+			vkUtils::VulkanShader vertexShader = vkUtils::VulkanShader(inputBundle.logicalDevice, "resources/shaders/BaseVert.spv", VK_SHADER_STAGE_VERTEX_BIT);
+			vkUtils::VulkanShader fragShader = vkUtils::VulkanShader(inputBundle.logicalDevice, "resources/shaders/BaseFrag.spv", VK_SHADER_STAGE_FRAGMENT_BIT);
+			shaderStages[0] = vertexShader.getStage();
+			shaderStages[1] = fragShader.getStage();
+			pipelineInfo.stageCount = 2;
+
+			err = vkCreateGraphicsPipelines(inputBundle.logicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &bundle.solidPipeline);
+			vkUtils::check_vk_result(err, "failed to create graphics pipeline!");
+
+			vertexShader.unbind();
+			fragShader.unbind();
+		}
 
 		VOXEL_CORE_TRACE("Vulkan graphics pipeline created.")
 
-		GraphicsPipelineOutBundle bundle =
-		{
-			.pipeline = pipeline,
-			.layout = pipelineLayout
-		};
 		return bundle;
 	}
 }

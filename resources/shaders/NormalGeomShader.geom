@@ -1,12 +1,11 @@
 #version 450
 
-layout(triangles) in;
-layout(line_strip, max_vertices = 6) out;
+layout(lines) in;
+layout(line_strip, max_vertices = 2) out;
 
 layout(binding = 1) uniform UniformBufferObject {
     mat4 view;
     mat4 proj;
-    mat4 viewproj;
 } ubo;
 
 layout (location = 0) in vec3 inNormal[];

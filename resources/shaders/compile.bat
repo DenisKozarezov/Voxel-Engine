@@ -1,6 +1,13 @@
-D:\VulkanSDK\Bin\glslc.exe BaseShader.vert -o BaseVert.spv
-D:\VulkanSDK\Bin\glslc.exe BaseShader.frag -o BaseFrag.spv
-D:\VulkanSDK\Bin\glslc.exe NormalShader.geom -o NormalGeom.spv
-D:\VulkanSDK\Bin\glslc.exe NormalShader.vert -o NormalVert.spv
-D:\VulkanSDK\Bin\glslc.exe NormalShader.frag -o NormalFrag.spv
+@echo off
+setlocal enabledelayedexpansion
+
+set "shader_dir=%~dp0"
+set "glslangValidator=D:\VulkanSDK\Bin\glslc.exe"
+
+for %%f in ("*.vert" "*.frag" "*.geom") do (
+    echo Compiling: %%~nxf
+    "%glslangValidator%" %%f -o %%~dpnf.spv
+)
+
+echo All shaders compiled.
 pause

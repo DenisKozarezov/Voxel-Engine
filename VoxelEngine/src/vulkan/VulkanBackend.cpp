@@ -6,6 +6,7 @@
 #include "vkInit/VulkanDevice.h"
 #include "vkInit/VulkanFramebuffer.h"
 #include "vkInit/VulkanPipeline.h"
+#include "vkPipelines/VulkanPipelines.h"
 #include "vkInit/VulkanSync.h"
 #include "vkInit/VulkanDescriptors.h"
 #include "vkUtils/VulkanCommandBuffer.h"
@@ -42,7 +43,7 @@ namespace vulkan
 		// Pipeline-related variables
 		VkPipelineLayout pipelineLayout;
 		VkPipelineCache pipelineCache;
-		VkPipeline solidPipeline, normalsPipeline;
+		vkInit::Pipelines pipelines;
 		VkRenderPass renderPass;
 
 		// Descriptors
@@ -150,20 +151,43 @@ namespace vulkan
 		VkFormat depthFormat = state.swapChainBundle.depthFormat;
 		state.renderPass = vkInit::createRenderPass(state.logicalDevice, swapChainImageFormat, depthFormat, state.msaaSamples);
 
-		vkInit::GraphicsPipilineInputBundle graphicsInputBundle =
+		vkInit::GraphicsPipilineInputBundle solidInputBundle =
 		{
 			.logicalDevice = state.logicalDevice,
 			.renderPass = state.renderPass,
 			.msaaSamples = state.msaaSamples,
 			.descriptorSetLayout = state.descriptorSetLayout,
-			.vertexFilepath = ASSET_PATH("shaders/vert.spv"),
-			.fragmentFilepath = ASSET_PATH("shaders/frag.spv"),
-			.geometryFilepath = ASSET_PATH("shaders/geom.spv")
+			.vertexFilepath = ASSET_PATH("shaders/SolidVertShader.spv"),
+			.fragmentFilepath = ASSET_PATH("shaders/SolidFragShader.spv")
+		};		
+		const auto& solidPipeline = vkPipelines::createSolidPipeline(solidInputBundle);
+		state.pipelines.solid = solidPipeline.pipeline;
+		state.pipelineLayout = solidPipeline.layout;
+		
+		vkInit::GraphicsPipilineInputBundle normalsInputBundle =
+		{
+			.logicalDevice = state.logicalDevice,
+			.renderPass = state.renderPass,
+			.descriptorSetLayout = state.descriptorSetLayout,
+			.vertexFilepath = ASSET_PATH("shaders/BaseVertShader.spv"),
+			.fragmentFilepath = ASSET_PATH("shaders/BaseFragShader.spv"),
+			.geometryFilepath = ASSET_PATH("shaders/NormalGeomShader.spv"),
+			.basePipilineHandle = solidPipeline.pipeline
 		};
-		const auto& pipelineBundle = vkInit::createGraphicsPipeline(graphicsInputBundle);
-		state.solidPipeline = pipelineBundle.solidPipeline;
-		state.normalsPipeline = pipelineBundle.normalsPipeline;
-		state.pipelineLayout = pipelineBundle.layout;
+		const auto& normalsPipeline = vkPipelines::createNormalsPipeline(normalsInputBundle);
+		state.pipelines.normals = normalsPipeline.pipeline;
+
+		vkInit::GraphicsPipilineInputBundle wireframeInputBundle =
+		{
+			.logicalDevice = state.logicalDevice,
+			.renderPass = state.renderPass,
+			.descriptorSetLayout = state.descriptorSetLayout,
+			.vertexFilepath = ASSET_PATH("shaders/SolidVertShader.spv"),
+			.fragmentFilepath = ASSET_PATH("shaders/WireframeFragShader.spv"),
+			.basePipilineHandle = solidPipeline.pipeline
+		};
+		const auto& wireframePipeline = vkPipelines::createWireframePipeline(wireframeInputBundle);
+		state.pipelines.wireframe = wireframePipeline.pipeline;
 	}
 	void finalizeSetup()
 	{
@@ -380,15 +404,14 @@ namespace vulkan
 		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
 		// =================== RENDER WHOLE STUFF HERE ! ===================
-		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.solidPipeline);
 		prepareScene(commandBuffer);
-
+		
 		uint32 startInstance = 0;
+		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.solid);
 		renderSceneObjects(commandBuffer, MeshType::Polygone, startInstance, static_cast<uint32>(currentScene->vertices.size()));
 		
-		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.normalsPipeline);
-
 		startInstance = 0;
+		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.normals);
 		renderSceneObjects(commandBuffer, MeshType::Polygone, startInstance, static_cast<uint32>(currentScene->vertices.size()));
 		// =================================================================
 
@@ -463,8 +486,7 @@ namespace vulkan
 
 		delete state.vertexManager;
 		
-		vkDestroyPipeline(state.logicalDevice, state.solidPipeline, nullptr);
-		vkDestroyPipeline(state.logicalDevice, state.normalsPipeline, nullptr);
+		state.pipelines.release(state.logicalDevice);
 		vkDestroyPipelineLayout(state.logicalDevice, state.pipelineLayout, nullptr);
 		vkDestroyRenderPass(state.logicalDevice, state.renderPass, nullptr);
 		vkDestroyDescriptorPool(state.logicalDevice, state.descriptorPool, nullptr);

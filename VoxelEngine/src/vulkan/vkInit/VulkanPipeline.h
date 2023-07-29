@@ -15,12 +15,26 @@ namespace vkInit
 		string vertexFilepath;
 		string fragmentFilepath;
 		string geometryFilepath;
+		VkPipeline basePipilineHandle;
+	};
+
+	typedef struct Pipelines
+	{
+		VkPipeline solid;
+		VkPipeline wireframe;
+		VkPipeline normals;
+
+		void release(const VkDevice& logicalDevice) const
+		{
+			vkDestroyPipeline(logicalDevice, solid, nullptr);
+			vkDestroyPipeline(logicalDevice, wireframe, nullptr);
+			vkDestroyPipeline(logicalDevice, normals, nullptr);
+		}
 	};
 
 	struct GraphicsPipelineOutBundle
 	{
-		VkPipeline solidPipeline;
-		VkPipeline normalsPipeline;
+		VkPipeline pipeline;
 		VkPipelineLayout layout;
 	};
 
@@ -78,110 +92,5 @@ namespace vkInit
 		VOXEL_CORE_TRACE("Vulkan render pass created.")
 
 		return renderPass;
-	}
-	
-	const GraphicsPipelineOutBundle createGraphicsPipeline(const GraphicsPipilineInputBundle& inputBundle)
-	{
-		std::array<VkPipelineShaderStageCreateInfo, 3> shaderStages;
-		const auto& bindingDescription = vulkan::Vertex::getBindingDescription();
-		const auto& attributeDescription = vulkan::Vertex::getAttributeDescriptions();
-
-		VkPipelineVertexInputStateCreateInfo vertexInputInfo = pipelineVertexInputStateCreateInfo(
-			&bindingDescription,
-			1,
-			attributeDescription.data(),
-			static_cast<uint32>(attributeDescription.size()));
-
-		VkPipelineInputAssemblyStateCreateInfo inputAssembly = pipelineInputAssemblyStateCreateInfo(
-			VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-			VK_FALSE);
-
-		VkPipelineViewportStateCreateInfo viewportState = pipelineViewportStateCreateInfo(1, 1);
-
-		VkPipelineRasterizationStateCreateInfo rasterizer = pipelineRasterizationStateCreateInfo(
-			VK_POLYGON_MODE_FILL,
-			VK_CULL_MODE_NONE,
-			VK_FRONT_FACE_CLOCKWISE);
-
-		VkPipelineMultisampleStateCreateInfo multisampling = pipelineMultisampleStateCreateInfo(inputBundle.msaaSamples);
-
-		VkPipelineColorBlendAttachmentState colorBlendAttachment = pipelineColorBlendAttachmentState(
-			VK_COLOR_COMPONENT_R_BIT |
-			VK_COLOR_COMPONENT_G_BIT |
-			VK_COLOR_COMPONENT_B_BIT |
-			VK_COLOR_COMPONENT_A_BIT,
-			VK_FALSE);
-		VkPipelineColorBlendStateCreateInfo colorBlending = pipelineColorBlendStateCreateInfo(colorBlendAttachment);
-
-		VkPipelineDepthStencilStateCreateInfo depthStencil = pipelineDepthStencilStateCreateInfo(
-			VK_TRUE,
-			VK_TRUE,
-			VK_COMPARE_OP_LESS);
-
-		std::vector<VkDynamicState> dynamicStates =
-		{
-			VK_DYNAMIC_STATE_VIEWPORT,
-			VK_DYNAMIC_STATE_SCISSOR
-		};
-		VkPipelineDynamicStateCreateInfo dynamicStateCreateInfo = pipelineDynamicStateCreateInfo(dynamicStates);
-
-		VkPipelineLayoutCreateInfo pipelineLayoutInfo = pipelineLayoutCreateInfo(&inputBundle.descriptorSetLayout);
-
-		GraphicsPipelineOutBundle bundle;
-
-		VkResult err = vkCreatePipelineLayout(inputBundle.logicalDevice, &pipelineLayoutInfo, nullptr, &bundle.layout);
-		vkUtils::check_vk_result(err, "failed to create pipeline layout!");
-
-		VkGraphicsPipelineCreateInfo pipelineInfo = pipelineCreateInfo();
-		pipelineInfo.stageCount = shaderStages.size();
-		pipelineInfo.pStages = shaderStages.data();
-		pipelineInfo.pVertexInputState = &vertexInputInfo;
-		pipelineInfo.pInputAssemblyState = &inputAssembly;
-		pipelineInfo.pViewportState = &viewportState;
-		pipelineInfo.pRasterizationState = &rasterizer;
-		pipelineInfo.pMultisampleState = &multisampling;
-		pipelineInfo.pColorBlendState = &colorBlending;
-		pipelineInfo.pDepthStencilState = &depthStencil;
-		pipelineInfo.pDynamicState = &dynamicStateCreateInfo;
-		pipelineInfo.layout = bundle.layout;
-		pipelineInfo.renderPass = inputBundle.renderPass;
-		pipelineInfo.subpass = 0;
-		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
-
-		// Normals pipeline
-		{
-			vkUtils::VulkanShader vertexShader = vkUtils::VulkanShader(inputBundle.logicalDevice, "resources/shaders/NormalVert.spv", VK_SHADER_STAGE_VERTEX_BIT);
-			vkUtils::VulkanShader fragShader = vkUtils::VulkanShader(inputBundle.logicalDevice, "resources/shaders/NormalFrag.spv", VK_SHADER_STAGE_FRAGMENT_BIT);
-			vkUtils::VulkanShader geomShader = vkUtils::VulkanShader(inputBundle.logicalDevice, "resources/shaders/NormalGeom.spv", VK_SHADER_STAGE_GEOMETRY_BIT);
-			shaderStages[0] = vertexShader.getStage();
-			shaderStages[1] = fragShader.getStage();
-			shaderStages[2] = geomShader.getStage();
-
-			err = vkCreateGraphicsPipelines(inputBundle.logicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &bundle.normalsPipeline);
-			vkUtils::check_vk_result(err, "failed to create graphics pipeline!");
-
-			vertexShader.unbind();
-			fragShader.unbind();
-			geomShader.unbind(); 
-		}
-
-		// Solid pipeline	
-		{
-			vkUtils::VulkanShader vertexShader = vkUtils::VulkanShader(inputBundle.logicalDevice, "resources/shaders/BaseVert.spv", VK_SHADER_STAGE_VERTEX_BIT);
-			vkUtils::VulkanShader fragShader = vkUtils::VulkanShader(inputBundle.logicalDevice, "resources/shaders/BaseFrag.spv", VK_SHADER_STAGE_FRAGMENT_BIT);
-			shaderStages[0] = vertexShader.getStage();
-			shaderStages[1] = fragShader.getStage();
-			pipelineInfo.stageCount = 2;
-
-			err = vkCreateGraphicsPipelines(inputBundle.logicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &bundle.solidPipeline);
-			vkUtils::check_vk_result(err, "failed to create graphics pipeline!");
-
-			vertexShader.unbind();
-			fragShader.unbind();
-		}
-
-		VOXEL_CORE_TRACE("Vulkan graphics pipeline created.")
-
-		return bundle;
 	}
 }

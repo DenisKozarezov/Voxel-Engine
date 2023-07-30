@@ -11,6 +11,10 @@ namespace VoxelEngine::renderer
 	class VertexManager
 	{
 	private:
+		static constexpr uint32 MAX_TRIANGLES = 20000;
+		static constexpr uint32 MAX_VERTICES = MAX_TRIANGLES * 3;
+		static constexpr uint32 MAX_INDICES = MAX_TRIANGLES * 3;
+
 		size_t indexOffset = 0;
 		std::vector<uint32> indices;		
 	public:

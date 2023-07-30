@@ -76,7 +76,13 @@ namespace vkInit
 		VkPhysicalDeviceFeatures supportedFeatures;
 		vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
 
-		return vkUtils::findQueueFamilies(device, surface).isComplete() && extensionsSupported && supportedFeatures.samplerAnisotropy;
+		if (!supportedFeatures.geometryShader)
+			return false;
+
+		return vkUtils::findQueueFamilies(device, surface).isComplete() && extensionsSupported 
+			&& supportedFeatures.samplerAnisotropy
+			&& supportedFeatures.fillModeNonSolid
+			&& supportedFeatures.pipelineStatisticsQuery;
 	}
 
 	const VkPhysicalDevice pickPhysicalDevice(
@@ -99,7 +105,9 @@ namespace vkInit
 			vkGetPhysicalDeviceProperties(device, &deviceProperties);
 
 			VOXEL_CORE_TRACE("Physical device candidate: {0}.", deviceProperties.deviceName);
+			VOXEL_CORE_TRACE("Device vendor ID: {0}.", deviceProperties.vendorID);
 			VOXEL_CORE_TRACE("Device type: {0}.", parseDeviceTypeToString(deviceProperties.deviceType));
+			VOXEL_CORE_TRACE("Device ID: {0}.", deviceProperties.deviceID);
 			VOXEL_CORE_TRACE("Device hardware concurrency: {0}.", getHardwareConcurrency());
 
 			if (isDeviceSuitable(device, surface, enableValidation))
@@ -119,7 +127,7 @@ namespace vkInit
 
 		float queuePriority = 1.0f;
 		uint32 graphicsFamilyIndex = queueFamilyIndices.graphicsFamily.value();
-		uint32 presentFamilyIndex =queueFamilyIndices.presentFamily.value();
+		uint32 presentFamilyIndex = queueFamilyIndices.presentFamily.value();
 		VkDeviceQueueCreateInfo queueCreateInfo = {};
 		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 		queueCreateInfo.queueFamilyIndex = graphicsFamilyIndex;
@@ -128,6 +136,8 @@ namespace vkInit
 
 		VkPhysicalDeviceFeatures deviceFeatures = {};
 		deviceFeatures.samplerAnisotropy = VK_TRUE;
+		deviceFeatures.pipelineStatisticsQuery = VK_TRUE;
+		deviceFeatures.fillModeNonSolid = VK_TRUE;
 
 		VkDeviceCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;

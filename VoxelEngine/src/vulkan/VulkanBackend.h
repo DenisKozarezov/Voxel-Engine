@@ -3,6 +3,7 @@
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <core/Window.h>
 #include <core/Scene.h>
+#include <core/renderer/RenderSettings.h>
 #include <GLFW/glfw3.h>
 #include <components/camera/Camera.h>
 #include <components/mesh/Mesh.h>
@@ -14,7 +15,7 @@ namespace vulkan
 
 	static int MAX_FRAMES_IN_FLIGHT = 3;
 	static uint32 CURRENT_FRAME = 0;
-	
+
 	void makeCommandPool(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice);
 	void makeCommandBuffers();
 
@@ -45,12 +46,16 @@ namespace vulkan
 	void deviceWaitIdle();
 	void cleanup();
 
+	VoxelEngine::renderer::RenderSettings& getRenderSettings();
+
 	void makeAssets();
 	void renderSceneObjects(
 		const VkCommandBuffer& commandBuffer,
 		const MeshType& objectType,
 		uint32& startInstance,
 		const uint32& instanceCount);
+
+	std::tuple<const string*, uint64*> getPipelineStats();
 
 	const VkDevice& getLogicalDevice();
 
@@ -71,7 +76,6 @@ namespace vulkan
 	/// </summary>
 	/// <returns></returns>
 	const VkCommandPool& getCommandPool();
-
 
 	// ==================== MEMORY ALLOC / DEALLOC ====================
 	const VkDeviceMemory allocateMemory(const VkMemoryRequirements& requirements, const VkMemoryPropertyFlags& properties);

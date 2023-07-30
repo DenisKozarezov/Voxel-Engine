@@ -7,10 +7,19 @@ namespace VoxelEngine::renderer
 {
     RenderPerformanceStats renderPerformanceStats;
 
+    RenderSettings& Renderer::getRenderSettings()
+    {
+        return vulkan::getRenderSettings();
+    }
     const RenderPerformanceStats& Renderer::getStats()
     {
         renderPerformanceStats.deltaTime = Application::getInstance().getDeltaTime();
         renderPerformanceStats.fps = ImGui::GetIO().Framerate;
+
+        const auto& stats = vulkan::getPipelineStats();
+
+        renderPerformanceStats.pipelineStatNames = stats._Myfirst._Val;
+        renderPerformanceStats.pipelineStats = stats._Get_rest()._Myfirst._Val;
         return renderPerformanceStats;
     }
     const float Renderer::getTime()

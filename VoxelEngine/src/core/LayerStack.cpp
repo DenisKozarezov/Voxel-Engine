@@ -48,6 +48,14 @@ namespace VoxelEngine::renderer
 			(*it)->onUpdate(time);
 		}
 	}
+	void LayerStack::onFixedUpdate(const Timestep& time)
+	{
+		for (auto it = begin(); it != end(); ++it)
+		{
+			(*it)->onFixedUpdate(time);
+		}
+	}
+
 	void LayerStack::onImGuiRender()
 	{
 		for (auto it = begin(); it != end(); ++it)

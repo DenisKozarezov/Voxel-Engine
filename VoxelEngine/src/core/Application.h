@@ -48,6 +48,9 @@ namespace VoxelEngine
 		bool _running = false;
 		bool _minimized = false;
 		float _deltaTime;
+
+		static constexpr double fixedDeltaTime = 1 / 60.0f;
+
 		static Application* _instance;
 
 		void setupInputCallbacks();

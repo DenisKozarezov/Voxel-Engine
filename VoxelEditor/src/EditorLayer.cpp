@@ -78,9 +78,8 @@ namespace VoxelEditor
 	}
 	void EditorLayer::moveCamera(const components::camera::CameraMovement& direction)
 	{		
-		_camera.processKeyboard(direction, _deltaTime);
+		_camera.processKeyboard(direction, _fixedDeltaTime);
 	}
-
 	void EditorLayer::mouseMove(const float& x, const float& y)
 	{
 		_camera.processMouse(x, y);
@@ -143,8 +142,20 @@ namespace VoxelEditor
 			ImGui::EndMenuBar();
 		}
 	}
-	void EditorLayer::drawHierarchy()
+	void EditorLayer::drawRenderModes()
 	{
+		static int e;
+
+		auto& settings = VoxelEngine::renderer::Renderer::getRenderSettings();
+
+		ImGui::BeginChild("##render_modes", { 200, 100 });
+		ImGui::RadioButton("Solid", &e, 0);
+		ImGui::RadioButton("Wireframe", &e, 1);
+		ImGui::Separator();
+		ImGui::Checkbox("Show Normals", &settings.showNormals);
+		ImGui::EndChild();
+
+		settings.renderMode = static_cast<VoxelEngine::renderer::RenderMode>(e);
 	}
 	void EditorLayer::drawRenderPerformance()
 	{
@@ -156,11 +167,17 @@ namespace VoxelEditor
 			if (ImGui::CollapsingHeader("Statistics", ImGuiTreeNodeFlags_DefaultOpen))
 			{
 				ImGui::BeginColumns("##statistics", 2);
-				ImGui::Text("Draw Calls: %d", 0);
-				ImGui::Text("Triangles: %d", 0);
-				ImGui::Text("Vertices: %d", 0);
-				ImGui::Text("Indices: %d", 0);
+				ImGui::Text("Draw Calls: %d", stats.drawCalls);
+				ImGui::Text("Triangles: %d", stats.triangles);
+				ImGui::Text("Vertices: %d", stats.vertices);
+				ImGui::Text("Indices: %d", stats.indices);
 				ImGui::NextColumn();
+
+				for (int i = 0; i < 6; ++i)
+				{
+					ImGui::Text("%s: %d", stats.pipelineStatNames[i].c_str(), stats.pipelineStats[i]);
+				}
+
 				ImGui::Text("Batches: %d", 0);
 				ImGui::EndColumns();
 
@@ -197,12 +214,13 @@ namespace VoxelEditor
 		renderer::Renderer::setScene(new Scene());
 	}				  
 	void EditorLayer::onDetach()
-	{				  
+	{				
+  
 	}				  
-	void EditorLayer::onUpdate(const VoxelEngine::Timestep& ts)
-	{				  
-		_deltaTime = ts;
-	}				  
+	void EditorLayer::onFixedUpdate(const VoxelEngine::Timestep& ts)
+	{
+		_fixedDeltaTime = ts;
+	}
 	void EditorLayer::onImGuiRender()
 	{
 		static bool opt_fullscreen = true;
@@ -226,6 +244,7 @@ namespace VoxelEditor
 		{
 			drawRenderPerformance();
 			drawMenuBar();
+			drawRenderModes();
 
 			ImGui::End();
 		}

@@ -41,7 +41,7 @@ namespace assets
 		void release() const;
 	};
 
-	static class AssetsProvider final
+	static class AssetsProvider
 	{
 	public:
 		static const TextureData loadTexture(const string& path, ImageColorFormat req_comp = ImageColorFormat::RGB_alpha);

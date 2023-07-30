@@ -20,6 +20,7 @@ namespace VoxelEngine::renderer
 		void popOverlay(Layer* overlay);
 		void detach();
 		void onUpdate(const Timestep& time);
+		void onFixedUpdate(const Timestep& time);
 		void onImGuiRender();
 		void onEvent(input::Event& e);
 

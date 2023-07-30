@@ -6,11 +6,12 @@
 #include "vkInit/VulkanDevice.h"
 #include "vkInit/VulkanFramebuffer.h"
 #include "vkInit/VulkanPipeline.h"
-#include "vkPipelines/VulkanPipelines.h"
 #include "vkInit/VulkanSync.h"
 #include "vkInit/VulkanDescriptors.h"
+#include "vkPipelines/VulkanPipelines.h"
 #include "vkUtils/VulkanCommandBuffer.h"
 #include "vkUtils/VulkanUniformBuffer.h"
+#include "vkUtils/VulkanStatistics.h"
 #include "core/renderer/VertexManager.h"
 #include "assets_management/AssetsProvider.h"
 
@@ -45,6 +46,7 @@ namespace vulkan
 		VkPipelineCache pipelineCache;
 		vkInit::Pipelines pipelines;
 		VkRenderPass renderPass;
+		VkQueryPool queryPool;
 
 		// Descriptors
 		VkDescriptorPool descriptorPool;
@@ -55,8 +57,7 @@ namespace vulkan
 
 	const VoxelEngine::components::camera::Camera* FPVcamera;
 	const VoxelEngine::Scene* currentScene;
-
-	static constexpr float FOV = 45.0f;
+	VoxelEngine::renderer::RenderSettings renderSettings;
 		
 	static void framebufferResizeCallback(GLFWwindow* window, int width, int height)
 	{
@@ -98,6 +99,7 @@ namespace vulkan
 		state.logicalDevice = vkInit::createLogicalDevice(state.physicalDevice, state.surface, vkUtils::_enableValidationLayers);
 		state.queues = vkInit::getDeviceQueues(state.physicalDevice, state.logicalDevice, state.surface);
 		state.msaaSamples = vkInit::findMaxSamplesCount(state.physicalDevice);
+		state.queryPool = vkUtils::setupQueryPool(state.logicalDevice);
 
 		VOXEL_CORE_TRACE("Device max samples count: {0}.", (int)state.msaaSamples);
 	}
@@ -308,11 +310,9 @@ namespace vulkan
 		vkUtils::UniformBufferObject ubo =
 		{
 			.view = FPVcamera->viewMatrix(),
-			.proj = glm::perspective(glm::radians(FOV), aspectRatio, 0.1f, 200.0f),
+			.proj = FPVcamera->projectionMatrix(aspectRatio),
+			.viewproj = ubo.proj * ubo.view
 		};
-		ubo.proj[1][1] *= -1;
-		ubo.viewproj = ubo.proj * ubo.view;
-
 		frame.VSuniformBuffer.setData(&ubo, sizeof(ubo));
 		frame.GSuniformBuffer.setData(&ubo, sizeof(ubo));
 
@@ -393,6 +393,7 @@ namespace vulkan
 			frame.framebuffer,
 			swapChainExtent,
 			clearValues);
+		vkCmdResetQueryPool(commandBuffer, state.queryPool, 0, 1);
 		vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelineLayout, 0, 1, &frame.descriptorSet, 0, nullptr);
@@ -407,18 +408,29 @@ namespace vulkan
 		prepareScene(commandBuffer);
 		
 		uint32 startInstance = 0;
-		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.solid);
+		switch (renderSettings.renderMode)
+		{
+		case 0:
+			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.solid);
+			break;
+		case 1:
+			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.wireframe);
+			break;
+		}
 		renderSceneObjects(commandBuffer, MeshType::Polygone, startInstance, static_cast<uint32>(currentScene->vertices.size()));
 		
-		startInstance = 0;
-		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.normals);
-		renderSceneObjects(commandBuffer, MeshType::Polygone, startInstance, static_cast<uint32>(currentScene->vertices.size()));
-		// =================================================================
-
+		if (renderSettings.showNormals)
+		{
+			startInstance = 0;
+			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.normals);
+			renderSceneObjects(commandBuffer, MeshType::Polygone, startInstance, static_cast<uint32>(currentScene->vertices.size()));
+		}
 
 		ImDrawData* main_draw_data = ImGui::GetDrawData();
 		ImGui_ImplVulkan_RenderDrawData(main_draw_data, commandBuffer);
+		// =================================================================
 
+		vkCmdEndQuery(commandBuffer, state.queryPool, 0);
 		vkCmdEndRenderPass(commandBuffer);
 		vkUtils::memory::CommandBuffer::endCommand(commandBuffer);
 	}
@@ -436,7 +448,9 @@ namespace vulkan
 			waitStages);	
 
 		VkResult err = vkQueueSubmit(queue, 1, &submitInfo, frame.inFlightFence);
-		vkUtils::check_vk_result(err, "failed to submit draw command buffer! Possible reasons:\n 1) Incorrect shaders for submitting to the command queue. Please recompile your shaders!\n 2) Synchronization issues.");
+		vkUtils::check_vk_result(err, "failed to submit draw command buffer!");
+	
+		vkUtils::getQueryResults(state.logicalDevice, state.queryPool);
 	}
 	void setWindow(const VoxelEngine::Window& window)
 	{
@@ -450,12 +464,14 @@ namespace vulkan
 	{
 		FPVcamera = camera;
 	}
-
 	void setScene(const VoxelEngine::Scene* scene)
 	{
 		currentScene = scene;
 	}
-
+	VoxelEngine::renderer::RenderSettings& getRenderSettings()
+	{
+		return renderSettings;
+	}
 	void init()
 	{
 		makeInstance();
@@ -491,7 +507,8 @@ namespace vulkan
 		vkDestroyRenderPass(state.logicalDevice, state.renderPass, nullptr);
 		vkDestroyDescriptorPool(state.logicalDevice, state.descriptorPool, nullptr);
 		vkDestroyDescriptorSetLayout(state.logicalDevice, state.descriptorSetLayout, nullptr);
-		
+		vkDestroyQueryPool(state.logicalDevice, state.queryPool, nullptr);
+
 		vkDestroyCommandPool(state.logicalDevice, state.commandPool, nullptr);
 		vkDestroyDevice(state.logicalDevice, nullptr);
 
@@ -527,6 +544,11 @@ namespace vulkan
 		vkCmdDrawIndexed(commandBuffer, indexCount, instanceCount, firstIndex, 0, startInstance);
 	
 		startInstance += instanceCount;
+	}
+
+	std::tuple<const string*, uint64*> getPipelineStats()
+	{
+		return { vkUtils::pipelineStatNames.data(), vkUtils::pipelineStats.data() };
 	}
 
 	const VkDevice& getLogicalDevice()

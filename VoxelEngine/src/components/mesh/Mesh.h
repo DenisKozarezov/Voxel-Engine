@@ -22,4 +22,69 @@ namespace VoxelEngine::components::mesh
 		Mesh() noexcept = default;
 		~Mesh() noexcept = default;
 	};
+
+	struct TriangleMesh
+	{
+		const std::vector<vulkan::Vertex> vertices =
+		{
+			{{0.0f, -0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}},
+			{{0.5f, 0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
+			{{-0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}}
+		};
+		const std::vector<uint64> indices = { 0, 1, 2 };
+	};
+
+	struct SquareMesh
+	{
+		const std::vector<vulkan::Vertex> vertices = 
+		{
+			{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}},
+			{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
+			{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}},
+			{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}}
+		};
+		const std::vector<uint64> indices = { 0, 1, 2, 2, 3, 0 };
+	};
+
+	struct VoxelMesh
+	{
+		const float s = 0.5f;
+		const std::vector<vulkan::Vertex> vertices =
+		{
+			// 0 - 3
+			{{ -s, s, s}, {0.0f, 1.0f, 1.0f}},
+			{{ -s, -s, s}, {0.0f, 0.0f, 1.0f}},
+			{{ s, s, s}, {1.0f, 1.0f, 1.0f}},
+			{{ s, -s, s}, {1.0f, 0.0f, 1.0f}},
+
+			// 4 - 5
+			{{ s, s, -s}, {1.0f, 1.0f, 0.0f}},
+			{{ s, -s, -s}, {1.0f, 0.0f, 0.0f}},
+
+			// 6 - 7
+			{{-s, s, -s}, {0.0f, 1.0f, 0.0f}},
+			{{ -s, -s, -s}, {0.0f, 0.0f, 0.0f}},
+		};
+
+		std::vector<uint32> indices =
+		{
+			// Front
+			0,1,2, 1,3,2,
+
+			// Right
+			4,2,3, 4,3,5,
+
+			// Back
+			4,5,6, 5,7,6,
+
+			// Right
+			6,7,0, 1,0,7,
+
+			// Top
+			6,0,4, 0,2,4,
+
+			// Bottom
+			1,7,5, 1,5,3
+		};
+	};
 }

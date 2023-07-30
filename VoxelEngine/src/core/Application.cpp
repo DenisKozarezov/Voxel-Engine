@@ -1,7 +1,6 @@
 #include "Application.h"
 #include "renderer/Renderer.h"
 #include "imgui/ImGuiLayer.h"
-#include "Timer.h"
 
 namespace VoxelEngine
 {
@@ -66,21 +65,29 @@ namespace VoxelEngine
 		VOXEL_CORE_WARN("Running {0}...", _specification.ApplicationName)
 
 		_running = true;
-		Timer timer;
+		float lastTime = 0.0f;
+		float accumulator = 0.0f;
 
 		while (_running)
 		{
+			const float currentTime = renderer::Renderer::getTime();
+			_deltaTime = currentTime - lastTime;
+			lastTime = currentTime;
+
 			if (!_minimized)
 			{
 				_layerStack.onUpdate(_deltaTime);
-
-				timer.reset();
 
 				renderer::Renderer::beginFrame();
 				_layerStack.onImGuiRender();
 				renderer::Renderer::endFrame();
 
-				_deltaTime = timer.elapsedInMilliseconds<float>();
+				accumulator += _deltaTime;
+				while (accumulator >= fixedDeltaTime) 
+				{
+					_layerStack.onFixedUpdate(fixedDeltaTime);
+					accumulator -= fixedDeltaTime;
+				}
 			}
 			_window->onUpdate();
 		}

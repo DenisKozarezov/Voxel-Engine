@@ -1,7 +1,8 @@
 #pragma once
 #include "../Window.h"
+#include "../Scene.h"
 #include "components/camera/Camera.h"
-#include "core/Scene.h"
+#include "RenderSettings.h"
 
 namespace VoxelEngine::renderer
 {
@@ -15,6 +16,9 @@ namespace VoxelEngine::renderer
 
 	struct RenderPerformanceStats
 	{
+		const string* pipelineStatNames;
+		uint64* pipelineStats;
+
 		uint32 drawCalls;
 		uint64 triangles;
 		uint64 vertices;
@@ -28,6 +32,7 @@ namespace VoxelEngine::renderer
 	class Renderer
 	{
 	public:
+		static RenderSettings& getRenderSettings();
 		static const RenderPerformanceStats& getStats();
 		static const float getTime();
 		static void init(const Window& window);

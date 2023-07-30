@@ -19,6 +19,7 @@ namespace VoxelEngine::renderer
 		virtual void onAttach() {}
 		virtual void onDetach() {}
 		virtual void onUpdate(const Timestep& time) {}
+		virtual void onFixedUpdate(const Timestep& time) {}
 		virtual void onImGuiRender() {}
 		virtual void onEvent(input::Event& event) {}
 

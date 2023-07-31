@@ -64,28 +64,6 @@ namespace vulkan
 		state.framebufferResized = true;
 	}
 			
-	void makeCommandPool(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice)
-	{
-		vkUtils::QueueFamilyIndices queueFamilyIndices = vkUtils::findQueueFamilies(physicalDevice, state.surface);
-
-		VkCommandPoolCreateInfo poolInfo = vkInit::commandPoolCreateInfo(queueFamilyIndices.graphicsFamily.value(), VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
-
-		VkResult err = vkCreateCommandPool(logicalDevice, &poolInfo, nullptr, &state.commandPool);
-		vkUtils::check_vk_result(err, "failed to create command pool!");
-
-		VOXEL_CORE_TRACE("Vulkan command pool created.")
-	}
-	void makeCommandBuffers()
-	{
-		int i = 0;
-		for (vkUtils::SwapChainFrame& frame : state.swapChainBundle.frames)
-		{
-			frame.commandBuffer = vkUtils::memory::CommandBuffer::allocate();
-
-			VOXEL_CORE_TRACE("Vulkan command buffer allocated for frame {0}.", i)
-			++i;
-		}
-	}
 	void makeInstance()
 	{
 		state.instance = vkInit::createInstance();
@@ -191,18 +169,6 @@ namespace vulkan
 		const auto& wireframePipeline = vkPipelines::createWireframePipeline(wireframeInputBundle);
 		state.pipelines.wireframe = wireframePipeline.pipeline;
 	}
-	void finalizeSetup()
-	{
-		makeFramebuffers();
-
-		makeCommandPool(state.physicalDevice, state.logicalDevice);
-
-		makeCommandBuffers();
-
-		state.descriptorPool = vkInit::createDescriptorPool(state.logicalDevice);
-
-		makeFrameResources(state.logicalDevice);
-	}
 	void makeFrameResources(const VkDevice& logicalDevice)
 	{
 		int i = 0;
@@ -219,46 +185,41 @@ namespace vulkan
 			++i;
 		}
 	}	
-	void initImGui()
+	void makeCommandPool(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice)
 	{
-		ImGui_ImplVulkan_InitInfo init_info = {};
-		init_info.Instance = state.instance;
-		init_info.PhysicalDevice = state.physicalDevice;
-		init_info.Device = state.logicalDevice;
-		init_info.QueueFamily = state.queueFamilyIndices.graphicsFamily.value();
-		init_info.Queue = state.queues.graphicsQueue;
-		init_info.PipelineCache = state.pipelineCache;
-		init_info.DescriptorPool = state.descriptorPool;
-		init_info.Subpass = 0;
-		init_info.MinImageCount = MAX_FRAMES_IN_FLIGHT;
-		init_info.ImageCount = MAX_FRAMES_IN_FLIGHT;
-		init_info.MSAASamples = state.msaaSamples;
-		init_info.Allocator = nullptr;
-		ImGui_ImplGlfw_InitForVulkan(state.windowPtr, true);
-		ImGui_ImplVulkan_Init(&init_info, state.renderPass);
-		
-		ImGuiIO& io = ImGui::GetIO(); (void)io;
-		io.Fonts->AddFontDefault();
+		vkUtils::QueueFamilyIndices queueFamilyIndices = vkUtils::findQueueFamilies(physicalDevice, state.surface);
+
+		VkCommandPoolCreateInfo poolInfo = vkInit::commandPoolCreateInfo(queueFamilyIndices.graphicsFamily.value(), VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+
+		VkResult err = vkCreateCommandPool(logicalDevice, &poolInfo, nullptr, &state.commandPool);
+		vkUtils::check_vk_result(err, "failed to create command pool!");
+
+		VOXEL_CORE_TRACE("Vulkan command pool created.")
+	}
+	void makeCommandBuffers()
+	{
+		int i = 0;
+		for (vkUtils::SwapChainFrame& frame : state.swapChainBundle.frames)
 		{
-			VkCommandBuffer commandBuffer = state.swapChainBundle.frames[CURRENT_FRAME].commandBuffer;
+			frame.commandBuffer = vkUtils::memory::CommandBuffer::allocate();
 
-			// Use any command queue
-			vkResetCommandPool(state.logicalDevice, state.commandPool, 0);
-			vkUtils::memory::CommandBuffer::beginCommand(commandBuffer);
-
-			ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
-
-			VkSubmitInfo end_info = {};
-			end_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-			end_info.commandBufferCount = 1;
-			end_info.pCommandBuffers = &commandBuffer;
-			vkUtils::memory::CommandBuffer::endCommand(commandBuffer);
-			vkQueueSubmit(state.queues.graphicsQueue, 1, &end_info, VK_NULL_HANDLE);
-
-			deviceWaitIdle();
-			ImGui_ImplVulkan_DestroyFontUploadObjects();
+			VOXEL_CORE_TRACE("Vulkan command buffer allocated for frame {0}.", i)
+			++i;
 		}
 	}
+	void finalizeSetup()
+	{
+		makeFramebuffers();
+
+		makeCommandPool(state.physicalDevice, state.logicalDevice);
+
+		makeCommandBuffers();
+
+		state.descriptorPool = vkInit::createDescriptorPool(state.logicalDevice);
+
+		makeFrameResources(state.logicalDevice);
+	}
+	
 	void recreateSwapChain(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice, const VkSurfaceKHR& surface, GLFWwindow* window)
 	{
 		int width = 0, height = 0;
@@ -276,6 +237,81 @@ namespace vulkan
 		makeFrameResources(logicalDevice);
 		makeCommandBuffers();
 	}	
+	void recordCommandBuffer(const VkCommandBuffer& commandBuffer, const uint32& imageIndex)
+	{
+		vkUtils::SwapChainFrame& frame = state.swapChainBundle.frames[imageIndex];
+		VkExtent2D swapChainExtent = state.swapChainBundle.extent;
+
+		vkUtils::memory::CommandBuffer::beginCommand(commandBuffer);
+
+		std::vector<VkClearValue> clearValues(2);
+		clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
+		clearValues[1].depthStencil = { 1.0f, 0 };
+
+		VkRenderPassBeginInfo renderPassBeginInfo = vkInit::renderPassBeginInfo(
+			state.renderPass,
+			frame.framebuffer,
+			swapChainExtent,
+			clearValues);
+		vkCmdResetQueryPool(commandBuffer, state.queryPool, 0, 1);
+		vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelineLayout, 0, 1, &frame.descriptorSet, 0, nullptr);
+				
+		VkViewport viewport = vkInit::viewport(swapChainExtent, 0.0f, 1.0f);
+		vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+
+		VkRect2D scissor = vkInit::rect2D(swapChainExtent, { 0, 0 });
+		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+
+		// =================== RENDER WHOLE STUFF HERE ! ===================
+		prepareScene(commandBuffer);
+		
+		uint32 startInstance = 0;
+		switch (renderSettings.renderMode)
+		{
+		case 0:
+			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.solid);
+			break;
+		case 1:
+			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.wireframe);
+			break;
+		}
+		renderSceneObjects(commandBuffer, MeshType::Polygone, startInstance, static_cast<uint32>(currentScene->vertices.size()));
+		
+		if (renderSettings.showNormals)
+		{
+			startInstance = 0;
+			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.normals);
+			renderSceneObjects(commandBuffer, MeshType::Polygone, startInstance, static_cast<uint32>(currentScene->vertices.size()));
+		}
+
+		ImDrawData* main_draw_data = ImGui::GetDrawData();
+		ImGui_ImplVulkan_RenderDrawData(main_draw_data, commandBuffer);
+		// =================================================================
+
+		vkCmdEndQuery(commandBuffer, state.queryPool, 0);
+		vkCmdEndRenderPass(commandBuffer);
+		vkUtils::memory::CommandBuffer::endCommand(commandBuffer);
+	}
+	void submitToQueue(const VkQueue& queue, const VkCommandBuffer& commandBuffer, const VkSemaphore* signalSemaphores)
+	{
+		vkUtils::SwapChainFrame& frame = state.swapChainBundle.frames[CURRENT_FRAME];
+
+		VkSemaphore waitSemaphores[] = { frame.imageAvailableSemaphore };
+		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+
+		VkSubmitInfo submitInfo = vkInit::submitInfo(
+			waitSemaphores, 
+			signalSemaphores, 
+			commandBuffer, 
+			waitStages);	
+
+		VkResult err = vkQueueSubmit(queue, 1, &submitInfo, frame.inFlightFence);
+		vkUtils::check_vk_result(err, "failed to submit draw command buffer!");
+	
+		vkUtils::getQueryResults(state.logicalDevice, state.queryPool);
+	}
 	void cleanupSwapChain()
 	{
 		state.swapChainBundle.release(state.logicalDevice);		
@@ -384,81 +420,7 @@ namespace vulkan
 
 		CURRENT_FRAME = (CURRENT_FRAME + 1) % MAX_FRAMES_IN_FLIGHT;
 	}
-	void recordCommandBuffer(const VkCommandBuffer& commandBuffer, const uint32& imageIndex)
-	{
-		vkUtils::SwapChainFrame& frame = state.swapChainBundle.frames[imageIndex];
-		VkExtent2D swapChainExtent = state.swapChainBundle.extent;
-
-		vkUtils::memory::CommandBuffer::beginCommand(commandBuffer);
-
-		std::vector<VkClearValue> clearValues(2);
-		clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
-		clearValues[1].depthStencil = { 1.0f, 0 };
-
-		VkRenderPassBeginInfo renderPassBeginInfo = vkInit::renderPassBeginInfo(
-			state.renderPass,
-			frame.framebuffer,
-			swapChainExtent,
-			clearValues);
-		vkCmdResetQueryPool(commandBuffer, state.queryPool, 0, 1);
-		vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelineLayout, 0, 1, &frame.descriptorSet, 0, nullptr);
-				
-		VkViewport viewport = vkInit::viewport(swapChainExtent, 0.0f, 1.0f);
-		vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
-
-		VkRect2D scissor = vkInit::rect2D(swapChainExtent, { 0, 0 });
-		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
-
-		// =================== RENDER WHOLE STUFF HERE ! ===================
-		prepareScene(commandBuffer);
-		
-		uint32 startInstance = 0;
-		switch (renderSettings.renderMode)
-		{
-		case 0:
-			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.solid);
-			break;
-		case 1:
-			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.wireframe);
-			break;
-		}
-		renderSceneObjects(commandBuffer, MeshType::Polygone, startInstance, static_cast<uint32>(currentScene->vertices.size()));
-		
-		if (renderSettings.showNormals)
-		{
-			startInstance = 0;
-			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.normals);
-			renderSceneObjects(commandBuffer, MeshType::Polygone, startInstance, static_cast<uint32>(currentScene->vertices.size()));
-		}
-
-		ImDrawData* main_draw_data = ImGui::GetDrawData();
-		ImGui_ImplVulkan_RenderDrawData(main_draw_data, commandBuffer);
-		// =================================================================
-
-		vkCmdEndQuery(commandBuffer, state.queryPool, 0);
-		vkCmdEndRenderPass(commandBuffer);
-		vkUtils::memory::CommandBuffer::endCommand(commandBuffer);
-	}
-	void submitToQueue(const VkQueue& queue, const VkCommandBuffer& commandBuffer, const VkSemaphore* signalSemaphores)
-	{
-		vkUtils::SwapChainFrame& frame = state.swapChainBundle.frames[CURRENT_FRAME];
-
-		VkSemaphore waitSemaphores[] = { frame.imageAvailableSemaphore };
-		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-
-		VkSubmitInfo submitInfo = vkInit::submitInfo(
-			waitSemaphores, 
-			signalSemaphores, 
-			commandBuffer, 
-			waitStages);	
-
-		VkResult err = vkQueueSubmit(queue, 1, &submitInfo, frame.inFlightFence);
-		vkUtils::check_vk_result(err, "failed to submit draw command buffer!");
 	
-		vkUtils::getQueryResults(state.logicalDevice, state.queryPool);
-	}
 	void setWindow(const VoxelEngine::Window& window)
 	{
 		state.window = &window;
@@ -474,10 +436,6 @@ namespace vulkan
 	void setScene(const VoxelEngine::Scene* scene)
 	{
 		currentScene = scene;
-	}
-	VoxelEngine::renderer::RenderSettings& getRenderSettings()
-	{
-		return renderSettings;
 	}
 	void init()
 	{
@@ -498,6 +456,46 @@ namespace vulkan
 		VOXEL_CORE_WARN("Vulkan setup ended.")	
 
 		makeAssets();
+	}
+	void initImGui()
+	{
+		ImGui_ImplVulkan_InitInfo init_info = {};
+		init_info.Instance = state.instance;
+		init_info.PhysicalDevice = state.physicalDevice;
+		init_info.Device = state.logicalDevice;
+		init_info.QueueFamily = state.queueFamilyIndices.graphicsFamily.value();
+		init_info.Queue = state.queues.graphicsQueue;
+		init_info.PipelineCache = state.pipelineCache;
+		init_info.DescriptorPool = state.descriptorPool;
+		init_info.Subpass = 0;
+		init_info.MinImageCount = MAX_FRAMES_IN_FLIGHT;
+		init_info.ImageCount = MAX_FRAMES_IN_FLIGHT;
+		init_info.MSAASamples = state.msaaSamples;
+		init_info.Allocator = nullptr;
+		ImGui_ImplGlfw_InitForVulkan(state.windowPtr, true);
+		ImGui_ImplVulkan_Init(&init_info, state.renderPass);
+		
+		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		io.Fonts->AddFontDefault();
+		{
+			VkCommandBuffer commandBuffer = state.swapChainBundle.frames[CURRENT_FRAME].commandBuffer;
+
+			// Use any command queue
+			vkResetCommandPool(state.logicalDevice, state.commandPool, 0);
+			vkUtils::memory::CommandBuffer::beginCommand(commandBuffer);
+
+			ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
+
+			VkSubmitInfo end_info = {};
+			end_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+			end_info.commandBufferCount = 1;
+			end_info.pCommandBuffers = &commandBuffer;
+			vkUtils::memory::CommandBuffer::endCommand(commandBuffer);
+			vkQueueSubmit(state.queues.graphicsQueue, 1, &end_info, VK_NULL_HANDLE);
+
+			deviceWaitIdle();
+			ImGui_ImplVulkan_DestroyFontUploadObjects();
+		}
 	}
 	void deviceWaitIdle()
 	{
@@ -527,6 +525,10 @@ namespace vulkan
 		vkDestroySurfaceKHR(state.instance, state.surface, nullptr);
 		vkDestroyInstance(state.instance, nullptr);
 	}
+	VoxelEngine::renderer::RenderSettings& getRenderSettings()
+	{
+		return renderSettings;
+	}
 
 	void makeAssets()
 	{
@@ -538,7 +540,6 @@ namespace vulkan
 
 		state.vertexManager->finalize(state.physicalDevice, state.logicalDevice);
 	}
-
 	void renderSceneObjects(
 		const VkCommandBuffer& commandBuffer,
 		const MeshType& objectType,
@@ -576,29 +577,15 @@ namespace vulkan
 	}
 
 	// ==================== MEMORY ALLOC / DEALLOC ====================
-	const VkDeviceMemory allocateMemory(const VkMemoryRequirements& requirements, const VkMemoryPropertyFlags& properties)
+	void copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkDeviceSize& size)
 	{
-		return vkUtils::memory::allocateMemory(state.physicalDevice, state.logicalDevice, requirements, properties);
-	}
-	const vkUtils::memory::Buffer createBuffer(
-		const VkDeviceSize& size,
-		const VkBufferUsageFlags& usage,
-		const VkMemoryPropertyFlags& properties)
-	{
-		return vkUtils::memory::createBuffer(
-			state.physicalDevice,
-			state.logicalDevice,
-			size,
-			usage,
-			properties);
-	}
-	void destroyBuffer(const VkBuffer& buffer)
-	{
-		vkUtils::memory::destroyBuffer(state.logicalDevice, buffer);
-	}
-	void freeDeviceMemory(const VkDeviceMemory& memory)
-	{
-		vkUtils::memory::freeDeviceMemory(state.logicalDevice, memory);
+		VkCommandBuffer commandBuffer = vkUtils::memory::beginSingleTimeCommands();
+
+		VkBufferCopy copyRegion = {};
+		copyRegion.size = size;
+		vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+
+		endSingleTimeCommands(commandBuffer);
 	}
 	void endSingleTimeCommands(const VkCommandBuffer& commandBuffer)
 	{
@@ -613,16 +600,6 @@ namespace vulkan
 		vkQueueWaitIdle(state.queues.graphicsQueue);
 
 		vkUtils::memory::CommandBuffer::release(commandBuffer);
-	}
-	void copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkDeviceSize& size)
-	{
-		VkCommandBuffer commandBuffer = vkUtils::memory::beginSingleTimeCommands();
-
-		VkBufferCopy copyRegion = {};
-		copyRegion.size = size;
-		vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
-
-		endSingleTimeCommands(commandBuffer);
 	}
 	// =============================================================
 }

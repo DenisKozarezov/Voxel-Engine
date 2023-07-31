@@ -145,7 +145,6 @@ namespace VoxelEditor
 	void EditorLayer::drawRenderModes()
 	{
 		static int e;
-
 		auto& settings = VoxelEngine::renderer::Renderer::getRenderSettings();
 
 		ImGui::BeginChild("##render_modes", { 200, 100 });

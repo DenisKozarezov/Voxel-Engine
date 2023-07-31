@@ -3,10 +3,15 @@
 layout(lines) in;
 layout(line_strip, max_vertices = 2) out;
 
-layout(binding = 1) uniform UniformBufferObject {
+layout(binding = 0) uniform UniformBufferObject {
     mat4 view;
     mat4 proj;
+    mat4 viewproj;
 } ubo;
+
+layout(std140, binding = 1) readonly buffer storageBuffer {
+    mat4 model[];
+} objectData;
 
 layout (location = 0) in vec3 inNormal[];
 
@@ -19,11 +24,11 @@ void main() {
         vec3 pos = gl_in[i].gl_Position.xyz;
         vec3 normal = inNormal[i].xyz;
 
-        gl_Position = ubo.proj * ubo.view * vec4(pos, 1.0);
+        gl_Position = ubo.viewproj * objectData.model[i] * vec4(pos, 1.0);
         outColor = vec3(0.0, 1.0, 0.0);
         EmitVertex();
 
-        gl_Position = ubo.proj * ubo.view * vec4(pos + normal * normalLength, 1.0);
+        gl_Position = ubo.viewproj * objectData.model[i] * vec4(pos + normal * normalLength, 1.0);
         outColor = vec3(0.0, 1.0, 1.0);
         EmitVertex();
 

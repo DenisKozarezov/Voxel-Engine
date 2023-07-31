@@ -28,13 +28,11 @@ namespace vkUtils
 		VkFence inFlightFence;
 		
 		// Resources used in drawing
-		vkUtils::VulkanUniformBuffer VSuniformBuffer;
-		vkUtils::VulkanUniformBuffer GSuniformBuffer;
+		vkUtils::VulkanUniformBuffer uniformBuffer;
 		vkUtils::memory::Buffer modelBuffer;
 		void* modelBufferMappedMemory;
 		VkDescriptorSet descriptorSet;
-		VkDescriptorBufferInfo VSuniformBufferDescriptor;
-		VkDescriptorBufferInfo GSuniformBufferDescriptor;
+		VkDescriptorBufferInfo uniformBufferDescriptor;
 		VkDescriptorBufferInfo modelBufferDescriptor;
 		std::vector<glm::mat4> modelTransforms;
 

@@ -8,17 +8,29 @@ namespace vkUtils
 	{
 		// UNIFORM BUFFER
 		VkDeviceSize size = sizeof(vkUtils::UniformBufferObject);
-		VSuniformBuffer = vkUtils::VulkanUniformBuffer(physicalDevice, logicalDevice, size);
+		uniformBuffer = vkUtils::VulkanUniformBuffer(physicalDevice, logicalDevice, size);
 
-		VSuniformBufferDescriptor.buffer = VSuniformBuffer;
-		VSuniformBufferDescriptor.offset = 0;
-		VSuniformBufferDescriptor.range = size;
+		uniformBufferDescriptor.buffer = uniformBuffer;
+		uniformBufferDescriptor.offset = 0;
+		uniformBufferDescriptor.range = size;
+
+		size = sizeof(glm::mat4) * 1024;
+		modelBuffer = vkUtils::memory::createBuffer(
+			physicalDevice,
+			logicalDevice,
+			size,
+			VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
 		
-		GSuniformBuffer = vkUtils::VulkanUniformBuffer(physicalDevice, logicalDevice, size);
+		vkMapMemory(logicalDevice, modelBuffer.bufferMemory, 0, size, 0, &modelBufferMappedMemory);
 
-		GSuniformBufferDescriptor.buffer = GSuniformBuffer;
-		GSuniformBufferDescriptor.offset = 0;
-		GSuniformBufferDescriptor.range = size;
+		modelTransforms.reserve(1024);
+		for (int i = 0; i < 1024; ++i)
+		{
+			modelTransforms.push_back(glm::mat4(1.0f));
+		}
+		modelBufferDescriptor.buffer = modelBuffer.buffer;
+		modelBufferDescriptor.offset = 0;
+		modelBufferDescriptor.range = size;
 	}
 
 	void SwapChainFrame::writeDescriptorSet() const
@@ -28,13 +40,13 @@ namespace vkUtils
 			descriptorSet,
 			VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
 			0,
-			&VSuniformBufferDescriptor);
+			&uniformBufferDescriptor);
 
 		descriptorWrites[1] = vkInit::writeDescriptorSet(
 			descriptorSet,
-			VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+			VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
 			1,
-			&GSuniformBufferDescriptor);
+			&modelBufferDescriptor);
 
 		vkUpdateDescriptorSets(logicalDevice, static_cast<uint32>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}
@@ -47,7 +59,6 @@ namespace vkUtils
 		vkDestroySemaphore(logicalDevice, imageAvailableSemaphore, nullptr);
 		vkDestroySemaphore(logicalDevice, renderFinishedSemaphore, nullptr);
 
-		VSuniformBuffer.release();
-		GSuniformBuffer.release();
+		uniformBuffer.release();
 	}
 }

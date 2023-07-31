@@ -137,12 +137,12 @@ namespace vulkan
 
 		bindings.indices.push_back(0);
 		bindings.types.push_back(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
-		bindings.stages.push_back(VK_SHADER_STAGE_VERTEX_BIT);
+		bindings.stages.push_back(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_GEOMETRY_BIT);
 		bindings.counts.push_back(1);
 
 		bindings.indices.push_back(1);
-		bindings.types.push_back(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
-		bindings.stages.push_back(VK_SHADER_STAGE_GEOMETRY_BIT);
+		bindings.types.push_back(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER);
+		bindings.stages.push_back(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_GEOMETRY_BIT);
 		bindings.counts.push_back(1);
 
 		state.descriptorSetLayout = createDescriptorSetLayout(state.logicalDevice, bindings);
@@ -313,8 +313,15 @@ namespace vulkan
 			.proj = FPVcamera->projectionMatrix(aspectRatio),
 			.viewproj = ubo.proj * ubo.view
 		};
-		frame.VSuniformBuffer.setData(&ubo, sizeof(ubo));
-		frame.GSuniformBuffer.setData(&ubo, sizeof(ubo));
+		frame.uniformBuffer.setData(&ubo, sizeof(ubo));
+
+		int i = 0;
+		for (const auto& vertex : currentScene->vertices)
+		{
+			frame.modelTransforms[i] = glm::translate(glm::mat4(1.0), vertex);
+			++i;
+		}
+		memcpy(frame.modelBufferMappedMemory, frame.modelTransforms.data(), i * sizeof(glm::mat4));
 
 		frame.writeDescriptorSet();
 	}
@@ -525,7 +532,7 @@ namespace vulkan
 	{
 		state.vertexManager = new VoxelEngine::renderer::VertexManager;
 
-		const auto mesh = assets::AssetsProvider::loadObjMesh(ASSET_PATH("models/FinalBaseMesh.obj"));
+		const auto mesh = assets::AssetsProvider::loadObjMesh(ASSET_PATH("models/viking_room.obj"));
 
 		state.vertexManager->concatMesh(MeshType::Polygone, mesh->vertices, mesh->indices);
 

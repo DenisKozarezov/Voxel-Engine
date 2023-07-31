@@ -1,11 +1,8 @@
 #pragma once
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include <core/Window.h>
-#include <core/Scene.h>
-#include <core/renderer/RenderSettings.h>
+#include <core/renderer/Renderer.h>
 #include <GLFW/glfw3.h>
-#include <components/camera/Camera.h>
 #include <components/mesh/Mesh.h>
 #include "vkUtils/VulkanAlloc.h"
 
@@ -16,9 +13,6 @@ namespace vulkan
 	static int MAX_FRAMES_IN_FLIGHT = 3;
 	static uint32 CURRENT_FRAME = 0;
 
-	void makeCommandPool(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice);
-	void makeCommandBuffers();
-
 	void makeInstance();
 	void makeDevice();
 	void makeSwapChain();
@@ -26,6 +20,8 @@ namespace vulkan
 	void makeDescriptorSetLayout();
 	void makeGraphicsPipeline();
 	void makeFrameResources(const VkDevice& logicalDevice);
+	void makeCommandPool(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice);
+	void makeCommandBuffers();
 	void finalizeSetup();
 
 	void recreateSwapChain(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice, const VkSurfaceKHR& surface, GLFWwindow* window);
@@ -35,14 +31,14 @@ namespace vulkan
 	void presentFrame(const uint32& imageIndex, VkSemaphore* signalSemaphores);
 	void prepareFrame(const uint32& imageIndex);
 	void prepareScene(const VkCommandBuffer& commandBuffer);
-	void initImGui();	
+	void beginFrame();
+	void endFrame();
 
 	void setWindow(const VoxelEngine::Window& window);
 	void setCamera(const VoxelEngine::components::camera::Camera* camera);
 	void setScene(const VoxelEngine::Scene* scene);
 	void init();
-	void beginFrame();
-	void endFrame();
+	void initImGui();	
 	void deviceWaitIdle();
 	void cleanup();
 
@@ -78,14 +74,7 @@ namespace vulkan
 	const VkCommandPool& getCommandPool();
 
 	// ==================== MEMORY ALLOC / DEALLOC ====================
-	const VkDeviceMemory allocateMemory(const VkMemoryRequirements& requirements, const VkMemoryPropertyFlags& properties);
-	const vkUtils::memory::Buffer createBuffer(
-		const VkDeviceSize& size,
-		const VkBufferUsageFlags& usage,
-		const VkMemoryPropertyFlags& properties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 	void copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkDeviceSize& size);
 	void endSingleTimeCommands(const VkCommandBuffer& commandBuffer);
-	void destroyBuffer(const VkBuffer& buffer);
-	void freeDeviceMemory(const VkDeviceMemory& memory);
 	// ===================================================================
 }

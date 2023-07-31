@@ -12,6 +12,11 @@ namespace vkUtils
 		alignas(16) glm::mat4 viewproj;
 	};
 
+	struct UniformBufferObjectDynamic 
+	{
+		glm::mat4* model = nullptr;
+	};
+
 	typedef struct
 	{
 		vkUtils::memory::Buffer view;
@@ -36,9 +41,11 @@ namespace vkUtils
 		// Resources used in drawing
 		UniformBuffers uniformBuffers;
 		VkDescriptorSet descriptorSet;
-		std::vector<glm::mat4> modelTransforms;
+		UniformBufferObjectDynamic uboDataDynamic;
 
-		void makeDescriptorResources();
+		size_t dynamicAlignment;
+
+		void makeDescriptorResources(const VkPhysicalDeviceLimits& limits);
 
 		void writeDescriptorSet() const;
 

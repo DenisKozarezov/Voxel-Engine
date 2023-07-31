@@ -31,24 +31,24 @@ namespace VoxelEngine::components::mesh
 			{{0.5f, 0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
 			{{-0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}}
 		};
-		const std::vector<uint64> indices = { 0, 1, 2 };
+		const std::vector<uint32> indices = { 0, 1, 2 };
 	};
 
 	struct SquareMesh
 	{
-		const std::vector<vulkan::Vertex> vertices = 
+		const std::vector<vulkan::Vertex> vertices =
 		{
 			{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}},
 			{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
 			{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}},
 			{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}}
 		};
-		const std::vector<uint64> indices = { 0, 1, 2, 2, 3, 0 };
+		const std::vector<uint32> indices = { 0, 1, 2, 2, 3, 0 };
 	};
 
 	struct VoxelMesh
 	{
-		const float s = 0.5f;
+		static constexpr float s = 0.5f;
 		const std::vector<vulkan::Vertex> vertices =
 		{
 			// 0 - 3
@@ -66,7 +66,7 @@ namespace VoxelEngine::components::mesh
 			{{ -s, -s, -s}, {0.0f, 0.0f, 0.0f}},
 		};
 
-		std::vector<uint32> indices =
+		const std::vector<uint32> indices =
 		{
 			// Front
 			0,1,2, 1,3,2,

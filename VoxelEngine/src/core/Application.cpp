@@ -32,7 +32,11 @@ namespace VoxelEngine
 	}
 	const float& Application::getDeltaTime() const
 	{
-		return _deltaTime;
+		return _frameTimer;
+	}
+	const uint32& Application::getFPS() const
+	{
+		return _lastFPS;
 	}
 
 	void Application::pushLayer(renderer::Layer* layer)
@@ -65,30 +69,10 @@ namespace VoxelEngine
 		VOXEL_CORE_WARN("Running {0}...", _specification.ApplicationName)
 
 		_running = true;
-		float lastTime = 0.0f;
-		float accumulator = 0.0f;
 
 		while (_running)
 		{
-			const float currentTime = renderer::Renderer::getTime();
-			_deltaTime = currentTime - lastTime;
-			lastTime = currentTime;
-
-			if (!_minimized)
-			{
-				_layerStack.onUpdate(_deltaTime);
-
-				renderer::Renderer::beginFrame();
-				_layerStack.onImGuiRender();
-				renderer::Renderer::endFrame();
-
-				accumulator += _deltaTime;
-				while (accumulator >= fixedDeltaTime) 
-				{
-					_layerStack.onFixedUpdate(fixedDeltaTime);
-					accumulator -= fixedDeltaTime;
-				}
-			}
+			nextFrame();
 			_window->onUpdate();
 		}
 		renderer::Renderer::deviceWaitIdle();
@@ -103,6 +87,41 @@ namespace VoxelEngine
 	{
 		_dispatcher.registerEvent<input::WindowCloseEvent>(BIND_CALLBACK(onWindowClose));
 		_dispatcher.registerEvent<input::WindowResizeEvent>(BIND_CALLBACK(onWindowResize));
+	}
+	void Application::nextFrame()
+	{
+		auto tStart = std::chrono::high_resolution_clock::now();
+
+		if (!_minimized)
+		{
+			renderer::Renderer::beginFrame();
+			_layerStack.onImGuiRender();
+			renderer::Renderer::endFrame();
+
+			_frameCounter++;
+
+			auto tEnd = std::chrono::high_resolution_clock::now();
+			auto tDiff = std::chrono::duration<double, std::milli>(tEnd - tStart).count();
+			_frameTimer = (float)tDiff / 1000.0f;
+			
+			_layerStack.onUpdate(_frameTimer);
+
+			_accumulator += _frameTimer;
+			while (_accumulator >= fixedDeltaTime)
+			{
+				_layerStack.onFixedUpdate(fixedDeltaTime);
+				_accumulator -= fixedDeltaTime;
+			}
+
+			float fpsTimer = (float)(std::chrono::duration<double, std::milli>(tEnd - lastTimestamp).count());
+			if (fpsTimer > 1000.0f)
+			{
+				_lastFPS = static_cast<uint32>((float)_frameCounter * (1000.0f / fpsTimer));
+				_frameCounter = 0;
+				lastTimestamp = tEnd;
+			}
+			tPrevEnd = tEnd;
+		}
 	}
 	void Application::onEvent(input::Event& e)
 	{

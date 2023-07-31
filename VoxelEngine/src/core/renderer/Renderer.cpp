@@ -1,6 +1,5 @@
 #include "Renderer.h"
 #include <vulkan/VulkanBackend.h>
-#include <imgui.h>
 #include "core/Application.h"
 
 namespace VoxelEngine::renderer
@@ -13,8 +12,9 @@ namespace VoxelEngine::renderer
     }
     const RenderPerformanceStats& Renderer::getStats()
     {
-        renderPerformanceStats.deltaTime = Application::getInstance().getDeltaTime();
-        renderPerformanceStats.fps = ImGui::GetIO().Framerate;
+        auto& app = Application::getInstance();
+        renderPerformanceStats.deltaTime = app.getDeltaTime();
+        renderPerformanceStats.fps = app.getFPS();
 
         const auto& stats = vulkan::getPipelineStats();
 

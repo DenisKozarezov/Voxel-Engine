@@ -47,13 +47,19 @@ namespace VoxelEngine
 		input::EventDispatcher _dispatcher;
 		bool _running = false;
 		bool _minimized = false;
-		float _deltaTime;
+
+		uint32_t _frameCounter = 0;
+		uint32_t _lastFPS = 0;
+		float _accumulator = 0.0f;
+		float _frameTimer = 1.0f;
+		std::chrono::time_point<std::chrono::high_resolution_clock> lastTimestamp, tPrevEnd;
 
 		static constexpr double fixedDeltaTime = 1 / 60.0f;
 
 		static Application* _instance;
 
 		void setupInputCallbacks();
+		void nextFrame();
 
 		void onEvent(input::Event& e);
 		bool onWindowClose(const input::WindowCloseEvent& e);
@@ -70,7 +76,8 @@ namespace VoxelEngine
 		Application& operator= (Application&& rhs) noexcept = delete;
 
 		static Application& getInstance();
-		const float& getDeltaTime() const;
+		const float& getDeltaTime() const;	
+		const uint32& getFPS() const;
 
 		void init();
 		void run();

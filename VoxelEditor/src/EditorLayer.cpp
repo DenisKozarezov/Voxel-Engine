@@ -216,6 +216,10 @@ namespace VoxelEditor
 	{				
   
 	}				  
+	void EditorLayer::onUpdate(const VoxelEngine::Timestep& ts)
+	{
+		_deltaTime = ts;
+	}
 	void EditorLayer::onFixedUpdate(const VoxelEngine::Timestep& ts)
 	{
 		_fixedDeltaTime = ts;

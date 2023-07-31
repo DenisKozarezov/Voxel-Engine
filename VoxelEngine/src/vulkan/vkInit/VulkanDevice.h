@@ -16,18 +16,18 @@ namespace vkInit
 		VkQueue presentQueue;
 	};	
 
-	constexpr string parseDeviceTypeToString(const VkPhysicalDeviceType& deviceType)
+	constexpr std::string physicalDeviceTypeString(VkPhysicalDeviceType type)
 	{
-		string str;
-
-		switch (deviceType)
+		switch (type)
 		{
-		case VK_PHYSICAL_DEVICE_TYPE_MAX_ENUM:		return "VK_PHYSICAL_DEVICE_TYPE_MAX_ENUM";
-		case VK_PHYSICAL_DEVICE_TYPE_CPU: 			return "VK_PHYSICAL_DEVICE_TYPE_CPU";
-		case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:	return "VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU";
-		case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:	return "VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU";
-		case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:return "VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU";
-		default: return "VK_PHYSICAL_DEVICE_TYPE_OTHER";
+#define STR(r) case VK_PHYSICAL_DEVICE_TYPE_ ##r: return #r
+			STR(OTHER);
+			STR(INTEGRATED_GPU);
+			STR(DISCRETE_GPU);
+			STR(VIRTUAL_GPU);
+			STR(CPU);
+#undef STR
+		default: return "UNKNOWN_DEVICE_TYPE";
 		}
 	}
 
@@ -105,7 +105,7 @@ namespace vkInit
 
 			VOXEL_CORE_TRACE("Physical device candidate: {0}.", deviceProperties.deviceName);
 			VOXEL_CORE_TRACE("Device vendor ID: {0}.", deviceProperties.vendorID);
-			VOXEL_CORE_TRACE("Device type: {0}.", parseDeviceTypeToString(deviceProperties.deviceType));
+			VOXEL_CORE_TRACE("Device type: {0}.", physicalDeviceTypeString(deviceProperties.deviceType));
 			VOXEL_CORE_TRACE("Device ID: {0}.", deviceProperties.deviceID);
 			VOXEL_CORE_TRACE("Device hardware concurrency: {0}.", getHardwareConcurrency());
 

@@ -1,160 +1,129 @@
 #pragma once
-#include <queue>
 #include <vector>
-#include <future>
+#include <thread>
+#include <queue>
+#include <mutex>
+#include <condition_variable>
+#include <functional>
+#include <core/PrimitiveTypes.h>
 #include <core/Log.h>
-#include "Task.h"
 
 namespace VoxelEngine::threading
 {
-    class ThreadPool 
-    {
-    public:
-        ThreadPool(const uint32 num_threads) 
-        {
-            threads.reserve(num_threads);
-            for (int i = 0; i < num_threads; ++i) 
-            {
-                threads.emplace_back(std::thread([&, i]() { run(i); }));
-            }
+	using Task = std::function<void()>;
 
-            VOXEL_CORE_TRACE("[Thread Pool] Reserving {0} thread workers.", num_threads)
-        }
+	class ThreadWorker
+	{
+	private:
+		bool destroying = false;
+		int workerId;
+		std::thread worker;
+		std::queue<Task> jobQueue;
+		std::mutex queueMutex;
+		std::condition_variable condition;
 
-        template <typename Func, typename... Args>
-        auto add_task(Func&& func, Args&&... args) -> std::future<std::invoke_result_t<Func, Args...>>
-        {
-            using returnType = std::invoke_result_t<Func, Args...>;
-            auto task = std::make_shared<std::packaged_task<returnType()>>(
-                std::bind(std::forward<Func>(func), std::forward<Args>(args)...));
+		// Loop through all remaining tasks
+		void run()
+		{
+			while (true)
+			{
+				Task task;
+				{
+					std::unique_lock<std::mutex> lock(queueMutex);
+					condition.wait(lock, [this] { return !jobQueue.empty() || destroying; });
+					if (destroying)
+					{
+						break;
+					}
+					task = jobQueue.front();
+				}
 
-            const uint64_t task_id = last_idx++;
+				VOXEL_CORE_WARN("[THREAD POOL]: Thread worker {0} is running a task...", workerId)
 
-            std::unique_lock<std::mutex> lock(tasks_info_mtx);
-            tasks_info[task_id] = TaskInfo();
-            lock.unlock();
+				task();
 
-            std::lock_guard<std::mutex> q_lock(q_mtx);
-            q.emplace(Task(std::bind(std::forward<Func>(func), std::forward<Args>(args)...), std::forward<Args>(args)...), task_id);
-            q_cv.notify_one();
+				VOXEL_CORE_WARN("[THREAD POOL]: Thread worker {0} finished the task.", workerId)
 
-            return task->get_future();
-        }
+				{
+					std::lock_guard<std::mutex> lock(queueMutex);
+					jobQueue.pop();
+					condition.notify_one();
+				}
+			}
+		}
 
-        template <typename Func, typename ...Args, typename ...FuncTypes>
-        uint64_t add_task(Func(*func)(FuncTypes...), Args&&... args) 
-        {
-            const uint64_t task_id = last_idx++;
+	public:
+		ThreadWorker(int workerId)
+		{
+			this->workerId = workerId;
+			worker = std::thread(&ThreadWorker::run, this);
 
-            std::unique_lock<std::mutex> lock(tasks_info_mtx);
-            tasks_info[task_id] = TaskInfo();
-            lock.unlock();
+			VOXEL_CORE_WARN("[THREAD POOL]: Thread worker {0} created.", workerId)
+		}
 
-            std::lock_guard<std::mutex> q_lock(q_mtx);
-            q.emplace(Task(func, std::forward<Args>(args)...), task_id);
-            q_cv.notify_one();
-            return task_id;
-        }
+		~ThreadWorker()
+		{
+			if (worker.joinable())
+			{
+				wait();
+				queueMutex.lock();
+				destroying = true;
+				condition.notify_one();
+				queueMutex.unlock();
+				worker.join();
+			}
 
-        void wait(const uint64_t task_id) 
-        {
-            std::unique_lock<std::mutex> lock(tasks_info_mtx);
-            tasks_info_cv.wait(lock, [this, task_id]()->bool {
-                return task_id < last_idx && tasks_info[task_id].status == TaskStatus::Completed;
-                });
-        }
+			VOXEL_CORE_WARN("[THREAD POOL]: Thread worker {0} terminated.", workerId)
+		}
 
-        std::any wait_result(const uint64_t task_id)
-        {
-            std::unique_lock<std::mutex> lock(tasks_info_mtx);
-            tasks_info_cv.wait(lock, [this, task_id]()->bool {
-                return task_id < last_idx && tasks_info[task_id].status == TaskStatus::Completed;
-                });
-            return tasks_info[task_id].result;
-        }
+		// Add a new task to the thread's queue
+		void addTask(Task function)
+		{
+			std::lock_guard<std::mutex> lock(queueMutex);
+			jobQueue.push(std::move(function));
+			condition.notify_one();
+		}
 
-        template<class T>
-        void wait_result(const uint64_t task_id, T& value) 
-        {
-            std::unique_lock<std::mutex> lock(tasks_info_mtx);
-            tasks_info_cv.wait(lock, [this, task_id]()->bool {
-                return task_id < last_idx && tasks_info[task_id].status == TaskStatus::Completed;
-                });
-            value = std::any_cast<T>(tasks_info[task_id].result);
-        }
+		// Wait until all work items have been finished
+		void wait()
+		{
+			std::unique_lock<std::mutex> lock(queueMutex);
+			condition.wait(lock, [this]() { return jobQueue.empty(); });
+		}
+	};
 
-        void wait_all() 
-        {
-            std::unique_lock<std::mutex> lock(tasks_info_mtx);
-            wait_all_cv.wait(lock, [this]()->bool { return cnt_completed_tasks == last_idx; });
-        }
+	class ThreadPool
+	{
+	private:
+		// Sets the number of threads to be allocated in this pool
+		void setThreadCount(uint32 count)
+		{
+			threads.clear();
+			for (auto i = 0; i < count; ++i)
+			{
+				threads.push_back(MakeUnique<ThreadWorker>(i));
+			}
+		}
+	public:
+		std::vector<UniqueRef<ThreadWorker>> threads;
 
-        bool calculated(const uint64_t task_id) 
-        {
-            std::lock_guard<std::mutex> lock(tasks_info_mtx);
-            return task_id < last_idx && tasks_info[task_id].status == TaskStatus::Completed;
-        }
+		ThreadPool() noexcept = delete;
+		ThreadPool(const uint32 workersCount)
+		{
+			setThreadCount(workersCount);
+		}
+		ThreadPool(const ThreadPool&) noexcept = delete;
+		ThreadPool(ThreadPool&&) noexcept = delete;
+		ThreadPool& operator=(const ThreadPool&) noexcept = delete;
+		ThreadPool& operator=(ThreadPool&&) = delete;
 
-        ~ThreadPool() 
-        {
-            VOXEL_CORE_TRACE("[Thread Pool] Joining all threading...")
-
-            quite = true;
-            q_cv.notify_all();
-            for (int i = 0; i < threads.size(); ++i) {
-                threads[i].join();
-            }
-
-            VOXEL_CORE_TRACE("[Thread Pool] All threads are joined.")
-        }
-
-    private:
-        void run(int workerId) 
-        {
-            while (!quite) 
-            {
-                std::unique_lock<std::mutex> lock(q_mtx);
-                q_cv.wait(lock, [this]()->bool { return !q.empty() || quite; });
-
-                if (!q.empty() && !quite) 
-                {
-                    std::pair<Task, uint64_t> task = std::move(q.front());
-                    q.pop();
-                    lock.unlock();
-
-                    VOXEL_CORE_TRACE("[Thread Pool] Worker {0}: Running task with id = {1}.", workerId, task.second)
-
-                    task.first();
-
-                    std::lock_guard<std::mutex> lock(tasks_info_mtx);
-                    if (task.first.has_result()) {
-                        tasks_info[task.second].result = task.first.get_result();
-                    }
-
-                    VOXEL_CORE_TRACE("[Thread Pool] Worker {0}. Task with id = {1} is completed.", workerId, task.second)
-
-                    tasks_info[task.second].status = TaskStatus::Completed;
-                    ++cnt_completed_tasks;
-                }
-                wait_all_cv.notify_all();
-                tasks_info_cv.notify_all(); // notify for wait function
-            }
-        }
-
-        std::vector<std::thread> threads;
-
-        std::queue<std::pair<Task, uint64_t>> q;
-        std::mutex q_mtx;
-        std::condition_variable q_cv;
-
-        std::unordered_map<uint64_t, TaskInfo> tasks_info;
-        std::condition_variable tasks_info_cv;
-        std::mutex tasks_info_mtx;
-
-        std::condition_variable wait_all_cv;
-
-        std::atomic<bool> quite{ false };
-        std::atomic<uint64_t> last_idx{ 0 };
-        std::atomic<uint64_t> cnt_completed_tasks{ 0 };
-    };
+		// Wait until all threads have finished their work items
+		void waitAll()
+		{
+			for (auto& thread : threads)
+			{
+				thread->wait();
+			}
+		}
+	};
 }

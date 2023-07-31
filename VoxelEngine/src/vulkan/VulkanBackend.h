@@ -10,9 +10,6 @@ namespace vulkan
 {
 	using namespace VoxelEngine::components::mesh;
 
-	static int MAX_FRAMES_IN_FLIGHT = 3;
-	static uint32 CURRENT_FRAME = 0;
-
 	void makeInstance();
 	void makeDevice();
 	void makeSwapChain();

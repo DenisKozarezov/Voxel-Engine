@@ -1,9 +1,9 @@
 #pragma once
 #include "Application.h"
 
-#ifdef VOXEL_PLATFORM_WINDOWS
 extern VoxelEngine::UniqueRef<VoxelEngine::Application> CreateApplication(ApplicationCommandLineArgs args);
 
+#ifdef VOXEL_PLATFORM_WINDOWS
 int main(int argc, char** argv)
 {
     VoxelEngine::Log::init();
@@ -18,5 +18,21 @@ int main(int argc, char** argv)
 
     VOXEL_CORE_TRACE("================ Application QUIT ===============")
     return 0;
+}
+#elif defined(VOXEL_PLATFORM_LINUX)
+int main(const int argc, const char* argv[])													    \
+{																									\
+    VoxelEngine::Log::init();
+    
+    VOXEL_CORE_TRACE("============ Application Entry Point ============")
+    VOXEL_CORE_WARN("Initializing Logging System...")
+    
+    auto app = CreateApplication({ argc, argv });
+    app->init();
+    app->run();
+    app->shutdown();
+    
+    VOXEL_CORE_TRACE("================ Application QUIT ===============")
+    return 0;																					\
 }
 #endif

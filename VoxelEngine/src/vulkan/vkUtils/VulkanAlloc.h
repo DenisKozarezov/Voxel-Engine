@@ -43,4 +43,7 @@ namespace vkUtils::memory
 	
 	void destroyBuffer(const VkDevice& logicalDevice, const VkBuffer& buffer);
 	void freeDeviceMemory(const VkDevice& logicalDevice, const VkDeviceMemory& memory);
+
+	void* alignedAlloc(size_t size, size_t alignment);
+	void alignedFree(void* data);
 }

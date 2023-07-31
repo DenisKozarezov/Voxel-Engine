@@ -68,10 +68,9 @@ namespace vkInit
 
 	const bool isDeviceSuitable(
 		const VkPhysicalDevice& device,
-		const VkSurfaceKHR& surface,
-		const bool& enableValidation)
+		const VkSurfaceKHR& surface)
 	{
-		bool extensionsSupported = checkDeviceExtensionSupport(device, enableValidation);
+		bool extensionsSupported = checkDeviceExtensionSupport(device, vkUtils::_enableValidationLayers);
 
 		VkPhysicalDeviceFeatures supportedFeatures;
 		vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
@@ -87,8 +86,8 @@ namespace vkInit
 
 	const VkPhysicalDevice pickPhysicalDevice(
 		const VkInstance& instance, 
-		const VkSurfaceKHR& surface, 
-		const bool& enableValidation)
+		const VkSurfaceKHR& surface,
+		VkPhysicalDeviceLimits* limits)
 	{
 		uint32 deviceCount = 0;
 		vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
@@ -110,8 +109,9 @@ namespace vkInit
 			VOXEL_CORE_TRACE("Device ID: {0}.", deviceProperties.deviceID);
 			VOXEL_CORE_TRACE("Device hardware concurrency: {0}.", getHardwareConcurrency());
 
-			if (isDeviceSuitable(device, surface, enableValidation))
+			if (isDeviceSuitable(device, surface))
 			{
+				limits = &deviceProperties.limits;
 				return device;
 			}
 		}
@@ -120,8 +120,7 @@ namespace vkInit
 
 	const VkDevice createLogicalDevice(
 		const VkPhysicalDevice& physicalDevice, 
-		const VkSurfaceKHR& surface, 
-		const bool& enableValidation)
+		const VkSurfaceKHR& surface)
 	{
 		vkUtils::QueueFamilyIndices queueFamilyIndices = vkUtils::findQueueFamilies(physicalDevice, surface);
 
@@ -147,7 +146,7 @@ namespace vkInit
 		createInfo.enabledExtensionCount = static_cast<uint32>(deviceExtensions.size());
 		createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
-		if (enableValidation)
+		if (vkUtils::_enableValidationLayers)
 		{
 			createInfo.enabledLayerCount = static_cast<uint32>(vkUtils::validationLayers.size());
 			createInfo.ppEnabledLayerNames = vkUtils::validationLayers.data();

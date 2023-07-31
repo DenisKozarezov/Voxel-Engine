@@ -35,6 +35,7 @@ namespace vulkan
 		vkInit::DeviceQueues queues;
 		vkInit::SwapChainBundle swapChainBundle;
 		VkSampleCountFlagBits msaaSamples;
+		VkPhysicalDeviceLimits deviceLimits;
 
 		vkUtils::QueueFamilyIndices queueFamilyIndices;
 
@@ -72,9 +73,9 @@ namespace vulkan
 	}
 	void makeDevice()
 	{
-		state.physicalDevice = vkInit::pickPhysicalDevice(state.instance, state.surface, vkUtils::_enableValidationLayers);
+		state.physicalDevice = vkInit::pickPhysicalDevice(state.instance, state.surface, &state.deviceLimits);
 		state.queueFamilyIndices = vkUtils::findQueueFamilies(state.physicalDevice, state.surface);
-		state.logicalDevice = vkInit::createLogicalDevice(state.physicalDevice, state.surface, vkUtils::_enableValidationLayers);
+		state.logicalDevice = vkInit::createLogicalDevice(state.physicalDevice, state.surface);
 		state.queues = vkInit::getDeviceQueues(state.physicalDevice, state.logicalDevice, state.surface);
 		state.msaaSamples = vkInit::findMaxSamplesCount(state.physicalDevice);
 		state.queryPool = vkUtils::setupQueryPool(state.logicalDevice);
@@ -119,7 +120,7 @@ namespace vulkan
 		bindings.counts.push_back(1);
 
 		bindings.indices.push_back(1);
-		bindings.types.push_back(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER);
+		bindings.types.push_back(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC);
 		bindings.stages.push_back(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_GEOMETRY_BIT);
 		bindings.counts.push_back(1);
 
@@ -179,7 +180,7 @@ namespace vulkan
 			frame.inFlightFence = vkInit::createFence(logicalDevice);
 			frame.descriptorSet = vkInit::allocateDescriptorSet(logicalDevice, state.descriptorPool, state.descriptorSetLayout);
 
-			frame.makeDescriptorResources();
+			frame.makeDescriptorResources(state.deviceLimits);
 			
 			VOXEL_CORE_TRACE("Vulkan frame resources created for frame {0}.", i)
 			++i;
@@ -256,8 +257,6 @@ namespace vulkan
 		vkCmdResetQueryPool(commandBuffer, state.queryPool, 0, 1);
 		vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelineLayout, 0, 1, &frame.descriptorSet, 0, nullptr);
-				
 		VkViewport viewport = vkInit::viewport(swapChainExtent, 0.0f, 1.0f);
 		vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
@@ -267,7 +266,12 @@ namespace vulkan
 		// =================== RENDER WHOLE STUFF HERE ! ===================
 		prepareScene(commandBuffer);
 		
-		uint32 startInstance = 0;
+		for (size_t i = 0; i < currentScene->vertices.size(); ++i)
+		{
+			uint32_t dynamicOffset = i * static_cast<uint32>(frame.dynamicAlignment);
+			vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelineLayout, 0, 1, &frame.descriptorSet, 0, &dynamicOffset);
+		}
+
 		switch (renderSettings.renderMode)
 		{
 		case 0:
@@ -277,6 +281,8 @@ namespace vulkan
 			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.wireframe);
 			break;
 		}
+
+		uint32 startInstance = 0;
 		renderSceneObjects(commandBuffer, MeshType::Polygone, startInstance, static_cast<uint32>(currentScene->vertices.size()));
 		
 		if (renderSettings.showNormals)
@@ -354,11 +360,12 @@ namespace vulkan
 		int i = 0;
 		for (const auto& vertex : currentScene->vertices)
 		{
-			frame.modelTransforms[i] = glm::translate(glm::mat4(1.0), vertex);
+			glm::mat4* modelMat = (glm::mat4*)(((uint64_t)frame.uboDataDynamic.model + (i * frame.dynamicAlignment)));
+			*modelMat = glm::translate(glm::mat4(1.0), vertex);
 			++i;
 		}
-		memcpy(frame.uniformBuffers.dynamic.mappedMemory, frame.modelTransforms.data(), i * sizeof(glm::mat4));
-
+		memcpy(frame.uniformBuffers.dynamic.mappedMemory, frame.uboDataDynamic.model, frame.uniformBuffers.dynamic.size);
+		
 		frame.writeDescriptorSet();
 	}
 	void prepareScene(const VkCommandBuffer& commandBuffer)
@@ -534,7 +541,7 @@ namespace vulkan
 	{
 		state.vertexManager = new VoxelEngine::renderer::VertexManager;
 
-		const auto mesh = assets::AssetsProvider::loadObjMesh(ASSET_PATH("models/viking_room.obj"));
+		const auto& mesh = assets::AssetsProvider::loadObjMesh(ASSET_PATH("models/viking_room.obj"));
 
 		state.vertexManager->concatMesh(MeshType::Polygone, mesh->vertices, mesh->indices);
 

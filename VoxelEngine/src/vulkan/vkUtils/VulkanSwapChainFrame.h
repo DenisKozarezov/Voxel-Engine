@@ -12,6 +12,12 @@ namespace vkUtils
 		alignas(16) glm::mat4 viewproj;
 	};
 
+	typedef struct
+	{
+		vkUtils::memory::Buffer view;
+		vkUtils::memory::Buffer dynamic;
+	} UniformBuffers;
+
 	struct SwapChainFrame
 	{
 	public:
@@ -28,12 +34,8 @@ namespace vkUtils
 		VkFence inFlightFence;
 		
 		// Resources used in drawing
-		vkUtils::VulkanUniformBuffer uniformBuffer;
-		vkUtils::memory::Buffer modelBuffer;
-		void* modelBufferMappedMemory;
+		UniformBuffers uniformBuffers;
 		VkDescriptorSet descriptorSet;
-		VkDescriptorBufferInfo uniformBufferDescriptor;
-		VkDescriptorBufferInfo modelBufferDescriptor;
 		std::vector<glm::mat4> modelTransforms;
 
 		void makeDescriptorResources();

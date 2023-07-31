@@ -349,7 +349,7 @@ namespace vulkan
 			.proj = FPVcamera->projectionMatrix(aspectRatio),
 			.viewproj = ubo.proj * ubo.view
 		};
-		frame.uniformBuffer.setData(&ubo, sizeof(ubo));
+		memcpy(frame.uniformBuffers.view.mappedMemory, &ubo, sizeof(ubo));
 
 		int i = 0;
 		for (const auto& vertex : currentScene->vertices)
@@ -357,7 +357,7 @@ namespace vulkan
 			frame.modelTransforms[i] = glm::translate(glm::mat4(1.0), vertex);
 			++i;
 		}
-		memcpy(frame.modelBufferMappedMemory, frame.modelTransforms.data(), i * sizeof(glm::mat4));
+		memcpy(frame.uniformBuffers.dynamic.mappedMemory, frame.modelTransforms.data(), i * sizeof(glm::mat4));
 
 		frame.writeDescriptorSet();
 	}

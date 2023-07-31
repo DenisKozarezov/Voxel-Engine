@@ -72,10 +72,19 @@ namespace vkUtils::memory
 
 		vkBindBufferMemory(logicalDevice, buffer, bufferMemory, 0);
 
-		Buffer result =
+		VkDescriptorBufferInfo descriptorInfo =
 		{
 			.buffer = buffer,
-			.bufferMemory = bufferMemory
+			.offset = 0,
+			.range = size
+		};
+
+		Buffer result =
+		{
+			.size = size,
+			.buffer = buffer,
+			.bufferMemory = bufferMemory,
+			.descriptor = descriptorInfo
 		};
 		return result;
 	}

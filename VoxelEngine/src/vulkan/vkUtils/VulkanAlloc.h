@@ -7,14 +7,21 @@ namespace vkUtils::memory
 	struct Buffer
 	{
 	public:
+		VkDeviceSize size;
 		VkBuffer buffer;
 		VkDeviceMemory bufferMemory;
+		void* mappedMemory;
+		VkDescriptorBufferInfo descriptor;
 
 		void release(const VkDevice& logicalDevice) const
 		{
 			vkUnmapMemory(logicalDevice, bufferMemory);
 			vkDestroyBuffer(logicalDevice, buffer, nullptr);
 			vkFreeMemory(logicalDevice, bufferMemory, nullptr);
+		}
+		void map(const VkDevice& logicalDevice)
+		{
+			vkMapMemory(logicalDevice, bufferMemory, 0, size, 0, &mappedMemory);
 		}
 	};
 

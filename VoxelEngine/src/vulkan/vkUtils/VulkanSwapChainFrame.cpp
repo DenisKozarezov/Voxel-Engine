@@ -19,10 +19,10 @@ namespace vkUtils
 		dynamicAlignment = sizeof(glm::mat4);
 		if (minUboAlignment > 0) 
 		{
-			dynamicAlignment = (dynamicAlignment + minUboAlignment - 1) & ~(minUboAlignment - 1);
+			dynamicAlignment = memory::alignedSize(dynamicAlignment, minUboAlignment);
 		}
 		
-		size = dynamicAlignment * 1;
+		size = dynamicAlignment * 2;
 		uniformBuffers.dynamic = vkUtils::memory::createBuffer(
 			physicalDevice,
 			logicalDevice,

@@ -24,9 +24,8 @@
 	#define VOXEL_PLATFORM_ANDROID
 	#error "Android is not supported!"
 
-#elif __LINUX__
+#elif __LINUX__ || _DIRECT2DISPLAY
 	#define VOXEL_PLATFORM_LINUX
-	#error "Linux is not supported!"
 #else
 	#error "Unknown platform!"
 #endif

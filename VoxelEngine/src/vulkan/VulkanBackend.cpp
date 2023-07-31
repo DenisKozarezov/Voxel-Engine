@@ -13,6 +13,7 @@
 #include "vkUtils/VulkanUniformBuffer.h"
 #include "vkUtils/VulkanStatistics.h"
 #include "core/renderer/VertexManager.h"
+#include "threading/ThreadPool.h"
 #include "assets_management/AssetsProvider.h"
 
 namespace vulkan
@@ -56,9 +57,12 @@ namespace vulkan
 		bool framebufferResized = false;
 	} state;
 
+	VoxelEngine::threading::ThreadPool* threadPool;
 	const VoxelEngine::components::camera::Camera* FPVcamera;
 	const VoxelEngine::Scene* currentScene;
 	VoxelEngine::renderer::RenderSettings renderSettings;
+	static int MAX_FRAMES_IN_FLIGHT = 3;
+	static uint32 CURRENT_FRAME = 0;
 		
 	static void framebufferResizeCallback(GLFWwindow* window, int width, int height)
 	{
@@ -264,32 +268,36 @@ namespace vulkan
 		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
 		// =================== RENDER WHOLE STUFF HERE ! ===================
-		prepareScene(commandBuffer);
-		
-		for (size_t i = 0; i < currentScene->vertices.size(); ++i)
-		{
-			uint32_t dynamicOffset = i * static_cast<uint32>(frame.dynamicAlignment);
-			vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelineLayout, 0, 1, &frame.descriptorSet, 0, &dynamicOffset);
-		}
 
-		switch (renderSettings.renderMode)
+		if (state.vertexManager->isValid() && currentScene->vertices.size() > 0)
 		{
-		case 0:
-			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.solid);
-			break;
-		case 1:
-			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.wireframe);
-			break;
-		}
+			prepareScene(commandBuffer);
 
-		uint32 startInstance = 0;
-		renderSceneObjects(commandBuffer, MeshType::Polygone, startInstance, static_cast<uint32>(currentScene->vertices.size()));
-		
-		if (renderSettings.showNormals)
-		{
-			startInstance = 0;
-			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.normals);
-			renderSceneObjects(commandBuffer, MeshType::Polygone, startInstance, static_cast<uint32>(currentScene->vertices.size()));
+			uint32 startInstance = 0;
+			for (size_t i = 0; i < currentScene->vertices.size(); ++i)
+			{
+				uint32_t dynamicOffset = i * static_cast<uint32>(frame.dynamicAlignment);
+				vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelineLayout, 0, 1, &frame.descriptorSet, 0, &dynamicOffset);
+				
+				switch (renderSettings.renderMode)
+				{
+				case 0:
+					vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.solid);
+					break;
+				case 1:
+					vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.wireframe);
+					break;
+				}
+
+				int indexCount = state.vertexManager->indexCounts.find(MeshType::Polygone)->second;
+				vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
+
+				if (renderSettings.showNormals)
+				{
+					vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.normals);
+					vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
+				}
+			}
 		}
 
 		ImDrawData* main_draw_data = ImGui::GetDrawData();
@@ -460,7 +468,7 @@ namespace vulkan
 
 		initImGui();
 
-		VOXEL_CORE_WARN("Vulkan setup ended.")	
+		VOXEL_CORE_TRACE("Vulkan setup ended.")	
 
 		makeAssets();
 	}
@@ -510,6 +518,8 @@ namespace vulkan
 	}
 	void cleanup()
 	{
+		delete threadPool;
+
 		cleanupSwapChain();
 
 		delete state.vertexManager;
@@ -532,6 +542,7 @@ namespace vulkan
 		vkDestroySurfaceKHR(state.instance, state.surface, nullptr);
 		vkDestroyInstance(state.instance, nullptr);
 	}
+
 	VoxelEngine::renderer::RenderSettings& getRenderSettings()
 	{
 		return renderSettings;
@@ -541,11 +552,14 @@ namespace vulkan
 	{
 		state.vertexManager = new VoxelEngine::renderer::VertexManager;
 
-		const auto& mesh = assets::AssetsProvider::loadObjMesh(ASSET_PATH("models/viking_room.obj"));
+		threadPool = new VoxelEngine::threading::ThreadPool{ 3 };
+		threadPool->threads[0]->addTask([&]() {
+			const auto& mesh = assets::AssetsProvider::loadObjMesh(ASSET_PATH("models/viking_room.obj"));
 
-		state.vertexManager->concatMesh(MeshType::Polygone, mesh->vertices, mesh->indices);
+			state.vertexManager->concatMesh(MeshType::Polygone, mesh->vertices, mesh->indices);
 
-		state.vertexManager->finalize(state.physicalDevice, state.logicalDevice);
+			state.vertexManager->finalize(state.physicalDevice, state.logicalDevice);
+		});
 	}
 	void renderSceneObjects(
 		const VkCommandBuffer& commandBuffer,

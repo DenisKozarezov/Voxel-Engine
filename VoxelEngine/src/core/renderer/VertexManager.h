@@ -18,7 +18,7 @@ namespace VoxelEngine::renderer
 		size_t indexOffset = 0;
 		std::vector<uint32> indices;		
 	public:
-		std::vector<vulkan::Vertex> vertices;
+		std::vector<Vertex> vertices;
 		vkUtils::VulkanVertexBuffer* vertexBuffer = nullptr;
 		vkUtils::VulkanIndexBuffer* indexBuffer = nullptr;
 		std::unordered_map<MeshType, size_t> firstIndices;
@@ -34,7 +34,7 @@ namespace VoxelEngine::renderer
 
 		void concatMesh(
 			const MeshType& type, 
-			const std::vector<vulkan::Vertex>& vertices, 
+			const std::vector<Vertex>& vertices, 
 			const std::vector<uint32>& indices);
 		void finalize(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice);
 

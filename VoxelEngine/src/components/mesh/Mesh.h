@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include <core/PrimitiveTypes.h>
-#include <vulkan/VulkanVertex.h>
+#include <core/renderer/Vertex.h>
 
 namespace VoxelEngine::components::mesh
 {
@@ -15,8 +15,8 @@ namespace VoxelEngine::components::mesh
 
 	struct Mesh
 	{
-		std::vector<vulkan::Vertex> vertices;
-		std::vector<vulkan::Vertex> normals;
+		std::vector<renderer::Vertex> vertices;
+		std::vector<renderer::Vertex> normals;
 		std::vector<uint32> indices;
 
 		Mesh() noexcept = default;
@@ -25,7 +25,7 @@ namespace VoxelEngine::components::mesh
 
 	struct TriangleMesh
 	{
-		const std::vector<vulkan::Vertex> vertices =
+		const std::vector<renderer::Vertex> vertices =
 		{
 			{{0.0f, -0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}},
 			{{0.5f, 0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
@@ -36,7 +36,7 @@ namespace VoxelEngine::components::mesh
 
 	struct SquareMesh
 	{
-		const std::vector<vulkan::Vertex> vertices =
+		const std::vector<renderer::Vertex> vertices =
 		{
 			{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}},
 			{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
@@ -48,8 +48,8 @@ namespace VoxelEngine::components::mesh
 
 	struct VoxelMesh
 	{
-		static constexpr float s = 0.5f;
-		const std::vector<vulkan::Vertex> vertices =
+		static constexpr float s = 0.1f;
+		const std::vector<renderer::Vertex> vertices =
 		{
 			// 0 - 3
 			{{ -s, s, s}, {0.0f, 1.0f, 1.0f}},

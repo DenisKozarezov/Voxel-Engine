@@ -39,7 +39,7 @@ namespace VoxelEngine::renderer
 		static void beginFrame();
 		static void endFrame();
 		static void setCamera(const components::camera::Camera* camera);
-		static void setScene(const VoxelEngine::Scene* scene);
+		static void setScene(VoxelEngine::Scene* scene);
 		static void deviceWaitIdle();
 		static void cleanup();
 	};

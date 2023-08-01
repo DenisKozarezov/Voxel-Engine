@@ -11,6 +11,10 @@
 #define NOMINMAX
 #endif
 
+#define GLFW_INCLUDE_VULKAN
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+
 // add headers that you want to pre-compile here
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>

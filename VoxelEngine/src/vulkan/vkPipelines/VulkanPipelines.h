@@ -3,10 +3,17 @@
 
 namespace vkPipelines
 {
+	using Vertex = VoxelEngine::renderer::Vertex;
+	
 	const vkInit::GraphicsPipelineOutBundle createSolidPipeline(const vkInit::GraphicsPipilineInputBundle& inputBundle)
 	{
-		const auto& bindingDescription = vulkan::Vertex::getBindingDescription();
-		const auto& attributeDescription = vulkan::Vertex::getAttributeDescriptions();
+		constexpr auto bindingDescription = vkInit::vertexInputBindingDescription(0, sizeof(Vertex), VK_VERTEX_INPUT_RATE_VERTEX);
+		constexpr std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions =
+		{
+			vkInit::vertexInputAttributeDescription(0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, Vertex::pos)),
+			vkInit::vertexInputAttributeDescription(0, 1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, Vertex::normal)),
+			vkInit::vertexInputAttributeDescription(0, 2, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, Vertex::color))
+		};
 
 		vkUtils::VulkanShader vertexShader = vkUtils::VulkanShader(inputBundle.logicalDevice, inputBundle.vertexFilepath, VK_SHADER_STAGE_VERTEX_BIT);
 		vkUtils::VulkanShader fragShader = vkUtils::VulkanShader(inputBundle.logicalDevice, inputBundle.fragmentFilepath, VK_SHADER_STAGE_FRAGMENT_BIT);
@@ -16,8 +23,8 @@ namespace vkPipelines
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::pipelineVertexInputStateCreateInfo(
 			&bindingDescription,
 			1,
-			attributeDescription.data(),
-			static_cast<uint32>(attributeDescription.size()));
+			attributeDescriptions.data(),
+			static_cast<uint32>(attributeDescriptions.size()));
 
 		VkPipelineInputAssemblyStateCreateInfo inputAssembly = vkInit::pipelineInputAssemblyStateCreateInfo(
 			VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
@@ -88,8 +95,13 @@ namespace vkPipelines
 
 	const vkInit::GraphicsPipelineOutBundle createNormalsPipeline(const vkInit::GraphicsPipilineInputBundle& inputBundle)
 	{
-		const auto& bindingDescription = vulkan::Vertex::getBindingDescription();
-		const auto& attributeDescription = vulkan::Vertex::getAttributeDescriptions();
+		constexpr auto bindingDescription = vkInit::vertexInputBindingDescription(0, sizeof(Vertex), VK_VERTEX_INPUT_RATE_VERTEX);
+		constexpr std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions =
+		{
+			vkInit::vertexInputAttributeDescription(0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, Vertex::pos)),
+			vkInit::vertexInputAttributeDescription(0, 1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, Vertex::normal)),
+			vkInit::vertexInputAttributeDescription(0, 2, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, Vertex::color))
+		};
 
 		vkUtils::VulkanShader vertexShader = vkUtils::VulkanShader(inputBundle.logicalDevice, inputBundle.vertexFilepath, VK_SHADER_STAGE_VERTEX_BIT);
 		vkUtils::VulkanShader fragShader = vkUtils::VulkanShader(inputBundle.logicalDevice, inputBundle.fragmentFilepath, VK_SHADER_STAGE_FRAGMENT_BIT);
@@ -100,8 +112,8 @@ namespace vkPipelines
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::pipelineVertexInputStateCreateInfo(
 			&bindingDescription,
 			1,
-			attributeDescription.data(),
-			static_cast<uint32>(attributeDescription.size()));
+			attributeDescriptions.data(),
+			static_cast<uint32>(attributeDescriptions.size()));
 
 		VkPipelineInputAssemblyStateCreateInfo inputAssembly = vkInit::pipelineInputAssemblyStateCreateInfo(
 			VK_PRIMITIVE_TOPOLOGY_LINE_LIST,
@@ -162,8 +174,13 @@ namespace vkPipelines
 
 	const vkInit::GraphicsPipelineOutBundle createWireframePipeline(const vkInit::GraphicsPipilineInputBundle& inputBundle)
 	{
-		const auto& bindingDescription = vulkan::Vertex::getBindingDescription();
-		const auto& attributeDescription = vulkan::Vertex::getAttributeDescriptions();
+		constexpr auto bindingDescription = vkInit::vertexInputBindingDescription(0, sizeof(Vertex), VK_VERTEX_INPUT_RATE_VERTEX);
+		constexpr std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions =
+		{
+			vkInit::vertexInputAttributeDescription(0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, Vertex::pos)),
+			vkInit::vertexInputAttributeDescription(0, 1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, Vertex::normal)),
+			vkInit::vertexInputAttributeDescription(0, 2, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, Vertex::color))
+		};
 
 		vkUtils::VulkanShader vertexShader = vkUtils::VulkanShader(inputBundle.logicalDevice, inputBundle.vertexFilepath, VK_SHADER_STAGE_VERTEX_BIT);
 		vkUtils::VulkanShader fragShader = vkUtils::VulkanShader(inputBundle.logicalDevice, inputBundle.fragmentFilepath, VK_SHADER_STAGE_FRAGMENT_BIT);
@@ -173,8 +190,8 @@ namespace vkPipelines
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::pipelineVertexInputStateCreateInfo(
 			&bindingDescription,
 			1,
-			attributeDescription.data(),
-			static_cast<uint32>(attributeDescription.size()));
+			attributeDescriptions.data(),
+			static_cast<uint32>(attributeDescriptions.size()));
 
 		VkPipelineInputAssemblyStateCreateInfo inputAssembly = vkInit::pipelineInputAssemblyStateCreateInfo(
 			VK_PRIMITIVE_TOPOLOGY_LINE_LIST,

@@ -59,7 +59,7 @@ namespace vulkan
 
 	VoxelEngine::threading::ThreadPool* threadPool;
 	const VoxelEngine::components::camera::Camera* FPVcamera;
-	const VoxelEngine::Scene* currentScene;
+	VoxelEngine::Scene* currentScene;
 	VoxelEngine::renderer::RenderSettings renderSettings;
 	static int MAX_FRAMES_IN_FLIGHT = 3;
 	static uint32 CURRENT_FRAME = 0;
@@ -273,7 +273,6 @@ namespace vulkan
 		{
 			prepareScene(commandBuffer);
 
-			uint32 startInstance = 0;
 			for (size_t i = 0; i < currentScene->vertices.size(); ++i)
 			{
 				uint32_t dynamicOffset = i * static_cast<uint32>(frame.dynamicAlignment);
@@ -289,7 +288,7 @@ namespace vulkan
 					break;
 				}
 
-				int indexCount = state.vertexManager->indexCounts.find(MeshType::Polygone)->second;
+				int indexCount = state.vertexManager->indexCounts.find(MeshType::Cube)->second;
 				vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
 
 				if (renderSettings.showNormals)
@@ -448,7 +447,7 @@ namespace vulkan
 	{
 		FPVcamera = camera;
 	}
-	void setScene(const VoxelEngine::Scene* scene)
+	void setScene(VoxelEngine::Scene* scene)
 	{
 		currentScene = scene;
 	}
@@ -553,13 +552,17 @@ namespace vulkan
 		state.vertexManager = new VoxelEngine::renderer::VertexManager;
 
 		threadPool = new VoxelEngine::threading::ThreadPool{ 3 };
-		threadPool->threads[0]->addTask([&]() {
+		
+		const auto& voxelMesh = VoxelMesh();
+		state.vertexManager->concatMesh(MeshType::Cube, voxelMesh.vertices, voxelMesh.indices);
+		state.vertexManager->finalize(state.physicalDevice, state.logicalDevice);
+		
+		/*threadPool->threads[0]->addTask([&]() {
 			const auto& mesh = assets::AssetsProvider::loadObjMesh(ASSET_PATH("models/viking_room.obj"));
 
-			state.vertexManager->concatMesh(MeshType::Polygone, mesh->vertices, mesh->indices);
-
-			state.vertexManager->finalize(state.physicalDevice, state.logicalDevice);
-		});
+			for (auto& vertex : mesh->vertices)
+				currentScene->vertices.push_back(vertex.pos);
+		});*/
 	}
 	void renderSceneObjects(
 		const VkCommandBuffer& commandBuffer,

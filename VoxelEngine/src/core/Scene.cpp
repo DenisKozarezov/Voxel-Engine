@@ -4,8 +4,12 @@ namespace VoxelEngine
 {
 	Scene::Scene()
 	{
-		vertices.push_back({ 0.0f, 0.0f, -2.0f });
-
-		vertices.push_back({ 5.0f, 0.0f, -5.0f });
+		for (int x = 0; x < 100; x++)
+		{
+			for (int y = 0; y < 100; y++)
+			{
+				vertices.push_back({ x, y, 0 });
+			}
+		}
 	}
 }

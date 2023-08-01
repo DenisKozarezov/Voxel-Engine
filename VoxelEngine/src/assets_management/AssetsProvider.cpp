@@ -11,11 +11,14 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
+using Vertex = VoxelEngine::renderer::Vertex;
+
 namespace std 
 {
-    template<> struct hash<vulkan::Vertex> 
+
+    template<> struct hash<Vertex>
     {
-        size_t operator()(vulkan::Vertex const& vertex) const 
+        size_t operator()(Vertex const& vertex) const
         {
             return ((hash<glm::vec3>()(vertex.pos) ^ (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^ (hash<glm::vec3>()(vertex.normal) << 1);
         }
@@ -48,13 +51,13 @@ namespace assets
 
         Mesh* mesh = new Mesh;
         glm::mat4 preTransform = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-        std::unordered_map<vulkan::Vertex, uint32> uniqueVertices{};
+        std::unordered_map<Vertex, uint32> uniqueVertices{};
 
         for (const auto& shape : shapes)
         {
             for (const auto& index : shape.mesh.indices)
             {
-                vulkan::Vertex vertex =
+                Vertex vertex =
                 {
                     .pos =
                     {

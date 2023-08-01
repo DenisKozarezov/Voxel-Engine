@@ -1,9 +1,7 @@
 #pragma once
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <core/renderer/Renderer.h>
-#include <GLFW/glfw3.h>
 #include <components/mesh/Mesh.h>
+#include <GLFW/glfw3.h>
 #include "vkUtils/VulkanAlloc.h"
 
 namespace vulkan
@@ -33,7 +31,7 @@ namespace vulkan
 
 	void setWindow(const VoxelEngine::Window& window);
 	void setCamera(const VoxelEngine::components::camera::Camera* camera);
-	void setScene(const VoxelEngine::Scene* scene);
+	void setScene(VoxelEngine::Scene* scene);
 	void init();
 	void initImGui();	
 	void deviceWaitIdle();

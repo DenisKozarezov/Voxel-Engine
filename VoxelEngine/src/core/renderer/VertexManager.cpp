@@ -8,7 +8,7 @@ namespace VoxelEngine::renderer
 	}
 	void VertexManager::concatMesh(
 		const MeshType& type, 
-		const std::vector<vulkan::Vertex>& vertices, 
+		const std::vector<Vertex>& vertices, 
 		const std::vector<uint32>& indices)
 	{
 		size_t vertexCount = vertices.size();
@@ -32,7 +32,7 @@ namespace VoxelEngine::renderer
 	}
 	void VertexManager::finalize(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice)
 	{
-		VkDeviceSize verticesSize = sizeof(vulkan::Vertex) * vertices.size();
+		VkDeviceSize verticesSize = sizeof(Vertex) * vertices.size();
 		vertexBuffer = new vkUtils::VulkanVertexBuffer(physicalDevice, logicalDevice, vertices.data(), verticesSize);
 	
 		VkDeviceSize indicesSize = sizeof(uint32) * indices.size();

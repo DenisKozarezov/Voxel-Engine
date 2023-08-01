@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include <vulkan/VulkanVertex.h>
+#include <glm/vec3.hpp>
 
 namespace VoxelEngine
 {

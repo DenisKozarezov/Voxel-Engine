@@ -22,7 +22,7 @@ namespace vkUtils
 			dynamicAlignment = memory::alignedSize(dynamicAlignment, minUboAlignment);
 		}
 		
-		size = dynamicAlignment * 2;
+		size = dynamicAlignment * 20000;
 		uniformBuffers.dynamic = vkUtils::memory::createBuffer(
 			physicalDevice,
 			logicalDevice,

@@ -44,7 +44,7 @@ namespace VoxelEngine::renderer
     {
         vulkan::setCamera(camera);
     }
-    void Renderer::setScene(const VoxelEngine::Scene* scene)
+    void Renderer::setScene(VoxelEngine::Scene* scene)
     {
         vulkan::setScene(scene);
     }

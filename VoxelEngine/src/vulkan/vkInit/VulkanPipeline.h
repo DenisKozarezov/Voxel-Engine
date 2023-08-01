@@ -2,7 +2,7 @@
 #include "VulkanInitializers.h"
 #include "../vkUtils/VulkanValidation.h"
 #include "../vkUtils/VulkanShader.h"
-#include "../VulkanVertex.h"
+#include <core/renderer/Vertex.h>
 
 namespace vkInit
 {

@@ -2,6 +2,7 @@
 
 layout(location = 0) in vec3 fragPos;
 layout(location = 1) in vec3 fragNormal;
+layout(location = 2) in vec3 fragColor;
 
 layout(location = 0) out vec4 outColor;
 
@@ -15,7 +16,7 @@ void main() {
     vec3 ambient = ambientStrength * lightColor;
 
     // diffuse
-    vec3 normal = fragNormal;
+    vec3 normal = normalize(fragNormal);
     vec3 lightDir = normalize(lightPos - fragPos);
     float diff = max(dot(normal, lightDir), 0.0);
     vec3 diffuse = diff * lightColor;

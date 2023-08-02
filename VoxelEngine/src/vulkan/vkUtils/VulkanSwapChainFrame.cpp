@@ -24,8 +24,7 @@ namespace vkUtils
 				for (int z = 0; z < cbrt; z++)
 				instanceData.push_back(InstanceData
 				{
-					.pos = glm::vec3(x, y, z),
-					.scale = 1.0f
+					.pos = glm::vec3(x, y, z)
 				});
 			}
 		}

@@ -15,11 +15,7 @@ namespace VoxelEngine::renderer
         auto& app = Application::getInstance();
         renderPerformanceStats.deltaTime = app.getDeltaTime();
         renderPerformanceStats.fps = app.getFPS();
-
-        const auto& stats = vulkan::getPipelineStats();
-
-        renderPerformanceStats.pipelineStatNames = stats._Myfirst._Val;
-        renderPerformanceStats.pipelineStats = stats._Get_rest()._Myfirst._Val;
+        renderPerformanceStats.frameStats = vulkan::getFrameStats();
         return renderPerformanceStats;
     }
     const float Renderer::getTime()
@@ -44,7 +40,7 @@ namespace VoxelEngine::renderer
     {
         vulkan::setCamera(camera);
     }
-    void Renderer::setScene(VoxelEngine::Scene* scene)
+    void Renderer::setScene(const VoxelEngine::Scene* scene)
     {
         vulkan::setScene(scene);
     }

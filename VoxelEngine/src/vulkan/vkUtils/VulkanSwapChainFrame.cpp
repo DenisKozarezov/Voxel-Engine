@@ -1,12 +1,12 @@
 #include "VulkanSwapChainFrame.h"
 #include <array>
 #include "../vkInit/VulkanInitializers.h"
+#include <glm/ext/matrix_transform.hpp>
 
 namespace vkUtils
 {
 	void SwapChainFrame::makeDescriptorResources(const VkPhysicalDeviceLimits& limits)
 	{
-		// Static shared uniform buffer object with projection and view matrix
 		VkDeviceSize size = sizeof(vkUtils::UniformBufferObject);
 		uniformBuffers.view = vkUtils::memory::createBuffer(
 			physicalDevice,
@@ -14,49 +14,42 @@ namespace vkUtils
 			size,
 			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 
-		// Dynamic uniform buffer object with per-object matrices
-		size_t minUboAlignment = limits.minUniformBufferOffsetAlignment;
-		dynamicAlignment = sizeof(glm::mat4);
-		if (minUboAlignment > 0) 
+		std::vector<InstanceData> instanceData;
+		instanceData.reserve(INSTANCES_COUNT);
+		double cbrt = std::cbrt(INSTANCES_COUNT);
+		for (int x = 0; x < cbrt; x++)
 		{
-			dynamicAlignment = memory::alignedSize(dynamicAlignment, minUboAlignment);
+			for (int y = 0; y < cbrt; y++)
+			{
+				for (int z = 0; z < cbrt; z++)
+				instanceData.push_back(InstanceData
+				{
+					.pos = glm::vec3(x, y, z),
+					.scale = 1.0f
+				});
+			}
 		}
-		
-		size = dynamicAlignment * 20000;
-		uniformBuffers.dynamic = vkUtils::memory::createBuffer(
-			physicalDevice,
-			logicalDevice,
-			size,
-			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-		uniformBuffers.dynamic.descriptor.range = dynamicAlignment;
-		
-		uboDataDynamic.model = (glm::mat4*)memory::alignedAlloc(size, dynamicAlignment);
+
+		VkDeviceSize instanceBufferSize = sizeof(InstanceData) * instanceData.size();
+		uniformBuffers.instances = memory::createBuffer(
+			physicalDevice, 
+			logicalDevice, 
+			instanceBufferSize,
+			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+
+		memory::mapMemory(logicalDevice, uniformBuffers.instances.bufferMemory, 0, instanceBufferSize, 0, instanceData.data());
 
 		uniformBuffers.view.map(logicalDevice);
-		uniformBuffers.dynamic.map(logicalDevice);
 	}
 
 	void SwapChainFrame::writeDescriptorSet() const
 	{
-		std::array<VkWriteDescriptorSet, 2> descriptorWrites = {};
+		std::array<VkWriteDescriptorSet, 1> descriptorWrites = {};
 		descriptorWrites[0] = vkInit::writeDescriptorSet(
 			descriptorSet,
 			VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
 			0,
 			&uniformBuffers.view.descriptor);
-
-		descriptorWrites[1] = vkInit::writeDescriptorSet(
-			descriptorSet,
-			VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
-			1,
-			&uniformBuffers.dynamic.descriptor);
-
-		// Flush to make changes visible to the host
-		VkMappedMemoryRange memoryRange = vkInit::mappedMemoryRange();
-		memoryRange.memory = uniformBuffers.dynamic.bufferMemory;
-		memoryRange.size = uniformBuffers.dynamic.size;
-		vkFlushMappedMemoryRanges(logicalDevice, 1, &memoryRange);
 
 		vkUpdateDescriptorSets(logicalDevice, static_cast<uint32>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}
@@ -69,12 +62,7 @@ namespace vkUtils
 		vkDestroySemaphore(logicalDevice, imageAvailableSemaphore, nullptr);
 		vkDestroySemaphore(logicalDevice, renderFinishedSemaphore, nullptr);
 
-		if (uboDataDynamic.model) 
-		{
-			memory::alignedFree(uboDataDynamic.model);
-		}
-
 		uniformBuffers.view.release(logicalDevice);
-		uniformBuffers.dynamic.release(logicalDevice);
+		uniformBuffers.instances.release(logicalDevice);
 	}
 }

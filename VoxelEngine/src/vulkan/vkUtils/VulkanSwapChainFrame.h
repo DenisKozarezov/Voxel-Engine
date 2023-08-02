@@ -3,6 +3,10 @@
 #include <glm/mat4x4.hpp>
 #include <vulkan/vkUtils/VulkanUniformBuffer.h>
 
+#define VERTEX_BUFFER_BIND_ID 0
+#define INSTANCE_BUFFER_BIND_ID 1
+#define INSTANCES_COUNT 100 * 100 * 100
+
 namespace vkUtils
 {
 	struct UniformBufferObject
@@ -12,16 +16,17 @@ namespace vkUtils
 		alignas(16) glm::mat4 viewproj;
 	};
 
-	struct UniformBufferObjectDynamic 
-	{
-		glm::mat4* model = nullptr;
-	};
-
 	typedef struct
 	{
 		vkUtils::memory::Buffer view;
-		vkUtils::memory::Buffer dynamic;
+		vkUtils::memory::Buffer instances;
 	} UniformBuffers;
+
+	struct InstanceData
+	{
+		glm::vec3 pos;
+		float scale;
+	};
 
 	struct SwapChainFrame
 	{
@@ -41,9 +46,6 @@ namespace vkUtils
 		// Resources used in drawing
 		UniformBuffers uniformBuffers;
 		VkDescriptorSet descriptorSet;
-		UniformBufferObjectDynamic uboDataDynamic;
-
-		size_t dynamicAlignment;
 
 		void makeDescriptorResources(const VkPhysicalDeviceLimits& limits);
 

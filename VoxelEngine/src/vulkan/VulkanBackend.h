@@ -31,13 +31,14 @@ namespace vulkan
 
 	void setWindow(const VoxelEngine::Window& window);
 	void setCamera(const VoxelEngine::components::camera::Camera* camera);
-	void setScene(VoxelEngine::Scene* scene);
+	void setScene(const VoxelEngine::Scene* scene);
 	void init();
 	void initImGui();	
 	void deviceWaitIdle();
 	void cleanup();
 
 	VoxelEngine::renderer::RenderSettings& getRenderSettings();
+	const VoxelEngine::renderer::RenderFrameStats& getFrameStats();
 
 	void makeAssets();
 	void renderSceneObjects(
@@ -45,8 +46,6 @@ namespace vulkan
 		const MeshType& objectType,
 		uint32& startInstance,
 		const uint32& instanceCount);
-
-	std::tuple<const string*, uint64*> getPipelineStats();
 
 	const VkDevice& getLogicalDevice();
 

@@ -7,12 +7,18 @@ namespace vkPipelines
 	
 	const vkInit::GraphicsPipelineOutBundle createSolidPipeline(const vkInit::GraphicsPipilineInputBundle& inputBundle)
 	{
-		constexpr auto bindingDescription = vkInit::vertexInputBindingDescription(0, sizeof(Vertex), VK_VERTEX_INPUT_RATE_VERTEX);
-		constexpr std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions =
+		constexpr std::array<VkVertexInputBindingDescription, 2> bindingDescriptions =
 		{
-			vkInit::vertexInputAttributeDescription(0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, Vertex::pos)),
-			vkInit::vertexInputAttributeDescription(0, 1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, Vertex::normal)),
-			vkInit::vertexInputAttributeDescription(0, 2, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, Vertex::color))
+			vkInit::vertexInputBindingDescription(VERTEX_BUFFER_BIND_ID, sizeof(Vertex), VK_VERTEX_INPUT_RATE_VERTEX),
+			vkInit::vertexInputBindingDescription(INSTANCE_BUFFER_BIND_ID, sizeof(vkUtils::InstanceData), VK_VERTEX_INPUT_RATE_INSTANCE)
+		};		
+		constexpr std::array<VkVertexInputAttributeDescription, 5> attributeDescriptions =
+		{
+			vkInit::vertexInputAttributeDescription(VERTEX_BUFFER_BIND_ID, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, Vertex::pos)),
+			vkInit::vertexInputAttributeDescription(VERTEX_BUFFER_BIND_ID, 1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, Vertex::normal)),
+			vkInit::vertexInputAttributeDescription(VERTEX_BUFFER_BIND_ID, 2, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, Vertex::color)),
+			vkInit::vertexInputAttributeDescription(INSTANCE_BUFFER_BIND_ID, 3, VK_FORMAT_R32G32B32_SFLOAT, 0),
+			vkInit::vertexInputAttributeDescription(INSTANCE_BUFFER_BIND_ID, 4, VK_FORMAT_R32_SFLOAT, sizeof(float) * 3)
 		};
 
 		vkUtils::VulkanShader vertexShader = vkUtils::VulkanShader(inputBundle.logicalDevice, inputBundle.vertexFilepath, VK_SHADER_STAGE_VERTEX_BIT);
@@ -21,8 +27,8 @@ namespace vkPipelines
 		std::array<VkPipelineShaderStageCreateInfo, 2> shaderStages = { vertexShader.getStage(), fragShader.getStage() };
 
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::pipelineVertexInputStateCreateInfo(
-			&bindingDescription,
-			1,
+			bindingDescriptions.data(),
+			static_cast<uint32>(bindingDescriptions.size()),
 			attributeDescriptions.data(),
 			static_cast<uint32>(attributeDescriptions.size()));
 
@@ -82,7 +88,7 @@ namespace vkPipelines
 		pipelineInfo.renderPass = inputBundle.renderPass;
 		pipelineInfo.subpass = 0;
 
-		err = vkCreateGraphicsPipelines(inputBundle.logicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &bundle.pipeline);
+		err = vkCreateGraphicsPipelines(inputBundle.logicalDevice, inputBundle.pipelineCache, 1, &pipelineInfo, nullptr, &bundle.pipeline);
 		vkUtils::check_vk_result(err, "failed to create graphics pipeline!");
 
 		vertexShader.unbind();
@@ -95,12 +101,15 @@ namespace vkPipelines
 
 	const vkInit::GraphicsPipelineOutBundle createNormalsPipeline(const vkInit::GraphicsPipilineInputBundle& inputBundle)
 	{
-		constexpr auto bindingDescription = vkInit::vertexInputBindingDescription(0, sizeof(Vertex), VK_VERTEX_INPUT_RATE_VERTEX);
+		constexpr std::array<VkVertexInputBindingDescription, 1> bindingDescriptions =
+		{
+			vkInit::vertexInputBindingDescription(VERTEX_BUFFER_BIND_ID, sizeof(Vertex), VK_VERTEX_INPUT_RATE_VERTEX),
+		};
 		constexpr std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions =
 		{
-			vkInit::vertexInputAttributeDescription(0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, Vertex::pos)),
-			vkInit::vertexInputAttributeDescription(0, 1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, Vertex::normal)),
-			vkInit::vertexInputAttributeDescription(0, 2, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, Vertex::color))
+			vkInit::vertexInputAttributeDescription(VERTEX_BUFFER_BIND_ID, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, Vertex::pos)),
+			vkInit::vertexInputAttributeDescription(VERTEX_BUFFER_BIND_ID, 1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, Vertex::normal)),
+			vkInit::vertexInputAttributeDescription(VERTEX_BUFFER_BIND_ID, 2, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, Vertex::color)),
 		};
 
 		vkUtils::VulkanShader vertexShader = vkUtils::VulkanShader(inputBundle.logicalDevice, inputBundle.vertexFilepath, VK_SHADER_STAGE_VERTEX_BIT);
@@ -110,8 +119,8 @@ namespace vkPipelines
 		std::array<VkPipelineShaderStageCreateInfo, 3> shaderStages = { vertexShader.getStage(), fragShader.getStage(), geomShader.getStage() };
 
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::pipelineVertexInputStateCreateInfo(
-			&bindingDescription,
-			1,
+			bindingDescriptions.data(),
+			static_cast<uint32>(bindingDescriptions.size()),
 			attributeDescriptions.data(),
 			static_cast<uint32>(attributeDescriptions.size()));
 
@@ -160,7 +169,7 @@ namespace vkPipelines
 		pipelineInfo.subpass = 0;
 		pipelineInfo.basePipelineHandle = inputBundle.basePipilineHandle;
 
-		err = vkCreateGraphicsPipelines(inputBundle.logicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &bundle.pipeline);
+		err = vkCreateGraphicsPipelines(inputBundle.logicalDevice, inputBundle.pipelineCache, 1, &pipelineInfo, nullptr, &bundle.pipeline);
 		vkUtils::check_vk_result(err, "failed to create graphics pipeline!");
 
 		vertexShader.unbind();
@@ -174,12 +183,15 @@ namespace vkPipelines
 
 	const vkInit::GraphicsPipelineOutBundle createWireframePipeline(const vkInit::GraphicsPipilineInputBundle& inputBundle)
 	{
-		constexpr auto bindingDescription = vkInit::vertexInputBindingDescription(0, sizeof(Vertex), VK_VERTEX_INPUT_RATE_VERTEX);
+		constexpr std::array<VkVertexInputBindingDescription, 1> bindingDescriptions =
+		{
+			vkInit::vertexInputBindingDescription(VERTEX_BUFFER_BIND_ID, sizeof(Vertex), VK_VERTEX_INPUT_RATE_VERTEX),
+		};
 		constexpr std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions =
 		{
-			vkInit::vertexInputAttributeDescription(0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, Vertex::pos)),
-			vkInit::vertexInputAttributeDescription(0, 1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, Vertex::normal)),
-			vkInit::vertexInputAttributeDescription(0, 2, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, Vertex::color))
+			vkInit::vertexInputAttributeDescription(VERTEX_BUFFER_BIND_ID, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, Vertex::pos)),
+			vkInit::vertexInputAttributeDescription(VERTEX_BUFFER_BIND_ID, 1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, Vertex::normal)),
+			vkInit::vertexInputAttributeDescription(VERTEX_BUFFER_BIND_ID, 2, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, Vertex::color)),
 		};
 
 		vkUtils::VulkanShader vertexShader = vkUtils::VulkanShader(inputBundle.logicalDevice, inputBundle.vertexFilepath, VK_SHADER_STAGE_VERTEX_BIT);
@@ -188,8 +200,8 @@ namespace vkPipelines
 		std::array<VkPipelineShaderStageCreateInfo, 2> shaderStages = { vertexShader.getStage(), fragShader.getStage() };
 
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::pipelineVertexInputStateCreateInfo(
-			&bindingDescription,
-			1,
+			bindingDescriptions.data(),
+			static_cast<uint32>(bindingDescriptions.size()),
 			attributeDescriptions.data(),
 			static_cast<uint32>(attributeDescriptions.size()));
 
@@ -238,7 +250,7 @@ namespace vkPipelines
 		pipelineInfo.subpass = 0;
 		pipelineInfo.basePipelineHandle = inputBundle.basePipilineHandle;
 
-		err = vkCreateGraphicsPipelines(inputBundle.logicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &bundle.pipeline);
+		err = vkCreateGraphicsPipelines(inputBundle.logicalDevice, inputBundle.pipelineCache, 1, &pipelineInfo, nullptr, &bundle.pipeline);
 		vkUtils::check_vk_result(err, "failed to create graphics pipeline!");
 
 		vertexShader.unbind();

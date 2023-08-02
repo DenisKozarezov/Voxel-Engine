@@ -63,7 +63,7 @@ namespace VoxelEngine::components::mesh
 
 			// 6 - 7
 			{{-s, s, -s}, {0.0f, 1.0f, 0.0f}},
-			{{ -s, -s, -s}, {0.0f, 0.0f, 0.0f}},
+			{{ -s, -s, -s}, {0.0f, 0.0f, 0.0f}}
 		};
 
 		const std::vector<uint32> indices =

@@ -25,7 +25,6 @@ namespace vkUtils
 	struct InstanceData
 	{
 		glm::vec3 pos;
-		float scale;
 	};
 
 	struct SwapChainFrame

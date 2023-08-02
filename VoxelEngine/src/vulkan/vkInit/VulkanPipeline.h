@@ -10,8 +10,9 @@ namespace vkInit
 	{
 		VkDevice logicalDevice;
 		VkRenderPass& renderPass;
-		VkSampleCountFlagBits msaaSamples;
+		VkPipelineCache pipelineCache;
 		VkDescriptorSetLayout descriptorSetLayout;
+		VkSampleCountFlagBits msaaSamples;
 		string vertexFilepath;
 		string fragmentFilepath;
 		string geometryFilepath;

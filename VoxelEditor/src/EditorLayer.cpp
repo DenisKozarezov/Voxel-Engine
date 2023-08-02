@@ -167,14 +167,15 @@ namespace VoxelEditor
 			{
 				ImGui::BeginColumns("##statistics", 2);
 				ImGui::Text("Draw Calls: %d", stats.drawCalls);
-				ImGui::Text("Triangles: %d", stats.triangles);
-				ImGui::Text("Vertices: %d", stats.vertices);
-				ImGui::Text("Indices: %d", stats.indices);
+				ImGui::Text("Triangles: %d", stats.frameStats.triangles);
+				ImGui::Text("Vertices: %d", stats.frameStats.vertices);
+				ImGui::Text("Indices: %d", stats.frameStats.indices);
+				ImGui::Text("Instances: %d", stats.frameStats.instances);
 				ImGui::NextColumn();
 
 				for (int i = 0; i < 6; ++i)
 				{
-					ImGui::Text("%s: %d", stats.pipelineStatNames[i].c_str(), stats.pipelineStats[i]);
+					ImGui::Text("%s: %d", stats.frameStats.pipelineStatNames[i].c_str(), stats.frameStats.pipelineStats[i]);
 				}
 
 				ImGui::Text("Batches: %d", 0);
@@ -210,7 +211,10 @@ namespace VoxelEditor
 		_dispatcher.registerEvent<input::MouseMovedEvent>(BIND_CALLBACK(EditorLayer::onMouseMoved));
 	
 		renderer::Renderer::setCamera(&_camera);
-		renderer::Renderer::setScene(new Scene());
+
+		_scene = new Scene();
+
+		renderer::Renderer::setScene(_scene);
 	}				  
 	void EditorLayer::onDetach()
 	{				

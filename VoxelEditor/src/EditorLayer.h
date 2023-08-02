@@ -12,6 +12,7 @@ namespace VoxelEditor
 		input::EventDispatcher _dispatcher;
 		components::camera::FirstPersonCamera _camera{ glm::vec3(2.0f, 2.0f, 2.0f) };
 		float _lastMouseX = 0.0f, _lastMouseY = 0.0f;
+		VoxelEngine::Scene* _scene = nullptr;
 		float _deltaTime = 0.0f;
 		float _fixedDeltaTime = 0.0f;
 

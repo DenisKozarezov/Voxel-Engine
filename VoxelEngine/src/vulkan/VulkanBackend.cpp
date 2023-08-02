@@ -59,8 +59,9 @@ namespace vulkan
 
 	VoxelEngine::threading::ThreadPool* threadPool;
 	const VoxelEngine::components::camera::Camera* FPVcamera;
-	VoxelEngine::Scene* currentScene;
+	const VoxelEngine::Scene* currentScene;
 	VoxelEngine::renderer::RenderSettings renderSettings;
+	VoxelEngine::renderer::RenderFrameStats renderFrameStats;
 	static int MAX_FRAMES_IN_FLIGHT = 3;
 	static uint32 CURRENT_FRAME = 0;
 		
@@ -116,15 +117,10 @@ namespace vulkan
 	void makeDescriptorSetLayout()
 	{
 		vkInit::DescriptorSetLayoutInputBundle bindings;
-		bindings.count = 2;
+		bindings.count = 1;
 
 		bindings.indices.push_back(0);
 		bindings.types.push_back(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
-		bindings.stages.push_back(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_GEOMETRY_BIT);
-		bindings.counts.push_back(1);
-
-		bindings.indices.push_back(1);
-		bindings.types.push_back(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC);
 		bindings.stages.push_back(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_GEOMETRY_BIT);
 		bindings.counts.push_back(1);
 
@@ -140,8 +136,9 @@ namespace vulkan
 		{
 			.logicalDevice = state.logicalDevice,
 			.renderPass = state.renderPass,
-			.msaaSamples = state.msaaSamples,
+			.pipelineCache = state.pipelineCache,
 			.descriptorSetLayout = state.descriptorSetLayout,
+			.msaaSamples = state.msaaSamples,
 			.vertexFilepath = ASSET_PATH("shaders/SolidVertShader.spv"),
 			.fragmentFilepath = ASSET_PATH("shaders/SolidFragShader.spv")
 		};		
@@ -153,6 +150,7 @@ namespace vulkan
 		{
 			.logicalDevice = state.logicalDevice,
 			.renderPass = state.renderPass,
+			.pipelineCache = state.pipelineCache,
 			.descriptorSetLayout = state.descriptorSetLayout,
 			.vertexFilepath = ASSET_PATH("shaders/BaseVertShader.spv"),
 			.fragmentFilepath = ASSET_PATH("shaders/BaseFragShader.spv"),
@@ -161,11 +159,12 @@ namespace vulkan
 		};
 		const auto& normalsPipeline = vkPipelines::createNormalsPipeline(normalsInputBundle);
 		state.pipelines.normals = normalsPipeline.pipeline;
-
+		
 		vkInit::GraphicsPipilineInputBundle wireframeInputBundle =
 		{
 			.logicalDevice = state.logicalDevice,
 			.renderPass = state.renderPass,
+			.pipelineCache = state.pipelineCache,
 			.descriptorSetLayout = state.descriptorSetLayout,
 			.vertexFilepath = ASSET_PATH("shaders/SolidVertShader.spv"),
 			.fragmentFilepath = ASSET_PATH("shaders/WireframeFragShader.spv"),
@@ -268,35 +267,28 @@ namespace vulkan
 		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
 		// =================== RENDER WHOLE STUFF HERE ! ===================
+		prepareScene(commandBuffer);
 
-		if (state.vertexManager->isValid() && currentScene->vertices.size() > 0)
+		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelineLayout, 0, 1, &frame.descriptorSet, 0, nullptr);
+
+		switch (renderSettings.renderMode)
 		{
-			prepareScene(commandBuffer);
+		case 0:
+			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.solid);
+			break;
+		case 1:
+			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.wireframe);
+			break;
+		}
 
-			for (size_t i = 0; i < currentScene->vertices.size(); ++i)
-			{
-				uint32_t dynamicOffset = i * static_cast<uint32>(frame.dynamicAlignment);
-				vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelineLayout, 0, 1, &frame.descriptorSet, 0, &dynamicOffset);
-				
-				switch (renderSettings.renderMode)
-				{
-				case 0:
-					vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.solid);
-					break;
-				case 1:
-					vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.wireframe);
-					break;
-				}
+		uint32 startInstance = 0;
+		renderSceneObjects(commandBuffer, MeshType::Cube, startInstance, INSTANCES_COUNT);
 
-				int indexCount = state.vertexManager->indexCounts.find(MeshType::Cube)->second;
-				vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
-
-				if (renderSettings.showNormals)
-				{
-					vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.normals);
-					vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
-				}
-			}
+		if (renderSettings.showNormals)
+		{
+			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.normals);
+			startInstance = 0;
+			renderSceneObjects(commandBuffer, MeshType::Cube, startInstance, INSTANCES_COUNT);
 		}
 
 		ImDrawData* main_draw_data = ImGui::GetDrawData();
@@ -364,22 +356,15 @@ namespace vulkan
 		};
 		memcpy(frame.uniformBuffers.view.mappedMemory, &ubo, sizeof(ubo));
 
-		int i = 0;
-		for (const auto& vertex : currentScene->vertices)
-		{
-			glm::mat4* modelMat = (glm::mat4*)(((uint64_t)frame.uboDataDynamic.model + (i * frame.dynamicAlignment)));
-			*modelMat = glm::translate(glm::mat4(1.0), vertex);
-			++i;
-		}
-		memcpy(frame.uniformBuffers.dynamic.mappedMemory, frame.uboDataDynamic.model, frame.uniformBuffers.dynamic.size);
-		
 		frame.writeDescriptorSet();
 	}
 	void prepareScene(const VkCommandBuffer& commandBuffer)
 	{
-		VkBuffer vertexBuffers[] = { *state.vertexManager->vertexBuffer };
+		VkBuffer vertexBuffer = *state.vertexManager->vertexBuffer;
+		VkBuffer instanceBuffer = state.swapChainBundle.frames[CURRENT_FRAME].uniformBuffers.instances.buffer;
 		VkDeviceSize offsets[] = { 0 };
-		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+		vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, &vertexBuffer, offsets);
+		vkCmdBindVertexBuffers(commandBuffer, INSTANCE_BUFFER_BIND_ID, 1, &instanceBuffer, offsets);
 		vkCmdBindIndexBuffer(commandBuffer, *state.vertexManager->indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 	}
 	void beginFrame() 
@@ -447,7 +432,7 @@ namespace vulkan
 	{
 		FPVcamera = camera;
 	}
-	void setScene(VoxelEngine::Scene* scene)
+	void setScene(const VoxelEngine::Scene* scene)
 	{
 		currentScene = scene;
 	}
@@ -546,23 +531,25 @@ namespace vulkan
 	{
 		return renderSettings;
 	}
+	const VoxelEngine::renderer::RenderFrameStats& getFrameStats()
+	{
+		return renderFrameStats;
+	}
 
 	void makeAssets()
 	{
 		state.vertexManager = new VoxelEngine::renderer::VertexManager;
 
-		threadPool = new VoxelEngine::threading::ThreadPool{ 3 };
-		
-		const auto& voxelMesh = VoxelMesh();
-		state.vertexManager->concatMesh(MeshType::Cube, voxelMesh.vertices, voxelMesh.indices);
+		const auto& mesh = VoxelMesh();
+		state.vertexManager->concatMesh(MeshType::Cube, mesh.vertices, mesh.indices);
 		state.vertexManager->finalize(state.physicalDevice, state.logicalDevice);
-		
-		/*threadPool->threads[0]->addTask([&]() {
-			const auto& mesh = assets::AssetsProvider::loadObjMesh(ASSET_PATH("models/viking_room.obj"));
 
-			for (auto& vertex : mesh->vertices)
-				currentScene->vertices.push_back(vertex.pos);
-		});*/
+		renderFrameStats.pipelineStatNames = vkUtils::pipelineStatNames.data();
+		renderFrameStats.pipelineStats = vkUtils::pipelineStats.data();
+		renderFrameStats.indices = static_cast<uint32>(mesh.indices.size()) * INSTANCES_COUNT;
+		renderFrameStats.vertices = static_cast<uint32>(mesh.vertices.size()) * INSTANCES_COUNT;
+		renderFrameStats.triangles = INSTANCES_COUNT * 12;
+		renderFrameStats.instances = INSTANCES_COUNT;
 	}
 	void renderSceneObjects(
 		const VkCommandBuffer& commandBuffer,
@@ -576,11 +563,6 @@ namespace vulkan
 		vkCmdDrawIndexed(commandBuffer, indexCount, instanceCount, firstIndex, 0, startInstance);
 	
 		startInstance += instanceCount;
-	}
-
-	std::tuple<const string*, uint64*> getPipelineStats()
-	{
-		return { vkUtils::pipelineStatNames.data(), vkUtils::pipelineStats.data() };
 	}
 
 	const VkDevice& getLogicalDevice()

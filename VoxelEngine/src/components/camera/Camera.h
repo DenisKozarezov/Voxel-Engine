@@ -17,6 +17,7 @@ namespace VoxelEngine::components::camera
 		Camera& operator=(Camera const& rhs) noexcept = delete;
 		Camera& operator=(Camera&& rhs) noexcept = delete;
 
+		inline const glm::vec3 getPosition() const { return _position; }
 		virtual inline const glm::mat4 viewMatrix() const = 0;
 		virtual inline const glm::mat4 projectionMatrix(const float& aspectRatio) const = 0;
 

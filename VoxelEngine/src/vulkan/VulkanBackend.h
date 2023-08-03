@@ -40,6 +40,7 @@ namespace vulkan
 	VoxelEngine::renderer::RenderSettings& getRenderSettings();
 	const VoxelEngine::renderer::RenderFrameStats& getFrameStats();
 
+	void prepareInstanceData(const std::vector<glm::vec3>& vertices);
 	void makeAssets();
 	void renderSceneObjects(
 		const VkCommandBuffer& commandBuffer,

@@ -62,6 +62,7 @@ namespace vulkan
 	const VoxelEngine::Scene* currentScene;
 	VoxelEngine::renderer::RenderSettings renderSettings;
 	VoxelEngine::renderer::RenderFrameStats renderFrameStats;
+	vkUtils::memory::Buffer instances;
 	static int MAX_FRAMES_IN_FLIGHT = 3;
 	static uint32 CURRENT_FRAME = 0;
 		
@@ -222,6 +223,8 @@ namespace vulkan
 		state.descriptorPool = vkInit::createDescriptorPool(state.logicalDevice);
 
 		makeFrameResources(state.logicalDevice);
+
+		prepareInstanceData(currentScene->vertices);
 	}
 	
 	void recreateSwapChain(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice, const VkSurfaceKHR& surface, GLFWwindow* window)
@@ -282,13 +285,14 @@ namespace vulkan
 		}
 
 		uint32 startInstance = 0;
-		renderSceneObjects(commandBuffer, MeshType::Cube, startInstance, INSTANCES_COUNT);
+		uint32 instancesCount = static_cast<uint32>(currentScene->vertices.size());
+		renderSceneObjects(commandBuffer, MeshType::Cube, startInstance, instancesCount);
 
 		if (renderSettings.showNormals)
 		{
 			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.normals);
 			startInstance = 0;
-			renderSceneObjects(commandBuffer, MeshType::Cube, startInstance, INSTANCES_COUNT);
+			renderSceneObjects(commandBuffer, MeshType::Cube, startInstance, instancesCount);
 		}
 
 		ImDrawData* main_draw_data = ImGui::GetDrawData();
@@ -319,7 +323,7 @@ namespace vulkan
 	}
 	void cleanupSwapChain()
 	{
-		state.swapChainBundle.release(state.logicalDevice);		
+		state.swapChainBundle.release(state.logicalDevice);	
 	}
 	void presentFrame(const uint32& imageIndex, VkSemaphore* signalSemaphores)
 	{
@@ -352,7 +356,8 @@ namespace vulkan
 		{
 			.view = FPVcamera->viewMatrix(),
 			.proj = FPVcamera->projectionMatrix(aspectRatio),
-			.viewproj = ubo.proj * ubo.view
+			.viewproj = ubo.proj * ubo.view,
+			.lightPos = FPVcamera->getPosition()
 		};
 		memcpy(frame.uniformBuffers.view.mappedMemory, &ubo, sizeof(ubo));
 
@@ -361,7 +366,7 @@ namespace vulkan
 	void prepareScene(const VkCommandBuffer& commandBuffer)
 	{
 		VkBuffer vertexBuffer = *state.vertexManager->vertexBuffer;
-		VkBuffer instanceBuffer = state.swapChainBundle.frames[CURRENT_FRAME].uniformBuffers.instances.buffer;
+		VkBuffer instanceBuffer = instances.buffer;
 		VkDeviceSize offsets[] = { 0 };
 		vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, &vertexBuffer, offsets);
 		vkCmdBindVertexBuffers(commandBuffer, INSTANCE_BUFFER_BIND_ID, 1, &instanceBuffer, offsets);
@@ -505,6 +510,7 @@ namespace vulkan
 		delete threadPool;
 
 		cleanupSwapChain();
+		instances.release(state.logicalDevice);
 
 		delete state.vertexManager;
 		
@@ -535,7 +541,34 @@ namespace vulkan
 	{
 		return renderFrameStats;
 	}
+	
+	void prepareInstanceData(const std::vector<glm::vec3>& vertices)
+	{
+		std::vector<vkUtils::InstanceData> instanceData;
+		instanceData.reserve(vertices.size());
+		for (const auto& vertex : vertices)
+		{
+			instanceData.push_back(vkUtils::InstanceData
+			{
+				.pos = vertex
+			});
+		}
 
+		VkDeviceSize instanceBufferSize = sizeof(vkUtils::InstanceData) * instanceData.size();
+		instances = vkUtils::memory::createBuffer(
+			state.physicalDevice,
+			state.logicalDevice,
+			instanceBufferSize,
+			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+
+		vkUtils::memory::mapMemory(
+			state.logicalDevice, 
+			instances.bufferMemory, 
+			0, 
+			instanceBufferSize, 
+			0, 
+			instanceData.data());
+	}
 	void makeAssets()
 	{
 		state.vertexManager = new VoxelEngine::renderer::VertexManager;
@@ -546,10 +579,13 @@ namespace vulkan
 
 		renderFrameStats.pipelineStatNames = vkUtils::pipelineStatNames.data();
 		renderFrameStats.pipelineStats = vkUtils::pipelineStats.data();
-		renderFrameStats.indices = static_cast<uint32>(mesh.indices.size()) * INSTANCES_COUNT;
-		renderFrameStats.vertices = static_cast<uint32>(mesh.vertices.size()) * INSTANCES_COUNT;
-		renderFrameStats.triangles = INSTANCES_COUNT * 12;
-		renderFrameStats.instances = INSTANCES_COUNT;
+
+		uint32 instancesCount = static_cast<uint32>(currentScene->vertices.size());
+
+		renderFrameStats.indices = instancesCount * static_cast<uint32>(mesh.indices.size());
+		renderFrameStats.vertices = instancesCount * static_cast<uint32>(mesh.vertices.size());
+		renderFrameStats.triangles = instancesCount * 12;
+		renderFrameStats.instances = instancesCount;
 	}
 	void renderSceneObjects(
 		const VkCommandBuffer& commandBuffer,

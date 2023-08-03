@@ -32,4 +32,8 @@ namespace vkUtils
 	{
 		vkDestroyShaderModule(_logicalDevice, _shaderModule, nullptr);
 	}
+	VulkanShader::~VulkanShader()
+	{
+		unbind();
+	}
 }

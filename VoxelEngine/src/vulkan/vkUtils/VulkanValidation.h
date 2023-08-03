@@ -50,12 +50,12 @@ namespace vkUtils
 		}
 	}
 
-	static void check_vk_result(const VkResult& vkResult, const std::string& exceptionMsg)
+	static constexpr void check_vk_result(const VkResult& vkResult, const std::string& exceptionMsg)
 	{
-		std::stringstream ss;
-		ss << "[VULKAN] [" << errorString(vkResult) << "] ";
-		ss << exceptionMsg;
-		VOXEL_CORE_ASSERT(vkResult == VK_SUCCESS, ss.str())
+		std::string str;
+		str += "[VULKAN] [" + errorString(vkResult) + "] ";
+		str += exceptionMsg;
+		VOXEL_CORE_ASSERT(vkResult == VK_SUCCESS, str)
 	}
 
 	static VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsCallback(

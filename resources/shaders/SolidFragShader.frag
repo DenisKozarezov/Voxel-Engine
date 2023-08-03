@@ -18,16 +18,11 @@ void main() {
 
     // diffuse
     vec3 normal = normalize(inNormal);
-	vec3 lightDir = normalize(lightPos);
-    vec3 diffuse = max(dot(normal, lightDir), 0.1) * objectColor;
+    vec3 lightDir = normalize(lightPos - inPosition);
+    vec3 diffuse = max(dot(normal, lightDir), 0.0) * lightColor;
 
     // specular
-    float specularStrength = 0.5;
-    vec3 viewDir = normalize(viewPos - inPosition);
-    vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0), 32);
-    vec3 specular = specularStrength * spec * lightColor;
-    vec3 result = (ambient + diffuse + specular) * objectColor;
+    vec3 result = (ambient + diffuse) * objectColor;
 
     outColor = vec4(result, 1.0);
 }

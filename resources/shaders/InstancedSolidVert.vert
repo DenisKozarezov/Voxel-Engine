@@ -1,6 +1,6 @@
 #version 450
 
-layout(binding = 0) readonly uniform UniformBufferObject {
+layout(set = 0, binding = 0) readonly uniform UniformBufferObject {
     mat4 view;
     mat4 proj;
     mat4 viewproj;
@@ -28,7 +28,5 @@ void main() {
     outNormal = inNormal;
     outColor = inColor;
     outLightPos = ubo.lightPos;
-
-    pos = vec4(inPosition, 1.0);
     outViewPos = -pos.xyz;
 }

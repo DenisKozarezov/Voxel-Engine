@@ -3,7 +3,7 @@
 layout(lines) in;
 layout(line_strip, max_vertices = 2) out;
 
-layout(binding = 0) readonly uniform UniformBufferObject {
+layout(set = 0, binding = 0) readonly uniform UniformBufferObject {
     mat4 view;
     mat4 proj;
     mat4 viewproj;

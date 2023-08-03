@@ -24,12 +24,14 @@ namespace vkInit
 		VkPipeline solid;
 		VkPipeline wireframe;
 		VkPipeline normals;
+		VkPipeline editorGrid;
 
 		void release(const VkDevice& logicalDevice) const
 		{
 			vkDestroyPipeline(logicalDevice, solid, nullptr);
 			vkDestroyPipeline(logicalDevice, wireframe, nullptr);
 			vkDestroyPipeline(logicalDevice, normals, nullptr);
+			vkDestroyPipeline(logicalDevice, editorGrid, nullptr);
 		}
 	};
 

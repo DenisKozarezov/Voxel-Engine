@@ -397,7 +397,6 @@ namespace vulkan
 
 		uint32 startInstance = 0;
 		uint32 instancesCount = static_cast<uint32>(currentScene->vertices.size());
-		
 		renderSceneObjects(commandBuffer, MeshType::Cube, startInstance, instancesCount);
 		
 		if (renderSettings.showNormals)
@@ -478,6 +477,8 @@ namespace vulkan
 		memcpy(frame.uniformBuffers.view.mappedMemory, &ubo, sizeof(ubo));
 
 		frame.writeDescriptorSet();
+
+		resetFrameStats();
 	}
 	void prepareScene(const VkCommandBuffer& commandBuffer)
 	{
@@ -657,6 +658,10 @@ namespace vulkan
 	{
 		return renderFrameStats;
 	}
+	void resetFrameStats()
+	{
+		renderFrameStats.drawCalls = 0;
+	}
 	
 	void prepareInstanceData(const std::vector<glm::vec3>& vertices)
 	{
@@ -719,6 +724,7 @@ namespace vulkan
 		vkCmdDrawIndexed(commandBuffer, indexCount, instanceCount, firstIndex, 0, startInstance);
 	
 		startInstance += instanceCount;
+		renderFrameStats.drawCalls++;
 	}
 
 	const VkDevice& getLogicalDevice()

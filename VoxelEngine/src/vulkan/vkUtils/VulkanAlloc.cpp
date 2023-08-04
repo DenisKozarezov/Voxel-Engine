@@ -97,12 +97,11 @@ namespace vkUtils::memory
 		vkFreeMemory(logicalDevice, memory, nullptr);
 	}
 
-	const uint32 alignedSize(uint32 value, uint32 alignment)
+	constexpr uint32 alignedSize(uint32 value, uint32 alignment)
 	{
 		return (value + alignment - 1) & ~(alignment - 1);
 	}
-
-	const size_t alignedSize(size_t value, size_t alignment)
+	constexpr size_t alignedSize(size_t value, size_t alignment)
 	{
 		return (value + alignment - 1) & ~(alignment - 1);
 	}

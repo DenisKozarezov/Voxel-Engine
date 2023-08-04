@@ -17,7 +17,6 @@ namespace VoxelEngine::renderer
 	struct RenderPerformanceStats
 	{
 		RenderFrameStats frameStats;
-		uint32 drawCalls;
 		uint32 voxels;
 		uint32 batches;
 		float fps;

@@ -14,24 +14,34 @@ namespace VoxelEngine::components::camera
 	{
 
 	}
+
 	void FirstPersonCamera::processKeyboard(const CameraMovement& direction, const float& deltaTime)
 	{
 		const float velocity = _movementSpeed * deltaTime;
+		lerpT = std::clamp(lerpT + deltaTime, 0.0f, 1.0f);
+
+		if (lerpT > 1.0f)
+			lerpT = 1.0f;
+
+		glm::vec3 cameraDir;
+
 		switch (direction)
 		{
 		case CameraMovement::Forward: 
-			_position += _front * velocity; 
+			cameraDir = _front;
 			break;
 		case CameraMovement::Backward:
-			_position -= _front * velocity;
+			cameraDir = -_front;
 			break;
 		case CameraMovement::Left:
-			_position -= glm::normalize(glm::cross(_front, _up)) * velocity;
+			cameraDir = -glm::normalize(glm::cross(_front, _up));
 			break;
 		case CameraMovement::Right:
-			_position += glm::normalize(glm::cross(_front, _up)) * velocity;
+			cameraDir = glm::normalize(glm::cross(_front, _up));
 			break;
 		}
+
+		_position = glm::mix(_position, _position + cameraDir * velocity, lerpT);
 	}
 	void FirstPersonCamera::processMouse(const float& xOffset, const float& yOffset, const bool& constrainPitch)
 	{

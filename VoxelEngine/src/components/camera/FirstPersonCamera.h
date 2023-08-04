@@ -8,7 +8,7 @@ namespace VoxelEngine::components::camera
 {
 	constexpr static float defaultYaw = -90.0f;
 	constexpr static float defaultPitch = 0.0f;
-	constexpr static float defaultSpeed = 5.0f;
+	constexpr static float defaultSpeed = 10.0f;
 	constexpr static float defaultSensitivity = 0.15f;
 	constexpr static float defaultZoom = 45.0f;
 
@@ -26,6 +26,7 @@ namespace VoxelEngine::components::camera
 		float _movementSpeed;
 		float _mouseSensitivity;
 		float _zoom;
+		float lerpT = 0;
 	public:
 		FirstPersonCamera() noexcept = delete;
 		FirstPersonCamera(

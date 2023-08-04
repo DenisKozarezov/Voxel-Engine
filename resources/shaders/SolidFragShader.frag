@@ -1,12 +1,13 @@
 #version 450
 
-layout(location = 0) in vec3 fragPos;
-layout(location = 1) in vec3 fragNormal;
-layout(location = 2) in vec3 fragColor;
+layout(location = 0) in vec3 inPosition;
+layout(location = 1) in vec3 inNormal;
+layout(location = 2) in vec3 inColor;
+layout(location = 3) in vec3 lightPos;
+layout(location = 4) in vec3 viewPos;
 
 layout(location = 0) out vec4 outColor;
 
-const vec3 lightPos = vec3(2.0, 2.0, 2.0);
 const vec3 lightColor = vec3(1.0, 1.0, 1.0);
 const vec3 objectColor = vec3(1.0, 1.0, 1.0);
 
@@ -16,10 +17,9 @@ void main() {
     vec3 ambient = ambientStrength * lightColor;
 
     // diffuse
-    vec3 normal = normalize(fragNormal);
-    vec3 lightDir = normalize(lightPos - fragPos);
-    float diff = max(dot(normal, lightDir), 0.0);
-    vec3 diffuse = diff * lightColor;
+    vec3 normal = normalize(inNormal);
+    vec3 lightDir = normalize(lightPos - inPosition);
+    vec3 diffuse = max(dot(normal, lightDir), 0.0) * lightColor;
 
     // specular
     vec3 result = (ambient + diffuse) * objectColor;

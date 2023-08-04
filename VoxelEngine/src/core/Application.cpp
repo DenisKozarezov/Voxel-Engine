@@ -5,6 +5,7 @@
 namespace VoxelEngine
 {
 	Application* Application::_instance = 0;
+	renderer::ImGuiLayer* imguiLayer = nullptr;
 
 	Application::Application(const ApplicationSpecification& spec) : _specification(spec)
 	{
@@ -55,7 +56,8 @@ namespace VoxelEngine
 		try
 		{
 			VOXEL_CORE_WARN("Application initialization.")
-			pushOverlay(new renderer::ImGuiLayer());
+			imguiLayer = new renderer::ImGuiLayer();
+			pushOverlay(imguiLayer);
 			renderer::Renderer::init(*_window.get());
 		}
 		catch (const std::exception& e)
@@ -95,7 +97,11 @@ namespace VoxelEngine
 		if (!_minimized)
 		{
 			renderer::Renderer::beginFrame();
+			imguiLayer->beginFrame();
+
 			_layerStack.onImGuiRender();
+
+			imguiLayer->endFrame();
 			renderer::Renderer::endFrame();
 
 			_frameCounter++;

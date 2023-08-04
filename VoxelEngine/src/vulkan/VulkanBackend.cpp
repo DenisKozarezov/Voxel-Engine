@@ -62,6 +62,7 @@ namespace vulkan
 	const VoxelEngine::Scene* currentScene;
 	VoxelEngine::renderer::RenderSettings renderSettings;
 	VoxelEngine::renderer::RenderFrameStats renderFrameStats;
+	vkUtils::memory::Buffer instances;
 	static int MAX_FRAMES_IN_FLIGHT = 3;
 	static uint32 CURRENT_FRAME = 0;
 		
@@ -132,46 +133,157 @@ namespace vulkan
 		VkFormat depthFormat = state.swapChainBundle.depthFormat;
 		state.renderPass = vkInit::createRenderPass(state.logicalDevice, swapChainImageFormat, depthFormat, state.msaaSamples);
 
-		vkInit::GraphicsPipilineInputBundle solidInputBundle =
+		constexpr std::array<VkVertexInputBindingDescription, 2> bindingDescriptions =
 		{
-			.logicalDevice = state.logicalDevice,
-			.renderPass = state.renderPass,
-			.pipelineCache = state.pipelineCache,
-			.descriptorSetLayout = state.descriptorSetLayout,
-			.msaaSamples = state.msaaSamples,
-			.vertexFilepath = ASSET_PATH("shaders/SolidVertShader.spv"),
-			.fragmentFilepath = ASSET_PATH("shaders/SolidFragShader.spv")
-		};		
-		const auto& solidPipeline = vkPipelines::createSolidPipeline(solidInputBundle);
-		state.pipelines.solid = solidPipeline.pipeline;
-		state.pipelineLayout = solidPipeline.layout;
-		
-		vkInit::GraphicsPipilineInputBundle normalsInputBundle =
-		{
-			.logicalDevice = state.logicalDevice,
-			.renderPass = state.renderPass,
-			.pipelineCache = state.pipelineCache,
-			.descriptorSetLayout = state.descriptorSetLayout,
-			.vertexFilepath = ASSET_PATH("shaders/BaseVertShader.spv"),
-			.fragmentFilepath = ASSET_PATH("shaders/BaseFragShader.spv"),
-			.geometryFilepath = ASSET_PATH("shaders/NormalGeomShader.spv"),
-			.basePipilineHandle = solidPipeline.pipeline
+			vkInit::vertexInputBindingDescription(VERTEX_BUFFER_BIND_ID, sizeof(VoxelEngine::renderer::Vertex), VK_VERTEX_INPUT_RATE_VERTEX),
+			vkInit::vertexInputBindingDescription(INSTANCE_BUFFER_BIND_ID, sizeof(vkUtils::InstanceData), VK_VERTEX_INPUT_RATE_INSTANCE)
 		};
-		const auto& normalsPipeline = vkPipelines::createNormalsPipeline(normalsInputBundle);
-		state.pipelines.normals = normalsPipeline.pipeline;
-		
-		vkInit::GraphicsPipilineInputBundle wireframeInputBundle =
+		constexpr std::array<VkVertexInputAttributeDescription, 4> attributeDescriptions =
 		{
-			.logicalDevice = state.logicalDevice,
-			.renderPass = state.renderPass,
-			.pipelineCache = state.pipelineCache,
-			.descriptorSetLayout = state.descriptorSetLayout,
-			.vertexFilepath = ASSET_PATH("shaders/SolidVertShader.spv"),
-			.fragmentFilepath = ASSET_PATH("shaders/WireframeFragShader.spv"),
-			.basePipilineHandle = solidPipeline.pipeline
+			vkInit::vertexInputAttributeDescription(VERTEX_BUFFER_BIND_ID, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(VoxelEngine::renderer::Vertex, VoxelEngine::renderer::Vertex::pos)),
+			vkInit::vertexInputAttributeDescription(VERTEX_BUFFER_BIND_ID, 1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(VoxelEngine::renderer::Vertex, VoxelEngine::renderer::Vertex::normal)),
+			vkInit::vertexInputAttributeDescription(VERTEX_BUFFER_BIND_ID, 2, VK_FORMAT_R32G32B32_SFLOAT, offsetof(VoxelEngine::renderer::Vertex, VoxelEngine::renderer::Vertex::color)),
+			vkInit::vertexInputAttributeDescription(INSTANCE_BUFFER_BIND_ID, 3, VK_FORMAT_R32G32B32_SFLOAT, offsetof(vkUtils::InstanceData, vkUtils::InstanceData::pos))
 		};
-		const auto& wireframePipeline = vkPipelines::createWireframePipeline(wireframeInputBundle);
-		state.pipelines.wireframe = wireframePipeline.pipeline;
+
+		VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::pipelineVertexInputStateCreateInfo(
+			bindingDescriptions.data(),
+			static_cast<uint32>(bindingDescriptions.size()),
+			attributeDescriptions.data(),
+			static_cast<uint32>(attributeDescriptions.size()));
+
+		VkPipelineInputAssemblyStateCreateInfo inputAssembly = vkInit::pipelineInputAssemblyStateCreateInfo(
+			VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+			VK_FALSE);
+
+		VkPipelineViewportStateCreateInfo viewportState = vkInit::pipelineViewportStateCreateInfo(1, 1);
+
+		VkPipelineRasterizationStateCreateInfo rasterizer = vkInit::pipelineRasterizationStateCreateInfo(
+			VK_POLYGON_MODE_FILL,
+			VK_CULL_MODE_BACK_BIT,
+			VK_FRONT_FACE_COUNTER_CLOCKWISE);
+
+		VkPipelineMultisampleStateCreateInfo multisampling = vkInit::pipelineMultisampleStateCreateInfo(state.msaaSamples);
+
+		VkPipelineColorBlendAttachmentState colorBlendAttachment = vkInit::pipelineColorBlendAttachmentState(
+			VK_COLOR_COMPONENT_R_BIT |
+			VK_COLOR_COMPONENT_G_BIT |
+			VK_COLOR_COMPONENT_B_BIT |
+			VK_COLOR_COMPONENT_A_BIT,
+			VK_FALSE);
+		VkPipelineColorBlendStateCreateInfo colorBlending = vkInit::pipelineColorBlendStateCreateInfo(colorBlendAttachment);
+
+		VkPipelineDepthStencilStateCreateInfo depthStencil = vkInit::pipelineDepthStencilStateCreateInfo(
+			VK_TRUE,
+			VK_TRUE,
+			VK_COMPARE_OP_LESS_OR_EQUAL);
+
+		std::vector<VkDynamicState> dynamicStates =
+		{
+			VK_DYNAMIC_STATE_VIEWPORT,
+			VK_DYNAMIC_STATE_SCISSOR
+		};
+		VkPipelineDynamicStateCreateInfo dynamicStateCreateInfo = vkInit::pipelineDynamicStateCreateInfo(dynamicStates);
+
+		VkPipelineLayoutCreateInfo pipelineLayoutInfo = vkInit::pipelineLayoutCreateInfo(&state.descriptorSetLayout);
+
+		VkResult err = vkCreatePipelineLayout(state.logicalDevice, &pipelineLayoutInfo, nullptr, &state.pipelineLayout);
+		vkUtils::check_vk_result(err, "failed to create pipeline layout!");
+
+		VOXEL_CORE_TRACE("Vulkan pipeline layout created.")
+
+		VkGraphicsPipelineCreateInfo pipelineInfo = vkInit::pipelineCreateInfo();
+		pipelineInfo.flags = VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT;
+		pipelineInfo.pVertexInputState = &vertexInputInfo;
+		pipelineInfo.pInputAssemblyState = &inputAssembly;
+		pipelineInfo.pViewportState = &viewportState;
+		pipelineInfo.pRasterizationState = &rasterizer;
+		pipelineInfo.pMultisampleState = &multisampling;
+		pipelineInfo.pColorBlendState = &colorBlending;
+		pipelineInfo.pDepthStencilState = &depthStencil;
+		pipelineInfo.pDynamicState = &dynamicStateCreateInfo;
+		pipelineInfo.layout = state.pipelineLayout;
+		pipelineInfo.renderPass = state.renderPass;
+		pipelineInfo.subpass = 0;
+
+		// SOLID
+		std::array<VkPipelineShaderStageCreateInfo, 3> shaderStages;
+		{
+			vkUtils::VulkanShader vertexShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/InstancedSolidVert.spv"), VK_SHADER_STAGE_VERTEX_BIT);
+			vkUtils::VulkanShader fragShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/SolidFragShader.spv"), VK_SHADER_STAGE_FRAGMENT_BIT);
+			shaderStages[0] = vertexShader.getStage();
+			shaderStages[1] = fragShader.getStage();
+			pipelineInfo.pStages = shaderStages.data();		
+			pipelineInfo.stageCount = 2;
+
+			err = vkCreateGraphicsPipelines(state.logicalDevice, state.pipelineCache, 1, &pipelineInfo, nullptr, &state.pipelines.solid);
+			vkUtils::check_vk_result(err, "failed to create graphics pipeline!");
+
+			VOXEL_CORE_TRACE("Vulkan solid graphics pipeline created.")
+		}
+
+		// NORMALS
+		{
+			vkUtils::VulkanShader vertexShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/InstancedBaseVert.spv"), VK_SHADER_STAGE_VERTEX_BIT);
+			vkUtils::VulkanShader fragShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/BaseFragShader.spv"), VK_SHADER_STAGE_FRAGMENT_BIT);
+			vkUtils::VulkanShader geomShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/editor/NormalGeomShader.spv"), VK_SHADER_STAGE_GEOMETRY_BIT);
+			shaderStages[0] = vertexShader.getStage();
+			shaderStages[1] = fragShader.getStage();
+			shaderStages[2] = geomShader.getStage();
+
+			pipelineInfo.flags = VK_PIPELINE_CREATE_DERIVATIVE_BIT;
+			pipelineInfo.stageCount = 3;
+			rasterizer.polygonMode = VK_POLYGON_MODE_LINE;
+			inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+			pipelineInfo.basePipelineHandle = state.pipelines.solid;
+			err = vkCreateGraphicsPipelines(state.logicalDevice, state.pipelineCache, 1, &pipelineInfo, nullptr, &state.pipelines.normals);
+			vkUtils::check_vk_result(err, "failed to create graphics pipeline!");
+
+			VOXEL_CORE_TRACE("Vulkan normals graphics pipeline created.")
+		}
+
+		// WIREFRAME
+		{
+			vkUtils::VulkanShader vertexShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/InstancedSolidVert.spv"), VK_SHADER_STAGE_VERTEX_BIT);
+			vkUtils::VulkanShader fragShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/editor/WireframeFragShader.spv"), VK_SHADER_STAGE_FRAGMENT_BIT);
+			shaderStages[0] = vertexShader.getStage();
+			shaderStages[1] = fragShader.getStage();
+
+			pipelineInfo.stageCount = 2;
+			pipelineInfo.flags = VK_PIPELINE_CREATE_DERIVATIVE_BIT;
+			pipelineInfo.basePipelineHandle = state.pipelines.solid;
+			rasterizer.polygonMode = VK_POLYGON_MODE_LINE;
+			inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+			err = vkCreateGraphicsPipelines(state.logicalDevice, state.pipelineCache, 1, &pipelineInfo, nullptr, &state.pipelines.wireframe);
+			vkUtils::check_vk_result(err, "failed to create graphics pipeline!");
+
+			VOXEL_CORE_TRACE("Vulkan wireframe graphics pipeline created.")
+		}
+
+		// EDITOR GRID
+		vkUtils::VulkanShader vertexShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/editor/EditorGridVert.spv"), VK_SHADER_STAGE_VERTEX_BIT);
+		vkUtils::VulkanShader fragShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/editor/EditorGridFrag.spv"), VK_SHADER_STAGE_FRAGMENT_BIT);
+		shaderStages[0] = vertexShader.getStage();
+		shaderStages[1] = fragShader.getStage();
+
+		pipelineInfo.stageCount = 2;
+		pipelineInfo.flags = VK_PIPELINE_CREATE_DERIVATIVE_BIT;
+		pipelineInfo.basePipelineHandle = state.pipelines.wireframe;
+		rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+		rasterizer.cullMode = VK_CULL_MODE_FRONT_BIT;
+		inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+		colorBlendAttachment.blendEnable = VK_TRUE;
+		colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+		colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+		colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+		colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+		colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+		colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
+
+		err = vkCreateGraphicsPipelines(state.logicalDevice, state.pipelineCache, 1, &pipelineInfo, nullptr, &state.pipelines.editorGrid);
+		vkUtils::check_vk_result(err, "failed to create graphics pipeline!");
+
+		VOXEL_CORE_TRACE("Vulkan editor grid graphics pipeline created.")
 	}
 	void makeFrameResources(const VkDevice& logicalDevice)
 	{
@@ -182,7 +294,7 @@ namespace vulkan
 			frame.renderFinishedSemaphore = vkInit::createSemaphore(logicalDevice);
 			frame.inFlightFence = vkInit::createFence(logicalDevice);
 			frame.descriptorSet = vkInit::allocateDescriptorSet(logicalDevice, state.descriptorPool, state.descriptorSetLayout);
-
+			
 			frame.makeDescriptorResources(state.deviceLimits);
 			
 			VOXEL_CORE_TRACE("Vulkan frame resources created for frame {0}.", i)
@@ -222,6 +334,8 @@ namespace vulkan
 		state.descriptorPool = vkInit::createDescriptorPool(state.logicalDevice);
 
 		makeFrameResources(state.logicalDevice);
+
+		prepareInstanceData(currentScene->vertices);
 	}
 	
 	void recreateSwapChain(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice, const VkSurfaceKHR& surface, GLFWwindow* window)
@@ -282,14 +396,19 @@ namespace vulkan
 		}
 
 		uint32 startInstance = 0;
-		renderSceneObjects(commandBuffer, MeshType::Cube, startInstance, INSTANCES_COUNT);
-
+		uint32 instancesCount = static_cast<uint32>(currentScene->vertices.size());
+		renderSceneObjects(commandBuffer, MeshType::Cube, startInstance, instancesCount);
+		
 		if (renderSettings.showNormals)
 		{
 			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.normals);
 			startInstance = 0;
-			renderSceneObjects(commandBuffer, MeshType::Cube, startInstance, INSTANCES_COUNT);
+			renderSceneObjects(commandBuffer, MeshType::Cube, startInstance, instancesCount);
 		}
+
+		startInstance = 0;	
+		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.editorGrid);
+		renderSceneObjects(commandBuffer, MeshType::Square, startInstance, 1);
 
 		ImDrawData* main_draw_data = ImGui::GetDrawData();
 		ImGui_ImplVulkan_RenderDrawData(main_draw_data, commandBuffer);
@@ -319,7 +438,7 @@ namespace vulkan
 	}
 	void cleanupSwapChain()
 	{
-		state.swapChainBundle.release(state.logicalDevice);		
+		state.swapChainBundle.release(state.logicalDevice);	
 	}
 	void presentFrame(const uint32& imageIndex, VkSemaphore* signalSemaphores)
 	{
@@ -352,16 +471,19 @@ namespace vulkan
 		{
 			.view = FPVcamera->viewMatrix(),
 			.proj = FPVcamera->projectionMatrix(aspectRatio),
-			.viewproj = ubo.proj * ubo.view
+			.viewproj = ubo.proj * ubo.view,
+			.lightPos = FPVcamera->getPosition()
 		};
 		memcpy(frame.uniformBuffers.view.mappedMemory, &ubo, sizeof(ubo));
 
 		frame.writeDescriptorSet();
+
+		resetFrameStats();
 	}
 	void prepareScene(const VkCommandBuffer& commandBuffer)
 	{
 		VkBuffer vertexBuffer = *state.vertexManager->vertexBuffer;
-		VkBuffer instanceBuffer = state.swapChainBundle.frames[CURRENT_FRAME].uniformBuffers.instances.buffer;
+		VkBuffer instanceBuffer = instances.buffer;
 		VkDeviceSize offsets[] = { 0 };
 		vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, &vertexBuffer, offsets);
 		vkCmdBindVertexBuffers(commandBuffer, INSTANCE_BUFFER_BIND_ID, 1, &instanceBuffer, offsets);
@@ -388,18 +510,12 @@ namespace vulkan
 
 		vkInit::resetFences(state.logicalDevice, 1, frame.inFlightFence);
 		vkUtils::memory::CommandBuffer::reset(frame.commandBuffer);
-
-		ImGui_ImplVulkan_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();	
 	}
 	void endFrame()
 	{
 		vkUtils::SwapChainFrame& frame = state.swapChainBundle.frames[CURRENT_FRAME];
 
 		// Stage 2. GRAPHICS
-		ImGui::Render();
-
 		prepareFrame(CURRENT_FRAME);
 
 		recordCommandBuffer(frame.commandBuffer, CURRENT_FRAME);
@@ -408,13 +524,6 @@ namespace vulkan
 		submitToQueue(state.queues.graphicsQueue, frame.commandBuffer, signalSemaphores);
 
 		// Stage 3. PRESENT
-		ImGuiIO& io = ImGui::GetIO();
-		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-		{
-			ImGui::UpdatePlatformWindows();
-			ImGui::RenderPlatformWindowsDefault();
-		}
-
 		presentFrame(CURRENT_FRAME, signalSemaphores);
 
 		CURRENT_FRAME = (CURRENT_FRAME + 1) % MAX_FRAMES_IN_FLIGHT;
@@ -505,6 +614,7 @@ namespace vulkan
 		delete threadPool;
 
 		cleanupSwapChain();
+		instances.release(state.logicalDevice);
 
 		delete state.vertexManager;
 		
@@ -535,21 +645,59 @@ namespace vulkan
 	{
 		return renderFrameStats;
 	}
+	void resetFrameStats()
+	{
+		renderFrameStats.drawCalls = 0;
+	}
+	
+	void prepareInstanceData(const std::vector<glm::vec3>& vertices)
+	{
+		std::vector<vkUtils::InstanceData> instanceData;
+		instanceData.reserve(vertices.size());
+		for (const auto& vertex : vertices)
+		{
+			instanceData.push_back(vkUtils::InstanceData
+			{
+				.pos = vertex
+			});
+		}
 
+		VkDeviceSize instanceBufferSize = sizeof(vkUtils::InstanceData) * instanceData.size();
+		instances = vkUtils::memory::createBuffer(
+			state.physicalDevice,
+			state.logicalDevice,
+			instanceBufferSize,
+			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+
+		vkUtils::memory::mapMemory(
+			state.logicalDevice, 
+			instances.bufferMemory, 
+			0, 
+			instanceBufferSize, 
+			0, 
+			instanceData.data());
+	}
 	void makeAssets()
 	{
 		state.vertexManager = new VoxelEngine::renderer::VertexManager;
 
 		const auto& mesh = VoxelMesh();
 		state.vertexManager->concatMesh(MeshType::Cube, mesh.vertices, mesh.indices);
+
+		const auto& quad = SquareMesh();
+		state.vertexManager->concatMesh(MeshType::Square, quad.vertices, quad.indices);
+
 		state.vertexManager->finalize(state.physicalDevice, state.logicalDevice);
 
 		renderFrameStats.pipelineStatNames = vkUtils::pipelineStatNames.data();
 		renderFrameStats.pipelineStats = vkUtils::pipelineStats.data();
-		renderFrameStats.indices = static_cast<uint32>(mesh.indices.size()) * INSTANCES_COUNT;
-		renderFrameStats.vertices = static_cast<uint32>(mesh.vertices.size()) * INSTANCES_COUNT;
-		renderFrameStats.triangles = INSTANCES_COUNT * 12;
-		renderFrameStats.instances = INSTANCES_COUNT;
+
+		uint32 instancesCount = static_cast<uint32>(currentScene->vertices.size());
+
+		renderFrameStats.indices = instancesCount * static_cast<uint32>(mesh.indices.size());
+		renderFrameStats.vertices = instancesCount * static_cast<uint32>(mesh.vertices.size());
+		renderFrameStats.triangles = instancesCount * 12;
+		renderFrameStats.instances = instancesCount;
 	}
 	void renderSceneObjects(
 		const VkCommandBuffer& commandBuffer,
@@ -563,6 +711,7 @@ namespace vulkan
 		vkCmdDrawIndexed(commandBuffer, indexCount, instanceCount, firstIndex, 0, startInstance);
 	
 		startInstance += instanceCount;
+		renderFrameStats.drawCalls++;
 	}
 
 	const VkDevice& getLogicalDevice()

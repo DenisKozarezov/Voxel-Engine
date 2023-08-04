@@ -14,6 +14,7 @@ namespace VoxelEngine::renderer
 		const string* pipelineStatNames;
 		uint64* pipelineStats;
 
+		uint32 drawCalls;
 		uint64 triangles;
 		uint64 vertices;
 		uint32 indices;

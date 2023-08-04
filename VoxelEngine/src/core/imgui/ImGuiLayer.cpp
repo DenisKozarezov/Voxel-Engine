@@ -1,6 +1,6 @@
 #include "ImGuiLayer.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_vulkan.h"
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_vulkan.h>
 
 namespace VoxelEngine::renderer
 {
@@ -38,6 +38,23 @@ namespace VoxelEngine::renderer
 			ImGuiIO& io = ImGui::GetIO();
 			e.Handled |= e.isInCategory(input::EventCategoryMouse) & io.WantCaptureMouse;
 			e.Handled |= e.isInCategory(input::EventCategoryKeyboard) & io.WantCaptureKeyboard;
+		}
+	}
+	void ImGuiLayer::beginFrame()
+	{
+		ImGui_ImplVulkan_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+	}
+	void ImGuiLayer::endFrame()
+	{
+		ImGui::Render();
+
+		ImGuiIO& io = ImGui::GetIO();
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault();
 		}
 	}
 	void ImGuiLayer::setStyle(const ColorStyle& style) const

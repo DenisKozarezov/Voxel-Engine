@@ -1,7 +1,6 @@
 #include "VulkanSwapChainFrame.h"
 #include <array>
 #include "../vkInit/VulkanInitializers.h"
-#include <glm/ext/matrix_transform.hpp>
 
 namespace vkUtils
 {
@@ -13,30 +12,6 @@ namespace vkUtils
 			logicalDevice,
 			size,
 			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
-
-		std::vector<InstanceData> instanceData;
-		instanceData.reserve(INSTANCES_COUNT);
-		double cbrt = std::cbrt(INSTANCES_COUNT);
-		for (int x = 0; x < cbrt; x++)
-		{
-			for (int y = 0; y < cbrt; y++)
-			{
-				for (int z = 0; z < cbrt; z++)
-				instanceData.push_back(InstanceData
-				{
-					.pos = glm::vec3(x, y, z)
-				});
-			}
-		}
-
-		VkDeviceSize instanceBufferSize = sizeof(InstanceData) * instanceData.size();
-		uniformBuffers.instances = memory::createBuffer(
-			physicalDevice, 
-			logicalDevice, 
-			instanceBufferSize,
-			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
-
-		memory::mapMemory(logicalDevice, uniformBuffers.instances.bufferMemory, 0, instanceBufferSize, 0, instanceData.data());
 
 		uniformBuffers.view.map(logicalDevice);
 	}
@@ -62,6 +37,5 @@ namespace vkUtils
 		vkDestroySemaphore(logicalDevice, renderFinishedSemaphore, nullptr);
 
 		uniformBuffers.view.release(logicalDevice);
-		uniformBuffers.instances.release(logicalDevice);
 	}
 }

@@ -5,7 +5,6 @@
 
 #define VERTEX_BUFFER_BIND_ID 0
 #define INSTANCE_BUFFER_BIND_ID 1
-#define INSTANCES_COUNT 100 * 100 * 100
 
 namespace vkUtils
 {
@@ -14,12 +13,12 @@ namespace vkUtils
 		alignas(16) glm::mat4 view;
 		alignas(16) glm::mat4 proj;
 		alignas(16) glm::mat4 viewproj;
+		glm::vec3 lightPos;
 	};
 
 	typedef struct
 	{
 		vkUtils::memory::Buffer view;
-		vkUtils::memory::Buffer instances;
 	} UniformBuffers;
 
 	struct InstanceData

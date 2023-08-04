@@ -166,7 +166,7 @@ namespace VoxelEditor
 			if (ImGui::CollapsingHeader("Statistics", ImGuiTreeNodeFlags_DefaultOpen))
 			{
 				ImGui::BeginColumns("##statistics", 2);
-				ImGui::Text("Draw Calls: %d", stats.drawCalls);
+				ImGui::Text("Draw Calls: %d", stats.frameStats.drawCalls);
 				ImGui::Text("Triangles: %d", stats.frameStats.triangles);
 				ImGui::Text("Vertices: %d", stats.frameStats.vertices);
 				ImGui::Text("Indices: %d", stats.frameStats.indices);
@@ -218,7 +218,8 @@ namespace VoxelEditor
 	}				  
 	void EditorLayer::onDetach()
 	{				
-  
+		delete _scene;
+		_mouseState = input::MouseDraggingState::None;
 	}				  
 	void EditorLayer::onUpdate(const VoxelEngine::Timestep& ts)
 	{

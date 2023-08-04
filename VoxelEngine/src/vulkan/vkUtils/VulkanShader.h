@@ -15,10 +15,12 @@ namespace vkUtils
 	public:
 		VulkanShader(const VkDevice& logicalDevice, const string& filepath, const VkShaderStageFlagBits& shaderType);
 
-		inline const VkShaderModule& getShaderModule() & { return _shaderModule; }
-		inline const VkPipelineShaderStageCreateInfo& getStage() & { return _shaderInfo; }
+		inline VkShaderModule& getShaderModule() & noexcept { return _shaderModule; }
+		inline constexpr VkPipelineShaderStageCreateInfo& getStage() & noexcept { return _shaderInfo; }
 
 		void unbind() const override;
+
+		~VulkanShader();
 	};
 }
 

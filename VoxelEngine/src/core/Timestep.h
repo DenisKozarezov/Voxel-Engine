@@ -7,12 +7,12 @@ namespace VoxelEngine
 	private:
 		float _time;
 	public:
-		Timestep(const float& time) : _time(time) { }
-		~Timestep() = default;
+		Timestep(const float& time) noexcept : _time(time) { }
+		~Timestep() noexcept = default;
 
-		operator float() const & { return _time; }
+		constexpr operator float() const & { return _time; }
 
-		inline const float& getSeconds() const & { return _time; }
-		inline const float& getMilliseconds() const { return _time * 1000.0f; }
+		inline constexpr float getSeconds() { return _time * 0.001f; }
+		inline constexpr float& getMilliseconds() & { return _time; }
 	};
 }

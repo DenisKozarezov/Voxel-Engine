@@ -19,6 +19,8 @@ namespace VoxelEngine::renderer
 
 		ImGuiLayer() : Layer("ImGUILayer") { }
 
+		void beginFrame();
+		void endFrame();
 		void setStyle(const ColorStyle& style) const;
 
 		~ImGuiLayer() = default;

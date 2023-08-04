@@ -510,18 +510,12 @@ namespace vulkan
 
 		vkInit::resetFences(state.logicalDevice, 1, frame.inFlightFence);
 		vkUtils::memory::CommandBuffer::reset(frame.commandBuffer);
-
-		ImGui_ImplVulkan_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();	
 	}
 	void endFrame()
 	{
 		vkUtils::SwapChainFrame& frame = state.swapChainBundle.frames[CURRENT_FRAME];
 
 		// Stage 2. GRAPHICS
-		ImGui::Render();
-
 		prepareFrame(CURRENT_FRAME);
 
 		recordCommandBuffer(frame.commandBuffer, CURRENT_FRAME);
@@ -530,13 +524,6 @@ namespace vulkan
 		submitToQueue(state.queues.graphicsQueue, frame.commandBuffer, signalSemaphores);
 
 		// Stage 3. PRESENT
-		ImGuiIO& io = ImGui::GetIO();
-		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-		{
-			ImGui::UpdatePlatformWindows();
-			ImGui::RenderPlatformWindowsDefault();
-		}
-
 		presentFrame(CURRENT_FRAME, signalSemaphores);
 
 		CURRENT_FRAME = (CURRENT_FRAME + 1) % MAX_FRAMES_IN_FLIGHT;

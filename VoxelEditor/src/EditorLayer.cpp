@@ -1,15 +1,14 @@
 #include "EditorLayer.h"
-#include <imgui.h>
 #include <imgui_internal.h>
 
 namespace VoxelEditor
 {
-	static bool show_demo_window = true;
+	static bool show_demo_window = false;
 	static bool show_performance;
 
 	EditorLayer::EditorLayer() : Layer("EditorLayer")
 	{
-		_mouseState = input::MouseDraggingState::None;
+		
 	}
 
 	bool EditorLayer::onKeyboardPressed(const input::KeyPressedEvent& e)
@@ -17,72 +16,19 @@ namespace VoxelEditor
 		switch (e.getKeyCode())
 		{
 		case input::W:
-			moveCamera(components::camera::CameraMovement::Forward);
+			_sceneView.moveCamera(components::camera::CameraMovement::Forward, _fixedDeltaTime);
 			break;
 		case input::S:
-			moveCamera(components::camera::CameraMovement::Backward);
+			_sceneView.moveCamera(components::camera::CameraMovement::Backward, _fixedDeltaTime);
 			break;
 		case input::A:
-			moveCamera(components::camera::CameraMovement::Left);
+			_sceneView.moveCamera(components::camera::CameraMovement::Left, _fixedDeltaTime);
 			break;
 		case VoxelEngine::input::D:
-			moveCamera(components::camera::CameraMovement::Right);
+			_sceneView.moveCamera(components::camera::CameraMovement::Right, _fixedDeltaTime);
 			break;
 		}
 		return true;
-	}
-	bool EditorLayer::onMousePressed(const input::MouseButtonPressedEvent& e)
-	{
-		switch (e.getKeyCode())
-		{
-		case input::ButtonRight:
-			setMouseDragging(true);
-			break;
-		}
-		return true;
-	}
-	bool EditorLayer::onMouseReleased(const input::MouseButtonReleasedEvent& e)
-	{
-		switch (e.getKeyCode())
-		{
-		case input::ButtonRight:
-			setMouseDragging(false);
-			break;
-		}
-		return true;
-	}
-	bool EditorLayer::onMouseMoved(const input::MouseMovedEvent& e)
-	{
-		const float x = e.getX();
-		const float y = e.getY();
-
-		if (_mouseState == input::MouseDraggingState::DragBegin)
-		{
-			_lastMouseX = x;
-			_lastMouseY = y;
-			_mouseState = input::MouseDraggingState::Dragging;
-		}
-
-		if (_mouseState == input::MouseDraggingState::Dragging)
-		{
-			mouseMove(x - _lastMouseX, _lastMouseY - y);
-			_lastMouseX = x;
-			_lastMouseY = y;
-		}
-		return true;
-	}
-
-	void EditorLayer::setMouseDragging(const bool& isDragging)
-	{
-		_mouseState = isDragging ? input::MouseDraggingState::DragBegin : input::MouseDraggingState::None;
-	}
-	void EditorLayer::moveCamera(const components::camera::CameraMovement& direction)
-	{		
-		_camera.processKeyboard(direction, _fixedDeltaTime);
-	}
-	void EditorLayer::mouseMove(const float& x, const float& y)
-	{
-		_camera.processMouse(x, y);
 	}
 
 	void EditorLayer::drawMenuBar()
@@ -142,26 +88,12 @@ namespace VoxelEditor
 			ImGui::EndMenuBar();
 		}
 	}
-	void EditorLayer::drawRenderModes()
-	{
-		static int e;
-		auto& settings = VoxelEngine::renderer::Renderer::getRenderSettings();
-
-		ImGui::BeginChild("##render_modes", { 200, 100 });
-		ImGui::RadioButton("Solid", &e, 0);
-		ImGui::RadioButton("Wireframe", &e, 1);
-		ImGui::Separator();
-		ImGui::Checkbox("Show Normals", &settings.showNormals);
-		ImGui::EndChild();
-
-		settings.renderMode = static_cast<VoxelEngine::renderer::RenderMode>(e);
-	}
 	void EditorLayer::drawRenderPerformance()
 	{
 		ImGuiWindowFlags flags = ImGuiWindowFlags_::ImGuiWindowFlags_NoCollapse;
 		if (show_performance && ImGui::Begin("Performance", &show_performance, flags))
 		{
-			auto stats = VoxelEngine::renderer::Renderer::getStats();
+			auto stats = renderer::Renderer::getStats();
 
 			if (ImGui::CollapsingHeader("Statistics", ImGuiTreeNodeFlags_DefaultOpen))
 			{
@@ -206,20 +138,16 @@ namespace VoxelEditor
 	void EditorLayer::onAttach()
 	{				  
 		_dispatcher.registerEvent<input::KeyPressedEvent>(BIND_CALLBACK(EditorLayer::onKeyboardPressed));
-		_dispatcher.registerEvent<input::MouseButtonPressedEvent>(BIND_CALLBACK(EditorLayer::onMousePressed));
-		_dispatcher.registerEvent<input::MouseButtonReleasedEvent>(BIND_CALLBACK(EditorLayer::onMouseReleased));
-		_dispatcher.registerEvent<input::MouseMovedEvent>(BIND_CALLBACK(EditorLayer::onMouseMoved));
+		_dispatcher.registerEvent<input::MouseButtonPressedEvent>(BIND_MEMBER_CALLBACK(&_sceneView, SceneView::onMousePressed));
+		_dispatcher.registerEvent<input::MouseButtonReleasedEvent>(BIND_MEMBER_CALLBACK(&_sceneView, SceneView::onMouseReleased));
+		_dispatcher.registerEvent<input::MouseMovedEvent>(BIND_MEMBER_CALLBACK(&_sceneView, SceneView::onMouseMoved));
 	
-		renderer::Renderer::setCamera(&_camera);
-
-		_scene = new Scene();
-
-		renderer::Renderer::setScene(_scene);
+		renderer::Renderer::setCamera(*_sceneView._camera.get());
+		renderer::Renderer::submitRenderables(_scene.vertices);
 	}				  
 	void EditorLayer::onDetach()
 	{				
-		delete _scene;
-		_mouseState = input::MouseDraggingState::None;
+
 	}				  
 	void EditorLayer::onUpdate(const VoxelEngine::Timestep& ts)
 	{
@@ -231,36 +159,63 @@ namespace VoxelEditor
 	}
 	void EditorLayer::onImGuiRender()
 	{
+		static bool dockspaceOpen = true;
+		static bool opt_fullscreen_persistant = true;
 		static bool opt_fullscreen = true;
 
 		// Full-size
-		ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_MenuBar;
+		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
+		ImGuiWindowFlags flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
 		if (opt_fullscreen)
 		{
-			flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-			flags |= ImGuiWindowFlags_NoBackground;
-			const ImGuiViewport* viewport = ImGui::GetMainViewport();
-			ImGui::SetNextWindowPos(viewport->WorkPos);
-			ImGui::SetNextWindowSize(viewport->WorkSize);
+			ImGuiViewport* viewport = ImGui::GetMainViewport();
+			ImGui::SetNextWindowPos(viewport->Pos);
+			ImGui::SetNextWindowSize(viewport->Size);
 			ImGui::SetNextWindowViewport(viewport->ID);
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+			flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+			flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+		}
+
+		// When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background and handle the pass-thru hole, so we ask Begin() to not render a background.
+		if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
+			flags |= ImGuiWindowFlags_NoBackground;
+
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+		ImGui::Begin("DockSpace Demo", &dockspaceOpen, flags);
+		ImGui::PopStyleVar();
+
+		if (opt_fullscreen)
 			ImGui::PopStyleVar(2);
-		}
 
-		if (ImGui::Begin("##root", 0, flags))
+		ImGuiIO& io = ImGui::GetIO();
+		ImGuiStyle& style = ImGui::GetStyle();
+		float minWinSizeX = style.WindowMinSize.x;
+		style.WindowMinSize.x = 100.0f;
+		if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
 		{
-			drawRenderPerformance();
-			drawMenuBar();
-			drawRenderModes();
-
-			ImGui::End();
+			ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 		}
+		style.WindowMinSize.x = minWinSizeX;
+
+		drawMenuBar();
+		_sceneView.render();
+		drawRenderPerformance();
+
+		ImGui::Begin("Palette");
+		ImGui::End();
+
+		ImGui::Begin("Scene Hierarchy");
+		ImGui::End();
+
+		ImGui::End();
 
 		if (show_demo_window)
 			ImGui::ShowDemoWindow(&show_demo_window);
 	}				  
-	void EditorLayer::onEvent(VoxelEngine::input::Event& e)
+	void EditorLayer::onEvent(input::Event& e)
 	{
 		_dispatcher.dispatchEvent(e, std::launch::async);
 	}

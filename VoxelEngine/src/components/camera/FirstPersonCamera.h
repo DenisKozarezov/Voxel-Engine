@@ -37,9 +37,9 @@ namespace VoxelEngine::components::camera
 		~FirstPersonCamera() noexcept = default;
 
 		inline const glm::mat4 viewMatrix() const override { return glm::lookAt(_position, _position + _front, _up); }
-		inline const glm::mat4 projectionMatrix(const float& aspectRatio) const override 
+		inline const glm::mat4 projectionMatrix() const override 
 		{ 
-			glm::mat4 projection = glm::perspective(glm::radians(FOV), aspectRatio, nearClip, farClip);
+			glm::mat4 projection = glm::perspective(glm::radians(FOV), _aspectRatio, nearClip, farClip);
 			projection[1][1] *= -1;
 			return projection;
 		};

@@ -67,7 +67,7 @@ namespace vkUtils
 
 		VkImage image;
 		VkResult err = vkCreateImage(logicalDevice, &imageInfo, nullptr, &image);
-		vkUtils::check_vk_result(err, "failed to create image!");
+		check_vk_result(err, "failed to create image!");
 
 		VkMemoryRequirements memRequirements;
 		vkGetImageMemoryRequirements(logicalDevice, image, &memRequirements);
@@ -97,7 +97,7 @@ namespace vkUtils
 
 		VkImageView imageView;
 		VkResult err = vkCreateImageView(logicalDevice, &viewInfo, nullptr, &imageView);
-		vkUtils::check_vk_result(err, "failed to create image view!");
+		check_vk_result(err, "failed to create image view!");
 		return imageView;
 	}
 	const VkImageView createImageView(
@@ -121,7 +121,7 @@ namespace vkUtils
 
 		VkImageView imageView;
 		VkResult err = vkCreateImageView(logicalDevice, &viewInfo, nullptr, &imageView);
-		vkUtils::check_vk_result(err, "failed to create image view!");
+		check_vk_result(err, "failed to create image view!");
 		return imageView;
 	}
 	const VkSampler createTextureSampler(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice)
@@ -148,7 +148,7 @@ namespace vkUtils
 
 		VkSampler sampler;
 		VkResult err = vkCreateSampler(logicalDevice, &samplerInfo, nullptr, &sampler);
-		vkUtils::check_vk_result(err, "failed to create texture sampler!");
+		check_vk_result(err, "failed to create texture sampler!");
 		return sampler;
 	}
 }

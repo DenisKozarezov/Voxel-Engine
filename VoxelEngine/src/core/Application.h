@@ -1,9 +1,9 @@
 #pragma once
 #include "input/events/ApplicationEvent.h"
 #include "input/events/EventDispatcher.h"
-#include "Window.h"
 #include "Assert.h"
 #include "LayerStack.h"
+#include "renderer/Renderer.h"
 
 struct ApplicationCommandLineArgs
 {
@@ -60,11 +60,17 @@ namespace VoxelEngine
 
 		void setupInputCallbacks();
 		void nextFrame();
+		inline void preRender();
+		inline void render();
+		inline void postRender();
+		void calculateFramerate(const std::chrono::steady_clock::time_point& tEnd);
 
 		void onEvent(input::Event& e);
 		bool onWindowClose(const input::WindowCloseEvent& e);
 		bool onWindowResize(const input::WindowResizeEvent& e);
 	protected:
+		renderer::Renderer _renderer;
+
 		Application(const ApplicationSpecification& spec);
 		void pushLayer(renderer::Layer* layer);
 		void pushOverlay(renderer::Layer* layer);

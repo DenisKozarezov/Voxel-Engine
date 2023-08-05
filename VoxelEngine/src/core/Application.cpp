@@ -1,5 +1,4 @@
 #include "Application.h"
-#include "renderer/Renderer.h"
 #include "imgui/ImGuiLayer.h"
 
 namespace VoxelEngine
@@ -58,7 +57,7 @@ namespace VoxelEngine
 			VOXEL_CORE_WARN("Application initialization.")
 			imguiLayer = new renderer::ImGuiLayer();
 			pushOverlay(imguiLayer);
-			renderer::Renderer::init(*_window.get());
+			_renderer.init(*_window.get());
 		}
 		catch (const std::exception& e)
 		{
@@ -77,12 +76,12 @@ namespace VoxelEngine
 			nextFrame();
 			_window->onUpdate();
 		}
-		renderer::Renderer::deviceWaitIdle();
+		_renderer.deviceWaitIdle();
 	}
 	void Application::shutdown()
 	{
 		_layerStack.detach();
-		renderer::Renderer::cleanup();
+		_renderer.cleanup();
 	}
 
 	void Application::setupInputCallbacks()
@@ -96,13 +95,11 @@ namespace VoxelEngine
 
 		if (!_minimized)
 		{
-			renderer::Renderer::beginFrame();
-			imguiLayer->beginFrame();
+			preRender();
 
-			_layerStack.onImGuiRender();
+			render();
 
-			imguiLayer->endFrame();
-			renderer::Renderer::endFrame();
+			postRender();
 
 			_frameCounter++;
 
@@ -112,22 +109,41 @@ namespace VoxelEngine
 			
 			_layerStack.onUpdate(_frameTimer);
 
-			_accumulator += _frameTimer;
-			while (_accumulator >= fixedDeltaTime)
-			{
-				_layerStack.onFixedUpdate(fixedDeltaTime);
-				_accumulator -= fixedDeltaTime;
-			}
-
-			float fpsTimer = (float)(std::chrono::duration<double, std::milli>(tEnd - lastTimestamp).count());
-			if (fpsTimer > 1000.0f)
-			{
-				_lastFPS = static_cast<uint32>((float)_frameCounter * (1000.0f / fpsTimer));
-				_frameCounter = 0;
-				lastTimestamp = tEnd;
-			}
-			tPrevEnd = tEnd;
+			calculateFramerate(tEnd);
 		}
+	}
+	inline void Application::preRender()
+	{
+		_renderer.preRender();
+		imguiLayer->preRender();
+	}
+	inline void Application::render()
+	{
+		_layerStack.onImGuiRender();
+		_renderer.render();
+	}
+	inline void Application::postRender()
+	{
+		imguiLayer->postRender();
+		_renderer.postRender();
+	}
+	void Application::calculateFramerate(const std::chrono::steady_clock::time_point& tEnd)
+	{
+		_accumulator += _frameTimer;
+		while (_accumulator >= fixedDeltaTime)
+		{
+			_layerStack.onFixedUpdate(fixedDeltaTime);
+			_accumulator -= fixedDeltaTime;
+		}
+
+		float fpsTimer = (float)(std::chrono::duration<double, std::milli>(tEnd - lastTimestamp).count());
+		if (fpsTimer > 1000.0f)
+		{
+			_lastFPS = static_cast<uint32>((float)_frameCounter * (1000.0f / fpsTimer));
+			_frameCounter = 0;
+			lastTimestamp = tEnd;
+		}
+		tPrevEnd = tEnd;
 	}
 	void Application::onEvent(input::Event& e)
 	{

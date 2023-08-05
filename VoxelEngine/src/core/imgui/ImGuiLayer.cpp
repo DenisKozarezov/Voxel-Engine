@@ -40,13 +40,13 @@ namespace VoxelEngine::renderer
 			e.Handled |= e.isInCategory(input::EventCategoryKeyboard) & io.WantCaptureKeyboard;
 		}
 	}
-	void ImGuiLayer::beginFrame()
+	void ImGuiLayer::preRender()
 	{
 		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 	}
-	void ImGuiLayer::endFrame()
+	void ImGuiLayer::postRender()
 	{
 		ImGui::Render();
 

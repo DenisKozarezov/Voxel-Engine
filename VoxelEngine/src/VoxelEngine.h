@@ -7,5 +7,6 @@
 #include "core/input/events/MouseEvent.h"
 #include "core/renderer/Renderer.h"
 #include "core/imgui/ImGuiUtils.h"
+#include "core/Scene.h"
 
 #include "components/camera/FirstPersonCamera.h"

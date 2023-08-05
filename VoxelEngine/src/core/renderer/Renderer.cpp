@@ -1,4 +1,3 @@
-#include "Renderer.h"
 #include <vulkan/VulkanBackend.h>
 #include "core/Application.h"
 
@@ -28,21 +27,25 @@ namespace VoxelEngine::renderer
         vulkan::setWindow(window);
         vulkan::init();
     }
-    void Renderer::beginFrame()
+    void Renderer::preRender()
     {
         vulkan::beginFrame();
     }
-    void Renderer::endFrame()
+    void Renderer::render()
+    {
+        vulkan::resetFrameStats();
+    }
+    void Renderer::postRender()
     {
         vulkan::endFrame();
     }
-    void Renderer::setCamera(const components::camera::Camera* camera)
+    void Renderer::setCamera(const components::camera::Camera& camera)
     {
         vulkan::setCamera(camera);
     }
-    void Renderer::setScene(const VoxelEngine::Scene* scene)
+    void Renderer::submitRenderables(const std::vector<glm::vec3> objects)
     {
-        vulkan::setScene(scene);
+        vulkan::submitRenderables(objects);
     }
     void Renderer::deviceWaitIdle()
     {

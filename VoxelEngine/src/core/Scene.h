@@ -10,5 +10,10 @@ namespace VoxelEngine
 		std::vector<glm::vec3> vertices;
 
 		Scene();
+		~Scene() noexcept = default;
+		Scene(Scene const&) noexcept = delete;
+		Scene(Scene&&) noexcept = delete;
+		Scene& operator=(Scene const& rhs) noexcept = delete;
+		Scene& operator=(Scene&& rhs) noexcept = delete;
 	};
 }

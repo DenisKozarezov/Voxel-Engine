@@ -2,11 +2,12 @@
 #include <core/renderer/Renderer.h>
 #include <components/mesh/Mesh.h>
 #include <GLFW/glfw3.h>
+#include "vkUtils/VulkanSwapChainFrame.h"
 #include "vkUtils/VulkanAlloc.h"
 
 namespace vulkan
 {
-	using namespace VoxelEngine::components::mesh;
+	using namespace VoxelEngine;
 
 	void makeInstance();
 	void makeDevice();
@@ -29,23 +30,23 @@ namespace vulkan
 	void beginFrame();
 	void endFrame();
 
-	void setWindow(const VoxelEngine::Window& window);
-	void setCamera(const VoxelEngine::components::camera::Camera* camera);
-	void setScene(const VoxelEngine::Scene* scene);
+	void setWindow(const Window& window);
+	void setCamera(const components::camera::Camera& camera);
+	void submitRenderables(const std::vector<glm::vec3> objects);
 	void init();
 	void initImGui();	
 	void deviceWaitIdle();
 	void cleanup();
 
-	VoxelEngine::renderer::RenderSettings& getRenderSettings();
-	const VoxelEngine::renderer::RenderFrameStats& getFrameStats();
+	renderer::RenderSettings& getRenderSettings();
+	const renderer::RenderFrameStats& getFrameStats();
 	void resetFrameStats();
 
 	void prepareInstanceData(const std::vector<glm::vec3>& vertices);
 	void makeAssets();
 	void renderSceneObjects(
 		const VkCommandBuffer& commandBuffer,
-		const MeshType& objectType,
+		const components::mesh::MeshType& objectType,
 		uint32& startInstance,
 		const uint32& instanceCount);
 

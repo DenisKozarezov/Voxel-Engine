@@ -1,6 +1,5 @@
 #pragma once
-#include "../Window.h"
-#include "../Scene.h"
+#include "RenderContext.h"
 #include "components/camera/Camera.h"
 #include "RenderSettings.h"
 
@@ -23,18 +22,19 @@ namespace VoxelEngine::renderer
 		float deltaTime;
 	};
 
-	class Renderer
+	class Renderer : public RenderContext
 	{
 	public:
 		static RenderSettings& getRenderSettings();
 		static const RenderPerformanceStats& getStats();
-		static const float getTime();
-		static void init(const Window& window);
-		static void beginFrame();
-		static void endFrame();
-		static void setCamera(const components::camera::Camera* camera);
-		static void setScene(const VoxelEngine::Scene* scene);
-		static void deviceWaitIdle();
-		static void cleanup();
+		const float getTime();
+		void init(const Window& window) override;
+		void preRender() override;
+		void render() override;
+		void postRender() override;
+		static void setCamera(const components::camera::Camera& camera);
+		static void submitRenderables(const std::vector<glm::vec3> objects);
+		void deviceWaitIdle();
+		void cleanup();
 	};
 }

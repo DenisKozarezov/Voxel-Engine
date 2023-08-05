@@ -26,6 +26,7 @@
 #endif
 
 #define BIND_CALLBACK(cb) [this](auto&&... args) -> decltype(auto) { return this->cb(std::forward<decltype(args)>(args)...); }
+#define BIND_MEMBER_CALLBACK(target, cb) [this](auto&&... args) -> decltype(auto) { return (*target).cb(std::forward<decltype(args)>(args)...); }
 
 namespace VoxelEngine
 {

@@ -17,6 +17,8 @@
 
 namespace vulkan
 {	
+	using namespace VoxelEngine::components;
+
 	struct VulkanState
 	{
 		GLFWwindow* windowPtr;
@@ -51,14 +53,14 @@ namespace vulkan
 
 		// Descriptors
 		VkDescriptorPool descriptorPool;
-		VkDescriptorSetLayout descriptorSetLayout;
+		VkDescriptorSetLayout descriptorSetLayout;		
 		
 		bool framebufferResized = false;
 	} state;
 
 	VoxelEngine::threading::ThreadPool* threadPool;
-	const VoxelEngine::components::camera::Camera* FPVcamera;
-	const VoxelEngine::Scene* currentScene;
+	const camera::Camera* FPVcamera;
+	std::vector<glm::vec3> objectsToRender;
 	VoxelEngine::renderer::RenderSettings renderSettings;
 	VoxelEngine::renderer::RenderFrameStats renderFrameStats;
 	vkUtils::memory::Buffer instances;
@@ -334,7 +336,7 @@ namespace vulkan
 
 		makeFrameResources(state.logicalDevice);
 
-		prepareInstanceData(currentScene->vertices);
+		prepareInstanceData(objectsToRender);
 	}
 	
 	void recreateSwapChain(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice, const VkSurfaceKHR& surface, GLFWwindow* window)
@@ -395,19 +397,19 @@ namespace vulkan
 		}
 
 		uint32 startInstance = 0;
-		uint32 instancesCount = static_cast<uint32>(currentScene->vertices.size());
-		renderSceneObjects(commandBuffer, MeshType::Cube, startInstance, instancesCount);
+		uint32 instancesCount = static_cast<uint32>(objectsToRender.size());
+		renderSceneObjects(commandBuffer, mesh::MeshType::Cube, startInstance, instancesCount);
 		
 		if (renderSettings.showNormals)
 		{
 			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.normals);
 			startInstance = 0;
-			renderSceneObjects(commandBuffer, MeshType::Cube, startInstance, instancesCount);
+			renderSceneObjects(commandBuffer, mesh::MeshType::Cube, startInstance, instancesCount);
 		}
 
 		startInstance = 0;	
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.editorGrid);
-		renderSceneObjects(commandBuffer, MeshType::Square, startInstance, 1);
+		renderSceneObjects(commandBuffer, mesh::MeshType::Square, startInstance, 1);
 
 		ImDrawData* main_draw_data = ImGui::GetDrawData();
 		ImGui_ImplVulkan_RenderDrawData(main_draw_data, commandBuffer);
@@ -463,21 +465,17 @@ namespace vulkan
 	void prepareFrame(const uint32& imageIndex)
 	{
 		vkUtils::SwapChainFrame& frame = state.swapChainBundle.frames[imageIndex];
-		VkExtent2D swapChainExtent = state.swapChainBundle.extent;
-		const float aspectRatio = (float)swapChainExtent.width / swapChainExtent.height;
 
 		vkUtils::UniformBufferObject ubo =
 		{
 			.view = FPVcamera->viewMatrix(),
-			.proj = FPVcamera->projectionMatrix(aspectRatio),
+			.proj = FPVcamera->projectionMatrix(),
 			.viewproj = ubo.proj * ubo.view,
 			.lightPos = FPVcamera->getPosition()
 		};
 		memcpy(frame.uniformBuffers.view.mappedMemory, &ubo, sizeof(ubo));
 
 		frame.writeDescriptorSet();
-
-		resetFrameStats();
 	}
 	void prepareScene(const VkCommandBuffer& commandBuffer)
 	{
@@ -528,7 +526,7 @@ namespace vulkan
 		CURRENT_FRAME = (CURRENT_FRAME + 1) % MAX_FRAMES_IN_FLIGHT;
 	}
 	
-	void setWindow(const VoxelEngine::Window& window)
+	void setWindow(const Window& window)
 	{
 		state.window = &window;
 		state.windowPtr = (GLFWwindow*)(window.getNativeWindow());
@@ -536,13 +534,13 @@ namespace vulkan
 		int success = glfwVulkanSupported();
 		VOXEL_CORE_ASSERT(success, "GLFW: Vulkan Not Supported")
 	}
-	void setCamera(const VoxelEngine::components::camera::Camera* camera)
+	void setCamera(const components::camera::Camera& camera)
 	{
-		FPVcamera = camera;
+		FPVcamera = &camera;
 	}
-	void setScene(const VoxelEngine::Scene* scene)
+	void submitRenderables(const std::vector<glm::vec3> objects)
 	{
-		currentScene = scene;
+		objectsToRender = objects;
 	}
 	void init()
 	{
@@ -636,11 +634,11 @@ namespace vulkan
 		vkDestroyInstance(state.instance, nullptr);
 	}
 
-	VoxelEngine::renderer::RenderSettings& getRenderSettings()
+	renderer::RenderSettings& getRenderSettings()
 	{
 		return renderSettings;
 	}
-	const VoxelEngine::renderer::RenderFrameStats& getFrameStats()
+	const renderer::RenderFrameStats& getFrameStats()
 	{
 		return renderFrameStats;
 	}
@@ -680,18 +678,18 @@ namespace vulkan
 	{
 		state.vertexManager = new VoxelEngine::renderer::VertexManager;
 
-		const auto& mesh = VoxelMesh();
-		state.vertexManager->concatMesh(MeshType::Cube, mesh.vertices, mesh.indices);
+		const auto& mesh = mesh::VoxelMesh();
+		state.vertexManager->concatMesh(mesh::MeshType::Cube, mesh.vertices, mesh.indices);
 
-		const auto& quad = SquareMesh();
-		state.vertexManager->concatMesh(MeshType::Square, quad.vertices, quad.indices);
+		const auto& quad = mesh::SquareMesh();
+		state.vertexManager->concatMesh(mesh::MeshType::Square, quad.vertices, quad.indices);
 
 		state.vertexManager->finalize(state.physicalDevice, state.logicalDevice);
 
 		renderFrameStats.pipelineStatNames = vkUtils::pipelineStatNames.data();
 		renderFrameStats.pipelineStats = vkUtils::pipelineStats.data();
 
-		uint32 instancesCount = static_cast<uint32>(currentScene->vertices.size());
+		uint32 instancesCount = static_cast<uint32>(objectsToRender.size());
 
 		renderFrameStats.indices = instancesCount * static_cast<uint32>(mesh.indices.size());
 		renderFrameStats.vertices = instancesCount * static_cast<uint32>(mesh.vertices.size());
@@ -700,7 +698,7 @@ namespace vulkan
 	}
 	void renderSceneObjects(
 		const VkCommandBuffer& commandBuffer,
-		const MeshType& objectType,
+		const components::mesh::MeshType& objectType,
 		uint32& startInstance,
 		const uint32& instanceCount)
 	{

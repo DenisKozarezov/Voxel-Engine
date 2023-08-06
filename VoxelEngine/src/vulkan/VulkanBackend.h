@@ -2,8 +2,6 @@
 #include <core/renderer/Renderer.h>
 #include <components/mesh/Mesh.h>
 #include <GLFW/glfw3.h>
-#include "vkUtils/VulkanSwapChainFrame.h"
-#include "vkUtils/VulkanAlloc.h"
 
 namespace vulkan
 {
@@ -16,7 +14,6 @@ namespace vulkan
 	void makeDescriptorSetLayout();
 	void makeGraphicsPipeline();
 	void makeFrameResources(const VkDevice& logicalDevice);
-	void makeCommandPool(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice);
 	void makeCommandBuffers();
 	void finalizeSetup();
 

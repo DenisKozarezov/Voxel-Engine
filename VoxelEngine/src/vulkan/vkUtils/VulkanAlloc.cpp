@@ -1,6 +1,6 @@
 #include "VulkanAlloc.h"
 #include "VulkanValidation.h"
-#include "VulkanCommandBuffer.h"
+#include "../vkInit/VulkanCommand.h"
 
 namespace vkUtils::memory
 {
@@ -32,10 +32,10 @@ namespace vkUtils::memory
 
 		return memory;
 	}
-	const VkCommandBuffer& beginSingleTimeCommands()
+	const VkCommandBuffer& beginSingleTimeCommands(const VkCommandPool& commandPool)
 	{
-		VkCommandBuffer commandBuffer = CommandBuffer::allocate();
-		CommandBuffer::beginCommand(commandBuffer);
+		VkCommandBuffer commandBuffer = vkUtils::memory::allocateCommandBuffer(commandPool);
+		vkUtils::memory::beginCommand(commandBuffer);
 		return commandBuffer;
 	}
 	

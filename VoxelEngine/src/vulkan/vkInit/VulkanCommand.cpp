@@ -1,15 +1,34 @@
-#include "VulkanCommandBuffer.h"
-#include "VulkanValidation.h"
+#include "VulkanCommand.h"
+#include "VulkanInitializers.h"
+#include "../vkUtils/VulkanValidation.h" 
 #include "../VulkanBackend.h"
+
+namespace vkInit
+{
+	const VkCommandPool createCommandPool(
+		const VkDevice& logicalDevice,
+		const uint32& queueFamily)
+	{
+		VkCommandPoolCreateInfo poolInfo = vkInit::commandPoolCreateInfo(queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+
+		VkCommandPool commandPool;
+		VkResult err = vkCreateCommandPool(logicalDevice, &poolInfo, nullptr, &commandPool);
+		vkUtils::check_vk_result(err, "failed to create command pool!");
+
+		VOXEL_CORE_TRACE("Vulkan command pool created.")
+
+		return commandPool;
+	}
+}
 
 namespace vkUtils::memory
 {
-	VkCommandBuffer CommandBuffer::allocate()
+	const VkCommandBuffer allocateCommandBuffer(const VkCommandPool& commandPool)
 	{
 		VkCommandBufferAllocateInfo allocInfo = {};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandPool = vulkan::getCommandPool();
+		allocInfo.commandPool = commandPool;
 		allocInfo.commandBufferCount = 1;
 
 		VkCommandBuffer commandBuffer;
@@ -18,49 +37,47 @@ namespace vkUtils::memory
 
 		return commandBuffer;
 	}
-	std::vector<VkCommandBuffer> CommandBuffer::allocate(const uint32& buffersCount)
+	const std::vector<VkCommandBuffer> allocateCommandBuffer(const VkCommandPool& commandPool, const uint32& buffersCount)
 	{
 		std::vector<VkCommandBuffer> buffers(buffersCount);
 
 		VkCommandBufferAllocateInfo allocInfo = {};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocInfo.commandPool = vulkan::getCommandPool();
+		allocInfo.commandPool = commandPool;
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 		allocInfo.commandBufferCount = buffersCount;
 
 		auto logicalDevice = vulkan::getLogicalDevice();
 		VkResult err = vkAllocateCommandBuffers(logicalDevice, &allocInfo, buffers.data());
-		check_vk_result(err, "failed to allocate command buffers!");
+		vkUtils::check_vk_result(err, "failed to allocate command buffers!");
 
 		return buffers;
 	}
-	void CommandBuffer::reset(const VkCommandBuffer& buffer)
+	void resetCommandBuffer(const VkCommandBuffer& buffer)
 	{
 		vkResetCommandBuffer(buffer, /*VkCommandBufferResetFlagBits*/ 0);
 	}
-	void CommandBuffer::beginCommand(const VkCommandBuffer& buffer)
+	void beginCommand(const VkCommandBuffer& buffer)
 	{
 		VkCommandBufferBeginInfo begin_info = {};
 		begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 		begin_info.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 		VkResult err = vkBeginCommandBuffer(buffer, &begin_info);
-		check_vk_result(err, "failed to begin recording command buffer!");
+		vkUtils::check_vk_result(err, "failed to begin recording command buffer!");
 	}
-	void CommandBuffer::endCommand(const VkCommandBuffer& buffer)
+	void endCommand(const VkCommandBuffer& buffer)
 	{
 		VkResult err = vkEndCommandBuffer(buffer);
-		check_vk_result(err, "failed to record command buffer!");
+		vkUtils::check_vk_result(err, "failed to record command buffer!");
 	}
-	void CommandBuffer::release(const VkCommandBuffer& buffer)
+	void releaseCommandBuffer(const VkCommandBuffer& buffer, const VkCommandPool& commandPool)
 	{
 		auto logicalDevice = vulkan::getLogicalDevice();
-		auto commandPool = vulkan::getCommandPool();
 		vkFreeCommandBuffers(logicalDevice, commandPool, 1, &buffer);
 	}
-	void CommandBuffer::release(const std::vector<VkCommandBuffer>& buffers)
+	void releaseCommandBuffer(const std::vector<VkCommandBuffer>& buffers, const VkCommandPool& commandPool)
 	{
 		auto logicalDevice = vulkan::getLogicalDevice();
-		auto commandPool = vulkan::getCommandPool();
 		vkFreeCommandBuffers(logicalDevice, commandPool, static_cast<uint32>(buffers.size()), buffers.data());
 	}
 }

@@ -29,7 +29,7 @@ namespace vkUtils::memory
 	
 	const VkDeviceMemory allocateMemory(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice, const VkMemoryRequirements& requirements, const VkMemoryPropertyFlags& properties);
 	
-	const VkCommandBuffer& beginSingleTimeCommands();
+	const VkCommandBuffer& beginSingleTimeCommands(const VkCommandPool& commandPool);
 
 	void mapMemory(
 		const VkDevice& logicalDevice, 

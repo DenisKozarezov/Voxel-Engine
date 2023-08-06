@@ -1,5 +1,5 @@
 #include "SceneView.h"
-#include <vulkan/VulkanBackend.h>
+#include <imgui_impl_vulkan.h>
 
 namespace VoxelEditor
 {
@@ -66,6 +66,12 @@ namespace VoxelEditor
 	}
 	void SceneView::render()
 	{
+		//std::vector<VkDescriptorSet> m_Dset;
+
+		//m_Dset.resize(3);
+		//for (uint32_t i = 0; i < 3; i++)
+		//	m_Dset[i] = ImGui_ImplVulkan_AddTexture(m_TextureSampler, m_ViewportImageViews[i], VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
 		ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
 		ImGui::Begin("Viewport", 0, flags);
 
@@ -75,7 +81,9 @@ namespace VoxelEditor
 		bool viewportFocused = ImGui::IsWindowFocused();
 		bool viewportHovered = ImGui::IsWindowHovered();
 
-		_camera->setAspectRatio(_viewportSize.x / _viewportSize.y);
+		_camera->setAspectRatio(1920.0f / 1080.0f);
+		
+		//ImGui::Image(m_Dset[currentFrame], ImVec2{ viewportPanelSize.x, viewportPanelSize.y });
 
 		drawRenderModes();
 		

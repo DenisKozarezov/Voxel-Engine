@@ -8,7 +8,7 @@
 #include "vkInit/VulkanSync.h"
 #include "vkInit/VulkanDescriptors.h"
 #include "vkPipelines/VulkanPipelines.h"
-#include "vkUtils/VulkanCommandBuffer.h"
+#include "vkInit/VulkanCommand.h"
 #include "vkUtils/VulkanUniformBuffer.h"
 #include "vkUtils/VulkanStatistics.h"
 #include "core/renderer/VertexManager.h"
@@ -53,7 +53,7 @@ namespace vulkan
 
 		// Descriptors
 		VkDescriptorPool descriptorPool;
-		VkDescriptorSetLayout descriptorSetLayout;		
+		VkDescriptorSetLayout descriptorSetLayout;
 		
 		bool framebufferResized = false;
 	} state;
@@ -114,7 +114,11 @@ namespace vulkan
 		VkImageView depthImageView = state.swapChainBundle.depthImageView;
 		auto& frames = state.swapChainBundle.frames;
 
-		vkInit::createFramebuffers(state.logicalDevice, state.renderPass, swapChainExtent, colorView, depthImageView, frames);
+		for (auto& frame : frames)
+		{
+			std::vector<VkImageView> attachments = { colorView, depthImageView, frame.imageView };
+			frame.framebuffer = vkInit::createFramebuffer(state.logicalDevice, state.renderPass, swapChainExtent, attachments);
+		}
 	}
 	void makeDescriptorSetLayout()
 	{
@@ -302,23 +306,12 @@ namespace vulkan
 			++i;
 		}
 	}	
-	void makeCommandPool(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice)
-	{
-		vkUtils::QueueFamilyIndices queueFamilyIndices = vkUtils::findQueueFamilies(physicalDevice, state.surface);
-
-		VkCommandPoolCreateInfo poolInfo = vkInit::commandPoolCreateInfo(queueFamilyIndices.graphicsFamily.value(), VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
-
-		VkResult err = vkCreateCommandPool(logicalDevice, &poolInfo, nullptr, &state.commandPool);
-		vkUtils::check_vk_result(err, "failed to create command pool!");
-
-		VOXEL_CORE_TRACE("Vulkan command pool created.")
-	}
 	void makeCommandBuffers()
 	{
 		int i = 0;
 		for (vkUtils::SwapChainFrame& frame : state.swapChainBundle.frames)
 		{
-			frame.commandBuffer = vkUtils::memory::CommandBuffer::allocate();
+			frame.commandBuffer = vkUtils::memory::allocateCommandBuffer(state.commandPool);
 
 			VOXEL_CORE_TRACE("Vulkan command buffer allocated for frame {0}.", i)
 			++i;
@@ -328,7 +321,7 @@ namespace vulkan
 	{
 		makeFramebuffers();
 
-		makeCommandPool(state.physicalDevice, state.logicalDevice);
+		state.commandPool = vkInit::createCommandPool(state.logicalDevice, state.queueFamilyIndices.graphicsFamily.value());
 
 		makeCommandBuffers();
 
@@ -351,6 +344,7 @@ namespace vulkan
 		deviceWaitIdle();
 
 		cleanupSwapChain();
+
 		makeSwapChain();
 		makeFramebuffers();
 		makeFrameResources(logicalDevice);
@@ -361,12 +355,11 @@ namespace vulkan
 		vkUtils::SwapChainFrame& frame = state.swapChainBundle.frames[imageIndex];
 		VkExtent2D swapChainExtent = state.swapChainBundle.extent;
 
-		vkUtils::memory::CommandBuffer::beginCommand(commandBuffer);
-
 		std::vector<VkClearValue> clearValues(2);
 		clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
 		clearValues[1].depthStencil = { 1.0f, 0 };
-
+			
+		vkUtils::memory::beginCommand(commandBuffer);
 		VkRenderPassBeginInfo renderPassBeginInfo = vkInit::renderPassBeginInfo(
 			state.renderPass,
 			frame.framebuffer,
@@ -410,14 +403,14 @@ namespace vulkan
 		startInstance = 0;	
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.editorGrid);
 		renderSceneObjects(commandBuffer, mesh::MeshType::Square, startInstance, 1);
-
+		
 		ImDrawData* main_draw_data = ImGui::GetDrawData();
 		ImGui_ImplVulkan_RenderDrawData(main_draw_data, commandBuffer);
 		// =================================================================
 
 		vkCmdEndQuery(commandBuffer, state.queryPool, 0);
 		vkCmdEndRenderPass(commandBuffer);
-		vkUtils::memory::CommandBuffer::endCommand(commandBuffer);
+		vkUtils::memory::endCommand(commandBuffer);
 	}
 	void submitToQueue(const VkQueue& queue, const VkCommandBuffer& commandBuffer, const VkSemaphore* signalSemaphores)
 	{
@@ -506,7 +499,7 @@ namespace vulkan
 		}
 
 		vkInit::resetFences(state.logicalDevice, 1, frame.inFlightFence);
-		vkUtils::memory::CommandBuffer::reset(frame.commandBuffer);
+		vkUtils::memory::resetCommandBuffer(frame.commandBuffer);
 	}
 	void endFrame()
 	{
@@ -583,22 +576,9 @@ namespace vulkan
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 		io.Fonts->AddFontDefault();
 		{
-			VkCommandBuffer commandBuffer = state.swapChainBundle.frames[CURRENT_FRAME].commandBuffer;
-
-			// Use any command queue
-			vkResetCommandPool(state.logicalDevice, state.commandPool, 0);
-			vkUtils::memory::CommandBuffer::beginCommand(commandBuffer);
-
+			VkCommandBuffer commandBuffer = vkUtils::memory::beginSingleTimeCommands(state.commandPool);
 			ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
-
-			VkSubmitInfo end_info = {};
-			end_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-			end_info.commandBufferCount = 1;
-			end_info.pCommandBuffers = &commandBuffer;
-			vkUtils::memory::CommandBuffer::endCommand(commandBuffer);
-			vkQueueSubmit(state.queues.graphicsQueue, 1, &end_info, VK_NULL_HANDLE);
-
-			deviceWaitIdle();
+			endSingleTimeCommands(commandBuffer);
 			ImGui_ImplVulkan_DestroyFontUploadObjects();
 		}
 	}
@@ -731,7 +711,7 @@ namespace vulkan
 	// ==================== MEMORY ALLOC / DEALLOC ====================
 	void copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkDeviceSize& size)
 	{
-		VkCommandBuffer commandBuffer = vkUtils::memory::beginSingleTimeCommands();
+		VkCommandBuffer commandBuffer = vkUtils::memory::beginSingleTimeCommands(state.commandPool);
 
 		VkBufferCopy copyRegion = {};
 		copyRegion.size = size;
@@ -741,7 +721,7 @@ namespace vulkan
 	}
 	void endSingleTimeCommands(const VkCommandBuffer& commandBuffer)
 	{
-		vkUtils::memory::CommandBuffer::endCommand(commandBuffer);
+		vkUtils::memory::endCommand(commandBuffer);
 
 		VkSubmitInfo submitInfo = {};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -751,7 +731,7 @@ namespace vulkan
 		vkQueueSubmit(state.queues.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
 		vkQueueWaitIdle(state.queues.graphicsQueue);
 
-		vkUtils::memory::CommandBuffer::release(commandBuffer);
+		vkUtils::memory::releaseCommandBuffer(commandBuffer, state.commandPool);
 	}
 	// =============================================================
 }

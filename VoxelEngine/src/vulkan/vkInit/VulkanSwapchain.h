@@ -298,6 +298,23 @@ namespace vkInit
 			};
 			bundle.frames[i].image = images[i];
 			bundle.frames[i].imageView = vkUtils::createImageView(logicalDevice, images[i], bundle.format, components);
+		
+			//bundle.frames[i].viewportImage = vkUtils::createImage(
+			//	physicalDevice,
+			//	logicalDevice,
+			//	width, height,
+			//	VK_FORMAT_R8G8B8A8_SRGB,
+			//	msaaSamples,
+			//	VK_IMAGE_TILING_OPTIMAL,
+			//	VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+			//	VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+			//	bundle.frames[i].viewportDeviceMemory);
+			//
+			//bundle.frames[i].viewportImageView = vkUtils::createImageView(
+			//	logicalDevice,
+			//	bundle.frames[i].viewportImage,
+			//	bundle.format,
+			//	VK_IMAGE_ASPECT_COLOR_BIT);
 		}
 
 		VOXEL_CORE_TRACE("Vulkan swap chain created.")

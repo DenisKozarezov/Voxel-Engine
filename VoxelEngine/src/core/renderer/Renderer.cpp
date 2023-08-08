@@ -39,6 +39,10 @@ namespace VoxelEngine::renderer
     {
         vulkan::endFrame();
     }
+    void Renderer::updateUIOverlay()
+    {
+        vulkan::updateUIOverlay();
+    }
     void Renderer::setCamera(const components::camera::Camera& camera)
     {
         vulkan::setCamera(camera);

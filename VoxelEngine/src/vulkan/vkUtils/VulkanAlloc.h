@@ -7,21 +7,41 @@ namespace vkUtils::memory
 	struct Buffer
 	{
 	public:
-		VkDeviceSize size;
-		VkBuffer buffer;
-		VkDeviceMemory bufferMemory;
-		void* mappedMemory;
+		VkDevice logicalDevice;
+		VkDeviceSize size = 0;
+		VkBuffer buffer = VK_NULL_HANDLE;
+		VkDeviceMemory bufferMemory = VK_NULL_HANDLE;
+		void* mappedMemory = nullptr;
 		VkDescriptorBufferInfo descriptor;
 
-		void release(const VkDevice& logicalDevice) const
-		{
-			vkUnmapMemory(logicalDevice, bufferMemory);
-			vkDestroyBuffer(logicalDevice, buffer, nullptr);
-			vkFreeMemory(logicalDevice, bufferMemory, nullptr);
+		void release() const
+		{			
+			if (buffer)
+				vkDestroyBuffer(logicalDevice, buffer, nullptr);
+
+			if (bufferMemory)
+				vkFreeMemory(logicalDevice, bufferMemory, nullptr);
 		}
-		void map(const VkDevice& logicalDevice)
+		VkResult map()
 		{
-			vkMapMemory(logicalDevice, bufferMemory, 0, size, 0, &mappedMemory);
+			return vkMapMemory(logicalDevice, bufferMemory, 0, size, 0, &mappedMemory);
+		}
+		void unmap()
+		{
+			if (mappedMemory)
+			{
+				vkUnmapMemory(logicalDevice, bufferMemory);
+				mappedMemory = nullptr;
+			}
+		}
+		VkResult flush(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0) const
+		{
+			VkMappedMemoryRange mappedRange = {};
+			mappedRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
+			mappedRange.memory = bufferMemory;
+			mappedRange.offset = offset;
+			mappedRange.size = size;
+			return vkFlushMappedMemoryRanges(logicalDevice, 1, &mappedRange);
 		}
 	};
 

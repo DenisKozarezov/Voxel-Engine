@@ -22,6 +22,6 @@ namespace vkUtils
 	}
 	void VulkanUniformBuffer::release() const
 	{
-		uniformBuffer.release(logicalDevice);
+		uniformBuffer.release();
 	}
 }

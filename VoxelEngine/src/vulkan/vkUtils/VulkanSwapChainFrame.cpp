@@ -13,7 +13,11 @@ namespace vkUtils
 			size,
 			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 
-		uniformBuffers.view.map(logicalDevice);
+		uniformBuffers.view.map();
+
+		//viewportImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		//viewportImageInfo.imageView = viewportImageView;
+		//viewportImageInfo.sampler = viewportSampler;
 	}
 
 	void SwapChainFrame::writeDescriptorSet() const
@@ -24,6 +28,12 @@ namespace vkUtils
 			VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
 			0,
 			&uniformBuffers.view.descriptor);
+
+		//descriptorWrites[1] = vkInit::writeDescriptorSet(
+		//	descriptorSet,
+		//	VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+		//	1,
+		//	&viewportImageInfo);
 
 		vkUpdateDescriptorSets(logicalDevice, static_cast<uint32>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}
@@ -36,6 +46,10 @@ namespace vkUtils
 		vkDestroySemaphore(logicalDevice, imageAvailableSemaphore, nullptr);
 		vkDestroySemaphore(logicalDevice, renderFinishedSemaphore, nullptr);
 
-		uniformBuffers.view.release(logicalDevice);
+		//vkDestroyImageView(logicalDevice, viewportImageView, nullptr);
+		//vkDestroyFramebuffer(logicalDevice, viewportFramebuffer, nullptr);
+		//vkFreeMemory(logicalDevice, viewportDeviceMemory, nullptr);
+
+		uniformBuffers.view.release();
 	}
 }

@@ -45,6 +45,16 @@ namespace vkUtils
 		UniformBuffers uniformBuffers;
 		VkDescriptorSet descriptorSet;
 
+		// Viewport
+		VkImage viewportImage;
+		VkImageView viewportImageView;
+		VkDeviceMemory viewportDeviceMemory;
+		VkFramebuffer viewportFramebuffer;
+		VkCommandBuffer viewportCommandBuffer;
+		VkDescriptorSet viewportDescriptor;
+		VkSampler viewportSampler;
+		VkDescriptorImageInfo viewportImageInfo;
+
 		void makeDescriptorResources(const VkPhysicalDeviceLimits& limits);
 
 		void writeDescriptorSet() const;

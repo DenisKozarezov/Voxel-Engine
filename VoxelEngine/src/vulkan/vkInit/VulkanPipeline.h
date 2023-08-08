@@ -25,6 +25,7 @@ namespace vkInit
 		VkPipeline wireframe;
 		VkPipeline normals;
 		VkPipeline editorGrid;
+		VkPipeline viewport;
 
 		void release(const VkDevice& logicalDevice) const
 		{
@@ -75,17 +76,28 @@ namespace vkInit
 		subpass.pDepthStencilAttachment = &depthAttachmentRef;
 		subpass.pResolveAttachments = &colorAttachmentResolveRef;
 
-		VkSubpassDependency dependency = {};
-		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-		dependency.dstSubpass = 0;
-		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-		dependency.srcAccessMask = 0;
-		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+		// Subpass dependencies for layout transitions
+		VkSubpassDependency dependency1;
+		dependency1.srcSubpass = VK_SUBPASS_EXTERNAL;
+		dependency1.dstSubpass = 0;
+		dependency1.srcStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+		dependency1.dstStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+		dependency1.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+		dependency1.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+		dependency1.dependencyFlags = 0;
+
+		VkSubpassDependency dependency2;
+		dependency2.srcSubpass = VK_SUBPASS_EXTERNAL;
+		dependency2.dstSubpass = 0;
+		dependency2.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependency2.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependency2.srcAccessMask = 0;
+		dependency2.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
+		dependency2.dependencyFlags = 0;
 
 		std::vector<VkAttachmentDescription> attachments = { colorAttachment, depthAttachment, colorAttachment };
 		std::vector<VkSubpassDescription> subpasses = { subpass };
-		std::vector<VkSubpassDependency> dependencies = { dependency };
+		std::vector<VkSubpassDependency> dependencies = { dependency1, dependency2 };
 		VkRenderPassCreateInfo renderPassInfo = renderPassCreateInfo(attachments, subpasses, dependencies);
 
 		VkRenderPass renderPass;
@@ -104,11 +116,9 @@ namespace vkInit
 		const VkSampleCountFlagBits& msaaSamples)
 	{
 		VkAttachmentDescription colorAttachment = renderPassColorAttachment(swapChainImageFormat, msaaSamples);
-		colorAttachment.finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
 		VkAttachmentDescription depthAttachment = renderPassDepthAttachment(depthFormat, msaaSamples);
-		depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 
 		VkAttachmentReference colorAttachmentRef{};
 		colorAttachmentRef.attachment = 0;
@@ -129,23 +139,25 @@ namespace vkInit
 		subpass.pPreserveAttachments = nullptr;
 		subpass.pResolveAttachments = nullptr;
 
-		VkSubpassDependency dependency1{};
+		VkSubpassDependency dependency1;
 		dependency1.srcSubpass = VK_SUBPASS_EXTERNAL;
 		dependency1.dstSubpass = 0;
 		dependency1.srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-		dependency1.srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
 		dependency1.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependency1.srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
 		dependency1.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		dependency1.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
-		VkSubpassDependency dependency2{};
+		VkSubpassDependency dependency2;
 		dependency2.srcSubpass = 0;
 		dependency2.dstSubpass = VK_SUBPASS_EXTERNAL;
 		dependency2.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-		dependency2.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 		dependency2.dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+		dependency2.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 		dependency2.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+		dependency2.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
-		std::vector<VkAttachmentDescription> attachments = { colorAttachment, depthAttachment, colorAttachment };
+		std::vector<VkAttachmentDescription> attachments = { colorAttachment, depthAttachment };
 		std::vector<VkSubpassDescription> subpasses = { subpass };
 		std::vector<VkSubpassDependency> dependencies = { dependency1, dependency2 };
 		VkRenderPassCreateInfo renderPassInfo = renderPassCreateInfo(attachments, subpasses, dependencies);

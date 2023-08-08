@@ -40,7 +40,28 @@ namespace vkUtils
 		const VkComponentMapping& components,
 		const VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT);
 
+	const VkSampler createTextureSampler(const VkDevice& logicalDevice, const VkSamplerCreateInfo& samplerInfo);
+
 	const VkSampler createTextureSampler(
 		const VkPhysicalDevice& physicalDevice,
 		const VkDevice& logicalDevice);
+
+	void setImageLayout(
+		VkCommandBuffer cmdbuffer,
+		VkImage image,
+		VkImageLayout oldImageLayout,
+		VkImageLayout newImageLayout,
+		VkImageSubresourceRange subresourceRange,
+		VkPipelineStageFlags srcStageMask,
+		VkPipelineStageFlags dstStageMask);
+
+	// Fixed sub resource on first mip level and layer
+	void setImageLayout(
+		VkCommandBuffer cmdbuffer,
+		VkImage image,
+		VkImageAspectFlags aspectMask,
+		VkImageLayout oldImageLayout,
+		VkImageLayout newImageLayout,
+		VkPipelineStageFlags srcStageMask,
+		VkPipelineStageFlags dstStageMask);
 }

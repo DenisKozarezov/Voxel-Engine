@@ -26,6 +26,10 @@ namespace vulkan
 	void prepareScene(const VkCommandBuffer& commandBuffer);
 	void beginFrame();
 	void endFrame();
+	void drawUI(const VkCommandBuffer& commandBuffer);
+	void updateUIOverlay();
+
+	VkDescriptorSet getCurrentDescriptorSet();
 
 	void setWindow(const Window& window);
 	void setCamera(const components::camera::Camera& camera);
@@ -70,5 +74,9 @@ namespace vulkan
 	// ==================== MEMORY ALLOC / DEALLOC ====================
 	void copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkDeviceSize& size);
 	void endSingleTimeCommands(const VkCommandBuffer& commandBuffer);
+
+	void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+	void copyImage(VkDevice device, VkCommandPool cmdPool, VkImage srcImageId, VkImage dstImageId, uint32_t width, uint32_t height);
+	void transitionImageLayout(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout);
 	// ===================================================================
 }

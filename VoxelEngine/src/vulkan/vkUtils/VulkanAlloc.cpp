@@ -1,5 +1,6 @@
 #include "VulkanAlloc.h"
 #include "VulkanValidation.h"
+#include "../VulkanBackend.h"
 #include "../vkInit/VulkanCommand.h"
 
 namespace vkUtils::memory
@@ -81,6 +82,7 @@ namespace vkUtils::memory
 
 		Buffer result =
 		{
+			.logicalDevice = logicalDevice,
 			.size = size,
 			.buffer = buffer,
 			.bufferMemory = bufferMemory,

@@ -26,10 +26,10 @@ namespace vkUtils
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 		vulkan::copyBuffer(stagingBuffer.buffer, indexBuffer.buffer, bufferSize);
 
-		stagingBuffer.release(logicalDevice);
+		stagingBuffer.release();
 	}
 	void VulkanIndexBuffer::release() const
 	{
-		indexBuffer.release(logicalDevice);
+		indexBuffer.release();
 	}
 }

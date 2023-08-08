@@ -762,5 +762,4 @@ namespace vkInit
 		writeDescriptorSetAccelerationStructureKHR.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR;
 		return writeDescriptorSetAccelerationStructureKHR;
 	}
-
 }

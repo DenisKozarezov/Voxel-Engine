@@ -32,6 +32,7 @@ namespace VoxelEngine::renderer
 		void preRender() override;
 		void render() override;
 		void postRender() override;
+		void updateUIOverlay();
 		static void setCamera(const components::camera::Camera& camera);
 		static void submitRenderables(const std::vector<glm::vec3> objects);
 		void deviceWaitIdle();

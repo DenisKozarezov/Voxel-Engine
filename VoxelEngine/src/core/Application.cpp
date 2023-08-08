@@ -125,6 +125,7 @@ namespace VoxelEngine
 	inline void Application::postRender()
 	{
 		imguiLayer->postRender();
+		_renderer.updateUIOverlay();
 		_renderer.postRender();
 	}
 	void Application::calculateFramerate(const std::chrono::steady_clock::time_point& tEnd)

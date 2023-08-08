@@ -1,5 +1,6 @@
 #include "SceneView.h"
 #include <imgui_impl_vulkan.h>
+#include "vulkan/VulkanBackend.h"
 
 namespace VoxelEditor
 {
@@ -83,7 +84,8 @@ namespace VoxelEditor
 
 		_camera->setAspectRatio(1920.0f / 1080.0f);
 		
-		//ImGui::Image(m_Dset[currentFrame], ImVec2{ viewportPanelSize.x, viewportPanelSize.y });
+		//const auto image = vulkan::getCurrentDescriptorSet();		
+		//ImGui::Image(reinterpret_cast<void*>(image), ImVec2{viewportPanelSize.x, viewportPanelSize.y});
 
 		drawRenderModes();
 		

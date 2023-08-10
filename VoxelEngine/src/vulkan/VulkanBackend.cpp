@@ -371,8 +371,6 @@ namespace vulkan
 			clearValues);
 		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-		drawUI(commandBuffer);
-
 		VkViewport viewport = vkInit::viewport(state.viewportSize, 0.0f, 1.0f);
 		viewport.x = static_cast<float>(state.viewportPos.x);
 		viewport.y = static_cast<float>(state.viewportPos.y);
@@ -412,6 +410,8 @@ namespace vulkan
 		startInstance = 0;
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.editorGrid);
 		renderSceneObjects(commandBuffer, mesh::MeshType::Square, startInstance, 1);
+
+		drawUI(commandBuffer);
 
 		vkCmdEndRenderPass(commandBuffer);
 		vkUtils::memory::endCommand(commandBuffer);

@@ -165,7 +165,7 @@ namespace VoxelEditor
 
 		// Full-size
 		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
-		ImGuiWindowFlags flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+		ImGuiWindowFlags flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoBackground;
 		if (opt_fullscreen)
 		{
 			ImGuiViewport* viewport = ImGui::GetMainViewport();

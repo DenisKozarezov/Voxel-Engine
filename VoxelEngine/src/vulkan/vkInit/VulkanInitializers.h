@@ -94,10 +94,8 @@ namespace vkInit
 		renderPassBeginInfo.framebuffer = framebuffer;
 		renderPassBeginInfo.renderArea.offset = { 0, 0 };
 		renderPassBeginInfo.renderArea.extent = swapChainExtent;
-
 		renderPassBeginInfo.clearValueCount = static_cast<uint32>(clearValues.size());
 		renderPassBeginInfo.pClearValues = clearValues.data();
-
 		return renderPassBeginInfo;
 	}
 

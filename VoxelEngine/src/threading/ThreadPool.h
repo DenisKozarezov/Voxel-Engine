@@ -99,7 +99,7 @@ namespace VoxelEngine::threading
 		void setThreadCount(uint32 count)
 		{
 			threads.clear();
-			for (auto i = 0; i < count; ++i)
+			for (uint32 i = 0; i < count; ++i)
 			{
 				threads.push_back(MakeUnique<ThreadWorker>(i));
 			}

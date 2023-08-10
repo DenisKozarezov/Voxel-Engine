@@ -3,7 +3,7 @@
 
 namespace vkInit
 {
-	const VkFramebuffer& createFramebuffer(
+	const VkFramebuffer createFramebuffer(
 		const VkDevice& logicalDevice,
 		const VkRenderPass& renderPass,
 		const VkExtent2D& swapChainExtent,

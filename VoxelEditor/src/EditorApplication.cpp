@@ -10,9 +10,9 @@ namespace VoxelEditor
 		{
 			pushLayer(new EditorLayer());
 		}
-		EditorApplication(const EditorApplication&) = delete;
-		EditorApplication(EditorApplication&&) = delete;
-		~EditorApplication() = default;
+		EditorApplication(const EditorApplication&) noexcept = delete;
+		EditorApplication(EditorApplication&&) noexcept = delete;
+		~EditorApplication() noexcept = default;
 	};
 }
 

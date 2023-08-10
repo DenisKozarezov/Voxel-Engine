@@ -11,7 +11,7 @@ namespace VoxelEngine::input
     protected:
         MouseCode _mouseCode;
     public:
-        MouseButtonEvent() = default;
+        MouseButtonEvent() noexcept = default;
         MouseButtonEvent(const MouseCode& key) : _mouseCode(key) { }
 
         EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)

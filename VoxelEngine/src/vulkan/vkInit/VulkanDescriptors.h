@@ -6,7 +6,7 @@ namespace vkInit
 {
 	struct DescriptorSetLayoutInputBundle
 	{
-		int count;
+		int count = 0;
 		std::vector<uint32> indices;
 		std::vector<VkDescriptorType> types;
 		std::vector<uint32> counts;
@@ -50,8 +50,7 @@ namespace vkInit
 		VkDescriptorPoolCreateInfo poolInfo = descriptorPoolCreateInfo(
 			pool_sizes.data(),
 			size,
-			1000 * size,
-			VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT);
+			1000 * size);
 
 		VkDescriptorPool pool;
 		VkResult err = vkCreateDescriptorPool(logicalDevice, &poolInfo, nullptr, &pool);

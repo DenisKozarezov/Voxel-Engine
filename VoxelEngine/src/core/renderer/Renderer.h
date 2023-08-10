@@ -18,7 +18,7 @@ namespace VoxelEngine::renderer
 		RenderFrameStats frameStats;
 		uint32 voxels;
 		uint32 batches;
-		float fps;
+		uint32 fps;
 		float deltaTime;
 	};
 
@@ -27,12 +27,12 @@ namespace VoxelEngine::renderer
 	public:
 		static RenderSettings& getRenderSettings();
 		static const RenderPerformanceStats& getStats();
-		const float getTime();
 		void init(const Window& window) override;
 		void preRender() override;
 		void render() override;
 		void postRender() override;
 		void updateUIOverlay();
+		void resize(const uint32& width, const uint32& height);
 		static void setCamera(const components::camera::Camera& camera);
 		static void submitRenderables(const std::vector<glm::vec3> objects);
 		void deviceWaitIdle();

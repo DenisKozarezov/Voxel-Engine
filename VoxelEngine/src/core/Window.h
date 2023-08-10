@@ -39,6 +39,7 @@ namespace VoxelEngine
 		virtual void init() = 0;
 		virtual void shutdown() = 0;
 		virtual void onUpdate() = 0;
+		virtual void waitEvents() const = 0;
 
 		// Defined in client platforms
 		static UniqueRef<Window> Create(const WindowProperties& props);

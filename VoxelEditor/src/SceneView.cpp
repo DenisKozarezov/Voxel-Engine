@@ -1,5 +1,4 @@
 #include "SceneView.h"
-#include <imgui_impl_vulkan.h>
 #include "vulkan/VulkanBackend.h"
 
 namespace VoxelEditor
@@ -67,25 +66,19 @@ namespace VoxelEditor
 	}
 	void SceneView::render()
 	{
-		//std::vector<VkDescriptorSet> m_Dset;
-
-		//m_Dset.resize(3);
-		//for (uint32_t i = 0; i < 3; i++)
-		//	m_Dset[i] = ImGui_ImplVulkan_AddTexture(m_TextureSampler, m_ViewportImageViews[i], VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
 		ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
 		ImGui::Begin("Viewport", 0, flags);
 
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
-		_viewportSize = { viewportPanelSize.x, viewportPanelSize.y };
+		ImVec2 vMin = ImGui::GetWindowContentRegionMin();
+		vMin.x += ImGui::GetWindowPos().x;
+		vMin.y += ImGui::GetWindowPos().y;
 
 		bool viewportFocused = ImGui::IsWindowFocused();
 		bool viewportHovered = ImGui::IsWindowHovered();
 
-		_camera->setAspectRatio(1920.0f / 1080.0f);
-		
-		//const auto image = vulkan::getCurrentDescriptorSet();		
-		//ImGui::Image(reinterpret_cast<void*>(image), ImVec2{viewportPanelSize.x, viewportPanelSize.y});
+		vulkan::setViewport(vMin.x, vMin.y, viewportPanelSize.x, viewportPanelSize.y);
+		_camera->setAspectRatio(viewportPanelSize.x / viewportPanelSize.y);
 
 		drawRenderModes();
 		

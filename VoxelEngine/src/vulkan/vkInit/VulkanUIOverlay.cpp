@@ -1,10 +1,5 @@
 #include "VulkanUIOverlay.h"
 #include "vulkan/VulkanBackend.h"
-#include "../vkUtils/VulkanAlloc.h"
-#include "../vkUtils/VulkanImage.h"
-#include <assets_management/AssetsProvider.h>
-#include "vulkan/vkUtils/VulkanValidation.h"
-#include "vulkan/vkInit/VulkanInitializers.h"
 
 namespace vkInit
 {

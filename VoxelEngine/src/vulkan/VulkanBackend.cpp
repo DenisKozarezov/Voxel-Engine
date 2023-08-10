@@ -1,6 +1,4 @@
 #include "VulkanBackend.h"
-#include <imgui_impl_glfw.h>
-#include <imgui_impl_vulkan.h>
 #include "vkInit/VulkanInstance.h"
 #include "vkInit/VulkanDevice.h"
 #include "vkInit/VulkanFramebuffer.h"
@@ -13,7 +11,6 @@
 #include "vkUtils/VulkanUniformBuffer.h"
 #include "vkUtils/VulkanStatistics.h"
 #include "core/renderer/VertexManager.h"
-#include "assets_management/AssetsProvider.h"
 #include "core/Application.h"
 #include "threading/ThreadPool.h"
 
@@ -53,6 +50,8 @@ namespace vulkan
 		VkRenderPass renderPass;
 		VkQueryPool queryPool;
 		vkInit::UIOverlay UIOverlay;
+		VkOffset2D viewportPos;
+		VkExtent2D viewportSize;
 
 		// Descriptors
 		VkDescriptorPool descriptorPool;
@@ -387,16 +386,23 @@ namespace vulkan
 			clearValues);
 		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-		VkViewport viewport = vkInit::viewport(swapChainExtent, 0.0f, 1.0f);
+		drawUI(commandBuffer);
+
+		VkViewport viewport = vkInit::viewport(state.viewportSize, 0.0f, 1.0f);
+		viewport.x = state.viewportPos.x;
+		viewport.y = state.viewportPos.y;
 		vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
 		VkRect2D scissor = vkInit::rect2D(swapChainExtent, { 0, 0 });
+		scissor.offset.x = viewport.x;
+		scissor.offset.y = viewport.y;
 		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-		// =================== RENDER WHOLE STUFF HERE ! ===================
+		// =================== RENDER WHOLE STUFF HERE ! ===================		
 		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelineLayout, 0, 1, &frame.descriptorSet, 0, nullptr);
 
 		prepareScene(commandBuffer);
+
 		switch (renderSettings.renderMode)
 		{
 		case 0:
@@ -422,8 +428,6 @@ namespace vulkan
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.editorGrid);
 		renderSceneObjects(commandBuffer, mesh::MeshType::Square, startInstance, 1);
 
-		drawUI(commandBuffer);
-
 		vkCmdEndRenderPass(commandBuffer);
 		vkUtils::memory::endCommand(commandBuffer);
 	}
@@ -448,6 +452,11 @@ namespace vulkan
 	void cleanupSwapChain()
 	{
 		state.swapChainBundle.release(state.logicalDevice);	
+
+		for (vkUtils::SwapChainFrame& frame : state.swapChainBundle.frames)
+		{
+			vkUtils::memory::releaseCommandBuffer(frame.commandBuffer, state.commandPool);
+		}
 	}
 	void presentFrame(const uint32& imageIndex, VkSemaphore* signalSemaphores)
 	{
@@ -568,7 +577,7 @@ namespace vulkan
 	
 	VkDescriptorSet getCurrentDescriptorSet()
 	{
-		return nullptr;
+		return state.swapChainBundle.frames[CURRENT_FRAME].descriptorSet;
 	}
 
 	void setWindow(const Window& window)
@@ -621,6 +630,13 @@ namespace vulkan
 	void setCamera(const components::camera::Camera& camera)
 	{
 		FPVcamera = &camera;
+	}
+	void setViewport(const float& x, const float& y, const float& width, const float& height)
+	{
+		state.viewportPos = VkOffset2D(x, y);
+
+		if (width >= 0 && height >= 0)
+			state.viewportSize = VkExtent2D(width, height);
 	}
 	void submitRenderables(const std::vector<glm::vec3> objects)
 	{

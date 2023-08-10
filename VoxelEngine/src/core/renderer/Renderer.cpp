@@ -23,7 +23,7 @@ namespace VoxelEngine::renderer
     }
     void Renderer::init(const Window& window)
     {
-        VOXEL_CORE_WARN("Renderer initialization.")
+        VOXEL_CORE_WARN("Renderer initialization.");
         vulkan::setWindow(window);
         vulkan::init();
     }

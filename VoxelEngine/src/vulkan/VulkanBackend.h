@@ -33,6 +33,7 @@ namespace vulkan
 
 	void setWindow(const Window& window);
 	void setCamera(const components::camera::Camera& camera);
+	void setViewport(const float& x, const float& y, const float& width, const float& height);
 	void submitRenderables(const std::vector<glm::vec3> objects);
 	void init();
 	void initImGui();	

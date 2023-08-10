@@ -66,7 +66,7 @@ namespace VoxelEditor
 	}
 	void SceneView::render()
 	{
-		ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
+		ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBackground;
 		ImGui::Begin("Viewport", 0, flags);
 
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();

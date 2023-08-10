@@ -14,10 +14,6 @@ namespace vkUtils
 			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 
 		uniformBuffers.view.map();
-
-		//viewportImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		//viewportImageInfo.imageView = viewportImageView;
-		//viewportImageInfo.sampler = viewportSampler;
 	}
 
 	void SwapChainFrame::writeDescriptorSet() const

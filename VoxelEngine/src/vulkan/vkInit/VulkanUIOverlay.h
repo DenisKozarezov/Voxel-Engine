@@ -2,13 +2,15 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <assert.h>
 #include <vector>
 #include <sstream>
 #include <iomanip>
 
-#include <vulkan/vkUtils/VulkanAlloc.h>
+#include "../vkUtils/VulkanAlloc.h"
+#include "../vkUtils/VulkanImage.h"
+#include <assets_management/AssetsProvider.h>
+#include "vulkan/vkUtils/VulkanValidation.h"
+#include "vulkan/vkInit/VulkanInitializers.h"
 #include <glm/vec2.hpp>
 #include <imgui.h>
 

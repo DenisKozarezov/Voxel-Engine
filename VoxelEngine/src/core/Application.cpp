@@ -8,14 +8,14 @@ namespace VoxelEngine
 
 	Application::Application(const ApplicationSpecification& spec) : _specification(spec)
 	{
-		VOXEL_CORE_ASSERT(!_instance, "Application already exists!")
+		VOXEL_CORE_ASSERT(!_instance, "Application already exists!");
 
 		_instance = this;
 
-		VOXEL_CORE_WARN("Application Name: {0}", spec.ApplicationName)
-		VOXEL_CORE_WARN("Version: {0}", spec.Version)
-		VOXEL_CORE_WARN("Working Directory: {0}", spec.WorkingDirectory)
-		VOXEL_CORE_WARN("Command Line Args: {0}", spec.CommandLineArgs.toString())
+		VOXEL_CORE_WARN("Application Name: {0}", spec.ApplicationName);
+		VOXEL_CORE_WARN("Version: {0}", spec.Version);
+		VOXEL_CORE_WARN("Working Directory: {0}", spec.WorkingDirectory);
+		VOXEL_CORE_WARN("Command Line Args: {0}", spec.CommandLineArgs.toString());
 
 		setupInputCallbacks();
 
@@ -115,18 +115,19 @@ namespace VoxelEngine
 	inline void Application::preRender()
 	{
 		_renderer.preRender();
-		imguiLayer->preRender();
 	}
 	inline void Application::render()
 	{
-		_layerStack.onImGuiRender();
 		_renderer.render();
 	}
 	inline void Application::postRender()
 	{
-		imguiLayer->postRender();
 		_renderer.updateUIOverlay();
 		_renderer.postRender();
+
+		imguiLayer->preRender();
+		_layerStack.onImGuiRender();
+		imguiLayer->postRender();
 	}
 	void Application::calculateFramerate(const std::chrono::steady_clock::time_point& tEnd)
 	{

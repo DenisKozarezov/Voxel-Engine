@@ -96,7 +96,6 @@ namespace vkInit
 		std::vector<VkPhysicalDevice> devices(deviceCount);
 		vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
-		VkPhysicalDevice physicalDevice;
 		for (const auto& device : devices)
 		{
 			VkPhysicalDeviceProperties deviceProperties;

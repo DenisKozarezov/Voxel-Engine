@@ -165,6 +165,6 @@ namespace vkUtils
 		VkResult err = createDebugReportMessengerEXT(instance, &createInfo, nullptr, debugReportFunc);
 		check_vk_result(err, "failed to set up debug report messenger!");
 
-		VOXEL_CORE_TRACE("Vulkan debug report messenger set up.")
+		VOXEL_CORE_TRACE("Vulkan debug report messenger set up.");
 	}		
 }

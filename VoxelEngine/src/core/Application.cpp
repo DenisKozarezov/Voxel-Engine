@@ -54,20 +54,20 @@ namespace VoxelEngine
 	{
 		try
 		{
-			VOXEL_CORE_WARN("Application initialization.")
+			VOXEL_CORE_WARN("Application initialization.");
 			imguiLayer = new renderer::ImGuiLayer();
 			pushOverlay(imguiLayer);
 			_renderer.init(*_window.get());
 		}
 		catch (const std::exception& e)
 		{
-			VOXEL_CORE_CRITICAL(e.what())
-			VOXEL_DEBUGBREAK()
+			VOXEL_CORE_CRITICAL(e.what());
+			VOXEL_DEBUGBREAK();
 		}
 	}
 	void Application::run()
 	{
-		VOXEL_CORE_WARN("Running {0}...", _specification.ApplicationName)
+		VOXEL_CORE_WARN("Running {0}...", _specification.ApplicationName);
 
 		_running = true;
 
@@ -159,7 +159,12 @@ namespace VoxelEngine
 	}
 	bool Application::onWindowResize(const input::WindowResizeEvent& e)
 	{
-		if (e.getWidth() == 0 || e.getHeight() == 0)
+		uint16 width = e.getWidth();
+		uint16 height = e.getHeight();
+
+		_renderer.resize(width, height);
+
+		if (width == 0 || height == 0)
 		{
 			_minimized = true;
 			return false;

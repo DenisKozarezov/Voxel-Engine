@@ -8,10 +8,10 @@ namespace VoxelEngine::input
 	static class InputSystem
 	{
 	public:
-		static const bool& isKeyPressed(KeyCode key);
-		static const bool& isMouseButtonPressed(MouseCode button);
+		static const bool isKeyPressed(const KeyCode& key);
+		static const bool isMouseButtonPressed(const MouseCode& button);
 		static const glm::vec2 getMousePosition();
-		static const float& getMouseX();
-		static const float& getMouseY();
+		inline static const float getMouseX();
+		inline static const float getMouseY();
 	};
 }

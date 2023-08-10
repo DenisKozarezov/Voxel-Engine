@@ -13,6 +13,7 @@
 #include "core/renderer/VertexManager.h"
 #include "core/Application.h"
 #include "threading/ThreadPool.h"
+#include "core/input/InputSystem.h"
 
 namespace vulkan
 {	
@@ -20,7 +21,6 @@ namespace vulkan
 
 	struct VulkanState
 	{
-		GLFWwindow* windowPtr;
 		VoxelEngine::renderer::VertexManager* vertexManager;
 		
 		// Instance-related variables
@@ -66,27 +66,15 @@ namespace vulkan
 	VoxelEngine::renderer::RenderSettings renderSettings;
 	VoxelEngine::renderer::RenderFrameStats renderFrameStats;
 	vkUtils::memory::Buffer instances;
-	double mouseX = 0, mouseY = 0;
-	struct 
-	{
-		bool left = false;
-		bool right = false;
-		bool middle = false;
-	} mouseButtons;
 
 	static int MAX_FRAMES_IN_FLIGHT = 3;
 	static uint32 CURRENT_FRAME = 0;
 		
-	static void framebufferResizeCallback(GLFWwindow* window, int width, int height)
-	{
-		state.framebufferResized = true;
-	}
-
 	void makeInstance()
 	{
 		state.instance = vkInit::createInstance();
 		vkUtils::setupDebugReportMessenger(state.instance, &state.debugReportMessenger);
-		state.surface = vkInit::createSurface(state.instance, state.windowPtr);
+		state.surface = vkInit::createSurface(state.instance, state.window);
 	}
 	void makeDevice()
 	{
@@ -139,11 +127,6 @@ namespace vulkan
 		bindings.types.push_back(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
 		bindings.stages.push_back(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_GEOMETRY_BIT);
 		bindings.counts.push_back(1);
-
-		/*bindings.indices.push_back(1);
-		bindings.types.push_back(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
-		bindings.stages.push_back(VK_SHADER_STAGE_FRAGMENT_BIT);
-		bindings.counts.push_back(1);*/
 
 		state.descriptorSetLayout = vkInit::createDescriptorSetLayout(state.logicalDevice, bindings);
 	}
@@ -305,8 +288,10 @@ namespace vulkan
 
 		VOXEL_CORE_TRACE("Vulkan editor grid graphics pipeline created.")
 	}
-	void makeFrameResources(const VkDevice& logicalDevice)
+	void makeFrameResources()
 	{
+		VkDevice logicalDevice = state.logicalDevice;
+
 		int i = 0;
 		for (vkUtils::SwapChainFrame& frame : state.swapChainBundle.frames)
 		{
@@ -314,8 +299,6 @@ namespace vulkan
 			frame.renderFinishedSemaphore = vkInit::createSemaphore(logicalDevice);
 			frame.inFlightFence = vkInit::createFence(logicalDevice);
 			frame.descriptorSet = vkInit::allocateDescriptorSet(logicalDevice, state.descriptorPool, state.descriptorSetLayout);
-			//frame.viewportDescriptor = vkInit::allocateDescriptorSet(logicalDevice, state.descriptorPool, state.descriptorSetLayout);
-			//frame.viewportSampler = state.viewportSampler;
 
 			frame.makeDescriptorResources(state.deviceLimits);
 
@@ -344,19 +327,21 @@ namespace vulkan
 
 		state.descriptorPool = vkInit::createDescriptorPool(state.logicalDevice);
 
-		makeFrameResources(state.logicalDevice);
+		makeFrameResources();
 
 		prepareInstanceData(objectsToRender);
 	}
 	
-	void recreateSwapChain(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice, const VkSurfaceKHR& surface, GLFWwindow* window)
+	void recreateSwapChain()
 	{
-		int width = 0, height = 0;
-		glfwGetFramebufferSize(window, &width, &height);
+		uint16 width = state.window->getWidth();
+		uint16 height = state.window->getHeight();
+
 		while (width == 0 || height == 0)
 		{
-			glfwGetFramebufferSize(window, &width, &height);
-			glfwWaitEvents();
+			width = state.window->getWidth();
+			height = state.window->getHeight();
+			state.window->waitEvents();
 		}
 		deviceWaitIdle();
 
@@ -364,7 +349,7 @@ namespace vulkan
 
 		makeSwapChain();
 		makeFramebuffers();
-		makeFrameResources(logicalDevice);
+		makeFrameResources();
 		makeCommandBuffers();
 
 		state.UIOverlay.resize(static_cast<uint32>(width), static_cast<uint32>(height));	
@@ -389,13 +374,13 @@ namespace vulkan
 		drawUI(commandBuffer);
 
 		VkViewport viewport = vkInit::viewport(state.viewportSize, 0.0f, 1.0f);
-		viewport.x = state.viewportPos.x;
-		viewport.y = state.viewportPos.y;
+		viewport.x = static_cast<float>(state.viewportPos.x);
+		viewport.y = static_cast<float>(state.viewportPos.y);
 		vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
 		VkRect2D scissor = vkInit::rect2D(swapChainExtent, { 0, 0 });
-		scissor.offset.x = viewport.x;
-		scissor.offset.y = viewport.y;
+		scissor.offset.x = state.viewportPos.x;
+		scissor.offset.y = state.viewportPos.y;
 		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
 		// =================== RENDER WHOLE STUFF HERE ! ===================		
@@ -475,7 +460,7 @@ namespace vulkan
 		if (err == VK_ERROR_OUT_OF_DATE_KHR || err == VK_SUBOPTIMAL_KHR || state.framebufferResized)
 		{
 			state.framebufferResized = false;
-			recreateSwapChain(state.physicalDevice, state.logicalDevice, state.surface, state.windowPtr);
+			recreateSwapChain();
 		}
 		else vkUtils::check_vk_result(err, "failed to present swap chain image!");
 	}
@@ -514,12 +499,12 @@ namespace vulkan
 		VkResult result = vkAcquireNextImageKHR(state.logicalDevice, state.swapChainBundle.swapchain, UINT64_MAX, frame.imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
 		if (result == VK_ERROR_OUT_OF_DATE_KHR)
 		{
-			recreateSwapChain(state.physicalDevice, state.logicalDevice, state.surface, state.windowPtr);
+			recreateSwapChain();
 			return;
 		}
 		else
 		{
-			VOXEL_CORE_ASSERT(result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR, "failed to acquire swap chain image!")
+			VOXEL_CORE_ASSERT(result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR, "failed to acquire swap chain image!");
 		}
 
 		vkInit::resetFences(state.logicalDevice, 1, frame.inFlightFence);
@@ -564,10 +549,13 @@ namespace vulkan
 
 		io.DisplaySize = ImVec2((float)state.swapChainBundle.extent.width, (float)state.swapChainBundle.extent.height);
 		io.DeltaTime = VoxelEngine::Application::getInstance().getDeltaTime();
-		io.MousePos = ImVec2(mouseX, mouseY);		
-		io.MouseDown[0] = mouseButtons.left && state.UIOverlay.visible;
-		io.MouseDown[1] = mouseButtons.right && state.UIOverlay.visible;
-		io.MouseDown[2] = mouseButtons.middle && state.UIOverlay.visible;
+
+		glm::vec2 mousePos = input::InputSystem::getMousePosition();
+
+		io.MousePos = { mousePos.x, mousePos.y };
+		io.MouseDown[0] = input::InputSystem::isMouseButtonPressed(input::ButtonLeft) && state.UIOverlay.visible;
+		io.MouseDown[1] = input::InputSystem::isMouseButtonPressed(input::ButtonRight) && state.UIOverlay.visible;
+		io.MouseDown[2] = input::InputSystem::isMouseButtonPressed(input::ButtonMiddle) && state.UIOverlay.visible;
 
 		if (state.UIOverlay.update() || state.UIOverlay.updated)
 		{
@@ -575,63 +563,20 @@ namespace vulkan
 		}
 	}
 	
-	VkDescriptorSet getCurrentDescriptorSet()
+	void resize(const uint32& width, const uint32& height)
 	{
-		return state.swapChainBundle.frames[CURRENT_FRAME].descriptorSet;
+		state.framebufferResized = true;
 	}
 
 	void setWindow(const Window& window)
 	{
 		state.window = &window;
-		state.windowPtr = (GLFWwindow*)(window.getNativeWindow());
-		glfwSetFramebufferSizeCallback(state.windowPtr, framebufferResizeCallback);
-		int success = glfwVulkanSupported();
-		VOXEL_CORE_ASSERT(success, "GLFW: Vulkan Not Supported");
-
-		glfwSetCursorPosCallback(state.windowPtr, [](GLFWwindow* window, double xpos, double ypos)
-		{
-			mouseX = xpos;
-			mouseY = ypos;
-		});
-		glfwSetMouseButtonCallback(state.windowPtr, [](GLFWwindow* window, int button, int action, int mods)
-		{
-			switch (action)
-			{
-				case GLFW_PRESS:
-				{
-					switch (button)
-					{
-					case GLFW_MOUSE_BUTTON_1:
-						mouseButtons.left = true;
-						break;
-					case GLFW_MOUSE_BUTTON_2:
-						mouseButtons.right = true;
-					case GLFW_MOUSE_BUTTON_3:
-						mouseButtons.middle = true;
-					}
-					break;
-				}
-				case GLFW_RELEASE:
-				{
-					switch (button)
-					{
-					case GLFW_MOUSE_BUTTON_1:
-						mouseButtons.left = false;
-						break;
-					case GLFW_MOUSE_BUTTON_2:
-						mouseButtons.right = false;
-					case GLFW_MOUSE_BUTTON_3:
-						mouseButtons.middle = false;
-					}
-				}
-			}
-		});
 	}
 	void setCamera(const components::camera::Camera& camera)
 	{
 		FPVcamera = &camera;
 	}
-	void setViewport(const float& x, const float& y, const float& width, const float& height)
+	void setViewport(const int32_t& x, const int32_t& y, const uint32& width, const uint32& height)
 	{
 		state.viewportPos = VkOffset2D(x, y);
 
@@ -865,7 +810,7 @@ namespace vulkan
 
 		endSingleTimeCommands(commandBuffer);
 	}
-	void copyImage(VkDevice device, VkCommandPool cmdPool, VkImage srcImageId, VkImage dstImageId, uint32_t width, uint32_t height)
+	void copyImage(VkCommandPool cmdPool, VkImage srcImageId, VkImage dstImageId, uint32_t width, uint32_t height)
 	{
 		VkCommandBuffer cmdBuffer = vkUtils::memory::beginSingleTimeCommands(cmdPool);
 

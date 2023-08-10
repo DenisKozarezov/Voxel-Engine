@@ -33,7 +33,7 @@ namespace vkUtils::memory
 
 		return memory;
 	}
-	const VkCommandBuffer& beginSingleTimeCommands(const VkCommandPool& commandPool)
+	const VkCommandBuffer beginSingleTimeCommands(const VkCommandPool& commandPool)
 	{
 		VkCommandBuffer commandBuffer = vkUtils::memory::allocateCommandBuffer(commandPool);
 		vkUtils::memory::beginCommand(commandBuffer);

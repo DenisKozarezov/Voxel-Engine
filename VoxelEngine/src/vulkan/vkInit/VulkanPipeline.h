@@ -25,7 +25,6 @@ namespace vkInit
 		VkPipeline wireframe;
 		VkPipeline normals;
 		VkPipeline editorGrid;
-		VkPipeline viewport;
 
 		void release(const VkDevice& logicalDevice) const
 		{

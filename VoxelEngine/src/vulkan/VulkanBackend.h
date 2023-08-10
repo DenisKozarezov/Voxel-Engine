@@ -1,7 +1,7 @@
 #pragma once
+#include <vulkan/vulkan.h>
 #include <core/renderer/Renderer.h>
 #include <components/mesh/Mesh.h>
-#include <GLFW/glfw3.h>
 
 namespace vulkan
 {
@@ -13,11 +13,11 @@ namespace vulkan
 	void makeFramebuffers();
 	void makeDescriptorSetLayout();
 	void makeGraphicsPipeline();
-	void makeFrameResources(const VkDevice& logicalDevice);
+	void makeFrameResources();
 	void makeCommandBuffers();
 	void finalizeSetup();
 
-	void recreateSwapChain(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice, const VkSurfaceKHR& surface, GLFWwindow* window);
+	void recreateSwapChain();
 	void recordCommandBuffer(const VkCommandBuffer& commandBuffer, const uint32& imageIndex);
 	void submitToQueue(const VkQueue& queue, const VkCommandBuffer& commandBuffer, const VkSemaphore* signalSemaphores = nullptr);
 	void cleanupSwapChain();
@@ -29,11 +29,10 @@ namespace vulkan
 	void drawUI(const VkCommandBuffer& commandBuffer);
 	void updateUIOverlay();
 
-	VkDescriptorSet getCurrentDescriptorSet();
-
+	void resize(const uint32& width, const uint32& height);
 	void setWindow(const Window& window);
 	void setCamera(const components::camera::Camera& camera);
-	void setViewport(const float& x, const float& y, const float& width, const float& height);
+	void setViewport(const int32_t& x, const int32_t& y, const uint32& width, const uint32& height);
 	void submitRenderables(const std::vector<glm::vec3> objects);
 	void init();
 	void initImGui();	
@@ -77,7 +76,7 @@ namespace vulkan
 	void endSingleTimeCommands(const VkCommandBuffer& commandBuffer);
 
 	void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
-	void copyImage(VkDevice device, VkCommandPool cmdPool, VkImage srcImageId, VkImage dstImageId, uint32_t width, uint32_t height);
+	void copyImage(VkCommandPool cmdPool, VkImage srcImageId, VkImage dstImageId, uint32_t width, uint32_t height);
 	void transitionImageLayout(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout);
 	// ===================================================================
 }

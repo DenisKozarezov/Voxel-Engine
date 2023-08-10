@@ -18,16 +18,20 @@ namespace VoxelEngine
 
 	void WindowsWindow::init()
 	{
-		VOXEL_CORE_INFO("Creating window {0} ({1}, {2})...", _windowData.Title, _windowData.Width, _windowData.Height)
+		VOXEL_CORE_INFO("Creating window {0} ({1}, {2})...", _windowData.Title, _windowData.Width, _windowData.Height);
 
 		if (!s_GLFWInitialized)
 		{
 			int success = glfwInit();
-			VOXEL_CORE_ASSERT(success, "Unable to initialize GLFW!")
+			VOXEL_CORE_ASSERT(success, "Unable to initialize GLFW!");
 			s_GLFWInitialized = true;
 		}
 
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+		
+		int success = glfwVulkanSupported();
+		VOXEL_CORE_ASSERT(success, "VulkanSDK Not Supported!");
+		
 		_window = glfwCreateWindow(_windowData.Width, _windowData.Height, _windowData.Title.c_str(), nullptr, nullptr);
 		glfwMakeContextCurrent(_window);
 		glfwSetWindowUserPointer(_window, &_windowData);	
@@ -36,7 +40,10 @@ namespace VoxelEngine
 		glfwSetWindowSizeCallback(_window, [](GLFWwindow* window, int width, int height)
 		{
 			WindowsOSData& data = *(WindowsOSData*)glfwGetWindowUserPointer(window);
-			input::WindowResizeEvent e(width, height);
+			data.Width = static_cast<uint16>(width);
+			data.Height = static_cast<uint16>(height);
+			
+			input::WindowResizeEvent e(data.Width, data.Height);
 			data.EventCallback(e);
 		});
 
@@ -49,24 +56,26 @@ namespace VoxelEngine
 
 		glfwSetKeyCallback(_window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
 		{
+			uint16 keycode = static_cast<uint16>(key);
+
 			WindowsOSData& data = *(WindowsOSData*)glfwGetWindowUserPointer(window);
 			switch (action)
 			{
 			case GLFW_PRESS:
 			{
-				input::KeyPressedEvent e(key, false);
+				input::KeyPressedEvent e(keycode, false);
 				data.EventCallback(e);
 				break;
 			}
 			case GLFW_RELEASE:
 			{
-				input::KeyReleasedEvent e(key);
+				input::KeyReleasedEvent e(keycode);
 				data.EventCallback(e);
 				break;
 			}
 			case GLFW_REPEAT:
 			{
-				input::KeyPressedEvent e(key, true);
+				input::KeyPressedEvent e(keycode, true);
 				data.EventCallback(e);
 				break;
 			}
@@ -104,7 +113,7 @@ namespace VoxelEngine
 		glfwSetCursorPosCallback(_window, [](GLFWwindow* window, double xpos, double ypos)
 		{
 			WindowsOSData& data = *(WindowsOSData*)glfwGetWindowUserPointer(window);
-			input::MouseMovedEvent e(xpos, ypos);
+			input::MouseMovedEvent e(static_cast<float>(xpos), static_cast<float>(ypos));
 			data.EventCallback(e);
 		});
 	}
@@ -131,7 +140,10 @@ namespace VoxelEngine
 	{
 		glfwPollEvents();
 	}
-
+	void WindowsWindow::waitEvents() const
+	{
+		glfwPollEvents();
+	}
 	WindowsWindow::~WindowsWindow()
 	{
 		shutdown();

@@ -19,7 +19,7 @@ namespace vkInit
 		VkPipeline basePipilineHandle;
 	};
 
-	typedef struct Pipelines
+	struct Pipelines
 	{
 		VkPipeline solid;
 		VkPipeline wireframe;

@@ -26,7 +26,7 @@ namespace vkInit
 				{
 					ss << '\t' << extensionName << '\n';
 				}
-				VOXEL_CORE_TRACE("Device extensions to be requested:\n" + ss.str())
+				VOXEL_CORE_TRACE("Device extensions to be requested:\n" + ss.str());
 			}
 		}
 		return extensions;
@@ -35,7 +35,7 @@ namespace vkInit
 	const VkInstance createInstance()
 	{
 		bool layersSupported = vkUtils::_enableValidationLayers && vkUtils::checkValidationLayerSupport();
-		VOXEL_CORE_ASSERT(layersSupported, "validation layers requested, but not available!")
+		VOXEL_CORE_ASSERT(layersSupported, "validation layers requested, but not available!");
 
 		VkApplicationInfo appInfo = {};
 		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -71,18 +71,21 @@ namespace vkInit
 		VkResult err = vkCreateInstance(&createInfo, nullptr, &instance);
 		vkUtils::check_vk_result(err, "failed to create instance!");
 
-		VOXEL_CORE_TRACE("Vulkan instance created.")
+		VOXEL_CORE_TRACE("Vulkan instance created.");
 
 		return instance;
 	}
 
-	const VkSurfaceKHR createSurface(const VkInstance& instance, GLFWwindow* window)
+	const VkSurfaceKHR createSurface(const VkInstance& instance, const VoxelEngine::Window* window)
 	{
 		VkSurfaceKHR surface;
-		VkResult err = glfwCreateWindowSurface(instance, window, nullptr, &surface);
+
+		GLFWwindow* nativePtr = (GLFWwindow*)(window->getNativeWindow());
+
+		VkResult err = glfwCreateWindowSurface(instance, nativePtr, nullptr, &surface);
 		vkUtils::check_vk_result(err, "failed to create window surface!");
 
-		VOXEL_CORE_TRACE("Vulkan surface created.")
+		VOXEL_CORE_TRACE("Vulkan surface created.");
 
 		return surface;
 	}

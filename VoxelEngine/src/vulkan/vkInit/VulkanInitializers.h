@@ -108,11 +108,11 @@ namespace vkInit
 	{
 		VkRenderPassCreateInfo renderPassCreateInfo{};
 		renderPassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-		renderPassCreateInfo.attachmentCount = attachments.size();
+		renderPassCreateInfo.attachmentCount = static_cast<uint32>(attachments.size());
 		renderPassCreateInfo.pAttachments = attachments.data();
-		renderPassCreateInfo.subpassCount = static_cast<uint32_t>(subpasses.size());
+		renderPassCreateInfo.subpassCount = static_cast<uint32>(subpasses.size());
 		renderPassCreateInfo.pSubpasses = subpasses.data();
-		renderPassCreateInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
+		renderPassCreateInfo.dependencyCount = static_cast<uint32>(dependencies.size());
 		renderPassCreateInfo.pDependencies = dependencies.data();
 		return renderPassCreateInfo;
 	}
@@ -298,11 +298,11 @@ namespace vkInit
 		const VkDescriptorPoolSize* pPoolSizes,
 		uint32_t poolSizeCount,
 		uint32_t maxSets,
-		VkDescriptorPoolCreateFlags flags)
+		VkDescriptorPoolCreateFlags flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT)
 	{
 		VkDescriptorPoolCreateInfo descriptorPoolInfo{};
 		descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-		descriptorPoolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+		descriptorPoolInfo.flags = flags;
 		descriptorPoolInfo.poolSizeCount = poolSizeCount;
 		descriptorPoolInfo.pPoolSizes = pPoolSizes;
 		descriptorPoolInfo.maxSets = maxSets;

@@ -10,20 +10,20 @@ struct ApplicationCommandLineArgs
 	int Count = 0;
 	char** Args = nullptr;
 
-	const char* operator[](int index) const
+	constexpr char* operator[](int index) const
 	{
-		VOXEL_CORE_ASSERT(index < Count, "Invalid index when accessing to command line arguments.")
+		VOXEL_CORE_ASSERT(index < Count, "Invalid index when accessing to command line arguments.");
 		return Args[index];
 	}
-	const std::string toString() const
+	constexpr std::string toString() const
 	{
-		std::stringstream args;
+		string args;
 		for (int i = 0; i < Count; ++i)
 		{
-			args << Args[i];
-			args << ";";
+			args += Args[i];
+			args += ";";
 		}
-		return args.str();
+		return args;
 	}
 };
 struct ApplicationSpecification
@@ -84,6 +84,7 @@ namespace VoxelEngine
 		static Application& getInstance();
 		const float& getDeltaTime() const;	
 		const uint32& getFPS() const;
+		inline constexpr const UniqueRef<Window>& getWindow() const { return _window; }
 
 		void init();
 		void run();

@@ -13,8 +13,8 @@ namespace VoxelEngine
 		struct WindowsOSData final
 		{
 			string Title;
-			uint16 Width, Height;
-			bool VSync;
+			uint16 Width = 0, Height = 0;
+			bool VSync = false;
 			EventCallback EventCallback;
 		};
 		WindowsOSData _windowData;
@@ -31,7 +31,7 @@ namespace VoxelEngine
 		void setEventCallback(const EventCallback& callback) noexcept override;
 		void setMaximized(const bool& isMaximized) override;
 		void onUpdate() override;
-
+		void waitEvents() const override;
 		~WindowsWindow();
 	};
 

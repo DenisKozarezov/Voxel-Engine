@@ -25,12 +25,6 @@ namespace vkUtils
 			0,
 			&uniformBuffers.view.descriptor);
 
-		//descriptorWrites[1] = vkInit::writeDescriptorSet(
-		//	descriptorSet,
-		//	VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-		//	1,
-		//	&viewportImageInfo);
-
 		vkUpdateDescriptorSets(logicalDevice, static_cast<uint32>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}
 
@@ -41,10 +35,6 @@ namespace vkUtils
 		vkDestroyFence(logicalDevice, inFlightFence, nullptr);
 		vkDestroySemaphore(logicalDevice, imageAvailableSemaphore, nullptr);
 		vkDestroySemaphore(logicalDevice, renderFinishedSemaphore, nullptr);
-
-		//vkDestroyImageView(logicalDevice, viewportImageView, nullptr);
-		//vkDestroyFramebuffer(logicalDevice, viewportFramebuffer, nullptr);
-		//vkFreeMemory(logicalDevice, viewportDeviceMemory, nullptr);
 
 		uniformBuffers.view.release();
 	}

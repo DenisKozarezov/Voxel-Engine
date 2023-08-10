@@ -77,7 +77,7 @@ namespace vkInit
 		return availableFormats[0];
 	}
 
-	constexpr const VkPresentModeKHR& chooseSwapChainPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
+	constexpr const VkPresentModeKHR chooseSwapChainPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
 	{
 		for (const auto& availablePresentMode : availablePresentModes)
 		{
@@ -140,8 +140,7 @@ namespace vkInit
 	const std::vector<VkImage> getSwapChainImagesKHR(
 		const VkDevice& logicalDevice,
 		const VkSwapchainKHR& swapchain,
-		uint32* imageCount,
-		const VkSurfaceKHR& surface)
+		uint32* imageCount)
 	{
 		std::vector<VkImage> vector;
 		vkGetSwapchainImagesKHR(logicalDevice, swapchain, imageCount, nullptr);
@@ -285,7 +284,7 @@ namespace vkInit
 			bundle.depthImageView,
 			bundle.depthImageMemory);		
 
-		std::vector<VkImage> images = getSwapChainImagesKHR(logicalDevice, bundle.swapchain, &imageCount, surface);
+		std::vector<VkImage> images = getSwapChainImagesKHR(logicalDevice, bundle.swapchain, &imageCount);
 		bundle.frames.resize(images.size());
 		for (size_t i = 0; i < images.size(); ++i) 
 		{
@@ -298,23 +297,6 @@ namespace vkInit
 			};
 			bundle.frames[i].image = images[i];
 			bundle.frames[i].imageView = vkUtils::createImageView(logicalDevice, images[i], bundle.format, components);
-		
-			//bundle.frames[i].viewportImage = vkUtils::createImage(
-			//	physicalDevice,
-			//	logicalDevice,
-			//	width, height,
-			//	VK_FORMAT_R8G8B8A8_SRGB,
-			//	msaaSamples,
-			//	VK_IMAGE_TILING_OPTIMAL,
-			//	VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-			//	VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-			//	bundle.frames[i].viewportDeviceMemory);
-			//
-			//bundle.frames[i].viewportImageView = vkUtils::createImageView(
-			//	logicalDevice,
-			//	bundle.frames[i].viewportImage,
-			//	bundle.format,
-			//	VK_IMAGE_ASPECT_COLOR_BIT);
 		}
 
 		VOXEL_CORE_TRACE("Vulkan swap chain created.");

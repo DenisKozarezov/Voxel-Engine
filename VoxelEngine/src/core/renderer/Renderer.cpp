@@ -17,10 +17,6 @@ namespace VoxelEngine::renderer
         renderPerformanceStats.frameStats = vulkan::getFrameStats();
         return renderPerformanceStats;
     }
-    const float Renderer::getTime()
-    {
-        return (float)glfwGetTime();
-    }
     void Renderer::init(const Window& window)
     {
         VOXEL_CORE_WARN("Renderer initialization.");
@@ -42,6 +38,10 @@ namespace VoxelEngine::renderer
     void Renderer::updateUIOverlay()
     {
         vulkan::updateUIOverlay();
+    }
+    void Renderer::resize(const uint32& width, const uint32& height)
+    {
+        vulkan::resize(width, height);
     }
     void Renderer::setCamera(const components::camera::Camera& camera)
     {

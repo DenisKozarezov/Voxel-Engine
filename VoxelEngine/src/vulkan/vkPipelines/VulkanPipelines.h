@@ -73,7 +73,7 @@ namespace vkPipelines
 
 		VkGraphicsPipelineCreateInfo pipelineInfo = vkInit::pipelineCreateInfo();
 		pipelineInfo.flags = VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT;
-		pipelineInfo.stageCount = shaderStages.size();
+		pipelineInfo.stageCount = static_cast<uint32>(shaderStages.size());
 		pipelineInfo.pStages = shaderStages.data();
 		pipelineInfo.pVertexInputState = &vertexInputInfo;
 		pipelineInfo.pInputAssemblyState = &inputAssembly;
@@ -157,7 +157,7 @@ namespace vkPipelines
 
 		VkGraphicsPipelineCreateInfo pipelineInfo = vkInit::pipelineCreateInfo();
 		pipelineInfo.flags = VK_PIPELINE_CREATE_DERIVATIVE_BIT;
-		pipelineInfo.stageCount = shaderStages.size();
+		pipelineInfo.stageCount = static_cast<uint32>(shaderStages.size());
 		pipelineInfo.pStages = shaderStages.data();
 		pipelineInfo.pVertexInputState = &vertexInputInfo;
 		pipelineInfo.pInputAssemblyState = &inputAssembly;
@@ -238,7 +238,7 @@ namespace vkPipelines
 
 		VkGraphicsPipelineCreateInfo pipelineInfo = vkInit::pipelineCreateInfo();
 		pipelineInfo.flags = VK_PIPELINE_CREATE_DERIVATIVE_BIT;
-		pipelineInfo.stageCount = shaderStages.size();
+		pipelineInfo.stageCount = static_cast<uint32>(shaderStages.size());
 		pipelineInfo.pStages = shaderStages.data();
 		pipelineInfo.pVertexInputState = &vertexInputInfo;
 		pipelineInfo.pInputAssemblyState = &inputAssembly;
@@ -328,7 +328,7 @@ namespace vkPipelines
 
 		VkGraphicsPipelineCreateInfo pipelineInfo = vkInit::pipelineCreateInfo();
 		pipelineInfo.flags = VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT;
-		pipelineInfo.stageCount = shaderStages.size();
+		pipelineInfo.stageCount = static_cast<uint32>(shaderStages.size());
 		pipelineInfo.pStages = shaderStages.data();
 		pipelineInfo.pVertexInputState = &vertexInputInfo;
 		pipelineInfo.pInputAssemblyState = &inputAssembly;

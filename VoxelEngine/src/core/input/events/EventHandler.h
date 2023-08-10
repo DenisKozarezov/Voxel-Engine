@@ -21,6 +21,9 @@ namespace VoxelEngine::input
     class IEventHandler
     {
     public:
+        IEventHandler() noexcept = default;
+        virtual ~IEventHandler() noexcept = default;
+
         virtual inline const size_t& getHashCode() const = 0;
         virtual void invoke(input::Event& arg) = 0;
         virtual std::future<void> invoke_async(input::Event& arg, const std::launch& launch) = 0;
@@ -32,6 +35,7 @@ namespace VoxelEngine::input
     public:
         using Callback = std::function<bool(TEvent&)>;
 
+        EventHandler() noexcept = delete;
         explicit EventHandler(const Callback& cb) : _cbFunc(cb) 
         {
             _eventType = typeid(TEvent).hash_code();

@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include <glm/mat4x4.hpp>
-#include <vulkan/vkUtils/VulkanUniformBuffer.h>
+#include <vulkan/vkUtils/VulkanAlloc.h>
 
 #define VERTEX_BUFFER_BIND_ID 0
 #define INSTANCE_BUFFER_BIND_ID 1

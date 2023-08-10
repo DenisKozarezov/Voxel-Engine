@@ -317,7 +317,7 @@ namespace vkInit
 			//	VK_IMAGE_ASPECT_COLOR_BIT);
 		}
 
-		VOXEL_CORE_TRACE("Vulkan swap chain created.")
+		VOXEL_CORE_TRACE("Vulkan swap chain created.");
 
 		return bundle;
 	}

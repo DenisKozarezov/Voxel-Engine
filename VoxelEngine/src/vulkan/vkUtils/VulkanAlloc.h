@@ -34,6 +34,10 @@ namespace vkUtils::memory
 				mappedMemory = nullptr;
 			}
 		}
+		void setData(const void* data, const size_t& size) const
+		{
+			memcpy(mappedMemory, data, size);
+		}
 		VkResult flush(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0) const
 		{
 			VkMappedMemoryRange mappedRange = {};
@@ -51,16 +55,7 @@ namespace vkUtils::memory
 	
 	const VkCommandBuffer beginSingleTimeCommands(const VkCommandPool& commandPool);
 
-	void mapMemory(
-		const VkDevice& logicalDevice, 
-		const VkDeviceMemory& deviceMemory, 
-		const VkDeviceSize& offset, 
-		const VkDeviceSize& size, 
-		const VkMemoryMapFlags& flags, 
-		const void* data);
-
-	const Buffer createBuffer(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice, const VkDeviceSize& size, const VkBufferUsageFlags& usage, const VkMemoryPropertyFlags& properties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-	
+	Buffer createBuffer(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice, const VkDeviceSize& size, const VkBufferUsageFlags& usage, const VkMemoryPropertyFlags& properties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 	void destroyBuffer(const VkDevice& logicalDevice, const VkBuffer& buffer);
 	void freeDeviceMemory(const VkDevice& logicalDevice, const VkDeviceMemory& memory);
 

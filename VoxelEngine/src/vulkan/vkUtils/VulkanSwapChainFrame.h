@@ -1,21 +1,13 @@
 #pragma once
 #include <vector>
-#include <glm/mat4x4.hpp>
 #include <vulkan/vkUtils/VulkanAlloc.h>
+#include <core/renderer/UniformBuffer.h>
 
 #define VERTEX_BUFFER_BIND_ID 0
 #define INSTANCE_BUFFER_BIND_ID 1
 
 namespace vkUtils
 {
-	struct UniformBufferObject
-	{
-		alignas(16) glm::mat4 view;
-		alignas(16) glm::mat4 proj;
-		alignas(16) glm::mat4 viewproj;
-		glm::vec3 lightPos;
-	};
-
 	typedef struct
 	{
 		vkUtils::memory::Buffer view;

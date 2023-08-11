@@ -1,5 +1,4 @@
 #include "ImGuiLayer.h"
-#include <core/Application.h>
 
 namespace VoxelEngine::renderer
 {

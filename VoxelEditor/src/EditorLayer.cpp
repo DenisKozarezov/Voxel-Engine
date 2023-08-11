@@ -145,7 +145,6 @@ namespace VoxelEditor
 		m_dispatcher.registerEvent<input::MouseButtonReleasedEvent>(BIND_MEMBER_CALLBACK(&m_sceneView, SceneView::onMouseReleased));
 		m_dispatcher.registerEvent<input::MouseMovedEvent>(BIND_MEMBER_CALLBACK(&m_sceneView, SceneView::onMouseMoved));
 	
-		renderer::Renderer::setCamera(*m_sceneView._camera.get());
 		renderer::Renderer::submitRenderables(m_scene.vertices);
 	}				  
 	void EditorLayer::onDetach()
@@ -155,6 +154,11 @@ namespace VoxelEditor
 	void EditorLayer::onUpdate(const VoxelEngine::Timestep& ts)
 	{
 		m_deltaTime = ts;
+
+		renderer::Renderer::updateUIOverlay();
+		renderer::Renderer::preRender(*m_sceneView._camera.get());
+		renderer::Renderer::render();
+		renderer::Renderer::postRender();
 	}
 	void EditorLayer::onFixedUpdate(const VoxelEngine::Timestep& ts)
 	{

@@ -6,11 +6,11 @@ namespace VoxelEditor
 	class EditorLayer : public renderer::Layer
 	{
 	private:
-		input::EventDispatcher _dispatcher;
-		Scene _scene;
-		SceneView _sceneView;
-		float _deltaTime = 0.0f;
-		float _fixedDeltaTime = 0.0f;
+		input::EventDispatcher m_dispatcher;
+		Scene m_scene;
+		SceneView m_sceneView;
+		float m_deltaTime = 0.0f;
+		float m_fixedDeltaTime = 0.0f;
 
 		bool onKeyboardPressed(const input::KeyPressedEvent& e);
 

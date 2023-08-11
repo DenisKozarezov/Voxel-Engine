@@ -6,22 +6,22 @@ namespace vkUtils
 		const VkPhysicalDevice& physicalDevice, 
 		const VkDevice& logicalDevice, 
 		const uint32& size)
-		: logicalDevice(logicalDevice)
+		: m_logicalDevice(logicalDevice)
 	{
-		uniformBuffer = memory::createBuffer(
+		m_uniformBuffer = memory::createBuffer(
 			physicalDevice, 
 			logicalDevice, 
 			size, 
 			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 
-		vkMapMemory(logicalDevice, uniformBuffer.bufferMemory, 0, size, 0, &uniformBufferMapped);
+		vkMapMemory(logicalDevice, m_uniformBuffer.bufferMemory, 0, size, 0, &m_uniformBufferMapped);
 	}
 	void VulkanUniformBuffer::setData(const void* data, size_t size) const
 	{
-		memcpy(uniformBufferMapped, data, size);
+		memcpy(m_uniformBufferMapped, data, size);
 	}
 	void VulkanUniformBuffer::release() const
 	{
-		uniformBuffer.release();
+		m_uniformBuffer.release();
 	}
 }

@@ -8,7 +8,7 @@ namespace vkUtils
 		const VkDevice& logicalDevice,
 		const void* indices,
 		const size_t& bufferSize) 
-		: logicalDevice(logicalDevice)
+		: m_logicalDevice(logicalDevice)
 	{
 		const auto& stagingBuffer = memory::createBuffer(
 			physicalDevice, 
@@ -18,18 +18,18 @@ namespace vkUtils
 
 		memory::mapMemory(logicalDevice, stagingBuffer.bufferMemory, 0, bufferSize, 0, indices);
 
-		indexBuffer = memory::createBuffer(
+		m_indexBuffer = memory::createBuffer(
 			physicalDevice,
 			logicalDevice,
 			bufferSize, 
 			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, 
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-		vulkan::copyBuffer(stagingBuffer.buffer, indexBuffer.buffer, bufferSize);
+		vulkan::copyBuffer(stagingBuffer.buffer, m_indexBuffer.buffer, bufferSize);
 
 		stagingBuffer.release();
 	}
 	void VulkanIndexBuffer::release() const
 	{
-		indexBuffer.release();
+		m_indexBuffer.release();
 	}
 }

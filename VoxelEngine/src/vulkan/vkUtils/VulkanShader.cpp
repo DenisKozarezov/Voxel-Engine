@@ -11,26 +11,26 @@ namespace vkUtils
 		createInfo.pCode = reinterpret_cast<const uint32*>(code.data());
 
 		VkShaderModule shaderModule;
-		VkResult err = vkCreateShaderModule(_logicalDevice, &createInfo, nullptr, &shaderModule);
+		VkResult err = vkCreateShaderModule(m_logicalDevice, &createInfo, nullptr, &shaderModule);
 		vkUtils::check_vk_result(err, "failed to create shader module!");
 		return shaderModule;
 	}	
 	VulkanShader::VulkanShader(const VkDevice& logicalDevice, const string& filepath, const VkShaderStageFlagBits& shaderType) 
 		: Shader(filepath), 
-		_logicalDevice(logicalDevice)
+		m_logicalDevice(logicalDevice)
 	{
 		auto shaderProgram = readFile(filepath);
 
-		_shaderModule = createShaderModule(shaderProgram);
-		_shaderInfo = {};
-		_shaderInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		_shaderInfo.stage = shaderType;
-		_shaderInfo.module = _shaderModule;
-		_shaderInfo.pName = "main";
+		m_shaderModule = createShaderModule(shaderProgram);
+		m_shaderInfo = {};
+		m_shaderInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		m_shaderInfo.stage = shaderType;
+		m_shaderInfo.module = m_shaderModule;
+		m_shaderInfo.pName = "main";
 	}
 	void VulkanShader::unbind() const
 	{
-		vkDestroyShaderModule(_logicalDevice, _shaderModule, nullptr);
+		vkDestroyShaderModule(m_logicalDevice, m_shaderModule, nullptr);
 	}
 	VulkanShader::~VulkanShader()
 	{

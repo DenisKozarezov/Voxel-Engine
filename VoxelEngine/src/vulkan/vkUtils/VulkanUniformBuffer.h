@@ -6,9 +6,9 @@ namespace vkUtils
 	class VulkanUniformBuffer
 	{
 	private:
-		VkDevice logicalDevice;
-		memory::Buffer uniformBuffer;
-		void* uniformBufferMapped;
+		VkDevice m_logicalDevice;
+		memory::Buffer m_uniformBuffer;
+		void* m_uniformBufferMapped;
 	public:
 		VulkanUniformBuffer() = default;
 		VulkanUniformBuffer(
@@ -16,7 +16,7 @@ namespace vkUtils
 			const VkDevice& logicalDevice, 
 			const uint32& size);
 
-		operator const VkBuffer&() const & { return uniformBuffer.buffer; }
+		operator const VkBuffer&() const & { return m_uniformBuffer.buffer; }
 
 		void setData(const void* data, size_t size) const;
 		void release() const;

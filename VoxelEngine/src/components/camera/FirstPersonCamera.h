@@ -20,13 +20,13 @@ namespace VoxelEngine::components::camera
 	class FirstPersonCamera : public Camera
 	{
 	private:
-		glm::vec3 _front;
-		glm::vec3 _up;
-		float _yaw, _pitch;
-		float _movementSpeed;
-		float _mouseSensitivity;
-		float _zoom;
-		float lerpT = 0;
+		glm::vec3 m_front;
+		glm::vec3 m_up;
+		float m_yaw, m_pitch;
+		float m_movementSpeed;
+		float m_mouseSensitivity;
+		float m_zoom;
+		float m_lerpT = 0.0f;
 	public:
 		FirstPersonCamera() noexcept = delete;
 		FirstPersonCamera(
@@ -36,10 +36,10 @@ namespace VoxelEngine::components::camera
 			float pitch = defaultPitch);
 		~FirstPersonCamera() noexcept = default;
 
-		inline const glm::mat4 viewMatrix() const override { return glm::lookAt(_position, _position + _front, _up); }
+		inline const glm::mat4 viewMatrix() const override { return glm::lookAt(m_position, m_position + m_front, m_up); }
 		inline const glm::mat4 projectionMatrix() const override 
 		{ 
-			glm::mat4 projection = glm::perspective(glm::radians(FOV), _aspectRatio, nearClip, farClip);
+			glm::mat4 projection = glm::perspective(glm::radians(FOV), m_aspectRatio, nearClip, farClip);
 			projection[1][1] *= -1;
 			return projection;
 		};

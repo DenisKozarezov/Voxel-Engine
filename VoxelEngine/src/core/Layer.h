@@ -7,10 +7,10 @@ namespace VoxelEngine::renderer
 	class Layer
 	{
 	private:
-		string _debugName;
+		string m_debugName;
 	public:
 		Layer() = default;
-		Layer(const string& name = "Layer") : _debugName(name) { }
+		Layer(const string& name = "Layer") : m_debugName(name) { }
 		Layer(Layer const&) noexcept = delete;
 		Layer(Layer&&) noexcept = delete;
 		Layer& operator= (Layer const& rhs) noexcept = delete;
@@ -23,7 +23,7 @@ namespace VoxelEngine::renderer
 		virtual void onImGuiRender() {}
 		virtual void onEvent(input::Event& event) {}
 
-		inline const std::string& getName() const & { return _debugName; }
+		inline const std::string& getName() const & { return m_debugName; }
 
 		virtual ~Layer() = default;
 	};

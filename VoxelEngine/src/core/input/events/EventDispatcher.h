@@ -12,17 +12,17 @@ namespace VoxelEngine::input
         EventDispatcher() noexcept = default;
         EventDispatcher(const EventDispatcher& src) noexcept
         {
-            std::lock_guard<std::mutex> lock(src._handlersLocker);
-            _eventList = src._eventList;
+            std::lock_guard<std::mutex> lock(src.m_handlersLocker);
+            m_eventList = src.m_eventList;
         }
         EventDispatcher(EventDispatcher&& src) noexcept
         {
-            std::lock_guard<std::mutex> lock(src._handlersLocker);
-            _eventList = std::move(src._eventList);
+            std::lock_guard<std::mutex> lock(src.m_handlersLocker);
+            m_eventList = std::move(src.m_eventList);
         }
         ~EventDispatcher()
         {
-            for (const auto& el : _eventList)
+            for (const auto& el : m_eventList)
             {
                 for (const auto& cb : el.second)
                     delete cb;
@@ -31,16 +31,16 @@ namespace VoxelEngine::input
 
         EventDispatcher& operator=(const EventDispatcher& src) noexcept
         {
-            std::lock_guard<std::mutex> lock(_handlersLocker);
-            std::lock_guard<std::mutex> lock2(src._handlersLocker);
-            _eventList = src._eventList;
+            std::lock_guard<std::mutex> lock(m_handlersLocker);
+            std::lock_guard<std::mutex> lock2(src.m_handlersLocker);
+            m_eventList = src.m_eventList;
             return *this;
         }
         EventDispatcher& operator=(EventDispatcher&& src) noexcept
         {
-            std::lock_guard<std::mutex> lock(_handlersLocker);
-            std::lock_guard<std::mutex> lock2(src._handlersLocker);
-            std::swap(_eventList, src._eventList);
+            std::lock_guard<std::mutex> lock(m_handlersLocker);
+            std::lock_guard<std::mutex> lock2(src.m_handlersLocker);
+            std::swap(m_eventList, src.m_eventList);
             return *this;
         }
 
@@ -57,9 +57,9 @@ namespace VoxelEngine::input
         {
             if (event)
             {
-                std::lock_guard<std::mutex> lock(_handlersLocker);
+                std::lock_guard<std::mutex> lock(m_handlersLocker);
                 size_t hash = event->getHashCode();
-                _eventList[hash].push_back(event);
+                m_eventList[hash].push_back(event);
             }
         }
         
@@ -67,28 +67,28 @@ namespace VoxelEngine::input
         requires is_event<TEvent>
         void unregisterEvent()
         {
-            std::lock_guard<std::mutex> lock(_handlersLocker);
+            std::lock_guard<std::mutex> lock(m_handlersLocker);
 
             size_t hash = typeid(TEvent).hash_code();
-            if (_eventList.contains(hash))
+            if (m_eventList.contains(hash))
             {
-                for (const auto& cb : _eventList[hash])
+                for (const auto& cb : m_eventList[hash])
                     delete cb;
-                _eventList.erase(hash);
+                m_eventList.erase(hash);
             }
         }
         void unregisterEvent(IEventHandler* event)
         {
-            std::lock_guard<std::mutex> lock(_handlersLocker);
+            std::lock_guard<std::mutex> lock(m_handlersLocker);
 
             if (event)
             {
                 size_t hash = event->getHashCode();
-                if (_eventList.contains(hash))
+                if (m_eventList.contains(hash))
                 {
-                    for (const auto& cb : _eventList[hash])
+                    for (const auto& cb : m_eventList[hash])
                         delete cb;
-                    _eventList.erase(hash);
+                    m_eventList.erase(hash);
                 }
             }
         }
@@ -98,10 +98,10 @@ namespace VoxelEngine::input
         {
             size_t hash = typeid(arg).hash_code();
 
-            if (!_eventList.contains(hash))
+            if (!m_eventList.contains(hash))
                 return;
 
-            for (const auto& ie : _eventList[hash])
+            for (const auto& ie : m_eventList[hash])
             {
                 if (ie)
                 {
@@ -114,10 +114,10 @@ namespace VoxelEngine::input
         {
             size_t hash = typeid(arg).hash_code();
 
-            if (!_eventList.contains(hash))
+            if (!m_eventList.contains(hash))
                 return;
 
-            for (const auto& ie : _eventList[hash])
+            for (const auto& ie : m_eventList[hash])
             {
                 if (ie)
                 {
@@ -136,7 +136,7 @@ namespace VoxelEngine::input
         }
     private:
         typedef std::list<IEventHandler*> EventCallbacks;
-        std::unordered_map<size_t, EventCallbacks> _eventList;
-        mutable std::mutex _handlersLocker;
+        std::unordered_map<size_t, EventCallbacks> m_eventList;
+        mutable std::mutex m_handlersLocker;
     };
 }

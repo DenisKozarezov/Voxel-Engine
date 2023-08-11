@@ -41,22 +41,22 @@ namespace VoxelEngine
 	class VOXEL_API Application
 	{
 	private:
-		ApplicationSpecification _specification;
-		UniqueRef<Window> _window;
-		renderer::LayerStack _layerStack;
-		input::EventDispatcher _dispatcher;
-		bool _running = false;
-		bool _minimized = false;
+		ApplicationSpecification m_specification;
+		UniqueRef<Window> m_window;
+		renderer::LayerStack m_layerStack;
+		input::EventDispatcher m_dispatcher;
+		bool m_running = false;
+		bool m_minimized = false;
 
-		uint32_t _frameCounter = 0;
-		uint32_t _lastFPS = 0;
-		float _accumulator = 0.0f;
-		float _frameTimer = 1.0f;
+		uint32 m_frameCounter = 0;
+		uint32 m_lastFPS = 0;
+		float m_accumulator = 0.0f;
+		float m_frameTimer = 1.0f;
 		std::chrono::time_point<std::chrono::high_resolution_clock> lastTimestamp, tPrevEnd;
 
 		static constexpr double fixedDeltaTime = 1 / 60.0f;
 
-		static Application* _instance;
+		static Application* s_instance;
 
 		void setupInputCallbacks();
 		void nextFrame();
@@ -69,8 +69,6 @@ namespace VoxelEngine
 		bool onWindowClose(const input::WindowCloseEvent& e);
 		bool onWindowResize(const input::WindowResizeEvent& e);
 	protected:
-		renderer::Renderer _renderer;
-
 		Application(const ApplicationSpecification& spec);
 		void pushLayer(renderer::Layer* layer);
 		void pushOverlay(renderer::Layer* layer);
@@ -84,7 +82,8 @@ namespace VoxelEngine
 		static Application& getInstance();
 		const float& getDeltaTime() const;	
 		const uint32& getFPS() const;
-		inline constexpr const UniqueRef<Window>& getWindow() const { return _window; }
+
+		inline constexpr const UniqueRef<Window>& getWindow() const { return m_window; }
 
 		void init();
 		void run();

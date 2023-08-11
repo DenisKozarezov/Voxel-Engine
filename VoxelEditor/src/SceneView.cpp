@@ -23,9 +23,11 @@ namespace VoxelEditor
 
 		_camera = MakeUnique<components::camera::FirstPersonCamera>(cameraPos);
 	}
-
 	bool SceneView::onMousePressed(const input::MouseButtonPressedEvent& e)
 	{
+		if (!m_viewportFocused)
+			return false;
+
 		switch (e.getKeyCode())
 		{
 		case input::ButtonRight:
@@ -67,6 +69,7 @@ namespace VoxelEditor
 	void SceneView::render()
 	{
 		ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBackground;
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 		ImGui::Begin("Viewport", 0, flags);
 
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
@@ -74,14 +77,21 @@ namespace VoxelEditor
 		vMin.x += ImGui::GetWindowPos().x;
 		vMin.y += ImGui::GetWindowPos().y;
 
-		bool viewportFocused = ImGui::IsWindowFocused();
-		bool viewportHovered = ImGui::IsWindowHovered();
+		lastViewportSize = viewportPanelSize;
+
+		m_viewportFocused = ImGui::IsWindowFocused();
+		m_viewportHovered = ImGui::IsWindowHovered();
+		if (m_viewportHovered && ImGui::IsMouseDown(1))
+		{
+			ImGui::SetWindowFocus();
+		}
 
 		vulkan::setViewport(vMin.x, vMin.y, viewportPanelSize.x, viewportPanelSize.y);
 		_camera->setAspectRatio(viewportPanelSize.x / viewportPanelSize.y);
 
 		drawRenderModes();
 		
+		ImGui::PopStyleVar();
 		ImGui::End();
 	}
 

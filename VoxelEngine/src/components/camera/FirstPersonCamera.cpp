@@ -4,59 +4,59 @@ namespace VoxelEngine::components::camera
 {
 	FirstPersonCamera::FirstPersonCamera(const glm::vec3& position, const glm::vec3& up, float yaw, float pitch)
 		: Camera(position),
-		_movementSpeed(defaultSpeed), 
-		_mouseSensitivity(defaultSensitivity), 
-		_zoom(defaultZoom),
-		_up(up),
-		_front(glm::vec3(0.0f, 0.0f, -1.0f)),
-		_yaw(yaw),
-		_pitch(pitch)
+		m_movementSpeed(defaultSpeed), 
+		m_mouseSensitivity(defaultSensitivity), 
+		m_zoom(defaultZoom),
+		m_up(up),
+		m_front(glm::vec3(0.0f, 0.0f, -1.0f)),
+		m_yaw(yaw),
+		m_pitch(pitch)
 	{
 
 	}
 
 	void FirstPersonCamera::processKeyboard(const CameraMovement& direction, const float& deltaTime)
 	{
-		const float velocity = _movementSpeed * deltaTime;
-		lerpT = std::clamp(lerpT + deltaTime, 0.0f, 1.0f);
+		const float velocity = m_movementSpeed * deltaTime;
+		m_lerpT = std::clamp(m_lerpT + deltaTime, 0.0f, 1.0f);
 
-		if (lerpT > 1.0f)
-			lerpT = 1.0f;
+		if (m_lerpT > 1.0f)
+			m_lerpT = 1.0f;
 
 		glm::vec3 cameraDir;
 
 		switch (direction)
 		{
 		case CameraMovement::Forward: 
-			cameraDir = _front;
+			cameraDir = m_front;
 			break;
 		case CameraMovement::Backward:
-			cameraDir = -_front;
+			cameraDir = -m_front;
 			break;
 		case CameraMovement::Left:
-			cameraDir = -glm::normalize(glm::cross(_front, _up));
+			cameraDir = -glm::normalize(glm::cross(m_front, m_up));
 			break;
 		case CameraMovement::Right:
-			cameraDir = glm::normalize(glm::cross(_front, _up));
+			cameraDir = glm::normalize(glm::cross(m_front, m_up));
 			break;
 		}
 
-		_position = glm::mix(_position, _position + cameraDir * velocity, lerpT);
+		m_position = glm::mix(m_position, m_position + cameraDir * velocity, m_lerpT);
 	}
 	void FirstPersonCamera::processMouse(const float& xOffset, const float& yOffset, const bool& constrainPitch)
 	{
-		_pitch += yOffset * _mouseSensitivity;
-		_yaw += xOffset * _mouseSensitivity;
+		m_pitch += yOffset * m_mouseSensitivity;
+		m_yaw += xOffset * m_mouseSensitivity;
 
 		if (constrainPitch) 
 		{
-			_pitch = std::clamp(_pitch, -89.0f, 89.0f);
+			m_pitch = std::clamp(m_pitch, -89.0f, 89.0f);
 		}
 
 		glm::vec3 front;
-		front.x = cos(glm::radians(_yaw)) * cos(glm::radians(_pitch));
-		front.y = sin(glm::radians(_pitch));
-		front.z = sin(glm::radians(_yaw)) * cos(glm::radians(_pitch));
-		_front = glm::normalize(front);
+		front.x = cos(glm::radians(m_yaw)) * cos(glm::radians(m_pitch));
+		front.y = sin(glm::radians(m_pitch));
+		front.z = sin(glm::radians(m_yaw)) * cos(glm::radians(m_pitch));
+		m_front = glm::normalize(front);
 	}
 }

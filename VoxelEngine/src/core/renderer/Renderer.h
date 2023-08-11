@@ -22,20 +22,20 @@ namespace VoxelEngine::renderer
 		float deltaTime;
 	};
 
-	class Renderer : public RenderContext
+	class Renderer
 	{
 	public:
 		static RenderSettings& getRenderSettings();
 		static const RenderPerformanceStats& getStats();
-		void init(const Window& window) override;
-		void preRender() override;
-		void render() override;
-		void postRender() override;
-		void updateUIOverlay();
-		void resize(const uint32& width, const uint32& height);
+		static void init(const Window& window);
+		static void preRender();
+		static void render();
+		static void postRender();
+		static void updateUIOverlay();
+		static void resize(const uint32& width, const uint32& height);
 		static void setCamera(const components::camera::Camera& camera);
 		static void submitRenderables(const std::vector<glm::vec3> objects);
-		void deviceWaitIdle();
-		void cleanup();
+		static void deviceWaitIdle();
+		static void cleanup();
 	};
 }

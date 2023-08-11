@@ -60,9 +60,6 @@ namespace VoxelEngine
 
 		void setupInputCallbacks();
 		void nextFrame();
-		inline void preRender();
-		inline void render();
-		inline void postRender();
 		void calculateFramerate(const std::chrono::steady_clock::time_point& tEnd);
 
 		void onEvent(input::Event& e);

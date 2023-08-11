@@ -95,49 +95,30 @@ namespace VoxelEngine
 
 		if (!m_minimized)
 		{
-			preRender();
+			m_layerStack.onUpdate(m_frameTimer);
 
-			render();
+			g_imguiLayer->preRender();
+			m_layerStack.onImGuiRender();
+			g_imguiLayer->postRender();
 
-			postRender();
+			m_accumulator += m_frameTimer;
+			while (m_accumulator >= fixedDeltaTime)
+			{
+				m_layerStack.onFixedUpdate(fixedDeltaTime);
+				m_accumulator -= fixedDeltaTime;
+			}
 
 			m_frameCounter++;
 
 			auto tEnd = std::chrono::high_resolution_clock::now();
 			auto tDiff = std::chrono::duration<double, std::milli>(tEnd - tStart).count();
 			m_frameTimer = (float)tDiff / 1000.0f;
-			
-			m_layerStack.onUpdate(m_frameTimer);
 
 			calculateFramerate(tEnd);
 		}
 	}
-	inline void Application::preRender()
-	{
-		renderer::Renderer::preRender();
-	}
-	inline void Application::render()
-	{
-		renderer::Renderer::render();
-	}
-	inline void Application::postRender()
-	{
-		renderer::Renderer::updateUIOverlay();
-		renderer::Renderer::postRender();
-
-		g_imguiLayer->preRender();
-		m_layerStack.onImGuiRender();
-		g_imguiLayer->postRender();
-	}
 	void Application::calculateFramerate(const std::chrono::steady_clock::time_point& tEnd)
 	{
-		m_accumulator += m_frameTimer;
-		while (m_accumulator >= fixedDeltaTime)
-		{
-			m_layerStack.onFixedUpdate(fixedDeltaTime);
-			m_accumulator -= fixedDeltaTime;
-		}
-
 		float fpsTimer = (float)(std::chrono::duration<double, std::milli>(tEnd - lastTimestamp).count());
 		if (fpsTimer > 1000.0f)
 		{

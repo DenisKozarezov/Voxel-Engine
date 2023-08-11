@@ -40,21 +40,7 @@ namespace vkUtils::memory
 		return commandBuffer;
 	}
 	
-	void mapMemory(
-		const VkDevice& logicalDevice,
-		const VkDeviceMemory& deviceMemory,
-		const VkDeviceSize& offset,
-		const VkDeviceSize& size,
-		const VkMemoryMapFlags& flags,
-		const void* data)
-	{
-		void* dst;
-		vkMapMemory(logicalDevice, deviceMemory, offset, size, flags, &dst);
-		memcpy(dst, data, size);
-		vkUnmapMemory(logicalDevice, deviceMemory);
-	}
-	
-	const Buffer createBuffer(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice, const VkDeviceSize& size, const VkBufferUsageFlags& usage, const VkMemoryPropertyFlags& properties)
+	Buffer createBuffer(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice, const VkDeviceSize& size, const VkBufferUsageFlags& usage, const VkMemoryPropertyFlags& properties)
 	{
 		VkBufferCreateInfo bufferInfo = {};
 		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;

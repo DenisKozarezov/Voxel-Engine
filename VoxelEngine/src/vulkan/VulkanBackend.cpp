@@ -61,7 +61,6 @@ namespace vulkan
 	} state;
 
 	VoxelEngine::threading::ThreadPool* threadPool;
-	const camera::Camera* FPVcamera;
 	std::vector<glm::vec3> objectsToRender;
 	VoxelEngine::renderer::RenderSettings renderSettings;
 	VoxelEngine::renderer::RenderFrameStats renderFrameStats;
@@ -467,16 +466,6 @@ namespace vulkan
 	void prepareFrame(const uint32& imageIndex)
 	{
 		vkUtils::SwapChainFrame& frame = state.swapChainBundle.frames[imageIndex];
-
-		vkUtils::UniformBufferObject ubo =
-		{
-			.view = FPVcamera->viewMatrix(),
-			.proj = FPVcamera->projectionMatrix(),
-			.viewproj = ubo.proj * ubo.view,
-			.lightPos = FPVcamera->getPosition()
-		};
-		memcpy(frame.uniformBuffers.view.mappedMemory, &ubo, sizeof(ubo));
-
 		frame.writeDescriptorSet();
 	}
 	void prepareScene(const VkCommandBuffer& commandBuffer)
@@ -488,7 +477,7 @@ namespace vulkan
 		vkCmdBindVertexBuffers(commandBuffer, INSTANCE_BUFFER_BIND_ID, 1, &instanceBuffer, offsets);
 		vkCmdBindIndexBuffer(commandBuffer, *state.vertexManager->indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 	}
-	void beginFrame() 
+	void beginFrame(const renderer::UniformBufferObject& ubo)
 	{
 		vkUtils::SwapChainFrame& frame = state.swapChainBundle.frames[CURRENT_FRAME];
 
@@ -509,6 +498,8 @@ namespace vulkan
 
 		vkInit::resetFences(state.logicalDevice, 1, frame.inFlightFence);
 		vkUtils::memory::resetCommandBuffer(frame.commandBuffer);
+
+		frame.uniformBuffers.view.setData(&ubo, sizeof(ubo));
 	}
 	void endFrame()
 	{
@@ -571,10 +562,6 @@ namespace vulkan
 	void setWindow(const Window& window)
 	{
 		state.window = &window;
-	}
-	void setCamera(const components::camera::Camera& camera)
-	{
-		FPVcamera = &camera;
 	}
 	void setViewport(const int32_t& x, const int32_t& y, const uint32& width, const uint32& height)
 	{
@@ -699,13 +686,9 @@ namespace vulkan
 			instanceBufferSize,
 			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
 
-		vkUtils::memory::mapMemory(
-			state.logicalDevice, 
-			instances.bufferMemory, 
-			0, 
-			instanceBufferSize, 
-			0, 
-			instanceData.data());
+		instances.map();
+		instances.setData(instanceData.data(), instanceBufferSize);
+		instances.unmap();
 	}
 	void makeAssets()
 	{

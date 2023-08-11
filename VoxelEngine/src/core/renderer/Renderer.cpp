@@ -1,5 +1,5 @@
 #include <vulkan/VulkanBackend.h>
-#include "core/Application.h"
+#include <core/Application.h>
 
 namespace VoxelEngine::renderer
 {
@@ -23,9 +23,16 @@ namespace VoxelEngine::renderer
         vulkan::setWindow(window);
         vulkan::init();
     }
-    void Renderer::preRender()
+    void Renderer::preRender(const components::camera::Camera& camera)
     {
-        vulkan::beginFrame();
+        UniformBufferObject ubo =
+        {
+            .view = camera.viewMatrix(),
+            .proj = camera.projectionMatrix(),
+            .viewproj = ubo.proj * ubo.view,
+            .lightPos = camera.getPosition()
+        };
+        vulkan::beginFrame(ubo);
     }
     void Renderer::render()
     {
@@ -42,10 +49,6 @@ namespace VoxelEngine::renderer
     void Renderer::resize(const uint32& width, const uint32& height)
     {
         vulkan::resize(width, height);
-    }
-    void Renderer::setCamera(const components::camera::Camera& camera)
-    {
-        vulkan::setCamera(camera);
     }
     void Renderer::submitRenderables(const std::vector<glm::vec3> objects)
     {

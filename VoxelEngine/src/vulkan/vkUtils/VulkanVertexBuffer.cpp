@@ -10,13 +10,15 @@ namespace vkUtils
 		const size_t& bufferSize)
 		: m_logicalDevice(logicalDevice)
 	{ 
-		const auto& stagingBuffer = memory::createBuffer(
+		auto stagingBuffer = memory::createBuffer(
 			physicalDevice,
 			logicalDevice,
 			bufferSize, 
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
 
-		memory::mapMemory(logicalDevice, stagingBuffer.bufferMemory, 0, bufferSize, 0, vertices);
+		stagingBuffer.map();
+		stagingBuffer.setData(vertices, bufferSize);
+		stagingBuffer.unmap();
 
 		m_vertexBuffer = memory::createBuffer(
 			physicalDevice,

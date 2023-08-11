@@ -6,7 +6,7 @@ namespace vkUtils
 {
 	void SwapChainFrame::makeDescriptorResources(const VkPhysicalDeviceLimits& limits)
 	{
-		VkDeviceSize size = sizeof(vkUtils::UniformBufferObject);
+		VkDeviceSize size = sizeof(VoxelEngine::renderer::UniformBufferObject);
 		uniformBuffers.view = vkUtils::memory::createBuffer(
 			physicalDevice,
 			logicalDevice,

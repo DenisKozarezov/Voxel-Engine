@@ -7,16 +7,16 @@ namespace vkUtils
 	class VulkanShader : public VoxelEngine::renderer::Shader
 	{
 	private:
-		VkShaderModule _shaderModule;
-		VkPipelineShaderStageCreateInfo _shaderInfo;
-		VkDevice _logicalDevice;
+		VkShaderModule m_shaderModule;
+		VkPipelineShaderStageCreateInfo m_shaderInfo;
+		VkDevice m_logicalDevice;
 
 		const VkShaderModule createShaderModule(const std::vector<char>& code) const;
 	public:
 		VulkanShader(const VkDevice& logicalDevice, const string& filepath, const VkShaderStageFlagBits& shaderType);
 
-		inline VkShaderModule& getShaderModule() & noexcept { return _shaderModule; }
-		inline constexpr VkPipelineShaderStageCreateInfo& getStage() & noexcept { return _shaderInfo; }
+		inline VkShaderModule& getShaderModule() & noexcept { return m_shaderModule; }
+		inline constexpr VkPipelineShaderStageCreateInfo& getStage() & noexcept { return m_shaderInfo; }
 
 		void unbind() const override;
 

@@ -6,17 +6,17 @@ namespace VoxelEngine::input
     class WindowResizeEvent final : public Event
     {
     private:
-        uint16 _width, _height;
+        uint16 m_width, m_height;
     public:
-        WindowResizeEvent(uint16 width, uint16 height) : _width(width), _height(height) { }
+        WindowResizeEvent(uint16 width, uint16 height) : m_width(width), m_height(height) { }
         WindowResizeEvent(const WindowResizeEvent&) = delete;
 
-        inline const uint16& getWidth() const { return _width; }
-        inline const uint16& getHeight() const { return _height; }
+        inline const uint16& getWidth() const { return m_width; }
+        inline const uint16& getHeight() const { return m_height; }
         const string toString() const override
         {
             std::stringstream ss;
-            ss << "WindowResizeEvent: " << _width << ", " << _height;
+            ss << "WindowResizeEvent: " << m_width << ", " << m_height;
             return ss.str();
         }
 

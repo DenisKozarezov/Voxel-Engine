@@ -6,8 +6,8 @@ namespace vkUtils
 	class VulkanIndexBuffer
 	{
 	private:
-		VkDevice logicalDevice;
-		memory::Buffer indexBuffer;
+		VkDevice m_logicalDevice;
+		memory::Buffer m_indexBuffer;
 	public:
 		VulkanIndexBuffer() = default;
 		VulkanIndexBuffer(
@@ -16,7 +16,7 @@ namespace vkUtils
 			const void* indices, 
 			const size_t& bufferSize);
 
-		operator const VkBuffer&() const & { return indexBuffer.buffer; }
+		operator const VkBuffer&() const & { return m_indexBuffer.buffer; }
 
 		void release() const;
 

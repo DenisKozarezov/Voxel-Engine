@@ -31,7 +31,7 @@ namespace assets
     {
         TextureData data;
         
-        data.nativePtr = stbi_load(path.c_str(), &data.width, &data.height, &data.texChannels, req_comp);
+        data.m_nativePtr = stbi_load(path.c_str(), &data.m_width, &data.m_height, &data.m_texChannels, req_comp);
 
         VOXEL_CORE_ASSERT(data.isValid(), "failed to load texture image on path '" + path + "'")
 
@@ -90,6 +90,6 @@ namespace assets
     }
     void TextureData::release() const
     {
-        stbi_image_free(nativePtr);
+        stbi_image_free(m_nativePtr);
     }
 }

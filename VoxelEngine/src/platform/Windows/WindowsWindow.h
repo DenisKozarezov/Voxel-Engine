@@ -17,16 +17,16 @@ namespace VoxelEngine
 			bool VSync = false;
 			EventCallback EventCallback;
 		};
-		WindowsOSData _windowData;
-		GLFWwindow* _window;
+		WindowsOSData m_windowData;
+		GLFWwindow* m_window;
 	public:
 		WindowsWindow() = default;
 		WindowsWindow(const WindowProperties&);
 
-		inline const uint16& getWidth() const noexcept override { return _windowData.Width; }
-		inline const uint16& getHeight() const noexcept override { return _windowData.Height; }
-		inline const bool& VSyncEnabled() const noexcept override { return _windowData.VSync; }
-		const void* getNativeWindow() const & noexcept override { return _window; }
+		inline const uint16& getWidth() const noexcept override { return m_windowData.Width; }
+		inline const uint16& getHeight() const noexcept override { return m_windowData.Height; }
+		inline const bool& VSyncEnabled() const noexcept override { return m_windowData.VSync; }
+		const void* getNativeWindow() const & noexcept override { return m_window; }
 		void setVSync(bool isEnabled) noexcept override;
 		void setEventCallback(const EventCallback& callback) noexcept override;
 		void setMaximized(const bool& isMaximized) override;

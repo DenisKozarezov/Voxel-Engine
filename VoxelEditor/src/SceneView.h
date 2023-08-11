@@ -9,12 +9,15 @@ namespace VoxelEditor
 	{
 	private:
 		float _lastMouseX = 0.0f, _lastMouseY = 0.0f;
+		ImVec2 lastViewportSize;
 		glm::vec2 _viewportSize;
 		input::MouseDraggingState _mouseState;
 
 		void drawRenderModes();
 	public:
 		UniqueRef<components::camera::Camera> _camera;
+		bool m_viewportFocused;
+		bool m_viewportHovered;
 
 		SceneView();
 		~SceneView() noexcept = default;

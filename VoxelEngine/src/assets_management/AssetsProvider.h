@@ -28,15 +28,15 @@ namespace assets
 	struct TextureData
 	{
 	public:
-		byte* nativePtr;
-		int width;
-		int height;
-		int texChannels;
+		byte* m_nativePtr;
+		int m_width;
+		int m_height;
+		int m_texChannels;
 
 		TextureData() noexcept = default;
 		~TextureData() noexcept = default;
 
-		inline constexpr bool isValid() const { return nativePtr; }
+		inline constexpr bool isValid() const { return m_nativePtr; }
 		
 		void release() const;
 	};

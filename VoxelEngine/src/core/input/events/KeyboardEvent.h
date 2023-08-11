@@ -7,17 +7,17 @@ namespace VoxelEngine::input
     class KeyboardEvent : public Event
     {
     protected:
-        KeyCode _keyCode;
+        KeyCode m_keyCode;
     public:
         KeyboardEvent() = delete;
-        KeyboardEvent(const KeyboardEvent& e) : _keyCode(e._keyCode) { }
-        KeyboardEvent(const KeyCode& key) : _keyCode(key) { }
+        KeyboardEvent(const KeyboardEvent& e) : m_keyCode(e.m_keyCode) { }
+        KeyboardEvent(const KeyCode& key) : m_keyCode(key) { }
 
-        inline const KeyCode& getKeyCode() const & { return _keyCode; }
+        inline const KeyCode& getKeyCode() const & { return m_keyCode; }
         const string toString() const override
         {
             std::stringstream ss;
-            ss << this->getName() << ": " << _keyCode;
+            ss << this->getName() << ": " << m_keyCode;
             return ss.str();
         }
 
@@ -29,10 +29,10 @@ namespace VoxelEngine::input
     class KeyPressedEvent final : public KeyboardEvent
     {
     private:
-        bool _isPressed;
+        bool m_isPressed;
     public:
         KeyPressedEvent() = delete;
-        KeyPressedEvent(const KeyCode& key, bool isHold) : KeyboardEvent(key), _isPressed(isHold) { }
+        KeyPressedEvent(const KeyCode& key, bool isHold) : KeyboardEvent(key), m_isPressed(isHold) { }
 
         EVENT_CLASS_TYPE(KeyPressed)
 

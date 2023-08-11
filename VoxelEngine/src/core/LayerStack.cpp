@@ -4,38 +4,38 @@ namespace VoxelEngine::renderer
 {
 	void LayerStack::pushLayer(Layer* layer)
 	{
-		_layers.emplace(_layers.begin() + _layerInsertIndex, layer);
-		_layerInsertIndex++;
+		m_layers.emplace(m_layers.begin() + m_layerInsertIndex, layer);
+		m_layerInsertIndex++;
 	}
 
 	void LayerStack::pushOverlay(Layer* overlay)
 	{
-		_layers.emplace_back(overlay);
+		m_layers.emplace_back(overlay);
 	}
 
 	void LayerStack::popLayer(Layer* layer)
 	{
-		auto it = std::find(_layers.begin(), _layers.begin() + _layerInsertIndex, layer);
-		if (it != _layers.begin() + _layerInsertIndex)
+		auto it = std::find(m_layers.begin(), m_layers.begin() + m_layerInsertIndex, layer);
+		if (it != m_layers.begin() + m_layerInsertIndex)
 		{
 			layer->onDetach();
-			_layers.erase(it);
-			_layerInsertIndex--;
+			m_layers.erase(it);
+			m_layerInsertIndex--;
 		}
 	}
 
 	void LayerStack::popOverlay(Layer* overlay)
 	{
-		auto it = std::find(_layers.begin() + _layerInsertIndex, _layers.end(), overlay);
-		if (it != _layers.end())
+		auto it = std::find(m_layers.begin() + m_layerInsertIndex, m_layers.end(), overlay);
+		if (it != m_layers.end())
 		{
 			overlay->onDetach();
-			_layers.erase(it);
+			m_layers.erase(it);
 		}
 	}
 	void LayerStack::detach()
 	{
-		for (Layer* layer : _layers)
+		for (Layer* layer : m_layers)
 		{
 			layer->onDetach();
 			delete layer;

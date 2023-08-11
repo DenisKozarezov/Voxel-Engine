@@ -7,13 +7,11 @@ namespace VoxelEngine::renderer
 	class ImGuiLayer : public renderer::Layer
 	{
 	private:
-		bool _blockEvents = true;
+		bool m_blockEvents = true;
 
 		void onAttach() override;
 		void onDetach() override;
 		void onEvent(input::Event& e) override;
-
-		inline void blockEvents(const bool& block) { _blockEvents = block; }
 	public:
 		enum ColorStyle : byte { Dark, Light, Classic };
 
@@ -22,6 +20,7 @@ namespace VoxelEngine::renderer
 		void preRender();
 		void postRender();
 		void setStyle(const ColorStyle& style) const;
+		inline void blockEvents(const bool& block) { m_blockEvents = block; }
 
 		~ImGuiLayer() = default;
 	};

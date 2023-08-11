@@ -8,21 +8,21 @@ namespace VoxelEngine::components::camera
 	class Camera
 	{
 	protected:
-		glm::vec3 _position;
-		float _aspectRatio;
+		glm::vec3 m_position;
+		float m_aspectRatio;
 	public:
 		Camera() noexcept = delete;
-		Camera(const glm::vec3& position = glm::vec3(0.0f, 0.0f, 0.0f)) : _position(position) { }
+		Camera(const glm::vec3& position = glm::vec3(0.0f, 0.0f, 0.0f)) : m_position(position) { }
 		Camera(Camera const&) noexcept = delete;
 		Camera(Camera&&) noexcept = delete;
 		Camera& operator=(Camera const& rhs) noexcept = delete;
 		Camera& operator=(Camera&& rhs) noexcept = delete;
 
-		inline const glm::vec3 getPosition() const { return _position; }
+		inline const glm::vec3 getPosition() const { return m_position; }
 		virtual inline const glm::mat4 viewMatrix() const = 0;
 		virtual inline const glm::mat4 projectionMatrix() const = 0;
 
-		inline void setAspectRatio(const float& aspectRatio) { _aspectRatio = aspectRatio; }
+		inline void setAspectRatio(const float& aspectRatio) { m_aspectRatio = aspectRatio; }
 
 		virtual void processKeyboard(const CameraMovement& direction, const float& deltaTime) = 0;
 		virtual void processMouse(const float& xOffset, const float& yOffset, const bool& constrainPitch = true) = 0;

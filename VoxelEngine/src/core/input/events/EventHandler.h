@@ -36,30 +36,30 @@ namespace VoxelEngine::input
         using Callback = std::function<bool(TEvent&)>;
 
         EventHandler() noexcept = delete;
-        explicit EventHandler(const Callback& cb) : _cbFunc(cb) 
+        explicit EventHandler(const Callback& cb) : m_cbFunc(cb) 
         {
-            _eventType = typeid(TEvent).hash_code();
+            m_eventType = typeid(TEvent).hash_code();
         }       
-        EventHandler(const EventHandler& src) : _cbFunc(src._cbFunc), _eventType(src._eventType)
+        EventHandler(const EventHandler& src) : m_cbFunc(src.m_cbFunc), m_eventType(src.m_eventType)
         { }
-        EventHandler(EventHandler&& src) : _cbFunc(std::move(src._cbFunc)), _eventType(src._eventType)
+        EventHandler(EventHandler&& src) : m_cbFunc(std::move(src.m_cbFunc)), m_eventType(src.m_eventType)
         { }
         ~EventHandler() noexcept = default;
 
         const bool operator==(const EventHandler& rhs) noexcept
         {
-            return _eventType == rhs._eventType;
+            return m_eventType == rhs.m_eventType;
         }  
         EventHandler& operator=(const EventHandler& src) noexcept
         {
-            _cbFunc = src._cbFunc;
-            _eventType = src._eventType;
+            m_cbFunc = src.m_cbFunc;
+            m_eventType = src.m_eventType;
             return *this;
         }
         EventHandler& operator=(EventHandler&& src)
         {
-            std::swap(_cbFunc, src._cbFunc);
-            _eventType = src._eventType;
+            std::swap(m_cbFunc, src.m_cbFunc);
+            m_eventType = src.m_eventType;
             return *this;
         }
         inline void operator()(TEvent& arg) const
@@ -67,7 +67,7 @@ namespace VoxelEngine::input
             invoke(arg);
         }
 
-        virtual inline const size_t& getHashCode() const override { return _eventType; }
+        virtual inline const size_t& getHashCode() const override { return m_eventType; }
 
         void invoke(input::Event& arg) override
         {            
@@ -79,14 +79,14 @@ namespace VoxelEngine::input
         }
         void invoke(TEvent& arg)
         { 
-            this->_cbFunc(std::forward<TEvent&>(arg));
+            this->m_cbFunc(std::forward<TEvent&>(arg));
         }
         std::future<void> invoke_async(TEvent& arg, const std::launch& launch)
         {
             return std::async(launch, [this, &arg] { this->invoke(arg); });
         }
     private:
-        size_t _eventType;
-        Callback const _cbFunc;
+        size_t m_eventType;
+        Callback const m_cbFunc;
     };
 }

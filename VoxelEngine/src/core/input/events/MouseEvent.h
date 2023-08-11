@@ -9,18 +9,18 @@ namespace VoxelEngine::input
     class MouseButtonEvent : public Event
     {
     protected:
-        MouseCode _mouseCode;
+        MouseCode m_mouseCode;
     public:
         MouseButtonEvent() noexcept = default;
-        MouseButtonEvent(const MouseCode& key) : _mouseCode(key) { }
+        MouseButtonEvent(const MouseCode& key) : m_mouseCode(key) { }
 
         EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
 
-        inline const MouseCode& getKeyCode() const & { return _mouseCode; }
+        inline const MouseCode& getKeyCode() const & { return m_mouseCode; }
         const string toString() const override
         {
             std::stringstream ss;
-            ss << this->getName() << ": " << _mouseCode;
+            ss << this->getName() << ": " << m_mouseCode;
             return ss.str();
         }
 
@@ -30,19 +30,19 @@ namespace VoxelEngine::input
     class MouseMovedEvent final : public MouseButtonEvent
     {
     private:
-        float _posX, _posY;
+        float m_posX, m_posY;
     public:
         MouseMovedEvent() = delete;
-        MouseMovedEvent(const MouseMovedEvent& e) : _posX(e._posX), _posY(e._posY) { }
-        MouseMovedEvent(const float& x, const float& y) : _posX(x), _posY(y) { }
+        MouseMovedEvent(const MouseMovedEvent& e) : m_posX(e.m_posX), m_posY(e.m_posY) { }
+        MouseMovedEvent(const float& x, const float& y) : m_posX(x), m_posY(y) { }
 
-        inline const float& getX() const { return _posX; }
-        inline const float& getY() const { return _posY; }
+        inline const float& getX() const { return m_posX; }
+        inline const float& getY() const { return m_posY; }
 
         const string toString() const override
         {
             std::stringstream ss;
-            ss << "MouseMovedEvent: " << _posX << ", " << _posY;
+            ss << "MouseMovedEvent: " << m_posX << ", " << m_posY;
             return ss.str();
         }
 
@@ -54,14 +54,14 @@ namespace VoxelEngine::input
     class MouseScrolledEvent final : public MouseButtonEvent
     {
     private:
-        float _offsetX, _offsetY;
+        float m_offsetX, m_offsetY;
     public:
         MouseScrolledEvent() = delete;
-        MouseScrolledEvent(const MouseScrolledEvent& e) : _offsetX(e._offsetX), _offsetY(e._offsetY) { }
-        MouseScrolledEvent(const float& offsetX, const float& offsetY) : _offsetX(offsetX), _offsetY(offsetY) { }
+        MouseScrolledEvent(const MouseScrolledEvent& e) : m_offsetX(e.m_offsetX), m_offsetY(e.m_offsetY) { }
+        MouseScrolledEvent(const float& offsetX, const float& offsetY) : m_offsetX(offsetX), m_offsetY(offsetY) { }
 
-        inline const float& getOffsetX() const { return _offsetX; }
-        inline const float& getOffsetY() const { return _offsetY; }
+        inline const float& getOffsetX() const { return m_offsetX; }
+        inline const float& getOffsetY() const { return m_offsetY; }
 
         EVENT_CLASS_TYPE(MouseScrolled)
 

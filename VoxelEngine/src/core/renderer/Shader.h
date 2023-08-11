@@ -7,8 +7,8 @@ namespace VoxelEngine::renderer
 	class Shader
 	{
 	private:
-		string _name;
-		string _filepath;
+		string m_name;
+		string m_filepath;
 	public:
 		Shader() = delete;
 		Shader(const string& filepath);
@@ -17,7 +17,7 @@ namespace VoxelEngine::renderer
 		Shader& operator=(Shader const& rhs) noexcept = delete;
 		Shader& operator=(Shader&& rhs) noexcept = delete;
 
-		inline constexpr string& getName() noexcept { return _name; }
+		inline constexpr string& getName() noexcept { return m_name; }
 		virtual void unbind() const = 0;
 
 		virtual ~Shader() = default;

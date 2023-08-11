@@ -15,12 +15,12 @@ namespace VoxelEngine::threading
 	class ThreadWorker
 	{
 	private:
-		bool destroying = false;
-		int workerId;
-		std::thread worker;
-		std::queue<Task> jobQueue;
-		std::mutex queueMutex;
-		std::condition_variable condition;
+		bool m_destroying = false;
+		int m_workerId;
+		std::thread m_worker;
+		std::queue<Task> m_jobQueue;
+		std::mutex m_queueMutex;
+		std::condition_variable m_condition;
 
 		// Loop through all remaining tasks
 		void run()
@@ -29,25 +29,25 @@ namespace VoxelEngine::threading
 			{
 				Task task;
 				{
-					std::unique_lock<std::mutex> lock(queueMutex);
-					condition.wait(lock, [this] { return !jobQueue.empty() || destroying; });
-					if (destroying)
+					std::unique_lock<std::mutex> lock(m_queueMutex);
+					m_condition.wait(lock, [this] { return !m_jobQueue.empty() || m_destroying; });
+					if (m_destroying)
 					{
 						break;
 					}
-					task = jobQueue.front();
+					task = m_jobQueue.front();
 				}
 
-				VOXEL_CORE_WARN("[THREAD POOL]: Thread worker {0} is running a task...", workerId)
+				VOXEL_CORE_WARN("[THREAD POOL]: Thread worker {0} is running a task...", m_workerId)
 
 				task();
 
-				VOXEL_CORE_WARN("[THREAD POOL]: Thread worker {0} finished the task.", workerId)
+				VOXEL_CORE_WARN("[THREAD POOL]: Thread worker {0} finished the task.", m_workerId)
 
 				{
-					std::lock_guard<std::mutex> lock(queueMutex);
-					jobQueue.pop();
-					condition.notify_one();
+					std::lock_guard<std::mutex> lock(m_queueMutex);
+					m_jobQueue.pop();
+					m_condition.notify_one();
 				}
 			}
 		}
@@ -55,40 +55,40 @@ namespace VoxelEngine::threading
 	public:
 		ThreadWorker(int workerId)
 		{
-			this->workerId = workerId;
-			worker = std::thread(&ThreadWorker::run, this);
+			this->m_workerId = workerId;
+			m_worker = std::thread(&ThreadWorker::run, this);
 
 			VOXEL_CORE_WARN("[THREAD POOL]: Thread worker {0} created.", workerId)
 		}
 
 		~ThreadWorker()
 		{
-			if (worker.joinable())
+			if (m_worker.joinable())
 			{
 				wait();
-				queueMutex.lock();
-				destroying = true;
-				condition.notify_one();
-				queueMutex.unlock();
-				worker.join();
+				m_queueMutex.lock();
+				m_destroying = true;
+				m_condition.notify_one();
+				m_queueMutex.unlock();
+				m_worker.join();
 			}
 
-			VOXEL_CORE_WARN("[THREAD POOL]: Thread worker {0} terminated.", workerId)
+			VOXEL_CORE_WARN("[THREAD POOL]: Thread worker {0} terminated.", m_workerId)
 		}
 
 		// Add a new task to the thread's queue
 		void addTask(Task function)
 		{
-			std::lock_guard<std::mutex> lock(queueMutex);
-			jobQueue.push(std::move(function));
-			condition.notify_one();
+			std::lock_guard<std::mutex> lock(m_queueMutex);
+			m_jobQueue.push(std::move(function));
+			m_condition.notify_one();
 		}
 
 		// Wait until all work items have been finished
 		void wait()
 		{
-			std::unique_lock<std::mutex> lock(queueMutex);
-			condition.wait(lock, [this]() { return jobQueue.empty(); });
+			std::unique_lock<std::mutex> lock(m_queueMutex);
+			m_condition.wait(lock, [this]() { return m_jobQueue.empty(); });
 		}
 	};
 

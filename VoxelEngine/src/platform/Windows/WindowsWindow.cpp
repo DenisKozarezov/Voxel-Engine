@@ -10,15 +10,15 @@ namespace VoxelEngine
 
 	WindowsWindow::WindowsWindow(const WindowProperties& props)
 	{
-		_windowData.Title = props.Title;
-		_windowData.Width = props.Width;
-		_windowData.Height = props.Height;
+		m_windowData.Title = props.Title;
+		m_windowData.Width = props.Width;
+		m_windowData.Height = props.Height;
 		init();
 	}
 
 	void WindowsWindow::init()
 	{
-		VOXEL_CORE_INFO("Creating window {0} ({1}, {2})...", _windowData.Title, _windowData.Width, _windowData.Height);
+		VOXEL_CORE_INFO("Creating window {0} ({1}, {2})...", m_windowData.Title, m_windowData.Width, m_windowData.Height);
 
 		if (!s_GLFWInitialized)
 		{
@@ -32,12 +32,12 @@ namespace VoxelEngine
 		int success = glfwVulkanSupported();
 		VOXEL_CORE_ASSERT(success, "VulkanSDK Not Supported!");
 		
-		_window = glfwCreateWindow(_windowData.Width, _windowData.Height, _windowData.Title.c_str(), nullptr, nullptr);
-		glfwMakeContextCurrent(_window);
-		glfwSetWindowUserPointer(_window, &_windowData);	
+		m_window = glfwCreateWindow(m_windowData.Width, m_windowData.Height, m_windowData.Title.c_str(), nullptr, nullptr);
+		glfwMakeContextCurrent(m_window);
+		glfwSetWindowUserPointer(m_window, &m_windowData);	
 		setVSync(true);
 
-		glfwSetWindowSizeCallback(_window, [](GLFWwindow* window, int width, int height)
+		glfwSetWindowSizeCallback(m_window, [](GLFWwindow* window, int width, int height)
 		{
 			WindowsOSData& data = *(WindowsOSData*)glfwGetWindowUserPointer(window);
 			data.Width = static_cast<uint16>(width);
@@ -47,14 +47,14 @@ namespace VoxelEngine
 			data.EventCallback(e);
 		});
 
-		glfwSetWindowCloseCallback(_window, [](GLFWwindow* window)
+		glfwSetWindowCloseCallback(m_window, [](GLFWwindow* window)
 		{
 			WindowsOSData& data = *(WindowsOSData*)glfwGetWindowUserPointer(window);
 			input::WindowCloseEvent e;
 			data.EventCallback(e);
 		});
 
-		glfwSetKeyCallback(_window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
+		glfwSetKeyCallback(m_window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
 		{
 			uint16 keycode = static_cast<uint16>(key);
 
@@ -82,14 +82,14 @@ namespace VoxelEngine
 			}
 		});
 
-		glfwSetCharCallback(_window, [](GLFWwindow* window, unsigned int keycode)
+		glfwSetCharCallback(m_window, [](GLFWwindow* window, unsigned int keycode)
 		{
 			WindowsOSData& data = *(WindowsOSData*)glfwGetWindowUserPointer(window);
 			input::KeyTypedEvent e(keycode);
 			data.EventCallback(e);
 		});
 
-		glfwSetMouseButtonCallback(_window, [](GLFWwindow* window, int button, int action, int mods)
+		glfwSetMouseButtonCallback(m_window, [](GLFWwindow* window, int button, int action, int mods)
 		{
 			WindowsOSData& data = *(WindowsOSData*)glfwGetWindowUserPointer(window);
 
@@ -110,7 +110,7 @@ namespace VoxelEngine
 			}
 		});
 
-		glfwSetCursorPosCallback(_window, [](GLFWwindow* window, double xpos, double ypos)
+		glfwSetCursorPosCallback(m_window, [](GLFWwindow* window, double xpos, double ypos)
 		{
 			WindowsOSData& data = *(WindowsOSData*)glfwGetWindowUserPointer(window);
 			input::MouseMovedEvent e(static_cast<float>(xpos), static_cast<float>(ypos));
@@ -119,22 +119,22 @@ namespace VoxelEngine
 	}
 	void WindowsWindow::shutdown()
 	{
-		glfwDestroyWindow(_window);
-		_window = nullptr;
+		glfwDestroyWindow(m_window);
+		m_window = nullptr;
 	}
 	inline void WindowsWindow::setVSync(bool isEnabled) noexcept
 	{
 		glfwSwapInterval(isEnabled);
-		_windowData.VSync = isEnabled;
+		m_windowData.VSync = isEnabled;
 	}
 	inline void WindowsWindow::setEventCallback(const EventCallback& callback) noexcept
 	{
-		_windowData.EventCallback = callback;
+		m_windowData.EventCallback = callback;
 	}
 	void WindowsWindow::setMaximized(const bool& isMaximized)
 	{
 		if (isMaximized) 
-			glfwMaximizeWindow(_window);
+			glfwMaximizeWindow(m_window);
 	}
 	void WindowsWindow::onUpdate()
 	{

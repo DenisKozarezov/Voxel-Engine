@@ -3,14 +3,14 @@
 
 namespace VoxelEngine
 {
-	Application* Application::_instance = 0;
-	renderer::ImGuiLayer* imguiLayer = nullptr;
+	Application* Application::s_instance = 0;
+	renderer::ImGuiLayer* g_imguiLayer = nullptr;
 
-	Application::Application(const ApplicationSpecification& spec) : _specification(spec)
+	Application::Application(const ApplicationSpecification& spec) : m_specification(spec)
 	{
-		VOXEL_CORE_ASSERT(!_instance, "Application already exists!");
+		VOXEL_CORE_ASSERT(!s_instance, "Application already exists!");
 
-		_instance = this;
+		s_instance = this;
 
 		VOXEL_CORE_WARN("Application Name: {0}", spec.ApplicationName);
 		VOXEL_CORE_WARN("Version: {0}", spec.Version);
@@ -21,32 +21,32 @@ namespace VoxelEngine
 
 		std::stringstream name;
 		name << spec.ApplicationName << " " << spec.Version << " (" << spec.GraphicsAPI << ")";
-		_window = Window::Create({ name.str(), 1920, 1080 });
-		_window->setEventCallback(BIND_CALLBACK(onEvent));
-		_window->setMaximized(spec.Maximized);
+		m_window = Window::Create({ name.str(), 1920, 1080 });
+		m_window->setEventCallback(BIND_CALLBACK(onEvent));
+		m_window->setMaximized(spec.Maximized);
 	}
 
 	Application& Application::getInstance()
 	{
-		return *_instance;
+		return *s_instance;
 	}
 	const float& Application::getDeltaTime() const
 	{
-		return _frameTimer;
+		return m_frameTimer;
 	}
 	const uint32& Application::getFPS() const
 	{
-		return _lastFPS;
+		return m_lastFPS;
 	}
 
 	void Application::pushLayer(renderer::Layer* layer)
 	{
-		_layerStack.pushLayer(layer);
+		m_layerStack.pushLayer(layer);
 		layer->onAttach();
 	}
 	void Application::pushOverlay(renderer::Layer* layer)
 	{
-		_layerStack.pushOverlay(layer);
+		m_layerStack.pushOverlay(layer);
 		layer->onAttach();
 	}
 
@@ -55,9 +55,9 @@ namespace VoxelEngine
 		try
 		{
 			VOXEL_CORE_WARN("Application initialization.");
-			imguiLayer = new renderer::ImGuiLayer();
-			pushOverlay(imguiLayer);
-			_renderer.init(*_window.get());
+			g_imguiLayer = new renderer::ImGuiLayer();
+			pushOverlay(g_imguiLayer);
+			renderer::Renderer::init(*m_window.get());
 		}
 		catch (const std::exception& e)
 		{
@@ -67,33 +67,33 @@ namespace VoxelEngine
 	}
 	void Application::run()
 	{
-		VOXEL_CORE_WARN("Running {0}...", _specification.ApplicationName);
+		VOXEL_CORE_WARN("Running {0}...", m_specification.ApplicationName);
 
-		_running = true;
+		m_running = true;
 
-		while (_running)
+		while (m_running)
 		{
 			nextFrame();
-			_window->onUpdate();
+			m_window->onUpdate();
 		}
-		_renderer.deviceWaitIdle();
+		renderer::Renderer::deviceWaitIdle();
 	}
 	void Application::shutdown()
 	{
-		_layerStack.detach();
-		_renderer.cleanup();
+		m_layerStack.detach();
+		renderer::Renderer::cleanup();
 	}
 
 	void Application::setupInputCallbacks()
 	{
-		_dispatcher.registerEvent<input::WindowCloseEvent>(BIND_CALLBACK(onWindowClose));
-		_dispatcher.registerEvent<input::WindowResizeEvent>(BIND_CALLBACK(onWindowResize));
+		m_dispatcher.registerEvent<input::WindowCloseEvent>(BIND_CALLBACK(onWindowClose));
+		m_dispatcher.registerEvent<input::WindowResizeEvent>(BIND_CALLBACK(onWindowResize));
 	}
 	void Application::nextFrame()
 	{
 		auto tStart = std::chrono::high_resolution_clock::now();
 
-		if (!_minimized)
+		if (!m_minimized)
 		{
 			preRender();
 
@@ -101,60 +101,60 @@ namespace VoxelEngine
 
 			postRender();
 
-			_frameCounter++;
+			m_frameCounter++;
 
 			auto tEnd = std::chrono::high_resolution_clock::now();
 			auto tDiff = std::chrono::duration<double, std::milli>(tEnd - tStart).count();
-			_frameTimer = (float)tDiff / 1000.0f;
+			m_frameTimer = (float)tDiff / 1000.0f;
 			
-			_layerStack.onUpdate(_frameTimer);
+			m_layerStack.onUpdate(m_frameTimer);
 
 			calculateFramerate(tEnd);
 		}
 	}
 	inline void Application::preRender()
 	{
-		_renderer.preRender();
+		renderer::Renderer::preRender();
 	}
 	inline void Application::render()
 	{
-		_renderer.render();
+		renderer::Renderer::render();
 	}
 	inline void Application::postRender()
 	{
-		_renderer.updateUIOverlay();
-		_renderer.postRender();
+		renderer::Renderer::updateUIOverlay();
+		renderer::Renderer::postRender();
 
-		imguiLayer->preRender();
-		_layerStack.onImGuiRender();
-		imguiLayer->postRender();
+		g_imguiLayer->preRender();
+		m_layerStack.onImGuiRender();
+		g_imguiLayer->postRender();
 	}
 	void Application::calculateFramerate(const std::chrono::steady_clock::time_point& tEnd)
 	{
-		_accumulator += _frameTimer;
-		while (_accumulator >= fixedDeltaTime)
+		m_accumulator += m_frameTimer;
+		while (m_accumulator >= fixedDeltaTime)
 		{
-			_layerStack.onFixedUpdate(fixedDeltaTime);
-			_accumulator -= fixedDeltaTime;
+			m_layerStack.onFixedUpdate(fixedDeltaTime);
+			m_accumulator -= fixedDeltaTime;
 		}
 
 		float fpsTimer = (float)(std::chrono::duration<double, std::milli>(tEnd - lastTimestamp).count());
 		if (fpsTimer > 1000.0f)
 		{
-			_lastFPS = static_cast<uint32>((float)_frameCounter * (1000.0f / fpsTimer));
-			_frameCounter = 0;
+			m_lastFPS = static_cast<uint32>((float)m_frameCounter * (1000.0f / fpsTimer));
+			m_frameCounter = 0;
 			lastTimestamp = tEnd;
 		}
 		tPrevEnd = tEnd;
 	}
 	void Application::onEvent(input::Event& e)
 	{
-		_dispatcher.dispatchEvent(e, std::launch::async);
-		_layerStack.onEvent(e);
+		m_dispatcher.dispatchEvent(e, std::launch::async);
+		m_layerStack.onEvent(e);
 	}
 	bool Application::onWindowClose(const input::WindowCloseEvent& e)
 	{
-		_running = false;
+		m_running = false;
 		return true;
 	}
 	bool Application::onWindowResize(const input::WindowResizeEvent& e)
@@ -162,14 +162,14 @@ namespace VoxelEngine
 		uint16 width = e.getWidth();
 		uint16 height = e.getHeight();
 
-		_renderer.resize(width, height);
+		renderer::Renderer::resize(width, height);
 
 		if (width == 0 || height == 0)
 		{
-			_minimized = true;
+			m_minimized = true;
 			return false;
 		}
-		_minimized = false;
+		m_minimized = false;
 		return false;
 	}
 }

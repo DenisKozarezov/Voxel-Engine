@@ -32,7 +32,7 @@ namespace VoxelEngine::renderer
 	}
 	void ImGuiLayer::onEvent(input::Event& e)
 	{
-		if (_blockEvents)
+		if (m_blockEvents)
 		{
 			ImGuiIO& io = ImGui::GetIO();
 			e.Handled |= e.isInCategory(input::EventCategoryMouse) & io.WantCaptureMouse;

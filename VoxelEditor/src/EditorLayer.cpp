@@ -13,19 +13,22 @@ namespace VoxelEditor
 
 	bool EditorLayer::onKeyboardPressed(const input::KeyPressedEvent& e)
 	{
+		if (!m_sceneView.m_viewportFocused)
+			return false;
+
 		switch (e.getKeyCode())
 		{
 		case input::W:
-			_sceneView.moveCamera(components::camera::CameraMovement::Forward, _fixedDeltaTime);
+			m_sceneView.moveCamera(components::camera::CameraMovement::Forward, m_fixedDeltaTime);
 			break;
 		case input::S:
-			_sceneView.moveCamera(components::camera::CameraMovement::Backward, _fixedDeltaTime);
+			m_sceneView.moveCamera(components::camera::CameraMovement::Backward, m_fixedDeltaTime);
 			break;
 		case input::A:
-			_sceneView.moveCamera(components::camera::CameraMovement::Left, _fixedDeltaTime);
+			m_sceneView.moveCamera(components::camera::CameraMovement::Left, m_fixedDeltaTime);
 			break;
 		case VoxelEngine::input::D:
-			_sceneView.moveCamera(components::camera::CameraMovement::Right, _fixedDeltaTime);
+			m_sceneView.moveCamera(components::camera::CameraMovement::Right, m_fixedDeltaTime);
 			break;
 		}
 		return true;
@@ -137,13 +140,13 @@ namespace VoxelEditor
 
 	void EditorLayer::onAttach()
 	{				  
-		_dispatcher.registerEvent<input::KeyPressedEvent>(BIND_CALLBACK(EditorLayer::onKeyboardPressed));
-		_dispatcher.registerEvent<input::MouseButtonPressedEvent>(BIND_MEMBER_CALLBACK(&_sceneView, SceneView::onMousePressed));
-		_dispatcher.registerEvent<input::MouseButtonReleasedEvent>(BIND_MEMBER_CALLBACK(&_sceneView, SceneView::onMouseReleased));
-		_dispatcher.registerEvent<input::MouseMovedEvent>(BIND_MEMBER_CALLBACK(&_sceneView, SceneView::onMouseMoved));
+		m_dispatcher.registerEvent<input::KeyPressedEvent>(BIND_CALLBACK(EditorLayer::onKeyboardPressed));
+		m_dispatcher.registerEvent<input::MouseButtonPressedEvent>(BIND_MEMBER_CALLBACK(&m_sceneView, SceneView::onMousePressed));
+		m_dispatcher.registerEvent<input::MouseButtonReleasedEvent>(BIND_MEMBER_CALLBACK(&m_sceneView, SceneView::onMouseReleased));
+		m_dispatcher.registerEvent<input::MouseMovedEvent>(BIND_MEMBER_CALLBACK(&m_sceneView, SceneView::onMouseMoved));
 	
-		renderer::Renderer::setCamera(*_sceneView._camera.get());
-		renderer::Renderer::submitRenderables(_scene.vertices);
+		renderer::Renderer::setCamera(*m_sceneView._camera.get());
+		renderer::Renderer::submitRenderables(m_scene.vertices);
 	}				  
 	void EditorLayer::onDetach()
 	{				
@@ -151,11 +154,11 @@ namespace VoxelEditor
 	}				  
 	void EditorLayer::onUpdate(const VoxelEngine::Timestep& ts)
 	{
-		_deltaTime = ts;
+		m_deltaTime = ts;
 	}
 	void EditorLayer::onFixedUpdate(const VoxelEngine::Timestep& ts)
 	{
-		_fixedDeltaTime = ts;
+		m_fixedDeltaTime = ts;
 	}
 	void EditorLayer::onImGuiRender()
 	{
@@ -201,7 +204,8 @@ namespace VoxelEditor
 		style.WindowMinSize.x = minWinSizeX;
 
 		drawMenuBar();
-		_sceneView.render();
+		m_sceneView.render();
+
 		drawRenderPerformance();
 
 		ImGui::Begin("Palette");
@@ -217,6 +221,6 @@ namespace VoxelEditor
 	}				  
 	void EditorLayer::onEvent(input::Event& e)
 	{
-		_dispatcher.dispatchEvent(e, std::launch::async);
+		m_dispatcher.dispatchEvent(e, std::launch::async);
 	}
 }

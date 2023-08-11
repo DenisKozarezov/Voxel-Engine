@@ -6,8 +6,8 @@ namespace vkUtils
 	class VulkanVertexBuffer
 	{
 	private:
-		VkDevice logicalDevice;
-		vkUtils::memory::Buffer vertexBuffer;
+		VkDevice m_logicalDevice;
+		vkUtils::memory::Buffer m_vertexBuffer;
 	public:
 		VulkanVertexBuffer() = default;
 		VulkanVertexBuffer(
@@ -16,7 +16,7 @@ namespace vkUtils
 			const void* vertices, 
 			const size_t& bufferSize);
 
-		operator const VkBuffer&() const & { return vertexBuffer.buffer; }
+		operator const VkBuffer&() const & { return m_vertexBuffer.buffer; }
 
 		void release() const;
 

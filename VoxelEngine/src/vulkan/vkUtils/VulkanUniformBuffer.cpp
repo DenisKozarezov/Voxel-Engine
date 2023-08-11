@@ -13,12 +13,11 @@ namespace vkUtils
 			logicalDevice, 
 			size, 
 			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
-
-		vkMapMemory(logicalDevice, m_uniformBuffer.bufferMemory, 0, size, 0, &m_uniformBufferMapped);
+		m_uniformBuffer.map();
 	}
 	void VulkanUniformBuffer::setData(const void* data, size_t size) const
 	{
-		memcpy(m_uniformBufferMapped, data, size);
+		m_uniformBuffer.setData(data, size);
 	}
 	void VulkanUniformBuffer::release() const
 	{

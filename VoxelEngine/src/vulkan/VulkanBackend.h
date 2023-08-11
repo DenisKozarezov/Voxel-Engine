@@ -24,14 +24,13 @@ namespace vulkan
 	void presentFrame(const uint32& imageIndex, VkSemaphore* signalSemaphores);
 	void prepareFrame(const uint32& imageIndex);
 	void prepareScene(const VkCommandBuffer& commandBuffer);
-	void beginFrame();
+	void beginFrame(const VoxelEngine::renderer::UniformBufferObject& ubo);
 	void endFrame();
 	void drawUI(const VkCommandBuffer& commandBuffer);
 	void updateUIOverlay();
 
 	void resize(const uint32& width, const uint32& height);
 	void setWindow(const Window& window);
-	void setCamera(const components::camera::Camera& camera);
 	void setViewport(const int32_t& x, const int32_t& y, const uint32& width, const uint32& height);
 	void submitRenderables(const std::vector<glm::vec3> objects);
 	void init();

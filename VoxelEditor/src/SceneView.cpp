@@ -1,5 +1,4 @@
 #include "SceneView.h"
-#include "vulkan/VulkanBackend.h"
 
 namespace VoxelEditor
 {
@@ -77,8 +76,6 @@ namespace VoxelEditor
 		vMin.x += ImGui::GetWindowPos().x;
 		vMin.y += ImGui::GetWindowPos().y;
 
-		lastViewportSize = viewportPanelSize;
-
 		m_viewportFocused = ImGui::IsWindowFocused();
 		m_viewportHovered = ImGui::IsWindowHovered();
 		if (m_viewportHovered && ImGui::IsMouseDown(1))
@@ -86,7 +83,7 @@ namespace VoxelEditor
 			ImGui::SetWindowFocus();
 		}
 
-		vulkan::setViewport(vMin.x, vMin.y, viewportPanelSize.x, viewportPanelSize.y);
+		renderer::RenderCommand::setViewport(vMin.x, vMin.y, viewportPanelSize.x, viewportPanelSize.y);
 		_camera->setAspectRatio(viewportPanelSize.x / viewportPanelSize.y);
 
 		drawRenderModes();

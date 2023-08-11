@@ -9,7 +9,6 @@ namespace VoxelEditor
 	{
 	private:
 		float _lastMouseX = 0.0f, _lastMouseY = 0.0f;
-		ImVec2 lastViewportSize;
 		glm::vec2 _viewportSize;
 		input::MouseDraggingState _mouseState;
 

@@ -10,13 +10,15 @@ namespace vkUtils
 		const size_t& bufferSize) 
 		: m_logicalDevice(logicalDevice)
 	{
-		const auto& stagingBuffer = memory::createBuffer(
+		auto stagingBuffer = memory::createBuffer(
 			physicalDevice, 
 			logicalDevice, 
 			bufferSize, 
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
 
-		memory::mapMemory(logicalDevice, stagingBuffer.bufferMemory, 0, bufferSize, 0, indices);
+		stagingBuffer.map();
+		stagingBuffer.setData(indices, bufferSize);
+		stagingBuffer.unmap();
 
 		m_indexBuffer = memory::createBuffer(
 			physicalDevice,

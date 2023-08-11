@@ -52,7 +52,7 @@ namespace vkInit
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
 		stagingBuffer.map();
-		memcpy(stagingBuffer.mappedMemory, fontData, uploadSize);
+		stagingBuffer.setData(fontData, uploadSize);
 		stagingBuffer.unmap();
 
 		// Copy buffer data to font image
@@ -309,8 +309,10 @@ namespace vkInit
 		for (int n = 0; n < imDrawData->CmdListsCount; n++) 
 		{
 			const ImDrawList* cmd_list = imDrawData->CmdLists[n];
-			memcpy(vtxDst, cmd_list->VtxBuffer.Data, cmd_list->VtxBuffer.Size * sizeof(ImDrawVert));
-			memcpy(idxDst, cmd_list->IdxBuffer.Data, cmd_list->IdxBuffer.Size * sizeof(ImDrawIdx));
+			size_t vertexSize = cmd_list->VtxBuffer.Size * sizeof(ImDrawVert);
+			size_t indexSize = cmd_list->IdxBuffer.Size * sizeof(ImDrawIdx);
+			memcpy(vtxDst, cmd_list->VtxBuffer.Data, vertexSize);
+			memcpy(idxDst, cmd_list->IdxBuffer.Data, indexSize);
 			vtxDst += cmd_list->VtxBuffer.Size;
 			idxDst += cmd_list->IdxBuffer.Size;
 		}

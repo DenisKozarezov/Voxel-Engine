@@ -3,16 +3,16 @@
 
 namespace VoxelEngine::renderer
 {
-    const renderer::RendererAPI::API g_rendererAPI = renderer::RendererAPI::API::Vulkan;
+    const GraphicsSpec g_graphicsSpec = GraphicsSpec::Vulkan;
 
     UniqueRef<RendererAPI> RendererAPI::Create()
     {
-        switch (g_rendererAPI)
+        switch (g_graphicsSpec)
         {
-        case API::None:
-            VOXEL_CORE_CRITICAL("No renderer API!");
+        case GraphicsSpec::None:
+            VOXEL_CORE_CRITICAL("Unknown renderer API!");
             break;
-        case API::Vulkan: return UniqueRef<RendererAPI>(new vulkan::VulkanRendererAPI());
+        case GraphicsSpec::Vulkan: return UniqueRef<RendererAPI>(new vulkan::VulkanRendererAPI());
         }
     }
 }

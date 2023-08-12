@@ -1,5 +1,6 @@
 #pragma once
 #include "SceneView.h"
+#include "EditorConsole.h"
 
 namespace VoxelEditor
 {
@@ -9,6 +10,7 @@ namespace VoxelEditor
 		input::EventDispatcher m_dispatcher;
 		Scene m_scene;
 		SceneView m_sceneView;
+		EditorConsole m_console;
 		float m_deltaTime = 0.0f;
 		float m_fixedDeltaTime = 0.0f;
 

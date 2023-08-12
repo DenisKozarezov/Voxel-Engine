@@ -11,8 +11,8 @@ namespace VoxelEngine
 		inline static SharedRef<spdlog::logger> _clientLogger;
 	public:
 		static void init();
-		inline static SharedRef<spdlog::logger>& getCoreLogger();
-		inline static SharedRef<spdlog::logger>& getClientLogger();
+		inline static constexpr SharedRef<spdlog::logger>& getCoreLogger();
+		inline static constexpr SharedRef<spdlog::logger>& getClientLogger();
 	};
 
 #define VOXEL_CORE_TRACE(...)		::VoxelEngine::Log::getCoreLogger()->trace(__VA_ARGS__);

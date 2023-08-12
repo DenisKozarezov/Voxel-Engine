@@ -70,6 +70,9 @@ namespace VoxelEditor
 				{
 					ImGui::EndMenu();
 				}
+				ImGui::Separator();
+				ImGui::MenuItem("Console");
+				ImGui::MenuItem("Viewport");
 
 				ImGui::Separator();
 				if (ImGui::MenuItem("Performance"))
@@ -156,8 +159,11 @@ namespace VoxelEditor
 		m_deltaTime = ts;
 
 		renderer::Renderer::updateUIOverlay();
+
 		renderer::Renderer::preRender(*m_sceneView._camera.get());
+
 		renderer::Renderer::render();
+
 		renderer::Renderer::postRender();
 	}
 	void EditorLayer::onFixedUpdate(const VoxelEngine::Timestep& ts)
@@ -217,6 +223,8 @@ namespace VoxelEditor
 
 		ImGui::Begin("Scene Hierarchy");
 		ImGui::End();
+
+		m_console.render();
 
 		ImGui::End();
 

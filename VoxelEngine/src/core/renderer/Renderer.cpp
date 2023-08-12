@@ -3,7 +3,7 @@
 
 namespace VoxelEngine::renderer
 {
-    RenderPerformanceStats renderPerformanceStats;
+    static RenderPerformanceStats s_renderPerformanceStats;
 
     RenderSettings& Renderer::getRenderSettings()
     {
@@ -12,10 +12,10 @@ namespace VoxelEngine::renderer
     const RenderPerformanceStats& Renderer::getStats()
     {
         auto& app = Application::getInstance();
-        renderPerformanceStats.deltaTime = app.getDeltaTime();
-        renderPerformanceStats.fps = app.getFPS();
-        renderPerformanceStats.frameStats = vulkan::getFrameStats();
-        return renderPerformanceStats;
+        s_renderPerformanceStats.deltaTime = app.getDeltaTime();
+        s_renderPerformanceStats.fps = app.getFPS();
+        s_renderPerformanceStats.frameStats = vulkan::getFrameStats();
+        return s_renderPerformanceStats;
     }
     void Renderer::init(const Window& window)
     {

@@ -4,6 +4,7 @@
 #include "Assert.h"
 #include "LayerStack.h"
 #include "renderer/Renderer.h"
+#include "renderer/RendererAPI.h"
 
 struct ApplicationCommandLineArgs
 {
@@ -31,7 +32,6 @@ struct ApplicationSpecification
 	std::string ApplicationName;
 	std::string WorkingDirectory;
 	std::string Version;
-	std::string GraphicsAPI;
 	bool Maximized = false;
 	ApplicationCommandLineArgs CommandLineArgs;
 };
@@ -73,12 +73,12 @@ namespace VoxelEngine
 		Application() noexcept = delete;
 		Application(const Application&) noexcept = delete;
 		Application(Application&&) noexcept = delete;
-		Application& operator= (Application const& rhs) noexcept = delete;
-		Application& operator= (Application&& rhs) noexcept = delete;
+		Application& operator=(Application const& rhs) noexcept = delete;
+		Application& operator=(Application&& rhs) noexcept = delete;
 
-		static Application& getInstance();
-		const float& getDeltaTime() const;	
-		const uint32& getFPS() const;
+		static constexpr Application& getInstance();
+		inline constexpr float& getDeltaTime();
+		inline constexpr uint32& getFPS();
 
 		inline constexpr const UniqueRef<Window>& getWindow() const { return m_window; }
 

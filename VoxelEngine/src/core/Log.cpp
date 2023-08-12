@@ -12,6 +12,6 @@ namespace VoxelEngine
 		_clientLogger = spdlog::stdout_color_mt("Editor Application");
 		_clientLogger->set_level(spdlog::level::trace);
 	}
-	SharedRef<spdlog::logger>& Log::getCoreLogger() { return _coreLogger; }
-	SharedRef<spdlog::logger>& Log::getClientLogger() { return _clientLogger; }
+	constexpr SharedRef<spdlog::logger>& Log::getCoreLogger() { return _coreLogger; }
+	constexpr SharedRef<spdlog::logger>& Log::getClientLogger() { return _clientLogger; }
 }

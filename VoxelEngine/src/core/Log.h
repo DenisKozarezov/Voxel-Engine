@@ -10,6 +10,8 @@ namespace VoxelEngine
 		inline static SharedRef<spdlog::logger> _coreLogger;
 		inline static SharedRef<spdlog::logger> _clientLogger;
 	public:
+		static constexpr const char* s_logPattern = "[%H:%M:%S.%e] [%l] %n: %v%$";
+
 		static void init();
 		inline static constexpr SharedRef<spdlog::logger>& getCoreLogger();
 		inline static constexpr SharedRef<spdlog::logger>& getClientLogger();

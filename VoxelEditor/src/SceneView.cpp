@@ -98,10 +98,16 @@ namespace VoxelEditor
 	}
 	void SceneView::moveCamera(const components::camera::CameraMovement& direction, const float& deltaTime)
 	{
+		if (!m_viewportFocused)
+			return;
+
 		_camera->processKeyboard(direction, deltaTime);
 	}
 	void SceneView::mouseMove(const float& x, const float& y)
 	{
+		if (!m_viewportFocused)
+			return;
+
 		_camera->processMouse(x, y);
 	}
 }

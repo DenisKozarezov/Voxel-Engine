@@ -3,7 +3,7 @@
 
 namespace VoxelEditor
 {
-	static bool show_demo_window = false;
+	static bool show_demo_window = true;
 	static bool show_performance;
 
 	EditorLayer::EditorLayer() : Layer("EditorLayer")
@@ -13,9 +13,6 @@ namespace VoxelEditor
 
 	bool EditorLayer::onKeyboardPressed(const input::KeyPressedEvent& e)
 	{
-		if (!m_sceneView.m_viewportFocused)
-			return false;
-
 		switch (e.getKeyCode())
 		{
 		case input::W:
@@ -149,6 +146,8 @@ namespace VoxelEditor
 		m_dispatcher.registerEvent<input::MouseMovedEvent>(BIND_MEMBER_CALLBACK(&m_sceneView, SceneView::onMouseMoved));
 	
 		renderer::Renderer::submitRenderables(m_scene.vertices);
+
+		EditorConsole::log("Welcome to VoxelEditor!");
 	}				  
 	void EditorLayer::onDetach()
 	{				

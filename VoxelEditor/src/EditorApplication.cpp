@@ -24,7 +24,6 @@ VoxelEngine::UniqueRef<VoxelEngine::Application> CreateApplication(ApplicationCo
 	spec.WorkingDirectory = args[0];
 	size_t index = spec.WorkingDirectory.find_last_of('\\');
 	spec.WorkingDirectory = spec.WorkingDirectory.substr(0, index);
-	spec.GraphicsAPI = "Vulkan";
 	spec.Maximized = true;
 	spec.CommandLineArgs = args;
 

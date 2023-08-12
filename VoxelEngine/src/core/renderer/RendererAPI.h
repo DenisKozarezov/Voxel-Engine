@@ -5,17 +5,29 @@
 
 namespace VoxelEngine::renderer
 {
+	enum class GraphicsSpec : byte
+	{
+		None = 0,
+		OpenGL = 1,
+		Vulkan = 2,
+		DirectX12 = 3,
+	};
+
+	constexpr const string graphicsSpecString(const GraphicsSpec& spec)
+	{
+		switch (spec)
+		{
+		case GraphicsSpec::None: return "None";
+		case GraphicsSpec::Vulkan: return "Vulkan";		
+		case GraphicsSpec::OpenGL: return "OpenGL";
+		case GraphicsSpec::DirectX12: return "DirectX12";
+		default: return "UNKNOWN_RENDERER_SPEC";
+		}
+	}
+
 	class RendererAPI
 	{
 	public:
-		enum class API : byte
-		{
-			None = 0,
-			OpenGL = 1,
-			Vulkan = 2,
-			DirectX12 = 3,
-		};
-
 		RendererAPI() noexcept = default;
 		virtual ~RendererAPI() = default;
 
@@ -27,5 +39,5 @@ namespace VoxelEngine::renderer
 		static UniqueRef<RendererAPI> Create();
 	};
 
-	extern const RendererAPI::API g_rendererAPI;
+	extern const GraphicsSpec g_graphicsSpec;
 }

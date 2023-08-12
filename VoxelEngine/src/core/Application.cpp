@@ -20,21 +20,22 @@ namespace VoxelEngine
 		setupInputCallbacks();
 
 		std::stringstream name;
-		name << spec.ApplicationName << " " << spec.Version << " (" << spec.GraphicsAPI << ")";
+		string graphicsSpec = renderer::graphicsSpecString(renderer::g_graphicsSpec);
+		name << spec.ApplicationName << " " << spec.Version << " (" << graphicsSpec << ")";
 		m_window = Window::Create({ name.str(), 1920, 1080 });
 		m_window->setEventCallback(BIND_CALLBACK(onEvent));
 		m_window->setMaximized(spec.Maximized);
 	}
 
-	Application& Application::getInstance()
+	constexpr Application& Application::getInstance()
 	{
 		return *s_instance;
 	}
-	const float& Application::getDeltaTime() const
+	inline constexpr float& Application::getDeltaTime()
 	{
 		return m_frameTimer;
 	}
-	const uint32& Application::getFPS() const
+	inline constexpr uint32& Application::getFPS()
 	{
 		return m_lastFPS;
 	}

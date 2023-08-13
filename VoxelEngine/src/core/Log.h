@@ -14,7 +14,7 @@ namespace VoxelEngine
 		static constexpr const char* s_timePattern = "%H:%M:%S";
 		static constexpr const char* s_logPattern = "[%H:%M:%S.%e] [%l] %n: %v%$";
 
-		static void init();
+		static void init(const char* coreProject, const char* editorProject);
 		inline static constexpr SharedRef<spdlog::logger>& getCoreLogger();
 		inline static constexpr SharedRef<spdlog::logger>& getClientLogger();
 	};

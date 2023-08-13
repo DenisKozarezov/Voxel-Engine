@@ -147,7 +147,7 @@ namespace VoxelEditor
 	
 		renderer::Renderer::submitRenderables(m_scene.vertices);
 
-		EditorConsole::info("Welcome to VoxelEditor!");
+		EditorConsole::info("Welcome to {0} {1}!", PROJECT_NAME, PROJECT_VERSION);
 	}				  
 	void EditorLayer::onDetach()
 	{				

@@ -9,5 +9,6 @@
 #include "core/renderer/RenderCommand.h"
 #include "core/imgui/ImGuiUtils.h"
 #include "core/Scene.h"
+#include <version.h>
 
 #include "components/camera/FirstPersonCamera.h"

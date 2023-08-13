@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <sstream>
 #include <vector>
+#include <version.h>
 #include "../vkUtils/VulkanValidation.h"
 
 namespace vkInit
@@ -39,10 +40,10 @@ namespace vkInit
 
 		VkApplicationInfo appInfo = {};
 		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-		appInfo.pApplicationName = "Voxel Engine";
-		appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+		appInfo.pApplicationName = PROJECT_NAME;
+		appInfo.applicationVersion = VK_MAKE_API_VERSION(0, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 		appInfo.pEngineName = "No Engine";
-		appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+		appInfo.engineVersion = VK_MAKE_API_VERSION(0, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 		appInfo.apiVersion = VK_API_VERSION_1_3;
 
 		VkInstanceCreateInfo createInfo = {};

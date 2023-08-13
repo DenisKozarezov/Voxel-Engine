@@ -13,7 +13,7 @@ namespace VoxelEditor
 		LogEntry() noexcept = delete;
 
 		template <typename... Args>
-		LogEntry(const std::string_view& fmt, const Args&... args, const spdlog::level::level_enum& level = spdlog::level::info)
+		LogEntry(const spdlog::level::level_enum& level, const std::string_view& fmt, Args&&... args)
 		{
 			this->message = std::vformat(fmt, std::make_format_args(args...));
 			this->level = VoxelEngine::logLevelToString(level);
@@ -51,19 +51,19 @@ namespace VoxelEditor
 		EditorConsole();
 
 		template <typename... Args>
-		inline static void info(std::string_view fmt, const Args&... args)
+		inline static void info(std::string_view fmt, Args&&... args)
 		{
-			s_instance->addLog(LogEntry(fmt, args...).str().c_str());
+			s_instance->addLog(LogEntry(spdlog::level::info, fmt, std::forward<Args>(args)...).str().c_str());
 		}
 		template <typename... Args>
-		inline static void warn(std::string_view fmt, const Args&... args)
+		inline static void warn(std::string_view fmt, Args&&... args)
 		{
-			s_instance->addLog(LogEntry(fmt, args..., spdlog::level::warn).str().c_str());
+			s_instance->addLog(LogEntry(spdlog::level::warn, fmt, std::forward<Args>(args)...).str().c_str());
 		}
 		template <typename... Args>
-		inline static void error(std::string_view fmt, const Args&... args)
+		inline static void error(std::string_view fmt, Args&&... args)
 		{
-			s_instance->addLog(LogEntry(fmt, args..., spdlog::level::err).str().c_str());
+			s_instance->addLog(LogEntry(spdlog::level::err, fmt, std::forward<Args>(args)...).str().c_str());
 		}
 		void clear();
 		void render();

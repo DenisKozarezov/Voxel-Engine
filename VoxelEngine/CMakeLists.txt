@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-project(VoxelEngine)
+project(VoxelEngine VERSION 0.0.1)
 
 set(PUBLIC_HEADERS src/pch.h)
 
@@ -20,6 +20,8 @@ source_group("core" FILES ${CORE_SOURCE})
 source_group("core" FILES ${CORE_HEADER})
 
 set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+
+configure_file (version.h.in ${SOURCE_DIR}/version.h @ONLY)
 
 add_library(${PROJECT_NAME} 
     STATIC 

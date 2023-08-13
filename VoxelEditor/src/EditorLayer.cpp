@@ -3,7 +3,7 @@
 
 namespace VoxelEditor
 {
-	static bool show_demo_window = true;
+	static bool show_demo_window = false;
 	static bool show_performance;
 
 	EditorLayer::EditorLayer() : Layer("EditorLayer")
@@ -147,7 +147,7 @@ namespace VoxelEditor
 	
 		renderer::Renderer::submitRenderables(m_scene.vertices);
 
-		EditorConsole::log("Welcome to VoxelEditor!");
+		EditorConsole::info("Welcome to VoxelEditor!");
 	}				  
 	void EditorLayer::onDetach()
 	{				

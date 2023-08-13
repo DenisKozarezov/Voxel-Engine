@@ -10,7 +10,7 @@ namespace VoxelEditor
 
         s_instance = this;
 
-        m_autoScroll = false;
+        m_autoScroll = true;
         clear();
     }
     void EditorConsole::addLog(const char* fmt, ...)

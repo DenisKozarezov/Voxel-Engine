@@ -8,7 +8,7 @@ namespace vulkan
 	public:
 		VulkanRendererAPI() noexcept = default;
 
-		void init() override;
+		void init(const VoxelEngine::Window& window) override;
 		void setViewport(const uint32& x, const uint32& y, const uint32& width, const uint32& height) override;
 		void setClearColor(const glm::vec4& color) override;
 		void setLineWidth(const float& width) override;

@@ -3,6 +3,9 @@
 #include <core/renderer/Renderer.h>
 #include <components/mesh/Mesh.h>
 
+#define VERTEX_BUFFER_BIND_ID 0
+#define INSTANCE_BUFFER_BIND_ID 1
+
 namespace vulkan
 {
 	using namespace VoxelEngine;
@@ -32,7 +35,7 @@ namespace vulkan
 	void resize(const uint32& width, const uint32& height);
 	void setWindow(const Window& window);
 	void setViewport(const int32_t& x, const int32_t& y, const uint32& width, const uint32& height);
-	void submitRenderables(const std::vector<glm::vec3> objects);
+	void submitRenderables(std::vector<glm::vec3> objects);
 	void init();
 	void initImGui();	
 	void deviceWaitIdle();

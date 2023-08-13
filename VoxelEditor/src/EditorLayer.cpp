@@ -151,18 +151,19 @@ namespace VoxelEditor
 	}				  
 	void EditorLayer::onDetach()
 	{				
-
+		
 	}				  
 	void EditorLayer::onUpdate(const VoxelEngine::Timestep& ts)
 	{
 		m_deltaTime = ts;
 
-		renderer::Renderer::updateUIOverlay();
+		renderer::Renderer::resetStats();
 
 		renderer::Renderer::preRender(*m_sceneView._camera.get());
 
 		renderer::Renderer::render();
 
+		renderer::Renderer::updateUIOverlay();
 		renderer::Renderer::postRender();
 	}
 	void EditorLayer::onFixedUpdate(const VoxelEngine::Timestep& ts)
@@ -220,7 +221,7 @@ namespace VoxelEditor
 		ImGui::Begin("Palette");
 		ImGui::End();
 
-		ImGui::Begin("Scene Hierarchy");
+		ImGui::Begin("Inspector");
 		ImGui::End();
 
 		m_console.render();

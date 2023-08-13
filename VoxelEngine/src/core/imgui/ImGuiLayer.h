@@ -1,5 +1,6 @@
 #pragma once
 #include <imgui.h>
+#include <imgui_internal.h>
 #include "../Layer.h"
 
 namespace VoxelEngine::renderer
@@ -8,6 +9,8 @@ namespace VoxelEngine::renderer
 	{
 	private:
 		bool m_blockEvents = true;
+
+		void loadLayout();
 
 		void onAttach() override;
 		void onDetach() override;

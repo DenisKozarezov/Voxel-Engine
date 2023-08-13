@@ -137,15 +137,15 @@ namespace vulkan
 
 		constexpr std::array<VkVertexInputBindingDescription, 2> bindingDescriptions =
 		{
-			vkInit::vertexInputBindingDescription(VERTEX_BUFFER_BIND_ID, sizeof(VoxelEngine::renderer::Vertex), VK_VERTEX_INPUT_RATE_VERTEX),
+			vkInit::vertexInputBindingDescription(VERTEX_BUFFER_BIND_ID, sizeof(renderer::Vertex), VK_VERTEX_INPUT_RATE_VERTEX),
 			vkInit::vertexInputBindingDescription(INSTANCE_BUFFER_BIND_ID, sizeof(vkUtils::InstanceData), VK_VERTEX_INPUT_RATE_INSTANCE)
 		};
 		constexpr std::array<VkVertexInputAttributeDescription, 4> attributeDescriptions =
 		{
-			vkInit::vertexInputAttributeDescription(VERTEX_BUFFER_BIND_ID, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(VoxelEngine::renderer::Vertex, VoxelEngine::renderer::Vertex::pos)),
-			vkInit::vertexInputAttributeDescription(VERTEX_BUFFER_BIND_ID, 1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(VoxelEngine::renderer::Vertex, VoxelEngine::renderer::Vertex::normal)),
-			vkInit::vertexInputAttributeDescription(VERTEX_BUFFER_BIND_ID, 2, VK_FORMAT_R32G32B32_SFLOAT, offsetof(VoxelEngine::renderer::Vertex, VoxelEngine::renderer::Vertex::color)),
-			vkInit::vertexInputAttributeDescription(INSTANCE_BUFFER_BIND_ID, 3, VK_FORMAT_R32G32B32_SFLOAT, offsetof(vkUtils::InstanceData, vkUtils::InstanceData::pos))
+			vkInit::vertexInputAttributeDescription(VERTEX_BUFFER_BIND_ID, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(renderer::Vertex, pos)),
+			vkInit::vertexInputAttributeDescription(VERTEX_BUFFER_BIND_ID, 1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(renderer::Vertex, normal)),
+			vkInit::vertexInputAttributeDescription(VERTEX_BUFFER_BIND_ID, 2, VK_FORMAT_R32G32B32_SFLOAT, offsetof(renderer::Vertex, color)),
+			vkInit::vertexInputAttributeDescription(INSTANCE_BUFFER_BIND_ID, 3, VK_FORMAT_R32G32B32_SFLOAT, offsetof(vkUtils::InstanceData, pos))
 		};
 
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::pipelineVertexInputStateCreateInfo(
@@ -192,7 +192,7 @@ namespace vulkan
 		VkResult err = vkCreatePipelineLayout(state.logicalDevice, &pipelineLayoutInfo, nullptr, &state.pipelineLayout);
 		vkUtils::check_vk_result(err, "failed to create pipeline layout!");
 
-		VOXEL_CORE_TRACE("Vulkan pipeline layout created.")
+		VOXEL_CORE_TRACE("Vulkan pipeline layout created.");
 
 		VkGraphicsPipelineCreateInfo pipelineInfo = vkInit::pipelineCreateInfo();
 		pipelineInfo.flags = VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT;
@@ -221,7 +221,7 @@ namespace vulkan
 			err = vkCreateGraphicsPipelines(state.logicalDevice, state.pipelineCache, 1, &pipelineInfo, nullptr, &state.pipelines.solid);
 			vkUtils::check_vk_result(err, "failed to create graphics pipeline!");
 
-			VOXEL_CORE_TRACE("Vulkan solid graphics pipeline created.")
+			VOXEL_CORE_TRACE("Vulkan solid graphics pipeline created.");
 		}
 
 		// NORMALS
@@ -241,7 +241,7 @@ namespace vulkan
 			err = vkCreateGraphicsPipelines(state.logicalDevice, state.pipelineCache, 1, &pipelineInfo, nullptr, &state.pipelines.normals);
 			vkUtils::check_vk_result(err, "failed to create graphics pipeline!");
 
-			VOXEL_CORE_TRACE("Vulkan normals graphics pipeline created.")
+			VOXEL_CORE_TRACE("Vulkan normals graphics pipeline created.");
 		}
 
 		// WIREFRAME
@@ -259,7 +259,7 @@ namespace vulkan
 			err = vkCreateGraphicsPipelines(state.logicalDevice, state.pipelineCache, 1, &pipelineInfo, nullptr, &state.pipelines.wireframe);
 			vkUtils::check_vk_result(err, "failed to create graphics pipeline!");
 
-			VOXEL_CORE_TRACE("Vulkan wireframe graphics pipeline created.")
+			VOXEL_CORE_TRACE("Vulkan wireframe graphics pipeline created.");
 		}
 
 		// EDITOR GRID
@@ -285,7 +285,7 @@ namespace vulkan
 		err = vkCreateGraphicsPipelines(state.logicalDevice, state.pipelineCache, 1, &pipelineInfo, nullptr, &state.pipelines.editorGrid);
 		vkUtils::check_vk_result(err, "failed to create graphics pipeline!");
 
-		VOXEL_CORE_TRACE("Vulkan editor grid graphics pipeline created.")
+		VOXEL_CORE_TRACE("Vulkan editor grid graphics pipeline created.");
 	}
 	void makeFrameResources()
 	{
@@ -301,7 +301,7 @@ namespace vulkan
 
 			frame.makeDescriptorResources(state.deviceLimits);
 
-			VOXEL_CORE_TRACE("Vulkan frame resources created for frame {0}.", i)
+			VOXEL_CORE_TRACE("Vulkan frame resources created for frame {0}.", i);
 			++i;
 		}
 	}	
@@ -312,7 +312,7 @@ namespace vulkan
 		{
 			frame.commandBuffer = vkUtils::memory::allocateCommandBuffer(state.commandPool);
 			
-			VOXEL_CORE_TRACE("Vulkan command buffer allocated for frame {0}.", i)
+			VOXEL_CORE_TRACE("Vulkan command buffer allocated for frame {0}.", i);
 			++i;
 		}
 	}
@@ -570,9 +570,9 @@ namespace vulkan
 		if (width >= 0 && height >= 0)
 			state.viewportSize = VkExtent2D(width, height);
 	}
-	void submitRenderables(const std::vector<glm::vec3> objects)
+	void submitRenderables(std::vector<glm::vec3> objects)
 	{
-		objectsToRender = objects;
+		objectsToRender.swap(objects);
 	}
 	void init()
 	{

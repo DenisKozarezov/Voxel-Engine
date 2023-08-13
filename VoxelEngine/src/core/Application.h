@@ -76,7 +76,7 @@ namespace VoxelEngine
 		Application& operator=(Application const& rhs) noexcept = delete;
 		Application& operator=(Application&& rhs) noexcept = delete;
 
-		static constexpr Application& getInstance();
+		inline static constexpr Application& getInstance();
 		inline constexpr float& getDeltaTime();
 		inline constexpr uint32& getFPS();
 

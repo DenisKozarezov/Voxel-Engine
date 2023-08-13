@@ -1,7 +1,29 @@
 #include "ImGuiLayer.h"
+#include <core/Log.h>
+#include <assets_management/AssetsProvider.h>
 
 namespace VoxelEngine::renderer
 {
+	const string layoutPath = ASSET_ABSOLUTE_PATH("layouts/default.ini");
+
+	void ImGuiLayer::loadLayout()
+	{
+		try
+		{
+			if (layoutPath.empty())
+				throw std::exception("Invalid path for ImGui layout!");
+
+			VOXEL_CORE_TRACE("Loading ImGui layout at path: {0}...", layoutPath);
+			ImGui::LoadIniSettingsFromDisk(layoutPath.c_str());
+		}
+		catch (const std::exception& e)
+		{
+			VOXEL_CORE_CRITICAL(e.what());
+			VOXEL_CORE_WARN("Loading ImGui default layout...");
+			ImGui::LoadIniSettingsFromDisk(NULL);
+		}
+	}
+
 	void ImGuiLayer::onAttach()
 	{
 		IMGUI_CHECKVERSION();
@@ -23,9 +45,13 @@ namespace VoxelEngine::renderer
 			style.WindowRounding = 0.0f;
 			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 		}
+
+		loadLayout();
 	}
 	void ImGuiLayer::onDetach()
 	{
+		ImGui::SaveIniSettingsToDisk(layoutPath.c_str());
+
 		if (ImGui::GetCurrentContext())
 			ImGui::DestroyContext();
 	}

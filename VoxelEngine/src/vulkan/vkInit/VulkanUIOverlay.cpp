@@ -12,12 +12,21 @@ namespace vkInit
 		unsigned char* fontData;
 		int texWidth, texHeight;
 
-		io.Fonts->AddFontFromFileTTF(ASSET_PATH("fonts/Roboto-Medium.ttf"), 16.0f * scale);
+		try
+		{
+			io.Fonts->AddFontFromFileTTF(ASSET_PATH("fonts/Roboto-Medium.ttf"), 16.0f * scale);
+		}
+		catch (const std::exception& e)
+		{
+			VOXEL_CORE_CRITICAL(e.what());
+			VOXEL_CORE_WARN("Loading default ImGUI font...");
+			io.Fonts->AddFontDefault();
+		}
 
 		io.Fonts->GetTexDataAsRGBA32(&fontData, &texWidth, &texHeight);
 		VkDeviceSize uploadSize = texWidth * texHeight * 4 * sizeof(char);
 
-		//SRS - Set ImGui style scale factor to handle retina and other HiDPI displays (same as font scaling above)
+		// SRS - Set ImGui style scale factor to handle retina and other HiDPI displays (same as font scaling above)
 		ImGuiStyle& style = ImGui::GetStyle();
 		style.ScaleAllSizes(scale);
 
@@ -42,9 +51,7 @@ namespace vkInit
 		);
 
 		// Staging buffers for font data upload
-		vkUtils::memory::Buffer stagingBuffer;
-
-		stagingBuffer = vkUtils::memory::createBuffer(
+		vkUtils::memory::Buffer stagingBuffer = vkUtils::memory::createBuffer(
 			physicalDevice,
 			logicalDevice,
 			uploadSize,
@@ -155,13 +162,13 @@ namespace vkInit
 	{
 		constexpr std::array<VkVertexInputBindingDescription, 1> bindingDescriptions =
 		{
-			vkInit::vertexInputBindingDescription(0, sizeof(ImDrawVert), VK_VERTEX_INPUT_RATE_VERTEX),
+			vkInit::vertexInputBindingDescription(VERTEX_BUFFER_BIND_ID, sizeof(ImDrawVert), VK_VERTEX_INPUT_RATE_VERTEX),
 		};
 		constexpr std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions =
 		{
-			vkInit::vertexInputAttributeDescription(0, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(ImDrawVert, pos)),
-			vkInit::vertexInputAttributeDescription(0, 1, VK_FORMAT_R32G32_SFLOAT, offsetof(ImDrawVert, uv)),
-			vkInit::vertexInputAttributeDescription(0, 2, VK_FORMAT_R8G8B8A8_UNORM, offsetof(ImDrawVert, col))
+			vkInit::vertexInputAttributeDescription(VERTEX_BUFFER_BIND_ID, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(ImDrawVert, pos)),
+			vkInit::vertexInputAttributeDescription(VERTEX_BUFFER_BIND_ID, 1, VK_FORMAT_R32G32_SFLOAT, offsetof(ImDrawVert, uv)),
+			vkInit::vertexInputAttributeDescription(VERTEX_BUFFER_BIND_ID, 2, VK_FORMAT_R8G8B8A8_UNORM, offsetof(ImDrawVert, col))
 		};
 
 		// Pipeline layout
@@ -344,7 +351,7 @@ namespace vkInit
 		vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(PushConstBlock), &pushConstBlock);
 
 		VkDeviceSize offsets[1] = { 0 };
-		vkCmdBindVertexBuffers(commandBuffer, 0, 1, &vertexBuffer.buffer, offsets);
+		vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, &vertexBuffer.buffer, offsets);
 		vkCmdBindIndexBuffer(commandBuffer, indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT16);
 
 		for (int32_t i = 0; i < imDrawData->CmdListsCount; i++)
@@ -369,7 +376,7 @@ namespace vkInit
 	void UIOverlay::resize(uint32_t width, uint32_t height)
 	{
 		ImGuiIO& io = ImGui::GetIO();
-		io.DisplaySize = ImVec2((float)(width), (float)(height));
+		io.DisplaySize = ImVec2(static_cast<float>(width), static_cast<float>(height));
 	}
 
 	void UIOverlay::freeResources()

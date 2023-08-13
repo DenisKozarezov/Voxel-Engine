@@ -50,8 +50,6 @@ namespace VoxelEngine::renderer
 	}
 	void ImGuiLayer::onDetach()
 	{
-		ImGui::SaveIniSettingsToDisk(layoutPath.c_str());
-
 		if (ImGui::GetCurrentContext())
 			ImGui::DestroyContext();
 	}

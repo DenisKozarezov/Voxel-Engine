@@ -1,5 +1,4 @@
 #include "EditorLayer.h"
-#include <imgui_internal.h>
 
 namespace VoxelEditor
 {

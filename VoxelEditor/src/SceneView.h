@@ -13,6 +13,7 @@ namespace VoxelEditor
 		input::MouseDraggingState _mouseState;
 
 		void drawRenderModes();
+		void drawCameraModes();
 	public:
 		UniqueRef<components::camera::Camera> _camera;
 		bool m_viewportFocused;

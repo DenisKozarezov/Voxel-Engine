@@ -5,6 +5,7 @@
 #include "LayerStack.h"
 #include "renderer/Renderer.h"
 #include "renderer/RendererAPI.h"
+#include "imgui/ImGuiLayer.h"
 
 struct ApplicationCommandLineArgs
 {

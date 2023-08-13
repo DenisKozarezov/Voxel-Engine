@@ -4,13 +4,13 @@ namespace VoxelEngine
 {
 	Scene::Scene()
 	{
-		for (int x = 0; x < 100; x += 5)
+		for (float x = 0; x < 1; x += 0.2f)
 		{
-			for (int y = 0; y < 100; y += 5)
+			for (float y = 0; y < 1; y += 0.2f)
 			{
-				for (int z = 0; z < 100; z += 5)
+				for (float z = y; z < 1; z += 0.2f)
 				{
-					vertices.push_back({ x, y, z });
+					vertices.push_back({ x, y + 0.2f, z });
 				}
 			}
 		}

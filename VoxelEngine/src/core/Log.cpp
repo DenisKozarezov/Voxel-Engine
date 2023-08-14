@@ -3,13 +3,13 @@
 
 namespace VoxelEngine
 {
-	void Log::init()
+	void Log::init(const char* coreProject, const char* editorProject)
 	{
-		spdlog::set_pattern("[%H:%M:%S.%e] [%l] %n: %v%$");
-		_coreLogger = spdlog::stdout_color_mt("Voxel Engine");
+		spdlog::set_pattern(s_logPattern);
+		_coreLogger = spdlog::stdout_color_mt(coreProject);
 		_coreLogger->set_level(spdlog::level::trace);
 
-		_clientLogger = spdlog::stdout_color_mt("Editor Application");
+		_clientLogger = spdlog::stdout_color_mt(editorProject);
 		_clientLogger->set_level(spdlog::level::trace);
 	}
 	constexpr SharedRef<spdlog::logger>& Log::getCoreLogger() { return _coreLogger; }

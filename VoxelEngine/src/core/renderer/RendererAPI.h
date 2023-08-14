@@ -1,7 +1,6 @@
 #pragma once
-#include <core/PrimitiveTypes.h>
 #include <glm/vec4.hpp>
-#include <core/Base.h>
+#include <core/Window.h>
 
 namespace VoxelEngine::renderer
 {
@@ -17,10 +16,11 @@ namespace VoxelEngine::renderer
 	{
 		switch (spec)
 		{
-		case GraphicsSpec::None: return "None";
-		case GraphicsSpec::Vulkan: return "Vulkan";		
-		case GraphicsSpec::OpenGL: return "OpenGL";
-		case GraphicsSpec::DirectX12: return "DirectX12";
+#define STR(x) case GraphicsSpec::##x: return #x;
+			STR(None);
+			STR(Vulkan);
+			STR(OpenGL);
+			STR(DirectX12);
 		default: return "UNKNOWN_RENDERER_SPEC";
 		}
 	}
@@ -31,7 +31,7 @@ namespace VoxelEngine::renderer
 		RendererAPI() noexcept = default;
 		virtual ~RendererAPI() = default;
 
-		virtual void init() = 0;
+		virtual void init(const VoxelEngine::Window& window) = 0;
 		virtual void setViewport(const uint32& x, const uint32& y, const uint32& width, const uint32& height) = 0;
 		virtual void setClearColor(const glm::vec4& color) = 0;
 		virtual void setLineWidth(const float& width) = 0;

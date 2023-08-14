@@ -8,6 +8,7 @@ namespace VoxelEngine::renderer
 	private:
 		static UniqueRef<RendererAPI> s_renderer;
 	public:
+		static void init(const Window& window);
 		static void setViewport(const int32_t& x, const int32_t& y, const uint32& width, const uint32& height);
 		static void setClearColor(const glm::vec4& color);
 	};

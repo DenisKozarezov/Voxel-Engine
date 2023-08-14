@@ -2,9 +2,15 @@
 
 namespace VoxelEditor
 {
+    EditorConsole* EditorConsole::s_instance = 0;
+
     EditorConsole::EditorConsole()
     {
-        m_autoScroll = false;
+        VOXEL_ASSERT(!s_instance, "There is other editor console instance!");
+
+        s_instance = this;
+
+        m_autoScroll = true;
         clear();
     }
     void EditorConsole::addLog(const char* fmt, ...)

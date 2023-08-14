@@ -16,6 +16,13 @@ namespace VoxelEditor
 
 		settings.renderMode = static_cast<renderer::RenderMode>(e);
 	}
+	void SceneView::drawCameraModes()
+	{
+		ImGui::BeginChild("##cameraModes");
+		ImGui::Button("Camera Mode");
+		ImGui::EndChild();
+	}
+
 	SceneView::SceneView()
 	{
 		glm::vec3 cameraPos = { 2.0f, 2.0f, 2.0f };
@@ -98,10 +105,16 @@ namespace VoxelEditor
 	}
 	void SceneView::moveCamera(const components::camera::CameraMovement& direction, const float& deltaTime)
 	{
+		if (!m_viewportFocused)
+			return;
+
 		_camera->processKeyboard(direction, deltaTime);
 	}
 	void SceneView::mouseMove(const float& x, const float& y)
 	{
+		if (!m_viewportFocused)
+			return;
+
 		_camera->processMouse(x, y);
 	}
 }

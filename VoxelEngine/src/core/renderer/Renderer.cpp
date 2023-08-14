@@ -17,11 +17,14 @@ namespace VoxelEngine::renderer
         s_renderPerformanceStats.frameStats = vulkan::getFrameStats();
         return s_renderPerformanceStats;
     }
+    void Renderer::resetStats()
+    {
+        vulkan::resetFrameStats();
+    }
     void Renderer::init(const Window& window)
     {
         VOXEL_CORE_WARN("Renderer initialization.");
-        vulkan::setWindow(window);
-        vulkan::init();
+        RenderCommand::init(window);
     }
     void Renderer::preRender(const components::camera::Camera& camera)
     {
@@ -36,7 +39,7 @@ namespace VoxelEngine::renderer
     }
     void Renderer::render()
     {
-        vulkan::resetFrameStats();
+        
     }
     void Renderer::postRender()
     {
@@ -58,7 +61,7 @@ namespace VoxelEngine::renderer
     {
         vulkan::deviceWaitIdle();
     }
-    void Renderer::cleanup()
+    void Renderer::shutdown()
     {
         vulkan::cleanup();
     }

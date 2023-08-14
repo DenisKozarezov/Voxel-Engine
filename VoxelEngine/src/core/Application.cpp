@@ -1,5 +1,4 @@
 #include "Application.h"
-#include "imgui/ImGuiLayer.h"
 
 namespace VoxelEngine
 {
@@ -27,7 +26,7 @@ namespace VoxelEngine
 		m_window->setMaximized(spec.Maximized);
 	}
 
-	constexpr Application& Application::getInstance()
+	inline constexpr Application& Application::getInstance()
 	{
 		return *s_instance;
 	}
@@ -82,7 +81,7 @@ namespace VoxelEngine
 	void Application::shutdown()
 	{
 		m_layerStack.detach();
-		renderer::Renderer::cleanup();
+		renderer::Renderer::shutdown();
 	}
 
 	void Application::setupInputCallbacks()
@@ -98,16 +97,16 @@ namespace VoxelEngine
 		{
 			m_layerStack.onUpdate(m_frameTimer);
 
-			g_imguiLayer->preRender();
-			m_layerStack.onImGuiRender();
-			g_imguiLayer->postRender();
-
 			m_accumulator += m_frameTimer;
 			while (m_accumulator >= fixedDeltaTime)
 			{
 				m_layerStack.onFixedUpdate(fixedDeltaTime);
 				m_accumulator -= fixedDeltaTime;
 			}
+
+			g_imguiLayer->preRender();
+			m_layerStack.onImGuiRender();
+			g_imguiLayer->postRender();
 
 			m_frameCounter++;
 

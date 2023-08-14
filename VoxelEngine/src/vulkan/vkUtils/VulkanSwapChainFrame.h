@@ -3,9 +3,6 @@
 #include <vulkan/vkUtils/VulkanAlloc.h>
 #include <core/renderer/UniformBuffer.h>
 
-#define VERTEX_BUFFER_BIND_ID 0
-#define INSTANCE_BUFFER_BIND_ID 1
-
 namespace vkUtils
 {
 	typedef struct

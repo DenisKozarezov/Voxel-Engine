@@ -19,11 +19,9 @@ namespace VoxelEditor
 VoxelEngine::UniqueRef<VoxelEngine::Application> CreateApplication(ApplicationCommandLineArgs args)
 {
 	ApplicationSpecification spec;
-	spec.ApplicationName = "Voxel Editor";
-	spec.Version = "v0.0.1";
-	spec.WorkingDirectory = args[0];
-	size_t index = spec.WorkingDirectory.find_last_of('\\');
-	spec.WorkingDirectory = spec.WorkingDirectory.substr(0, index);
+	spec.ApplicationName = PROJECT_NAME;
+	spec.Version = string("v") + PROJECT_VERSION;
+	spec.WorkingDirectory = g_currentPath;
 	spec.Maximized = true;
 	spec.CommandLineArgs = args;
 

@@ -1,5 +1,4 @@
 #include "EditorLayer.h"
-#include <imgui_internal.h>
 
 namespace VoxelEditor
 {
@@ -13,9 +12,6 @@ namespace VoxelEditor
 
 	bool EditorLayer::onKeyboardPressed(const input::KeyPressedEvent& e)
 	{
-		if (!m_sceneView.m_viewportFocused)
-			return false;
-
 		switch (e.getKeyCode())
 		{
 		case input::W:
@@ -149,21 +145,24 @@ namespace VoxelEditor
 		m_dispatcher.registerEvent<input::MouseMovedEvent>(BIND_MEMBER_CALLBACK(&m_sceneView, SceneView::onMouseMoved));
 	
 		renderer::Renderer::submitRenderables(m_scene.vertices);
+
+		EditorConsole::info("Welcome to {0} {1}!", PROJECT_NAME, PROJECT_VERSION);
 	}				  
 	void EditorLayer::onDetach()
 	{				
-
+		
 	}				  
 	void EditorLayer::onUpdate(const VoxelEngine::Timestep& ts)
 	{
 		m_deltaTime = ts;
 
-		renderer::Renderer::updateUIOverlay();
+		renderer::Renderer::resetStats();
 
 		renderer::Renderer::preRender(*m_sceneView._camera.get());
 
 		renderer::Renderer::render();
 
+		renderer::Renderer::updateUIOverlay();
 		renderer::Renderer::postRender();
 	}
 	void EditorLayer::onFixedUpdate(const VoxelEngine::Timestep& ts)
@@ -221,7 +220,7 @@ namespace VoxelEditor
 		ImGui::Begin("Palette");
 		ImGui::End();
 
-		ImGui::Begin("Scene Hierarchy");
+		ImGui::Begin("Inspector");
 		ImGui::End();
 
 		m_console.render();

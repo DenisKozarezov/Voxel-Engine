@@ -2,7 +2,7 @@
 #include "RenderContext.h"
 #include "RenderSettings.h"
 #include "RenderCommand.h"
-#include "components/camera/Camera.h"
+#include <components/camera/Camera.h>
 #include <core/renderer/UniformBuffer.h>
 
 namespace VoxelEngine::renderer

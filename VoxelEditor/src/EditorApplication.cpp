@@ -20,11 +20,8 @@ VoxelEngine::UniqueRef<VoxelEngine::Application> CreateApplication(ApplicationCo
 {
 	ApplicationSpecification spec;
 	spec.ApplicationName = PROJECT_NAME;
-	spec.Version = "v";
-	spec.Version += PROJECT_VERSION;
-	spec.WorkingDirectory = args[0];
-	size_t index = spec.WorkingDirectory.find_last_of('\\');
-	spec.WorkingDirectory = spec.WorkingDirectory.substr(0, index);
+	spec.Version = string("v") + PROJECT_VERSION;
+	spec.WorkingDirectory = g_currentPath;
 	spec.Maximized = true;
 	spec.CommandLineArgs = args;
 

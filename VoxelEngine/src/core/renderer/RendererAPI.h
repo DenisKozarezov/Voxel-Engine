@@ -1,7 +1,5 @@
 #pragma once
-#include <core/PrimitiveTypes.h>
 #include <glm/vec4.hpp>
-#include <core/Base.h>
 #include <core/Window.h>
 
 namespace VoxelEngine::renderer

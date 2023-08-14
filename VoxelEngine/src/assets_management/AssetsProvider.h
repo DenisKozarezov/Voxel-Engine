@@ -1,7 +1,7 @@
 #pragma once
+#include <filesystem>
 #include <core/Base.h>
 #include <components/mesh/Mesh.h>
-#include <filesystem>
 
 #if defined(VOXEL_PLATFORM_WINDOWS)
 #define PATH_SEPARATOR "\\"
@@ -9,10 +9,12 @@
 #define PATH_SEPARATOR "/"
 #endif
 
+const string g_currentPath = std::filesystem::current_path().string() + PATH_SEPARATOR;
+
 #define RESOURCES_FOLDER_NAME "resources"
 #define RESOURCES_DIR RESOURCES_FOLDER_NAME PATH_SEPARATOR
 #define ASSET_PATH(path) RESOURCES_DIR path
-#define ASSET_ABSOLUTE_PATH(relativePath) std::filesystem::absolute(std::filesystem::path(ASSET_PATH(relativePath))).generic_string()
+#define ASSET_ABSOLUTE_PATH(relativePath) g_currentPath + ASSET_PATH(relativePath)
 
 using Mesh = VoxelEngine::components::mesh::Mesh;
 

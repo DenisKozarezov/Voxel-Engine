@@ -4,7 +4,6 @@
 #include "Assert.h"
 #include "LayerStack.h"
 #include "renderer/Renderer.h"
-#include "renderer/RendererAPI.h"
 #include "imgui/ImGuiLayer.h"
 
 struct ApplicationCommandLineArgs
@@ -12,12 +11,12 @@ struct ApplicationCommandLineArgs
 	int Count = 0;
 	char** Args = nullptr;
 
-	constexpr char* operator[](int index) const
+	constexpr const char* operator[](int index) const
 	{
 		VOXEL_CORE_ASSERT(index < Count, "Invalid index when accessing to command line arguments.");
 		return Args[index];
 	}
-	constexpr std::string toString() const
+	constexpr string str() const
 	{
 		string args;
 		for (int i = 0; i < Count; ++i)
@@ -30,9 +29,9 @@ struct ApplicationCommandLineArgs
 };
 struct ApplicationSpecification
 {
-	std::string ApplicationName;
-	std::string WorkingDirectory;
-	std::string Version;
+	string ApplicationName;
+	string WorkingDirectory;
+	string Version;
 	bool Maximized = false;
 	ApplicationCommandLineArgs CommandLineArgs;
 };

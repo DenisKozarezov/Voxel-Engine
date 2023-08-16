@@ -7,7 +7,9 @@ namespace VoxelEditor
 		static int e;
 		auto& settings = renderer::Renderer::getRenderSettings();
 
-		ImGui::BeginChild("##render_modes", { 200, 100 });
+		ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
+		window_flags |= ImGuiWindowFlags_NoMove;
+		ImGui::BeginChild("##render_modes", { 200, 100 }, false, window_flags);
 		ImGui::RadioButton("Solid", &e, 0);
 		ImGui::RadioButton("Wireframe", &e, 1);
 		ImGui::Separator();
@@ -18,8 +20,22 @@ namespace VoxelEditor
 	}
 	void SceneView::drawCameraModes()
 	{
-		ImGui::BeginChild("##cameraModes");
-		ImGui::Button("Camera Mode");
+		ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
+		window_flags |= ImGuiWindowFlags_NoMove;
+		ImRect basePos = ImGui::GetCurrentWindow()->WorkRect;
+		ImVec2 pos = { basePos.Min.x + m_viewportSize.x - 100, basePos.Min.y };
+		ImGui::SetNextWindowPos(pos, ImGuiCond_Always);
+		
+		ImGui::BeginChild("##cameraModes", { 100, 100 }, false, window_flags);
+		ImGui::Text("Camera Mode");
+
+		components::camera::ProjectionType projectionType = m_camera->projectionType();
+		const char* modeStr = projectionTypeString(projectionType);
+		if (ImGui::Button(modeStr))
+		{
+			int modeInt = (static_cast<int>(projectionType) + 1) % 2;
+			m_camera->switchMode((components::camera::ProjectionType)modeInt);
+		}
 		ImGui::EndChild();
 	}
 
@@ -27,17 +43,15 @@ namespace VoxelEditor
 	{
 		glm::vec3 cameraPos = { 2.0f, 2.0f, 2.0f };
 
-		_camera = MakeUnique<components::camera::FirstPersonCamera>(cameraPos);
+		m_camera = MakeUnique<components::camera::EditorCameraController>(cameraPos);
 	}
+
 	bool SceneView::onMousePressed(const input::MouseButtonPressedEvent& e)
 	{
-		if (!m_viewportFocused)
-			return false;
-
 		switch (e.getKeyCode())
 		{
 		case input::ButtonRight:
-			setMouseDragging(true);
+			m_camera->setMouseDragging(true);
 			break;
 		}
 		return true;
@@ -47,74 +61,56 @@ namespace VoxelEditor
 		switch (e.getKeyCode())
 		{
 		case input::ButtonRight:
-			setMouseDragging(false);
+			m_camera->setMouseDragging(false);
 			break;
 		}
 		return true;
 	}
-	bool SceneView::onMouseMoved(const input::MouseMovedEvent& e)
-	{
-		const float x = e.getX();
-		const float y = e.getY();
 
-		if (_mouseState == input::MouseDraggingState::DragBegin)
-		{
-			_lastMouseX = x;
-			_lastMouseY = y;
-			_mouseState = input::MouseDraggingState::Dragging;
-		}
-
-		if (_mouseState == input::MouseDraggingState::Dragging)
-		{
-			mouseMove(x - _lastMouseX, _lastMouseY - y);
-			_lastMouseX = x;
-			_lastMouseY = y;
-		}
-		return true;
-	}
-	void SceneView::render()
+	void SceneView::onImGuiRender()
 	{
 		ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBackground;
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 		ImGui::Begin("Viewport", 0, flags);
 
-		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
+		m_viewportSize = ImGui::GetContentRegionAvail();
 		ImVec2 vMin = ImGui::GetWindowContentRegionMin();
 		vMin.x += ImGui::GetWindowPos().x;
 		vMin.y += ImGui::GetWindowPos().y;
 
 		m_viewportFocused = ImGui::IsWindowFocused();
 		m_viewportHovered = ImGui::IsWindowHovered();
-		if (m_viewportHovered && ImGui::IsMouseDown(1))
+		if (m_viewportHovered && ImGui::IsMouseDown(ImGuiMouseButton_Right))
 		{
 			ImGui::SetWindowFocus();
 		}
 
-		renderer::RenderCommand::setViewport(vMin.x, vMin.y, viewportPanelSize.x, viewportPanelSize.y);
-		_camera->setAspectRatio(viewportPanelSize.x / viewportPanelSize.y);
+		const float aspectRatio = m_viewportSize.x / m_viewportSize.y;
 
-		drawRenderModes();
+		renderer::RenderCommand::setViewport(vMin.x, vMin.y, m_viewportSize.x, m_viewportSize.y);
+		m_camera->setAspectRatio(aspectRatio);
 		
+		drawRenderModes();
+		drawCameraModes();
+
 		ImGui::PopStyleVar();
 		ImGui::End();
 	}
 
-	void SceneView::setMouseDragging(const bool& isDragging)
+	void SceneView::update(const Timestep& ts)
 	{
-		_mouseState = isDragging ? input::MouseDraggingState::DragBegin : input::MouseDraggingState::None;
-	}
-	void SceneView::moveCamera(const components::camera::CameraMovement& direction, const float& deltaTime)
-	{
-		if (!m_viewportFocused)
-			return;
+		renderer::Renderer::resetStats();
 
-		_camera->processKeyboard(direction, deltaTime);
-	}
-	void SceneView::mouseMove(const float& x, const float& y)
-	{
-		if (!m_viewportFocused)
-			return;
+		renderer::Renderer::preRender(*m_camera.get());
 
-		_camera->processMouse(x, y);
+		renderer::Renderer::render();
+
+		renderer::Renderer::updateUIOverlay();
+		renderer::Renderer::postRender();
+
+		if (m_viewportFocused)
+		{
+			m_camera->update(ts);
+		}
 	}
 }

@@ -14,8 +14,6 @@ namespace VoxelEditor
 		float m_deltaTime = 0.0f;
 		float m_fixedDeltaTime = 0.0f;
 
-		bool onKeyboardPressed(const input::KeyPressedEvent& e);
-
 		void drawMenuBar();
 		void drawRenderPerformance();
 	public:

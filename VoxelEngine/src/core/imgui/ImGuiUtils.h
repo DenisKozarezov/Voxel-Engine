@@ -1,7 +1,7 @@
 #pragma once
 #include <imgui.h>
 
-namespace editorUtils
+namespace utils
 {
 	static class ImGuiUtils
 	{

@@ -4,15 +4,23 @@ namespace VoxelEngine
 {
 	Scene::Scene()
 	{
-		for (float x = 0; x < 1; x += 0.2f)
+		const float s = 0.1f * 2;
+		const int N = 5;
+
+		for (float x = s; x < s * N; x += s)
 		{
-			for (float y = 0; y < 1; y += 0.2f)
+			for (float y = 0; y < s * N; y += s)
 			{
-				for (float z = y; z < 1; z += 0.2f)
+				for (float z = y; z < s * N; z += s)
 				{
-					vertices.push_back({ x, y + 0.2f, z });
+					vertices.push_back({ x, y + s, z });
 				}
 			}
 		}
+	}
+
+	void Scene::update(const Timestep& ts)
+	{
+
 	}
 }

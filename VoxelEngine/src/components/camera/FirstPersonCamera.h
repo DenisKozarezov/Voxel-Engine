@@ -1,39 +1,28 @@
 #pragma once
-#include <glm/ext/matrix_transform.hpp>
-#include <glm/ext/matrix_clip_space.hpp>
-#include <algorithm>
 #include "Camera.h"
 
 namespace VoxelEngine::components::camera
 {
-	constexpr static float defaultYaw = -90.0f;
-	constexpr static float defaultPitch = 0.0f;
-	constexpr static float defaultSpeed = 10.0f;
-	constexpr static float defaultSensitivity = 0.15f;
-	constexpr static float defaultZoom = 45.0f;
-
-	static constexpr float FOV = 45.0f;
-
-	static constexpr float nearClip = 0.1f;
-	static constexpr float farClip = 200.0f;
-
 	class FirstPersonCamera : public Camera
 	{
 	private:
+		constexpr static float defaultYaw = -90.0f;
+		constexpr static float defaultPitch = 0.0f;
+		constexpr static float FOV = 45.0f;
+		constexpr static float nearClip = 0.1f;
+		constexpr static float farClip = 200.0f;
+
 		glm::vec3 m_front;
 		glm::vec3 m_up;
 		float m_yaw, m_pitch;
-		float m_movementSpeed;
-		float m_mouseSensitivity;
-		float m_zoom;
 		float m_lerpT = 0.0f;
 	public:
 		FirstPersonCamera() noexcept = delete;
 		FirstPersonCamera(
 			const glm::vec3& position = glm::vec3(0.0f, 0.0f, 0.0f),
 			const glm::vec3& up = glm::vec3(0.0f, 1.0f, 0.0f),
-			float yaw = defaultYaw,
-			float pitch = defaultPitch);
+			const float& yaw = defaultYaw,
+			const float& pitch = defaultPitch);
 		~FirstPersonCamera() noexcept = default;
 
 		inline const glm::mat4 viewMatrix() const override { return glm::lookAt(m_position, m_position + m_front, m_up); }

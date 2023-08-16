@@ -2,11 +2,8 @@
 
 namespace VoxelEngine::components::camera
 {
-	FirstPersonCamera::FirstPersonCamera(const glm::vec3& position, const glm::vec3& up, float yaw, float pitch)
+	FirstPersonCamera::FirstPersonCamera(const glm::vec3& position, const glm::vec3& up, const float& yaw, const float& pitch)
 		: Camera(position),
-		m_movementSpeed(defaultSpeed), 
-		m_mouseSensitivity(defaultSensitivity), 
-		m_zoom(defaultZoom),
 		m_up(up),
 		m_front(glm::vec3(0.0f, 0.0f, -1.0f)),
 		m_yaw(yaw),

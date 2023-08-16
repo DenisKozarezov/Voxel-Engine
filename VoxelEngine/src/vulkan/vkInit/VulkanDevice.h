@@ -1,5 +1,6 @@
 #pragma once
 #include <pch.h>
+#include <core/utils/EnumUtils.h>
 #include "../vkUtils/VulkanQueueFamilies.h"
 
 namespace vkInit
@@ -13,22 +14,7 @@ namespace vkInit
 	{
 		VkQueue graphicsQueue;
 		VkQueue presentQueue;
-	};	
-
-	constexpr std::string physicalDeviceTypeString(VkPhysicalDeviceType type)
-	{
-		switch (type)
-		{
-#define STR(r) case VK_PHYSICAL_DEVICE_TYPE_ ##r: return #r
-			STR(OTHER);
-			STR(INTEGRATED_GPU);
-			STR(DISCRETE_GPU);
-			STR(VIRTUAL_GPU);
-			STR(CPU);
-#undef STR
-		default: return "UNKNOWN_DEVICE_TYPE";
-		}
-	}
+	};
 
 	inline const int getHardwareConcurrency()
 	{

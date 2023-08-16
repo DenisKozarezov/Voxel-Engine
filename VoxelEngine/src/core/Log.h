@@ -31,6 +31,7 @@ inline constexpr std::string logLevelToString(const spdlog::level::level_enum& l
 			STR(critical);
 			STR(err);
 #undef STR
+		default: return "info";
 		}
 	}
 

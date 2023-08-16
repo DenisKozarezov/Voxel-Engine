@@ -1,4 +1,5 @@
 #include "Application.h"
+#include <core/utils/EnumUtils.h>
 
 namespace VoxelEngine
 {
@@ -14,12 +15,15 @@ namespace VoxelEngine
 		VOXEL_CORE_WARN("Application Name: {0}", spec.ApplicationName);
 		VOXEL_CORE_WARN("Version: {0}", spec.Version);
 		VOXEL_CORE_WARN("Working Directory: {0}", spec.WorkingDirectory);
-		VOXEL_CORE_WARN("Command Line Args: {0}", spec.CommandLineArgs.toString());
+		VOXEL_CORE_WARN("Command Line Args: {0}", spec.CommandLineArgs.str());
 
 		setupInputCallbacks();
 
 		std::stringstream name;
-		string graphicsSpec = renderer::graphicsSpecString(renderer::g_graphicsSpec);
+		const char* graphicsSpec = graphicsSpecString(renderer::g_graphicsSpec);
+
+		VOXEL_CORE_WARN("Graphics Renderer API: {0}", graphicsSpec);
+
 		name << spec.ApplicationName << " " << spec.Version << " (" << graphicsSpec << ")";
 		m_window = Window::Create({ name.str(), 1920, 1080 });
 		m_window->setEventCallback(BIND_CALLBACK(onEvent));

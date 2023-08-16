@@ -10,26 +10,6 @@ namespace VoxelEditor
 		
 	}
 
-	bool EditorLayer::onKeyboardPressed(const input::KeyPressedEvent& e)
-	{
-		switch (e.getKeyCode())
-		{
-		case input::W:
-			m_sceneView.moveCamera(components::camera::CameraMovement::Forward, m_fixedDeltaTime);
-			break;
-		case input::S:
-			m_sceneView.moveCamera(components::camera::CameraMovement::Backward, m_fixedDeltaTime);
-			break;
-		case input::A:
-			m_sceneView.moveCamera(components::camera::CameraMovement::Left, m_fixedDeltaTime);
-			break;
-		case VoxelEngine::input::D:
-			m_sceneView.moveCamera(components::camera::CameraMovement::Right, m_fixedDeltaTime);
-			break;
-		}
-		return true;
-	}
-
 	void EditorLayer::drawMenuBar()
 	{
 		if (ImGui::BeginMenuBar())
@@ -37,6 +17,7 @@ namespace VoxelEditor
 			if (ImGui::BeginMenu("File"))
 			{
 				ImGui::MenuItem("Open", "Ctrl+O");
+
 				ImGui::Separator();
 				ImGui::MenuItem("Save", "Ctrl+S");
 				ImGui::MenuItem("Save As...");
@@ -139,11 +120,9 @@ namespace VoxelEditor
 
 	void EditorLayer::onAttach()
 	{				  
-		m_dispatcher.registerEvent<input::KeyPressedEvent>(BIND_CALLBACK(EditorLayer::onKeyboardPressed));
 		m_dispatcher.registerEvent<input::MouseButtonPressedEvent>(BIND_MEMBER_CALLBACK(&m_sceneView, SceneView::onMousePressed));
 		m_dispatcher.registerEvent<input::MouseButtonReleasedEvent>(BIND_MEMBER_CALLBACK(&m_sceneView, SceneView::onMouseReleased));
-		m_dispatcher.registerEvent<input::MouseMovedEvent>(BIND_MEMBER_CALLBACK(&m_sceneView, SceneView::onMouseMoved));
-	
+
 		renderer::Renderer::submitRenderables(m_scene.vertices);
 
 		EditorConsole::info("Welcome to {0} {1}!", PROJECT_NAME, PROJECT_VERSION);
@@ -156,14 +135,7 @@ namespace VoxelEditor
 	{
 		m_deltaTime = ts;
 
-		renderer::Renderer::resetStats();
-
-		renderer::Renderer::preRender(*m_sceneView._camera.get());
-
-		renderer::Renderer::render();
-
-		renderer::Renderer::updateUIOverlay();
-		renderer::Renderer::postRender();
+		m_sceneView.update(ts);
 	}
 	void EditorLayer::onFixedUpdate(const VoxelEngine::Timestep& ts)
 	{
@@ -213,7 +185,7 @@ namespace VoxelEditor
 		style.WindowMinSize.x = minWinSizeX;
 
 		drawMenuBar();
-		m_sceneView.render();
+		m_sceneView.onImGuiRender();
 
 		drawRenderPerformance();
 

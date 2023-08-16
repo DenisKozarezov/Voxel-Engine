@@ -8,14 +8,12 @@ namespace VoxelEditor
 	class SceneView final
 	{
 	private:
-		float _lastMouseX = 0.0f, _lastMouseY = 0.0f;
-		glm::vec2 _viewportSize;
-		input::MouseDraggingState _mouseState;
+		ImVec2 m_viewportSize;
 
 		void drawRenderModes();
 		void drawCameraModes();
 	public:
-		UniqueRef<components::camera::Camera> _camera;
+		UniqueRef<VoxelEngine::components::camera::EditorCameraController> m_camera;
 		bool m_viewportFocused;
 		bool m_viewportHovered;
 
@@ -28,11 +26,8 @@ namespace VoxelEditor
 
 		bool onMousePressed(const input::MouseButtonPressedEvent& e);
 		bool onMouseReleased(const input::MouseButtonReleasedEvent& e);
-		bool onMouseMoved(const input::MouseMovedEvent& e);
-		void render();
 
-		void setMouseDragging(const bool& isDragging);
-		void moveCamera(const components::camera::CameraMovement& direction, const float& deltaTime);
-		void mouseMove(const float& x, const float& y);
+		void onImGuiRender();
+		void update(const Timestep& ts);
 	};
 }

@@ -12,19 +12,6 @@ namespace VoxelEngine::renderer
 		DirectX12 = 3,
 	};
 
-	constexpr const string graphicsSpecString(const GraphicsSpec& spec)
-	{
-		switch (spec)
-		{
-#define STR(x) case GraphicsSpec::##x: return #x;
-			STR(None);
-			STR(Vulkan);
-			STR(OpenGL);
-			STR(DirectX12);
-		default: return "UNKNOWN_RENDERER_SPEC";
-		}
-	}
-
 	class RendererAPI
 	{
 	public:

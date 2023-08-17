@@ -28,7 +28,7 @@ namespace vkUtils
 		vkUpdateDescriptorSets(logicalDevice, static_cast<uint32>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}
 
-	void SwapChainFrame::release() const
+	void SwapChainFrame::release()
 	{
 		vkDestroyImageView(logicalDevice, imageView, nullptr);
 		vkDestroyFramebuffer(logicalDevice, framebuffer, nullptr);

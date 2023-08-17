@@ -38,6 +38,6 @@ namespace vkUtils
 
 		void writeDescriptorSet() const;
 
-		void release() const;
+		void release();
 	};
 }

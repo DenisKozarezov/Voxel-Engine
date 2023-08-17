@@ -1,24 +1,29 @@
 #pragma once
+#include <core/renderer/Buffer.h>
 #include <vulkan/vkUtils/VulkanAlloc.h>
 
 namespace vkUtils
 {
-	class VulkanVertexBuffer
+	class VulkanVertexBuffer : public VoxelEngine::renderer::VertexBuffer
 	{
 	private:
 		VkDevice m_logicalDevice;
 		vkUtils::memory::Buffer m_vertexBuffer;
 	public:
-		VulkanVertexBuffer() = default;
+		VulkanVertexBuffer() noexcept = default;
 		VulkanVertexBuffer(
 			const VkPhysicalDevice& physicalDevice, 
 			const VkDevice& logicalDevice, 
 			const void* vertices, 
 			const size_t& bufferSize);
+		VulkanVertexBuffer& operator=(const VulkanVertexBuffer& buffer);
 
-		operator const VkBuffer&() const & { return m_vertexBuffer.buffer; }
+		constexpr operator const VkBuffer&() const & { return m_vertexBuffer.buffer; }
 
-		void release() const;
+		constexpr uint32 size() const override;
+
+		void setData(const void* data, uint32 size) override;
+		void release() override;
 
 		~VulkanVertexBuffer();
 	};	

@@ -26,11 +26,22 @@ namespace vkUtils
 			bufferSize, 
 			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, 
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-		vulkan::copyBuffer(stagingBuffer.buffer, m_indexBuffer.buffer, bufferSize);
+		vulkan::copyBuffer(stagingBuffer, m_indexBuffer, bufferSize);
 
 		stagingBuffer.release();
 	}
-	void VulkanIndexBuffer::release() const
+	VulkanIndexBuffer& VulkanIndexBuffer::operator=(const VulkanIndexBuffer& buffer)
+	{
+		this->m_indexBuffer.unmap();
+		this->m_indexBuffer.release();
+		vulkan::copyBuffer(buffer.m_indexBuffer, this->m_indexBuffer, buffer.m_indexBuffer.size);
+		return *this;
+	}
+	constexpr uint32 VulkanIndexBuffer::size() const
+	{
+		return static_cast<uint32>(m_indexBuffer.size);
+	}
+	void VulkanIndexBuffer::release()
 	{
 		m_indexBuffer.release();
 	}

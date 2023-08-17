@@ -16,10 +16,10 @@ namespace vkUtils
 			const VkDevice& logicalDevice, 
 			const uint32& size);
 
-		operator const VkBuffer&() const & { return m_uniformBuffer.buffer; }
+		constexpr operator const VkBuffer&() const & { return m_uniformBuffer.buffer; }
 
 		void setData(const void* data, size_t size) const;
-		void release() const;
+		void release();
 
 		~VulkanUniformBuffer() = default;
 	};

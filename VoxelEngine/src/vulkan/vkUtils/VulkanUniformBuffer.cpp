@@ -19,7 +19,7 @@ namespace vkUtils
 	{
 		m_uniformBuffer.setData(data, size);
 	}
-	void VulkanUniformBuffer::release() const
+	void VulkanUniformBuffer::release()
 	{
 		m_uniformBuffer.release();
 	}

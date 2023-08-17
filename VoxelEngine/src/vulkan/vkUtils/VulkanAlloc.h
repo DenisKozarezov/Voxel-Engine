@@ -14,39 +14,13 @@ namespace vkUtils::memory
 		void* mappedMemory = nullptr;
 		VkDescriptorBufferInfo descriptor;
 
-		void release() const
-		{			
-			if (buffer)
-				vkDestroyBuffer(logicalDevice, buffer, nullptr);
+		constexpr operator const VkBuffer& () const& { return buffer; }
 
-			if (bufferMemory)
-				vkFreeMemory(logicalDevice, bufferMemory, nullptr);
-		}
-		VkResult map()
-		{
-			return vkMapMemory(logicalDevice, bufferMemory, 0, size, 0, &mappedMemory);
-		}
-		void unmap()
-		{
-			if (mappedMemory)
-			{
-				vkUnmapMemory(logicalDevice, bufferMemory);
-				mappedMemory = nullptr;
-			}
-		}
-		void setData(const void* data, const size_t& size) const
-		{
-			memcpy(mappedMemory, data, size);
-		}
-		VkResult flush(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0) const
-		{
-			VkMappedMemoryRange mappedRange = {};
-			mappedRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
-			mappedRange.memory = bufferMemory;
-			mappedRange.offset = offset;
-			mappedRange.size = size;
-			return vkFlushMappedMemoryRanges(logicalDevice, 1, &mappedRange);
-		}
+		void release();
+		VkResult map();
+		void unmap();
+		void setData(const void* data, const size_t& size) const;
+		VkResult flush(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0) const;
 	};
 
 	const uint32 findMemoryType(const VkPhysicalDevice& physicalDevice, const uint32& typeFilter, const VkMemoryPropertyFlags& properties);

@@ -31,9 +31,9 @@ namespace vkInit
 		VkDeviceMemory colorImageMemory;
 		VkImageView colorImageView;
 
-		void release(const VkDevice& logicalDevice) const
+		void release(const VkDevice& logicalDevice)
 		{
-			for (const auto& frame : frames)
+			for (auto& frame : frames)
 			{
 				frame.release();
 			}

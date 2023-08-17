@@ -2,8 +2,6 @@
 #include <core/Assert.h>
 
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/hash.hpp>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -12,17 +10,6 @@
 #include <tiny_obj_loader.h>
 
 using Vertex = VoxelEngine::renderer::Vertex;
-
-namespace std 
-{
-    template<> struct hash<Vertex>
-    {
-        size_t operator()(Vertex const& vertex) const
-        {
-            return ((hash<glm::vec3>()(vertex.pos) ^ (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^ (hash<glm::vec3>()(vertex.normal) << 1);
-        }
-    };
-}
 
 namespace assets
 {

@@ -26,12 +26,30 @@ namespace vkUtils
 			bufferSize, 
 			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, 
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-		vulkan::copyBuffer(stagingBuffer.buffer, m_vertexBuffer.buffer, bufferSize);
+		vulkan::copyBuffer(stagingBuffer, m_vertexBuffer, bufferSize);
 
 		stagingBuffer.release();
 	}
 
-	void VulkanVertexBuffer::release() const
+	VulkanVertexBuffer& VulkanVertexBuffer::operator=(const VulkanVertexBuffer& buffer)
+	{
+		this->m_vertexBuffer.unmap();
+		this->m_vertexBuffer.release();
+		vulkan::copyBuffer(buffer.m_vertexBuffer, this->m_vertexBuffer, buffer.m_vertexBuffer.size);
+		return *this;
+	}
+
+	constexpr uint32 VulkanVertexBuffer::size() const
+	{
+		return static_cast<uint32>(m_vertexBuffer.size);
+	}
+
+	void VulkanVertexBuffer::setData(const void* data, uint32 size)
+	{
+		
+	}
+
+	void VulkanVertexBuffer::release()
 	{
 		m_vertexBuffer.release();
 	}

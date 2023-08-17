@@ -114,4 +114,40 @@ namespace vkUtils::memory
 		free(data);
 #endif
 	}
+
+	void Buffer::release()
+	{
+		if (buffer)
+			vkDestroyBuffer(logicalDevice, buffer, nullptr);
+
+		if (bufferMemory)
+			vkFreeMemory(logicalDevice, bufferMemory, nullptr);
+
+		size = 0;
+	}
+	VkResult Buffer::map()
+	{
+		return vkMapMemory(logicalDevice, bufferMemory, 0, size, 0, &mappedMemory);
+	}
+	void Buffer::unmap()
+	{
+		if (mappedMemory)
+		{
+			vkUnmapMemory(logicalDevice, bufferMemory);
+			mappedMemory = nullptr;
+		}
+	}
+	void Buffer::setData(const void* data, const size_t& size) const
+	{
+		memcpy(mappedMemory, data, size);
+	}
+	VkResult Buffer::flush(VkDeviceSize size, VkDeviceSize offset) const
+	{
+		VkMappedMemoryRange mappedRange = {};
+		mappedRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
+		mappedRange.memory = bufferMemory;
+		mappedRange.offset = offset;
+		mappedRange.size = size;
+		return vkFlushMappedMemoryRanges(logicalDevice, 1, &mappedRange);
+	}
 }

@@ -745,13 +745,15 @@ namespace vulkan
 	}
 
 	// ==================== MEMORY ALLOC / DEALLOC ====================
-	void copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkDeviceSize& size)
+	void copyBuffer(const vkUtils::memory::Buffer& srcBuffer, vkUtils::memory::Buffer& dstBuffer, const VkDeviceSize& size)
 	{
 		VkCommandBuffer commandBuffer = vkUtils::memory::beginSingleTimeCommands(state.commandPool);
 
 		VkBufferCopy copyRegion = {};
 		copyRegion.size = size;
 		vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+
+		dstBuffer.size = size;
 
 		endSingleTimeCommands(commandBuffer);
 	}
@@ -770,7 +772,7 @@ namespace vulkan
 		vkUtils::memory::releaseCommandBuffer(commandBuffer, state.commandPool);
 	}
 	
-	void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) 
+	void copyBufferToImage(vkUtils::memory::Buffer buffer, VkImage image, uint32 width, uint32 height) 
 	{
 		VkCommandBuffer commandBuffer = vkUtils::memory::beginSingleTimeCommands(state.commandPool);
 
@@ -793,7 +795,7 @@ namespace vulkan
 
 		endSingleTimeCommands(commandBuffer);
 	}
-	void copyImage(VkCommandPool cmdPool, VkImage srcImageId, VkImage dstImageId, uint32_t width, uint32_t height)
+	void copyImage(VkCommandPool cmdPool, VkImage srcImageId, VkImage dstImageId, uint32 width, uint32 height)
 	{
 		VkCommandBuffer cmdBuffer = vkUtils::memory::beginSingleTimeCommands(cmdPool);
 

@@ -1,5 +1,5 @@
 #pragma once
-#include <vulkan/vulkan.h>
+#include <vulkan/vkUtils/VulkanAlloc.h>
 #include <core/renderer/Renderer.h>
 #include <components/mesh/Mesh.h>
 
@@ -74,11 +74,11 @@ namespace vulkan
 	const VkCommandPool& getCommandPool();
 
 	// ==================== MEMORY ALLOC / DEALLOC ====================
-	void copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkDeviceSize& size);
+	void copyBuffer(const vkUtils::memory::Buffer& srcBuffer, vkUtils::memory::Buffer& dstBuffer, const VkDeviceSize& size);
 	void endSingleTimeCommands(const VkCommandBuffer& commandBuffer);
 
-	void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
-	void copyImage(VkCommandPool cmdPool, VkImage srcImageId, VkImage dstImageId, uint32_t width, uint32_t height);
+	void copyBufferToImage(vkUtils::memory::Buffer buffer, VkImage image, uint32 width, uint32 height);
+	void copyImage(VkCommandPool cmdPool, VkImage srcImageId, VkImage dstImageId, uint32 width, uint32 height);
 	void transitionImageLayout(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout);
 	// ===================================================================
 }

@@ -21,20 +21,6 @@ namespace VoxelEngine
 
 #define FORMATTED_TIME string("{0:") + VoxelEngine::Log::s_timePattern + string("}")
 
-inline constexpr std::string logLevelToString(const spdlog::level::level_enum& level)
-	{
-		switch (level)
-		{
-#define STR(x) case spdlog::level::##x: return #x;
-			STR(info);
-			STR(warn);
-			STR(critical);
-			STR(err);
-#undef STR
-		default: return "info";
-		}
-	}
-
 #define VOXEL_CORE_TRACE(...)		::VoxelEngine::Log::getCoreLogger()->trace(__VA_ARGS__);
 #define VOXEL_CORE_INFO(...)		::VoxelEngine::Log::getCoreLogger()->info(__VA_ARGS__);
 #define VOXEL_CORE_WARN(...)		::VoxelEngine::Log::getCoreLogger()->warn(__VA_ARGS__);

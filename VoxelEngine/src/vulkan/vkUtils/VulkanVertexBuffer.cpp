@@ -44,7 +44,7 @@ namespace vkUtils
 		return static_cast<uint32>(m_vertexBuffer.size);
 	}
 
-	void VulkanVertexBuffer::setData(const void* data, uint32 size)
+	void VulkanVertexBuffer::setData(const void* data, const uint32& size)
 	{
 		
 	}

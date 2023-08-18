@@ -2,6 +2,7 @@
 #include <vulkan/vulkan.h>
 #include <core/renderer/RendererAPI.h>
 #include <components/camera/Camera.h>
+#include <spdlog/spdlog.h>
 
 #pragma region VULKAN
 constexpr const char* physicalDeviceTypeString(VkPhysicalDeviceType type)
@@ -78,3 +79,17 @@ constexpr const char* projectionTypeString(const VoxelEngine::components::camera
 	}
 }
 #pragma endregion
+
+constexpr const char* logLevelString(const spdlog::level::level_enum& level)
+{
+	switch (level)
+	{
+#define STR(x) case spdlog::level::##x: return #x;
+		STR(info);
+		STR(warn);
+		STR(critical);
+		STR(err);
+#undef STR
+	default: return "info";
+	}
+}

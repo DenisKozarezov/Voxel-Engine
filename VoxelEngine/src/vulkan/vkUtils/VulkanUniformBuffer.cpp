@@ -15,7 +15,7 @@ namespace vkUtils
 			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 		m_uniformBuffer.map();
 	}
-	void VulkanUniformBuffer::setData(const void* data, size_t size) const
+	void VulkanUniformBuffer::setData(const void* data, const size_t& size) const
 	{
 		m_uniformBuffer.setData(data, size);
 	}

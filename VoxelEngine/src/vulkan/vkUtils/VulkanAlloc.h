@@ -14,7 +14,7 @@ namespace vkUtils::memory
 		void* mappedMemory = nullptr;
 		VkDescriptorBufferInfo descriptor;
 
-		constexpr operator const VkBuffer& () const& { return buffer; }
+		inline operator const VkBuffer& () const& { return buffer; }
 
 		void release();
 		VkResult map();

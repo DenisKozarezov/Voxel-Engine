@@ -18,11 +18,11 @@ namespace vkUtils
 			const size_t& bufferSize);
 		VulkanVertexBuffer& operator=(const VulkanVertexBuffer& buffer);
 
-		constexpr operator const VkBuffer&() const & { return m_vertexBuffer.buffer; }
+		inline operator const VkBuffer&() const & { return m_vertexBuffer.buffer; }
 
 		constexpr uint32 size() const override;
 
-		void setData(const void* data, uint32 size) override;
+		void setData(const void* data, const uint32& size) override;
 		void release() override;
 
 		~VulkanVertexBuffer();

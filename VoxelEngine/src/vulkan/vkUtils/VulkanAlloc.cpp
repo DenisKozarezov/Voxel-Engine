@@ -42,6 +42,9 @@ namespace vkUtils::memory
 	
 	Buffer createBuffer(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice, const VkDeviceSize& size, const VkBufferUsageFlags& usage, const VkMemoryPropertyFlags& properties)
 	{
+		VOXEL_CORE_ASSERT(physicalDevice);
+		VOXEL_CORE_ASSERT(logicalDevice);
+
 		VkBufferCreateInfo bufferInfo = {};
 		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 		bufferInfo.size = size;

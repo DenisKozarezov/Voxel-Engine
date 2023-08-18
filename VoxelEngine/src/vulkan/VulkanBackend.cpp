@@ -7,7 +7,6 @@
 #include "vkInit/VulkanDescriptors.h"
 #include "vkInit/VulkanUIOverlay.h"
 #include "vkInit/VulkanCommand.h"
-#include "vkPipelines/VulkanPipelines.h"
 #include "vkUtils/VulkanUniformBuffer.h"
 #include "vkUtils/VulkanStatistics.h"
 #include "core/renderer/VertexManager.h"
@@ -651,7 +650,6 @@ namespace vulkan
 
 		vkDestroySurfaceKHR(state.instance, state.surface, nullptr);
 		vkDestroyInstance(state.instance, nullptr);
-
 	}
 
 	renderer::RenderSettings& getRenderSettings()

@@ -16,7 +16,7 @@ namespace VoxelEditor
 		LogEntry(const spdlog::level::level_enum& level, const std::string_view& fmt, Args&&... args)
 		{
 			this->message = std::vformat(fmt, std::make_format_args(args...));
-			this->level = VoxelEngine::logLevelToString(level);
+			this->level = logLevelString(level);
 
 			auto now = std::chrono::system_clock::now();
 			this->time = std::vformat(FORMATTED_TIME, std::make_format_args(now));

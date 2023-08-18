@@ -16,10 +16,31 @@ namespace vkInit
 		VkQueue presentQueue;
 	};
 
-	inline const int getHardwareConcurrency()
+	inline const unsigned int getHardwareConcurrency() noexcept
 	{
 		return std::thread::hardware_concurrency();
 	}
+
+	struct VulkanDevice
+	{
+		VkDevice logicalDevice;
+		VkPhysicalDevice physicalDevice;
+		DeviceQueues deviceQueues;
+		VkPhysicalDeviceProperties properties;
+		VkPhysicalDeviceFeatures features;
+		VkPhysicalDeviceMemoryProperties memoryProperties;
+		vkUtils::QueueFamilyIndices queueFamilyIndices;
+		std::vector<VkQueueFamilyProperties> queueFamilyProperties;
+		std::vector<string> supportedExtensions;
+		const unsigned int hardwareConcurrency = getHardwareConcurrency();
+
+		constexpr operator const VkDevice&() const &
+		{
+			return logicalDevice;
+		};
+		explicit VulkanDevice(const VkPhysicalDevice& physicalDevice);
+		~VulkanDevice();
+	};
 
 	const bool checkDeviceExtensionSupport(
 		const VkPhysicalDevice& device,
@@ -36,11 +57,9 @@ namespace vkInit
 			std::stringstream ss;
 			for (const VkExtensionProperties& extension : availableExtensions)
 			{
-				ss << '\t';
-				ss << extension.extensionName;
-				ss << '\n';
+				ss << '\t' << extension.extensionName << '\n';
 			}
-			VOXEL_CORE_TRACE("Device available extensions:\n" + ss.str())
+			VOXEL_CORE_TRACE("Device available extensions:\n" + ss.str());
 		}
 
 		std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
@@ -53,7 +72,7 @@ namespace vkInit
 
 	const bool isDeviceSuitable(
 		const VkPhysicalDevice& device,
-		const VkSurfaceKHR& surface)
+		const vkUtils::QueueFamilyIndices& queueFamilyIndices)
 	{
 		bool extensionsSupported = checkDeviceExtensionSupport(device, vkUtils::_enableValidationLayers);
 
@@ -63,7 +82,7 @@ namespace vkInit
 		if (!supportedFeatures.geometryShader)
 			return false;
 
-		return vkUtils::findQueueFamilies(device, surface).isComplete() && extensionsSupported 
+		return queueFamilyIndices.isComplete() && extensionsSupported
 			&& supportedFeatures.samplerAnisotropy
 			&& supportedFeatures.fillModeNonSolid
 			&& supportedFeatures.pipelineStatisticsQuery;
@@ -77,7 +96,7 @@ namespace vkInit
 		uint32 deviceCount = 0;
 		vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
 
-		VOXEL_CORE_ASSERT(deviceCount != 0, "failed to find GPUs with Vulkan support!")
+		VOXEL_CORE_ASSERT(deviceCount != 0, "failed to find GPUs with Vulkan support!");
 
 		std::vector<VkPhysicalDevice> devices(deviceCount);
 		vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
@@ -93,7 +112,9 @@ namespace vkInit
 			VOXEL_CORE_TRACE("Device ID: {0}.", deviceProperties.deviceID);
 			VOXEL_CORE_TRACE("Device hardware concurrency: {0}.", getHardwareConcurrency());
 
-			if (isDeviceSuitable(device, surface))
+			vkUtils::QueueFamilyIndices queueFamilyIndices = vkUtils::findQueueFamilies(device, surface);
+
+			if (isDeviceSuitable(device, queueFamilyIndices))
 			{
 				limits = &deviceProperties.limits;
 				return device;
@@ -106,6 +127,8 @@ namespace vkInit
 		const VkPhysicalDevice& physicalDevice, 
 		const VkSurfaceKHR& surface)
 	{
+		VOXEL_CORE_ASSERT(physicalDevice, "failed to create logical device!");
+
 		vkUtils::QueueFamilyIndices queueFamilyIndices = vkUtils::findQueueFamilies(physicalDevice, surface);
 
 		float queuePriority = 1.0f;

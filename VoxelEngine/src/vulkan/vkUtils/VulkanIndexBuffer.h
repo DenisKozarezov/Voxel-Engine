@@ -18,7 +18,7 @@ namespace vkUtils
 			const size_t& bufferSize);
 		VulkanIndexBuffer& operator=(const VulkanIndexBuffer& buffer);
 
-		constexpr operator const VkBuffer&() const & { return m_indexBuffer.buffer; }
+		inline operator const VkBuffer&() const & { return m_indexBuffer.buffer; }
 
 		constexpr uint32 size() const override;
 

@@ -1,9 +1,12 @@
 #pragma once
-#include <vector>
 #include <vulkan/vulkan.h>
+#include <core/renderer/ShaderLayout.h>
 
 namespace vkInit
 {
+#define VERTEX_BUFFER_BIND_ID 0
+#define INSTANCE_BUFFER_BIND_ID 1
+
 	inline constexpr VkMemoryAllocateInfo memoryAllocateInfo()
 	{
 		VkMemoryAllocateInfo memAllocInfo{};
@@ -751,4 +754,25 @@ namespace vkInit
 		writeDescriptorSetAccelerationStructureKHR.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR;
 		return writeDescriptorSetAccelerationStructureKHR;
 	}
+
+	constexpr VkFormat shaderDataTypeToVulkanBaseType(ShaderDataType type)
+	{
+		switch (type)
+		{
+		case ShaderDataType::Float:    return VK_FORMAT_R32_SFLOAT;
+		case ShaderDataType::Float2:   return VK_FORMAT_R32G32_SFLOAT;
+		case ShaderDataType::Float3:   return VK_FORMAT_R32G32B32_SFLOAT;
+		case ShaderDataType::Float4:   return VK_FORMAT_R32G32B32A32_SFLOAT;
+		case ShaderDataType::Mat3:     return VK_FORMAT_R32G32B32_SFLOAT;
+		case ShaderDataType::Mat4:     return VK_FORMAT_R32G32B32A32_SFLOAT;
+		case ShaderDataType::Int:      return VK_FORMAT_R32_SINT;
+		case ShaderDataType::Int2:     return VK_FORMAT_R32G32_SINT;
+		case ShaderDataType::Int3:     return VK_FORMAT_R32G32B32_SINT;
+		case ShaderDataType::Int4:     return VK_FORMAT_R32G32B32A32_SINT;
+		case ShaderDataType::Bool:     return VK_FORMAT_R8_SINT;
+		default: return VK_FORMAT_UNDEFINED;
+		}
+	}
+
+	const VkPipelineVertexInputStateCreateInfo inputStateCreateInfo(VoxelEngine::renderer::ShaderLayout layout);
 }

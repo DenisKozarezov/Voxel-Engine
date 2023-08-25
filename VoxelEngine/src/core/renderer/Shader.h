@@ -17,7 +17,7 @@ namespace VoxelEngine::renderer
 		Shader& operator=(Shader const& rhs) noexcept = delete;
 		Shader& operator=(Shader&& rhs) noexcept = delete;
 
-		inline constexpr string& getName() noexcept { return m_name; }
+		inline const string& getName() const noexcept { return m_name; }
 		virtual void unbind() const = 0;
 
 		virtual ~Shader() = default;

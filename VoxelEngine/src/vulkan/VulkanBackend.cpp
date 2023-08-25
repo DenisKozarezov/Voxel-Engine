@@ -20,7 +20,7 @@ namespace vulkan
 
 	struct VulkanState
 	{
-		VoxelEngine::renderer::VertexManager* vertexManager;
+		renderer::VertexManager* vertexManager;
 		
 		// Instance-related variables
 		const VoxelEngine::Window* window;
@@ -78,7 +78,7 @@ namespace vulkan
 	{
 		state.physicalDevice = vkInit::pickPhysicalDevice(state.instance, state.surface, &state.deviceLimits);
 		state.queueFamilyIndices = vkUtils::findQueueFamilies(state.physicalDevice, state.surface);
-		state.logicalDevice = vkInit::createLogicalDevice(state.physicalDevice, state.surface);
+		state.logicalDevice = vkInit::createLogicalDevice(state.physicalDevice, state.surface, state.queueFamilyIndices);
 		state.queues = vkInit::getDeviceQueues(state.physicalDevice, state.logicalDevice, state.surface);
 		state.msaaSamples = vkInit::findMaxSamplesCount(state.physicalDevice);
 		state.queryPool = vkUtils::setupQueryPool(state.logicalDevice);
@@ -134,24 +134,12 @@ namespace vulkan
 		VkFormat depthFormat = state.swapChainBundle.depthFormat;
 		state.renderPass = vkInit::createRenderPass(state.logicalDevice, swapChainImageFormat, depthFormat, state.msaaSamples);
 
-		constexpr std::array<VkVertexInputBindingDescription, 2> bindingDescriptions =
-		{
-			vkInit::vertexInputBindingDescription(VERTEX_BUFFER_BIND_ID, sizeof(renderer::Vertex), VK_VERTEX_INPUT_RATE_VERTEX),
-			vkInit::vertexInputBindingDescription(INSTANCE_BUFFER_BIND_ID, sizeof(vkUtils::InstanceData), VK_VERTEX_INPUT_RATE_INSTANCE)
-		};
-		constexpr std::array<VkVertexInputAttributeDescription, 4> attributeDescriptions =
-		{
-			vkInit::vertexInputAttributeDescription(VERTEX_BUFFER_BIND_ID, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(renderer::Vertex, pos)),
-			vkInit::vertexInputAttributeDescription(VERTEX_BUFFER_BIND_ID, 1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(renderer::Vertex, normal)),
-			vkInit::vertexInputAttributeDescription(VERTEX_BUFFER_BIND_ID, 2, VK_FORMAT_R32G32B32_SFLOAT, offsetof(renderer::Vertex, color)),
-			vkInit::vertexInputAttributeDescription(INSTANCE_BUFFER_BIND_ID, 3, VK_FORMAT_R32G32B32_SFLOAT, offsetof(vkUtils::InstanceData, pos))
-		};
-
-		VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::pipelineVertexInputStateCreateInfo(
-			bindingDescriptions.data(),
-			static_cast<uint32>(bindingDescriptions.size()),
-			attributeDescriptions.data(),
-			static_cast<uint32>(attributeDescriptions.size()));
+		VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::inputStateCreateInfo({
+			{ ShaderDataType::Float3 },			// Position
+			{ ShaderDataType::Float3 },			// Normal
+			{ ShaderDataType::Float3 },			// Color
+			{ ShaderDataType::Float3, true }	// Instanced Position
+		});
 
 		VkPipelineInputAssemblyStateCreateInfo inputAssembly = vkInit::pipelineInputAssemblyStateCreateInfo(
 			VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,

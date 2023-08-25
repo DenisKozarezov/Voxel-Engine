@@ -3,9 +3,6 @@
 #include <core/renderer/Renderer.h>
 #include <components/mesh/Mesh.h>
 
-#define VERTEX_BUFFER_BIND_ID 0
-#define INSTANCE_BUFFER_BIND_ID 1
-
 namespace vulkan
 {
 	using namespace VoxelEngine;

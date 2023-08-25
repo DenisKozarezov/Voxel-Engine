@@ -10,11 +10,6 @@ namespace vkUtils
 		vkUtils::memory::Buffer view;
 	} UniformBuffers;
 
-	struct InstanceData
-	{
-		glm::vec3 pos;
-	};
-
 	struct SwapChainFrame
 	{
 	public:

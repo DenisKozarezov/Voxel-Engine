@@ -25,8 +25,8 @@ namespace VoxelEngine::input
         virtual ~IEventHandler() noexcept = default;
 
         virtual inline const size_t& getHashCode() const = 0;
-        virtual void invoke(input::Event& arg) = 0;
-        virtual std::future<void> invoke_async(input::Event& arg, const std::launch& launch) = 0;
+        virtual inline void invoke(input::Event& arg) = 0;
+        virtual inline std::future<void> invoke_async(input::Event& arg, const std::launch& launch) = 0;
     };
 
     template <typename TEvent>
@@ -67,17 +67,17 @@ namespace VoxelEngine::input
             invoke(arg);
         }
 
-        virtual inline const size_t& getHashCode() const override { return m_eventType; }
+        inline const size_t& getHashCode() const override { return m_eventType; }
 
-        void invoke(input::Event& arg) override
+        inline void invoke(input::Event& arg) override
         {            
             this->invoke(dynamic_cast<TEvent&>(arg));
         }
-        std::future<void> invoke_async(input::Event& arg, const std::launch& launch) override
+        inline std::future<void> invoke_async(input::Event& arg, const std::launch& launch) override
         {
             return this->invoke_async(dynamic_cast<TEvent&>(arg), launch);
         }
-        void invoke(TEvent& arg)
+        inline void invoke(TEvent& arg)
         { 
             this->m_cbFunc(std::forward<TEvent&>(arg));
         }

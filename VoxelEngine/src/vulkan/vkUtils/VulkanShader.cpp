@@ -1,5 +1,6 @@
 #include "VulkanShader.h"
 #include "VulkanValidation.h"
+#include "../VulkanBackend.h"
 
 namespace vkUtils
 {
@@ -19,7 +20,7 @@ namespace vkUtils
 		: Shader(filepath), 
 		m_logicalDevice(logicalDevice)
 	{
-		auto shaderProgram = readFile(filepath);
+		const auto& shaderProgram = readFile(filepath);
 
 		m_shaderModule = createShaderModule(shaderProgram);
 		m_shaderInfo = {};

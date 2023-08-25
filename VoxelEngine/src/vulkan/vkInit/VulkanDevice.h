@@ -106,16 +106,16 @@ namespace vkInit
 			VkPhysicalDeviceProperties deviceProperties;
 			vkGetPhysicalDeviceProperties(device, &deviceProperties);
 
-			VOXEL_CORE_TRACE("Physical device candidate: {0}.", deviceProperties.deviceName);
-			VOXEL_CORE_TRACE("Device vendor ID: {0}.", deviceProperties.vendorID);
-			VOXEL_CORE_TRACE("Device type: {0}.", physicalDeviceTypeString(deviceProperties.deviceType));
-			VOXEL_CORE_TRACE("Device ID: {0}.", deviceProperties.deviceID);
-			VOXEL_CORE_TRACE("Device hardware concurrency: {0}.", getHardwareConcurrency());
-
 			vkUtils::QueueFamilyIndices queueFamilyIndices = vkUtils::findQueueFamilies(device, surface);
 
 			if (isDeviceSuitable(device, queueFamilyIndices))
 			{
+				VOXEL_CORE_TRACE("Physical device candidate: {0}.", deviceProperties.deviceName);
+				VOXEL_CORE_TRACE("Device vendor ID: {0}.", deviceProperties.vendorID);
+				VOXEL_CORE_TRACE("Device type: {0}.", physicalDeviceTypeString(deviceProperties.deviceType));
+				VOXEL_CORE_TRACE("Device ID: {0}.", deviceProperties.deviceID);
+				VOXEL_CORE_TRACE("Device hardware concurrency: {0}.", getHardwareConcurrency());
+
 				limits = &deviceProperties.limits;
 				return device;
 			}
@@ -125,11 +125,10 @@ namespace vkInit
 
 	const VkDevice createLogicalDevice(
 		const VkPhysicalDevice& physicalDevice, 
-		const VkSurfaceKHR& surface)
+		const VkSurfaceKHR& surface,
+		const vkUtils::QueueFamilyIndices& queueFamilyIndices)
 	{
 		VOXEL_CORE_ASSERT(physicalDevice, "failed to create logical device!");
-
-		vkUtils::QueueFamilyIndices queueFamilyIndices = vkUtils::findQueueFamilies(physicalDevice, surface);
 
 		float queuePriority = 1.0f;
 		uint32 graphicsFamilyIndex = queueFamilyIndices.graphicsFamily.value();
@@ -182,5 +181,4 @@ namespace vkInit
 
 		return queues;
 	}
-
 }

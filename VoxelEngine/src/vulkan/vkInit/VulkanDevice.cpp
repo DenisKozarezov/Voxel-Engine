@@ -4,7 +4,7 @@ namespace vkInit
 {
 	VulkanDevice::VulkanDevice(const VkPhysicalDevice& physicalDevice)
 	{
-		VOXEL_CORE_ASSERT(physicalDevice);
+		VOXEL_CORE_ASSERT(physicalDevice, "physical device is null!");
 		this->physicalDevice = physicalDevice;
 
 		vkGetPhysicalDeviceProperties(physicalDevice, &properties);
@@ -12,7 +12,7 @@ namespace vkInit
 
 		uint32_t queueFamilyCount;
 		vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
-		VOXEL_CORE_ASSERT(queueFamilyCount > 0);
+		VOXEL_CORE_ASSERT(queueFamilyCount > 0, "queueFamilyCount is zero!");
 		queueFamilyProperties.resize(queueFamilyCount);
 		vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilyProperties.data());
 

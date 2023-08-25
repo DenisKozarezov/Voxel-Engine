@@ -8,7 +8,7 @@ namespace vkUtils
 	{
 	private:
 		VkDevice m_logicalDevice;
-		vkUtils::memory::Buffer m_vertexBuffer;
+		memory::Buffer m_vertexBuffer;
 	public:
 		VulkanVertexBuffer() noexcept = default;
 		VulkanVertexBuffer(

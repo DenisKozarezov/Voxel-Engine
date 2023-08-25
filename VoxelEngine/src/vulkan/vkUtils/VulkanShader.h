@@ -4,7 +4,14 @@
 
 namespace vkUtils
 {
-	class VulkanShader : public VoxelEngine::renderer::Shader
+	namespace renderer = VoxelEngine::renderer;
+
+	struct InstanceData
+	{
+		glm::vec3 pos;
+	};
+
+	class VulkanShader : public renderer::Shader
 	{
 	private:
 		VkShaderModule m_shaderModule;
@@ -15,8 +22,7 @@ namespace vkUtils
 	public:
 		VulkanShader(const VkDevice& logicalDevice, const string& filepath, const VkShaderStageFlagBits& shaderType);
 
-		inline VkShaderModule& getShaderModule() & noexcept { return m_shaderModule; }
-		inline constexpr VkPipelineShaderStageCreateInfo& getStage() & noexcept { return m_shaderInfo; }
+		inline VkPipelineShaderStageCreateInfo& getStage() & noexcept { return m_shaderInfo; }
 
 		void unbind() const override;
 

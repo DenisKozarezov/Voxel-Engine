@@ -24,7 +24,8 @@ namespace vkUtils
 		constexpr uint32 size() const override;
 
 		void setData(const void* data, const uint32& size) override;
-		void bind(const uint32& binding = VERTEX_BUFFER_BIND_ID);
+		inline void bind() override { bind(VERTEX_BUFFER_BIND_ID); }
+		void bind(const uint32& binding);
 		void release() override;
 
 		~VulkanVertexBuffer();

@@ -51,6 +51,7 @@ namespace vulkan
 		vkInit::UIOverlay UIOverlay;
 		VkOffset2D viewportPos;
 		VkExtent2D viewportSize;
+		VkClearColorValue clearColor;
 
 		// Descriptors
 		VkDescriptorPool descriptorPool;
@@ -340,34 +341,7 @@ namespace vulkan
 	}	
 	void recordCommandBuffer(const VkCommandBuffer& commandBuffer, const uint32& imageIndex)
 	{
-		vkUtils::SwapChainFrame& frame = state.swapChainBundle.frames[imageIndex];
-		VkExtent2D swapChainExtent = state.swapChainBundle.extent;
-
-		std::vector<VkClearValue> clearValues(2);
-		clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
-		clearValues[1].depthStencil = { 1.0f, 0 };
-
-		vkUtils::memory::beginCommand(commandBuffer);
-		VkRenderPassBeginInfo renderPassInfo = vkInit::renderPassBeginInfo(
-			state.renderPass,
-			frame.framebuffer,
-			swapChainExtent,
-			clearValues);
-		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-		VkViewport viewport = vkInit::viewport(state.viewportSize, 0.0f, 1.0f);
-		viewport.x = static_cast<float>(state.viewportPos.x);
-		viewport.y = static_cast<float>(state.viewportPos.y);
-		vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
-
-		VkRect2D scissor = vkInit::rect2D(swapChainExtent, { 0, 0 });
-		scissor.offset.x = state.viewportPos.x;
-		scissor.offset.y = state.viewportPos.y;
-		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
-
 		// =================== RENDER WHOLE STUFF HERE ! ===================		
-		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelineLayout, 0, 1, &frame.descriptorSet, 0, nullptr);
-
 		prepareScene(commandBuffer);
 
 		switch (renderSettings.renderMode)
@@ -448,14 +422,44 @@ namespace vulkan
 		}
 		else vkUtils::check_vk_result(err, "failed to present swap chain image!");
 	}
-	void prepareFrame(const uint32& imageIndex)
+	void prepareFrame()
 	{
-		vkUtils::SwapChainFrame& frame = state.swapChainBundle.frames[imageIndex];
+		vkUtils::SwapChainFrame& frame = state.swapChainBundle.frames[CURRENT_FRAME];
+
 		frame.writeDescriptorSet();
+
+		VkCommandBuffer commandBuffer = frame.commandBuffer;
+		VkExtent2D swapChainExtent = state.swapChainBundle.extent;
+
+		std::vector<VkClearValue> clearValues(2);
+		clearValues[0].color = state.clearColor;
+		clearValues[1].depthStencil = { 1.0f, 0 };
+
+		vkUtils::memory::beginCommand(commandBuffer);
+		VkRenderPassBeginInfo renderPassInfo = vkInit::renderPassBeginInfo(
+			state.renderPass,
+			frame.framebuffer,
+			swapChainExtent,
+			clearValues);
+		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+		VkViewport viewport = vkInit::viewport(state.viewportSize, 0.0f, 1.0f);
+		viewport.x = static_cast<float>(state.viewportPos.x);
+		viewport.y = static_cast<float>(state.viewportPos.y);
+		vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+
+		VkRect2D scissor = vkInit::rect2D(swapChainExtent, { 0, 0 });
+		scissor.offset.x = state.viewportPos.x;
+		scissor.offset.y = state.viewportPos.y;
+		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+
+		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelineLayout, 0, 1, &frame.descriptorSet, 0, nullptr);
+		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.solid);
+
 	}
 	void prepareScene(const VkCommandBuffer& commandBuffer)
 	{
-		state.vertexManager->vertexBuffer->bind();
+		state.vertexManager->vertexBuffer->bind(VERTEX_BUFFER_BIND_ID);
 		state.vertexManager->indexBuffer->bind();
 
 		VkBuffer instanceBuffer = instancedBuffer.buffer;
@@ -467,6 +471,9 @@ namespace vulkan
 	}
 	void prepareInstanceData()
 	{
+		if (instanceData.size() == 0)
+			return;
+
 		VkDeviceSize instancedBufferSize = sizeof(renderer::InstanceData) * instanceData.size();
 		instancedBuffer = vkUtils::memory::createBuffer(
 			state.physicalDevice,
@@ -501,14 +508,14 @@ namespace vulkan
 		vkUtils::memory::resetCommandBuffer(frame.commandBuffer);
 
 		frame.uniformBuffers.view.setData(&ubo, sizeof(ubo));
+
+		prepareFrame();
 	}
 	void endFrame()
 	{
 		vkUtils::SwapChainFrame& frame = state.swapChainBundle.frames[CURRENT_FRAME];
 
 		// Stage 2. GRAPHICS
-		prepareFrame(CURRENT_FRAME);
-
 		recordCommandBuffer(frame.commandBuffer, CURRENT_FRAME);
 
 		VkSemaphore signalSemaphores[] = { frame.renderFinishedSemaphore};
@@ -559,7 +566,10 @@ namespace vulkan
 	{
 		state.framebufferResized = true;
 	}
-
+	void setClearColor(const glm::vec4 color)
+	{
+		state.clearColor = { {color[0], color[1], color[2], color[3] }};
+	}
 	void setWindow(const Window& window)
 	{
 		state.window = &window;

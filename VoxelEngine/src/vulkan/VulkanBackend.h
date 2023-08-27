@@ -22,7 +22,7 @@ namespace vulkan
 	void submitToQueue(const VkQueue& queue, const VkCommandBuffer& commandBuffer, const VkSemaphore* signalSemaphores = nullptr);
 	void cleanupSwapChain();
 	void presentFrame(const uint32& imageIndex, VkSemaphore* signalSemaphores);
-	void prepareFrame(const uint32& imageIndex);
+	void prepareFrame();
 	void prepareScene(const VkCommandBuffer& commandBuffer);
 	void prepareInstanceData();
 	void beginFrame(const VoxelEngine::renderer::UniformBufferObject& ubo);
@@ -31,6 +31,7 @@ namespace vulkan
 	void updateUIOverlay();
 
 	void resize(const uint32& width, const uint32& height);
+	void setClearColor(const glm::vec4 color);
 	void setWindow(const Window& window);
 	void setViewport(const int32_t& x, const int32_t& y, const uint32& width, const uint32& height);
 	void submitRenderables(std::vector<glm::vec3> objects);

@@ -31,7 +31,7 @@ namespace VoxelEngine::components::mesh
 		SharedRef<renderer::IndexBuffer> indexBuffer;
 
 		Mesh() noexcept = default;
-		Mesh(const renderer::Vertex* vertices, uint32 vertexCount, const uint32* indices, uint32 indexCount)
+		Mesh(const Vertex* vertices, uint32 vertexCount, const uint32* indices, uint32 indexCount)
 			: vertexCount(std::move(vertexCount)), indexCount(std::move(indexCount))
 		{
 			this->vertices = vertices;

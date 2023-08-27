@@ -65,6 +65,7 @@ namespace vulkan
 	renderer::RenderFrameStats renderFrameStats;
 	vkUtils::memory::Buffer instancedBuffer;
 	std::vector<renderer::InstanceData> instanceData;
+	std::unordered_map<mesh::MeshTopology, mesh::Mesh> meshesToPrepare;
 
 	static int MAX_FRAMES_IN_FLIGHT = 3;
 	static uint32 CURRENT_FRAME = 0;
@@ -346,10 +347,10 @@ namespace vulkan
 
 		switch (renderSettings.renderMode)
 		{
-		case 0:
+		case renderer::Solid:
 			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.solid);
 			break;
-		case 1:
+		case renderer::Wireframe:
 			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.wireframe);
 			break;
 		}
@@ -608,7 +609,9 @@ namespace vulkan
 
 		initImGui();
 
-		VOXEL_CORE_TRACE("Vulkan setup ended.")	
+		VOXEL_CORE_TRACE("Vulkan setup ended.");
+
+		state.vertexManager = new VoxelEngine::renderer::VertexManager;
 
 		makeAssets();
 
@@ -650,6 +653,10 @@ namespace vulkan
 		cleanupSwapChain();
 		instancedBuffer.release();
 
+		for (auto& mesh : meshesToPrepare)
+			mesh.second.release();
+		meshesToPrepare.clear();
+
 		delete state.vertexManager;
 		
 		state.pipelines.release(state.logicalDevice);
@@ -688,22 +695,35 @@ namespace vulkan
 	
 	void makeAssets()
 	{
-		state.vertexManager = new VoxelEngine::renderer::VertexManager;
+		for (auto& [topology, mesh] : meshesToPrepare)
+		{
+			uint32 verticesSize = sizeof(Vertex) * mesh.vertexCount;
+			uint32 indicesSize = sizeof(uint32) * mesh.indexCount;
 
-		const Mesh& mesh = mesh::VoxelMesh();
-		state.vertexManager->concatMesh(mesh::MeshTopology::Cube, mesh);
-
-		const Mesh& quad = mesh::QuadMesh();
-		state.vertexManager->concatMesh(mesh::MeshTopology::Quad, quad);
+			mesh.vertexBuffer = renderer::VertexBuffer::Allocate(mesh.vertices, verticesSize);	
+			mesh.indexBuffer = renderer::IndexBuffer::Allocate(mesh.indices, indicesSize);
+		
+			state.vertexManager->concatMesh(topology, mesh);
+		}
 
 		state.vertexManager->finalize(state.physicalDevice, state.logicalDevice);
 
 		renderFrameStats.pipelineStatNames = vkUtils::pipelineStatNames.data();
 		renderFrameStats.pipelineStats = vkUtils::pipelineStats.data();
 	}
+	void prepareAsset(mesh::Mesh mesh)
+	{
+		auto pair = std::pair<mesh::MeshTopology, mesh::Mesh>(mesh::MeshTopology::Polygone, mesh);
+		meshesToPrepare.emplace(pair);
+	}
+	void prepareAsset(const mesh::MeshTopology& topology, mesh::Mesh mesh)
+	{
+		auto pair = std::pair<mesh::MeshTopology, mesh::Mesh>(topology, mesh);
+		meshesToPrepare.emplace(pair);
+	}
 	void renderSceneObjects(
 		const VkCommandBuffer& commandBuffer,
-		const components::mesh::MeshTopology& objectType,
+		const mesh::MeshTopology& objectType,
 		uint32& startInstance,
 		const uint32& instanceCount)
 	{

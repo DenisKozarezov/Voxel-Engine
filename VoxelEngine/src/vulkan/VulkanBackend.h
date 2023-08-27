@@ -6,6 +6,7 @@
 namespace vulkan
 {
 	using namespace VoxelEngine;
+	namespace mesh = components::mesh;
 
 	void makeInstance();
 	void makeDevice();
@@ -45,9 +46,11 @@ namespace vulkan
 	void resetFrameStats();
 
 	void makeAssets();
+	void prepareAsset(mesh::Mesh mesh);
+	void prepareAsset(const mesh::MeshTopology& topology, mesh::Mesh mesh);
 	void renderSceneObjects(
 		const VkCommandBuffer& commandBuffer,
-		const components::mesh::MeshTopology& objectType,
+		const mesh::MeshTopology& objectType,
 		uint32& startInstance,
 		const uint32& instanceCount);
 

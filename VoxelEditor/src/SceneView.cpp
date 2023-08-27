@@ -98,16 +98,7 @@ namespace VoxelEditor
 	}
 
 	void SceneView::update(const Timestep& ts)
-	{
-		renderer::Renderer::resetStats();
-
-		renderer::Renderer::preRender(*m_camera.get());
-
-		renderer::Renderer::render();
-
-		renderer::Renderer::updateUIOverlay();
-		renderer::Renderer::postRender();
-
+	{	
 		if (m_viewportFocused)
 		{
 			m_camera->update(ts);

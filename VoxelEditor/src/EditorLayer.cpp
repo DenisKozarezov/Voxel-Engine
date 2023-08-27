@@ -136,6 +136,7 @@ namespace VoxelEditor
 		m_deltaTime = ts;
 
 		m_sceneView.update(ts);
+		m_scene->update(ts, *m_sceneView.m_camera.get());
 	}
 	void EditorLayer::onFixedUpdate(const VoxelEngine::Timestep& ts)
 	{

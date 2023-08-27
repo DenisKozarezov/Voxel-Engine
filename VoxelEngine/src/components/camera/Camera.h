@@ -14,7 +14,7 @@ namespace VoxelEngine::components::camera
 	{
 	private:
 		constexpr static float defaultSpeed = 5.0f;
-		constexpr static float defaultSensitivity = 0.15f;
+		constexpr static float defaultSensitivity = 0.1f;
 		constexpr static float defaultZoom = 45.0f;
 	protected:
 		glm::vec3 m_position;

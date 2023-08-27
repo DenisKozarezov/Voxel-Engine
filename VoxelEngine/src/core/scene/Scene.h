@@ -19,6 +19,7 @@ namespace VoxelEngine
 		Scene& operator=(Scene const& rhs) noexcept = delete;
 		Scene& operator=(Scene&& rhs) noexcept = delete;
 
-		void update(const Timestep& ts);
+		void update(const Timestep& ts, components::camera::Camera& camera);
+		void renderScene();
 	};
 }

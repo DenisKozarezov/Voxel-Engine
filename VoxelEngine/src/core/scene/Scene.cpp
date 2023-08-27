@@ -15,11 +15,20 @@ namespace VoxelEngine
 				}
 			}
 		}
-
 		renderer::Renderer::submitRenderables(vertices);
 	}
 
-	void Scene::update(const Timestep& ts)
+	void Scene::update(const Timestep& ts, components::camera::Camera& camera)
+	{
+		renderer::Renderer::resetStats();
+
+		renderer::Renderer::preRender(camera);
+
+		renderer::Renderer::render();
+		renderer::Renderer::updateUIOverlay();
+		renderer::Renderer::postRender();
+	}
+	void Scene::renderScene()
 	{
 		
 	}

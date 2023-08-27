@@ -36,14 +36,10 @@ namespace VoxelEngine::components::mesh
 		{
 			this->vertices = vertices;
 			this->indices = indices;
-
-			uint32 verticesSize = sizeof(Vertex) * vertexCount;
-			uint32 indicesSize = sizeof(uint32) * indexCount;
-
-			vertexBuffer = renderer::VertexBuffer::Allocate(this->vertices, verticesSize);
-			indexBuffer = renderer::IndexBuffer::Allocate(this->indices, indicesSize);
 		}
-		~Mesh()
+		~Mesh() noexcept = default;
+
+		void release()
 		{
 			vertexBuffer->release();
 			indexBuffer->release();

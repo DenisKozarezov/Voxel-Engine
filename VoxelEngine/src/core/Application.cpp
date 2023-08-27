@@ -4,7 +4,7 @@
 namespace VoxelEngine
 {
 	Application* Application::s_instance = 0;
-	renderer::ImGuiLayer* g_imguiLayer = nullptr;
+	static renderer::ImGuiLayer* s_imguiLayer = nullptr;
 
 	Application::Application(const ApplicationSpecification& spec) : m_specification(spec)
 	{
@@ -59,8 +59,8 @@ namespace VoxelEngine
 		try
 		{
 			VOXEL_CORE_WARN("Application initialization.");
-			g_imguiLayer = new renderer::ImGuiLayer();
-			pushOverlay(g_imguiLayer);
+			s_imguiLayer = new renderer::ImGuiLayer();
+			pushOverlay(s_imguiLayer);
 			renderer::Renderer::init(*m_window.get());
 		}
 		catch (const std::exception& e)
@@ -108,9 +108,9 @@ namespace VoxelEngine
 				m_accumulator -= fixedDeltaTime;
 			}
 
-			g_imguiLayer->preRender();
+			s_imguiLayer->preRender();
 			m_layerStack.onImGuiRender();
-			g_imguiLayer->postRender();
+			s_imguiLayer->postRender();
 
 			m_frameCounter++;
 

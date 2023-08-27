@@ -24,6 +24,7 @@ namespace vulkan
 	void presentFrame(const uint32& imageIndex, VkSemaphore* signalSemaphores);
 	void prepareFrame(const uint32& imageIndex);
 	void prepareScene(const VkCommandBuffer& commandBuffer);
+	void prepareInstanceData();
 	void beginFrame(const VoxelEngine::renderer::UniformBufferObject& ubo);
 	void endFrame();
 	void drawUI(const VkCommandBuffer& commandBuffer);
@@ -42,11 +43,10 @@ namespace vulkan
 	const renderer::RenderFrameStats& getFrameStats();
 	void resetFrameStats();
 
-	void prepareInstanceData(const std::vector<glm::vec3>& vertices);
 	void makeAssets();
 	void renderSceneObjects(
 		const VkCommandBuffer& commandBuffer,
-		const components::mesh::MeshType& objectType,
+		const components::mesh::MeshTopology& objectType,
 		uint32& startInstance,
 		const uint32& instanceCount);
 

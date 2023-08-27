@@ -9,8 +9,6 @@ namespace VoxelEngine::components::camera
 		constexpr static float defaultYaw = -90.0f;
 		constexpr static float defaultPitch = 0.0f;
 		constexpr static float FOV = 45.0f;
-		constexpr static float nearClip = 0.1f;
-		constexpr static float farClip = 200.0f;
 
 		glm::vec3 m_front;
 		glm::vec3 m_up;
@@ -25,10 +23,13 @@ namespace VoxelEngine::components::camera
 			const float& pitch = defaultPitch);
 		~FirstPersonCamera() noexcept = default;
 
-		inline const glm::mat4 viewMatrix() const override { return glm::lookAt(m_position, m_position + m_front, m_up); }
+		inline const glm::mat4 viewMatrix() const override 
+		{ 
+			return glm::lookAt(m_position, m_position + m_front, m_up); 
+		}
 		inline const glm::mat4 projectionMatrix() const override 
 		{ 
-			glm::mat4 projection = glm::perspective(glm::radians(FOV), m_aspectRatio, nearClip, farClip);
+			glm::mat4 projection = glm::perspective(glm::radians(FOV), m_aspectRatio, m_nearClip, m_farClip);
 			projection[1][1] *= -1;
 			return projection;
 		};

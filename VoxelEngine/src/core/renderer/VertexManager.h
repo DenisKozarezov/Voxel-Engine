@@ -21,8 +21,8 @@ namespace VoxelEngine::renderer
 		std::vector<Vertex> vertices;
 		vkUtils::VulkanVertexBuffer* vertexBuffer = nullptr;
 		vkUtils::VulkanIndexBuffer* indexBuffer = nullptr;
-		std::unordered_map<MeshType, size_t> firstIndices;
-		std::unordered_map<MeshType, size_t> indexCounts;
+		std::unordered_map<MeshTopology, size_t> firstIndices;
+		std::unordered_map<MeshTopology, size_t> indexCounts;
 
 		VertexManager();
 		VertexManager(VertexManager const&) noexcept = delete;
@@ -33,7 +33,7 @@ namespace VoxelEngine::renderer
 		inline constexpr bool isValid() const { return vertexBuffer && indexBuffer; };
 
 		void concatMesh(
-			const MeshType& type, 
+			const MeshTopology& type,
 			const std::vector<Vertex>& vertices, 
 			const std::vector<uint32>& indices);
 		void finalize(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice);

@@ -7,7 +7,7 @@ namespace VoxelEngine::renderer
 		indexOffset = 0;
 	}
 	void VertexManager::concatMesh(
-		const MeshType& type, 
+		const MeshTopology& type, 
 		const std::vector<Vertex>& vertices, 
 		const std::vector<uint32>& indices)
 	{

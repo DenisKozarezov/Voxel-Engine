@@ -4,14 +4,7 @@
 
 namespace vkUtils
 {
-	namespace renderer = VoxelEngine::renderer;
-
-	struct InstanceData
-	{
-		glm::vec3 pos;
-	};
-
-	class VulkanShader : public renderer::Shader
+	class VulkanShader : public VoxelEngine::renderer::Shader
 	{
 	private:
 		VkShaderModule m_shaderModule;

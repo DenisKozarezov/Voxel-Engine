@@ -15,4 +15,16 @@ namespace VoxelEngine::renderer
 	void RenderCommand::setClearColor(const glm::vec4& color)
 	{
 	}
+	void RenderCommand::drawMesh(const mesh::Mesh& mesh)
+	{
+
+	}
+	void RenderCommand::drawMeshInstanced(const mesh::Mesh& mesh, InstanceData instanceData[], uint32 instanceCount, uint32 startInstance)
+	{
+
+	}
+	void RenderCommand::drawPrimitivesIndexed(const mesh::MeshTopology& type, uint32 indexBuffer[], uint32 indexCount, uint32 startIndex, uint32 instanceCount)
+	{
+
+	}
 }

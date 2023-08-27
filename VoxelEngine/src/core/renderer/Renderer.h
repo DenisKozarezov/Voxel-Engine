@@ -1,5 +1,4 @@
 #pragma once
-#include "RenderContext.h"
 #include "RenderSettings.h"
 #include "RenderCommand.h"
 #include <components/camera/Camera.h>
@@ -28,7 +27,7 @@ namespace VoxelEngine::renderer
 		static void postRender();
 		static void updateUIOverlay();
 		static void resize(const uint32& width, const uint32& height);
-		static void submitRenderables(const std::vector<glm::vec3> objects);
+		static void submitRenderables(const std::vector<glm::vec3>& renderables);
 		static void deviceWaitIdle();
 		static void shutdown();
 	};

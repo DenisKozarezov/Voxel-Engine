@@ -1,15 +1,11 @@
 #include "AssetsProvider.h"
 #include <core/Assert.h>
 
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
-
-using Vertex = VoxelEngine::renderer::Vertex;
 
 namespace assets
 {

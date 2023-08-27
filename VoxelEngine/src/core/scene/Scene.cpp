@@ -1,4 +1,5 @@
 #include "Scene.h"
+#include <components/Components.h>
 
 namespace VoxelEngine
 {
@@ -14,5 +15,12 @@ namespace VoxelEngine
 				}
 			}
 		}
+
+		renderer::Renderer::submitRenderables(vertices);
+	}
+
+	void Scene::update(const Timestep& ts)
+	{
+		
 	}
 }

@@ -3,14 +3,19 @@
 #include <core/PrimitiveTypes.h>
 #include <core/renderer/Vertex.h>
 
+using Vertex = VoxelEngine::renderer::Vertex;
+
 namespace VoxelEngine::components::mesh
 {
-	enum MeshType
+	enum MeshTopology
 	{
 		Triangle = 0,
-		Square = 1,
-		Polygone = 2,
-		Cube = 3
+		Quad = 1,
+		Line = 2,
+		LineStrip = 3,
+		Points = 4,
+		Polygone = 5,
+		Cube = 6
 	};
 
 	struct Mesh
@@ -34,7 +39,7 @@ namespace VoxelEngine::components::mesh
 		const std::vector<uint32> indices = { 0, 1, 2 };
 	};
 
-	struct SquareMesh
+	struct QuadMesh
 	{
 		const std::vector<renderer::Vertex> vertices =
 		{

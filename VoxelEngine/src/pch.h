@@ -18,6 +18,7 @@
 // add headers that you want to pre-compile here
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/quaternion.hpp>
 #include <vector>
 #include <unordered_map>
 #include <optional>

@@ -14,8 +14,20 @@ namespace vulkan
 	}
 	void VulkanRendererAPI::setClearColor(const glm::vec4& color)
 	{
+		
 	}
 	void VulkanRendererAPI::setLineWidth(const float& width)
+	{
+		vkCmdSetLineWidth(getCommandBuffer(), width);
+	}
+	void VulkanRendererAPI::drawMesh(const components::mesh::Mesh& mesh)
+	{
+	}
+	void VulkanRendererAPI::drawMeshInstanced(const components::mesh::Mesh& mesh, renderer::InstanceData instanceData[], uint32 instanceCount, uint32 startInstance)
+	{
+
+	}
+	void VulkanRendererAPI::drawPrimitivesIndexed(const components::mesh::MeshTopology& type, uint32 indexBuffer[], uint32 indexCount, uint32 startIndex, uint32 instanceCount)
 	{
 	}
 }

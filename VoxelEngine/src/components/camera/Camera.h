@@ -21,6 +21,7 @@ namespace VoxelEngine::components::camera
 		float m_movementSpeed;
 		float m_mouseSensitivity;
 		float m_zoom;
+		float m_nearClip = 0.1f, m_farClip = 100.0f;
 		float m_aspectRatio;
 	public:
 		Camera() noexcept = delete;
@@ -41,6 +42,7 @@ namespace VoxelEngine::components::camera
 
 		virtual inline void setAspectRatio(const float& aspectRatio) { m_aspectRatio = aspectRatio; }
 		inline void setPosition(const glm::vec3& position) { m_position = position; }
+		inline void setClips(const float& nearClip, const float& farClip) { m_nearClip = nearClip, m_farClip = farClip; }
 
 		virtual void processKeyboard(const CameraMovement& direction, const float& deltaTime) = 0;
 		virtual void processMouse(const float& xOffset, const float& yOffset, const bool& constrainPitch = true) = 0;

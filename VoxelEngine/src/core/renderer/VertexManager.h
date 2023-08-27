@@ -33,9 +33,14 @@ namespace VoxelEngine::renderer
 		inline constexpr bool isValid() const { return vertexBuffer && indexBuffer; };
 
 		void concatMesh(
-			const MeshTopology& type,
-			const std::vector<Vertex>& vertices, 
-			const std::vector<uint32>& indices);
+			const MeshTopology& topology,
+			const Mesh& mesh);
+		void concatMesh(
+			const MeshTopology& topology,
+			const Vertex* vertices,
+			uint32 vertexCount,
+			const uint32* indices,
+			uint32 indexCount);
 		void finalize(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice);
 
 		~VertexManager();

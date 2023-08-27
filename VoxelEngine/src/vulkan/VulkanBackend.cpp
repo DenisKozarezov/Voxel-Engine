@@ -455,14 +455,13 @@ namespace vulkan
 	}
 	void prepareScene(const VkCommandBuffer& commandBuffer)
 	{
-		VkBuffer vertexBuffer = *state.vertexManager->vertexBuffer;
-		VkDeviceSize offsets[] = { 0 };
-		vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, &vertexBuffer, offsets);
-		vkCmdBindIndexBuffer(commandBuffer, *state.vertexManager->indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+		state.vertexManager->vertexBuffer->bind();
+		state.vertexManager->indexBuffer->bind();
 
 		VkBuffer instanceBuffer = instancedBuffer.buffer;
 		if (instanceBuffer)
 		{
+			VkDeviceSize offsets[] = { 0 };
 			vkCmdBindVertexBuffers(commandBuffer, INSTANCE_BUFFER_BIND_ID, 1, &instanceBuffer, offsets);
 		}
 	}
@@ -681,11 +680,11 @@ namespace vulkan
 	{
 		state.vertexManager = new VoxelEngine::renderer::VertexManager;
 
-		const auto& mesh = mesh::VoxelMesh();
-		state.vertexManager->concatMesh(mesh::MeshTopology::Cube, mesh.vertices, mesh.indices);
+		const Mesh& mesh = mesh::VoxelMesh();
+		state.vertexManager->concatMesh(mesh::MeshTopology::Cube, mesh);
 
-		const auto& quad = mesh::QuadMesh();
-		state.vertexManager->concatMesh(mesh::MeshTopology::Quad, quad.vertices, quad.indices);
+		const Mesh& quad = mesh::QuadMesh();
+		state.vertexManager->concatMesh(mesh::MeshTopology::Quad, quad);
 
 		state.vertexManager->finalize(state.physicalDevice, state.logicalDevice);
 

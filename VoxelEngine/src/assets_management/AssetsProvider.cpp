@@ -29,46 +29,51 @@ namespace assets
         VOXEL_CORE_TRACE("Loading OBJ mesh at path '{0}'...", path);
 
         bool isLoaded = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path.c_str());
-        VOXEL_CORE_ASSERT(isLoaded, warn + err)
+        VOXEL_CORE_ASSERT(isLoaded, warn + err);
 
-        Mesh* mesh = new Mesh;
         glm::mat4 preTransform = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         std::unordered_map<Vertex, uint32> uniqueVertices{};
+        std::vector<Vertex> vertices;
+        std::vector<uint32> indices;
 
         for (const auto& shape : shapes)
         {
             for (const auto& index : shape.mesh.indices)
             {
-                Vertex vertex =
+                glm::vec3 pos =
                 {
-                    .pos =
-                    {
-                        attrib.vertices[3 * index.vertex_index + 0],
-                        attrib.vertices[3 * index.vertex_index + 1],
-                        attrib.vertices[3 * index.vertex_index + 2]
-                    },
-                    .normal =
-                    {
-                        attrib.normals[3 * index.normal_index + 0],
-                        attrib.normals[3 * index.normal_index + 1],
-                        attrib.normals[3 * index.normal_index + 2],
-                    }
+                    attrib.vertices[3 * index.vertex_index + 0],
+                    attrib.vertices[3 * index.vertex_index + 1],
+                    attrib.vertices[3 * index.vertex_index + 2]
                 };
+                glm::vec3 normal =
+                {
+                    attrib.normals[3 * index.normal_index + 0],
+                    attrib.normals[3 * index.normal_index + 1],
+                    attrib.normals[3 * index.normal_index + 2],
+                };
+
+                Vertex vertex = Vertex(pos, normal);
                 vertex.pos = glm::vec3(preTransform * glm::vec4(vertex.pos, 1.0f));
                 vertex.normal = glm::vec3(preTransform * glm::vec4(vertex.normal, 1.0f));
 
                 if (uniqueVertices.count(vertex) == 0)
                 {
-                    uniqueVertices[vertex] = static_cast<uint32>(mesh->vertices.size());
-                    mesh->vertices.push_back(vertex);
+                    uniqueVertices[vertex] = static_cast<uint32>(vertices.size());
+                    vertices.push_back(vertex);
                 }
-                mesh->indices.push_back(uniqueVertices[vertex]);
+                indices.push_back(uniqueVertices[vertex]);
             }
         }
 
-        VOXEL_CORE_TRACE("Finished to load OBJ mesh at path '{0}'.", path);
+        uint32 vertexCount = static_cast<uint32>(vertices.size());
+        uint32 indexCount = static_cast<uint32>(indices.size());
 
-        return VoxelEngine::MakeShared<Mesh>(*mesh);
+        VOXEL_CORE_TRACE("Finished to load OBJ mesh at path '{0}'.", path);
+        VOXEL_CORE_TRACE("Loaded vertices count: '{0}'.", vertexCount);
+        VOXEL_CORE_TRACE("Loaded indices count: '{0}'.", indexCount);
+
+        return VoxelEngine::MakeShared<Mesh>(vertices.data(), vertexCount, indices.data(), indexCount);
     }
     void TextureData::release() const
     {

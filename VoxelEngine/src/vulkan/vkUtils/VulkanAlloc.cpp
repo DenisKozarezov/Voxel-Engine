@@ -120,11 +120,19 @@ namespace vkUtils::memory
 	void Buffer::release()
 	{
 		if (buffer)
+		{
 			vkDestroyBuffer(logicalDevice, buffer, nullptr);
+			buffer = VK_NULL_HANDLE;
+		}
 
 		if (bufferMemory)
+		{
 			vkFreeMemory(logicalDevice, bufferMemory, nullptr);
+			bufferMemory = VK_NULL_HANDLE;
+		}
 
+		descriptor.offset = 0;
+		descriptor.range = 0;
 		size = 0;
 	}
 	VkResult Buffer::map()

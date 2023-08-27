@@ -22,6 +22,7 @@ namespace vulkan
 	}
 	void VulkanRendererAPI::drawMesh(const components::mesh::Mesh& mesh)
 	{
+
 	}
 	void VulkanRendererAPI::drawMeshInstanced(const components::mesh::Mesh& mesh, renderer::InstanceData instanceData[], uint32 instanceCount, uint32 startInstance)
 	{

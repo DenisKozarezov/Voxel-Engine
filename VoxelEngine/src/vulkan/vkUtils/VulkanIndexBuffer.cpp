@@ -41,6 +41,11 @@ namespace vkUtils
 	{
 		return static_cast<uint32>(m_indexBuffer.size);
 	}
+	void VulkanIndexBuffer::bind()
+	{
+		VkCommandBuffer commandBuffer = vulkan::getCommandBuffer();
+		vkCmdBindIndexBuffer(commandBuffer, m_indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
+	}
 	void VulkanIndexBuffer::release()
 	{
 		m_indexBuffer.release();

@@ -172,14 +172,15 @@ namespace vulkan
 		std::vector<VkDynamicState> dynamicStates =
 		{
 			VK_DYNAMIC_STATE_VIEWPORT,
-			VK_DYNAMIC_STATE_SCISSOR
+			VK_DYNAMIC_STATE_SCISSOR,
+			VK_DYNAMIC_STATE_LINE_WIDTH
 		};
 		VkPipelineDynamicStateCreateInfo dynamicStateCreateInfo = vkInit::pipelineDynamicStateCreateInfo(dynamicStates);
 
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo = vkInit::pipelineLayoutCreateInfo(&state.descriptorSetLayout);
 
 		VkResult err = vkCreatePipelineLayout(state.logicalDevice, &pipelineLayoutInfo, nullptr, &state.pipelineLayout);
-		vkUtils::check_vk_result(err, "failed to create pipeline layout!");
+		VK_CHECK(err, "failed to create pipeline layout!");
 
 		VOXEL_CORE_TRACE("Vulkan pipeline layout created.");
 
@@ -208,7 +209,7 @@ namespace vulkan
 			pipelineInfo.stageCount = 2;
 
 			err = vkCreateGraphicsPipelines(state.logicalDevice, state.pipelineCache, 1, &pipelineInfo, nullptr, &state.pipelines.solid);
-			vkUtils::check_vk_result(err, "failed to create graphics pipeline!");
+			VK_CHECK(err, "failed to create graphics pipeline!");
 
 			VOXEL_CORE_TRACE("Vulkan solid graphics pipeline created.");
 		}
@@ -228,7 +229,7 @@ namespace vulkan
 			inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
 			pipelineInfo.basePipelineHandle = state.pipelines.solid;
 			err = vkCreateGraphicsPipelines(state.logicalDevice, state.pipelineCache, 1, &pipelineInfo, nullptr, &state.pipelines.normals);
-			vkUtils::check_vk_result(err, "failed to create graphics pipeline!");
+			VK_CHECK(err, "failed to create graphics pipeline!");
 
 			VOXEL_CORE_TRACE("Vulkan normals graphics pipeline created.");
 		}
@@ -246,7 +247,7 @@ namespace vulkan
 			rasterizer.polygonMode = VK_POLYGON_MODE_LINE;
 			inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 			err = vkCreateGraphicsPipelines(state.logicalDevice, state.pipelineCache, 1, &pipelineInfo, nullptr, &state.pipelines.wireframe);
-			vkUtils::check_vk_result(err, "failed to create graphics pipeline!");
+			VK_CHECK(err, "failed to create graphics pipeline!");
 
 			VOXEL_CORE_TRACE("Vulkan wireframe graphics pipeline created.");
 		}
@@ -272,7 +273,7 @@ namespace vulkan
 		colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
 
 		err = vkCreateGraphicsPipelines(state.logicalDevice, state.pipelineCache, 1, &pipelineInfo, nullptr, &state.pipelines.editorGrid);
-		vkUtils::check_vk_result(err, "failed to create graphics pipeline!");
+		VK_CHECK(err, "failed to create graphics pipeline!");
 
 		VOXEL_CORE_TRACE("Vulkan editor grid graphics pipeline created.");
 	}
@@ -389,7 +390,7 @@ namespace vulkan
 			waitStages);	
 
 		VkResult err = vkQueueSubmit(queue, 1, &submitInfo, frame.inFlightFence);
-		vkUtils::check_vk_result(err, "failed to submit draw command buffer!");
+		VK_CHECK(err, "failed to submit draw command buffer!");
 	
 		vkUtils::getQueryResults(state.logicalDevice, state.queryPool);
 	}
@@ -421,7 +422,7 @@ namespace vulkan
 			state.framebufferResized = false;
 			recreateSwapChain();
 		}
-		else vkUtils::check_vk_result(err, "failed to present swap chain image!");
+		else VK_CHECK(err, "failed to present swap chain image!");
 	}
 	void prepareFrame()
 	{

@@ -35,7 +35,7 @@ namespace vkInit
 
 		VkDescriptorSetLayout layout;
 		VkResult err = vkCreateDescriptorSetLayout(logicalDevice, &layoutInfo, nullptr, &layout);
-		vkUtils::check_vk_result(err, "failed to create descriptor set layout!");
+		VK_CHECK(err, "failed to create descriptor set layout!");
 
 		VOXEL_CORE_TRACE("Vulkan descriptor set layout created.")
 
@@ -54,7 +54,7 @@ namespace vkInit
 
 		VkDescriptorPool pool;
 		VkResult err = vkCreateDescriptorPool(logicalDevice, &poolInfo, nullptr, &pool);
-		vkUtils::check_vk_result(err, "failed to create descriptor pool!");
+		VK_CHECK(err, "failed to create descriptor pool!");
 
 		VOXEL_CORE_TRACE("Vulkan descriptor pool created.")
 
@@ -74,7 +74,7 @@ namespace vkInit
 
 		VkDescriptorSet descriptorSet;
 		VkResult err = vkAllocateDescriptorSets(logicalDevice, &allocInfo, &descriptorSet);
-		vkUtils::check_vk_result(err, "failed to allocate descriptor set!");
+		VK_CHECK(err, "failed to allocate descriptor set!");
 
 		VOXEL_CORE_TRACE("Vulkan descriptor set allocated.")
 

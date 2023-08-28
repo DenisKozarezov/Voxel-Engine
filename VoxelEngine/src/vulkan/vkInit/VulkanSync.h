@@ -10,7 +10,7 @@ namespace vkInit
 
 		VkSemaphore semaphore;
 		VkResult err = vkCreateSemaphore(logicalDevice, &semaphoreInfo, nullptr, &semaphore);
-		vkUtils::check_vk_result(err, "failed to create semaphore!");
+		VK_CHECK(err, "failed to create semaphore!");
 		return semaphore;
 	}
 
@@ -20,7 +20,7 @@ namespace vkInit
 
 		VkFence fence;
 		VkResult err = vkCreateFence(logicalDevice, &fenceInfo, nullptr, &fence);
-		vkUtils::check_vk_result(err, "failed to create fence!");
+		VK_CHECK(err, "failed to create fence!");
 		return fence;
 	}
 

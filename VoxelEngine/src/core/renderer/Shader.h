@@ -13,7 +13,7 @@ namespace VoxelEngine::renderer
 		string m_filepath;
 		ShaderStage m_shaderStage;
 	public:
-		Shader() = delete;
+		Shader() noexcept = delete;
 		Shader(const string& filepath, const ShaderStage& shaderStage);
 		Shader(const string& vertexPath, const string& fragmentPath, const string& geomertryPath = nullptr);
 		Shader(Shader const&) noexcept = delete;
@@ -21,7 +21,7 @@ namespace VoxelEngine::renderer
 		Shader& operator=(Shader const& rhs) noexcept = delete;
 		Shader& operator=(Shader&& rhs) noexcept = delete;
 
-		inline const string& getName() const noexcept { return m_name; }
+		inline constexpr string getName() noexcept { return m_name; }
 		virtual void unbind() const = 0;
 
 		virtual ~Shader() = default;

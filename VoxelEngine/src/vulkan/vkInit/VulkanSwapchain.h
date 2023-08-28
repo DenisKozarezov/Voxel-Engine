@@ -258,7 +258,7 @@ namespace vkInit
 		SwapChainBundle bundle;
 		VkSwapchainKHR swapchain;
 		VkResult err = vkCreateSwapchainKHR(logicalDevice, &createInfo, nullptr, &swapchain);
-		vkUtils::check_vk_result(err, "failed to create swap chain!");
+		VK_CHECK(err, "failed to create swap chain!");
 
 		bundle.swapchain = swapchain;
 		bundle.format = surfaceFormat.format;

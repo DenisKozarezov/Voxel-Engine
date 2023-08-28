@@ -13,7 +13,7 @@ namespace vkInit
 
 		VkCommandPool commandPool;
 		VkResult err = vkCreateCommandPool(logicalDevice, &poolInfo, nullptr, &commandPool);
-		vkUtils::check_vk_result(err, "failed to create command pool!");
+		VK_CHECK(err, "failed to create command pool!");
 
 		VOXEL_CORE_TRACE("Vulkan command pool created.")
 
@@ -49,7 +49,7 @@ namespace vkUtils::memory
 
 		auto logicalDevice = vulkan::getLogicalDevice();
 		VkResult err = vkAllocateCommandBuffers(logicalDevice, &allocInfo, buffers.data());
-		vkUtils::check_vk_result(err, "failed to allocate command buffers!");
+		VK_CHECK(err, "failed to allocate command buffers!");
 
 		return buffers;
 	}
@@ -63,12 +63,12 @@ namespace vkUtils::memory
 		begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 		begin_info.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 		VkResult err = vkBeginCommandBuffer(buffer, &begin_info);
-		vkUtils::check_vk_result(err, "failed to begin recording command buffer!");
+		VK_CHECK(err, "failed to begin recording command buffer!");
 	}
 	void endCommand(const VkCommandBuffer& buffer)
 	{
 		VkResult err = vkEndCommandBuffer(buffer);
-		vkUtils::check_vk_result(err, "failed to record command buffer!");
+		VK_CHECK(err, "failed to record command buffer!");
 	}
 	void releaseCommandBuffer(const VkCommandBuffer& buffer, const VkCommandPool& commandPool)
 	{

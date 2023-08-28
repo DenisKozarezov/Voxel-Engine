@@ -70,7 +70,7 @@ namespace vkInit
 
 		VkInstance instance;
 		VkResult err = vkCreateInstance(&createInfo, nullptr, &instance);
-		vkUtils::check_vk_result(err, "failed to create instance!");
+		VK_CHECK(err, "failed to create instance!");
 
 		VOXEL_CORE_TRACE("Vulkan instance created.");
 
@@ -84,7 +84,7 @@ namespace vkInit
 		GLFWwindow* nativePtr = (GLFWwindow*)(window->getNativeWindow());
 
 		VkResult err = glfwCreateWindowSurface(instance, nativePtr, nullptr, &surface);
-		vkUtils::check_vk_result(err, "failed to create window surface!");
+		VK_CHECK(err, "failed to create window surface!");
 
 		VOXEL_CORE_TRACE("Vulkan surface created.");
 

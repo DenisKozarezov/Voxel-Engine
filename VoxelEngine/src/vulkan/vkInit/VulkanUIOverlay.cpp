@@ -123,7 +123,7 @@ namespace vkInit
 		};
 		VkDescriptorPoolCreateInfo descriptorPoolInfo = vkInit::descriptorPoolCreateInfo(poolSizes, 2);
 		VkResult err = vkCreateDescriptorPool(logicalDevice, &descriptorPoolInfo, nullptr, &descriptorPool);
-		vkUtils::check_vk_result(err, "failed to create IMGUI descriptor pool!");
+		VK_CHECK(err, "failed to create IMGUI descriptor pool!");
 
 		// Descriptor set layout
 		VkDescriptorSetLayoutBinding binding;
@@ -138,12 +138,12 @@ namespace vkInit
 
 		VkDescriptorSetLayoutCreateInfo descriptorLayout = vkInit::descriptorSetLayoutCreateInfo(setLayoutBindings);
 		err = vkCreateDescriptorSetLayout(logicalDevice, &descriptorLayout, nullptr, &descriptorSetLayout);
-		vkUtils::check_vk_result(err, "failed to create IMGUI descriptor set layout!");
+		VK_CHECK(err, "failed to create IMGUI descriptor set layout!");
 
 		// Descriptor set
 		VkDescriptorSetAllocateInfo allocInfo = vkInit::descriptorSetAllocateInfo(descriptorPool, &descriptorSetLayout, 1);
 		err = vkAllocateDescriptorSets(logicalDevice, &allocInfo, &descriptorSet);
-		vkUtils::check_vk_result(err, "failed to allocate IMGUI descriptor set!");
+		VK_CHECK(err, "failed to allocate IMGUI descriptor set!");
 		
 		VkDescriptorImageInfo fontDescriptor = vkInit::descriptorImageInfo(
 			sampler,
@@ -178,7 +178,7 @@ namespace vkInit
 		pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
 		pipelineLayoutCreateInfo.pPushConstantRanges = &pushConstantRange;
 		VkResult err = vkCreatePipelineLayout(logicalDevice, &pipelineLayoutCreateInfo, nullptr, &pipelineLayout);
-		vkUtils::check_vk_result(err, "failed to create IMGUI pipeline layout!");
+		VK_CHECK(err, "failed to create IMGUI pipeline layout!");
 
 		// Setup graphics pipeline for UI rendering
 		VkPipelineInputAssemblyStateCreateInfo inputAssemblyState = vkInit::pipelineInputAssemblyStateCreateInfo(
@@ -259,7 +259,7 @@ namespace vkInit
 		pipelineCreateInfo.pVertexInputState = &vertexInputState;
 
 		err = vkCreateGraphicsPipelines(logicalDevice, pipelineCache, 1, &pipelineCreateInfo, nullptr, &pipeline);
-		vkUtils::check_vk_result(err, "failed to create IMGUI graphics pipeline!");
+		VK_CHECK(err, "failed to create IMGUI graphics pipeline!");
 	}
 
 	/** Update vertex and index buffer containing the imGui elements when required */

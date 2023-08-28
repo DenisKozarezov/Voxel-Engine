@@ -14,7 +14,7 @@ namespace vkUtils
 
 		VkShaderModule shaderModule;
 		VkResult err = vkCreateShaderModule(m_logicalDevice, &createInfo, nullptr, &shaderModule);
-		vkUtils::check_vk_result(err, "failed to create shader module!");
+		VK_CHECK(err, "failed to create shader module!");
 		return shaderModule;
 	}	
 	VulkanShader::VulkanShader(const VkDevice& logicalDevice, const string& filepath, const ShaderStage& shaderStage)

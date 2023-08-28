@@ -95,7 +95,7 @@ namespace vkInit
 
 		VkRenderPass renderPass;
 		VkResult err = vkCreateRenderPass(logicalDevice, &renderPassInfo, nullptr, &renderPass);
-		vkUtils::check_vk_result(err, "failed to create render pass!");
+		VK_CHECK(err, "failed to create render pass!");
 
 		VOXEL_CORE_TRACE("Vulkan render pass created.");
 

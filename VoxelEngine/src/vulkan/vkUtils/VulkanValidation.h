@@ -2,6 +2,8 @@
 #include <core/utils/EnumUtils.h>
 #include <core/Assert.h>
 
+#define VK_CHECK(result, msg) if (result != VK_SUCCESS) VOXEL_CORE_ERROR("[VULKAN] [{0}] {1}", errorString(result), msg); VOXEL_DEBUGBREAK()
+
 namespace vkUtils
 {
 #ifdef VOXEL_RELEASE
@@ -14,15 +16,6 @@ namespace vkUtils
 	{
 		"VK_LAYER_KHRONOS_validation"
 	};
-
-	static constexpr void check_vk_result(const VkResult& vkResult, const std::string& exceptionMsg)
-	{
-		std::string str = "[VULKAN] [";
-		str += errorString(vkResult);
-		str += "] ";
-		str += exceptionMsg;
-		VOXEL_CORE_ASSERT(vkResult == VK_SUCCESS, str)
-	}
 
 	static VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsCallback(
 		VkDebugUtilsMessageSeverityFlagBitsEXT		messageSeverity,

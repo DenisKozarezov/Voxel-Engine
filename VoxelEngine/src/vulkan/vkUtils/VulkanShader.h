@@ -13,7 +13,7 @@ namespace vkUtils
 
 		const VkShaderModule createShaderModule(const std::vector<char>& code) const;
 	public:
-		VulkanShader(const VkDevice& logicalDevice, const string& filepath, const VkShaderStageFlagBits& shaderType);
+		VulkanShader(const VkDevice& logicalDevice, const string& filepath, const ShaderStage& shaderStage);
 
 		inline VkPipelineShaderStageCreateInfo& getStage() & noexcept { return m_shaderInfo; }
 

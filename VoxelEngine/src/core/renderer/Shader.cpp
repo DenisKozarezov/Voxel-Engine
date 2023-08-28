@@ -3,7 +3,8 @@
 
 namespace VoxelEngine::renderer
 {
-	Shader::Shader(const string& filepath) : m_filepath(filepath)
+	Shader::Shader(const string& filepath, const ShaderStage& shaderStage) 
+		: m_filepath(filepath), m_shaderStage(shaderStage)
 	{
 
 	}

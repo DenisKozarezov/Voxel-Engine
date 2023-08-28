@@ -1,5 +1,6 @@
 #include "VulkanShader.h"
 #include "VulkanValidation.h"
+#include "../vkInit/VulkanInitializers.h"
 #include "../VulkanBackend.h"
 
 namespace vkUtils
@@ -16,8 +17,8 @@ namespace vkUtils
 		vkUtils::check_vk_result(err, "failed to create shader module!");
 		return shaderModule;
 	}	
-	VulkanShader::VulkanShader(const VkDevice& logicalDevice, const string& filepath, const VkShaderStageFlagBits& shaderType) 
-		: Shader(filepath), 
+	VulkanShader::VulkanShader(const VkDevice& logicalDevice, const string& filepath, const ShaderStage& shaderStage)
+		: Shader(filepath, shaderStage),
 		m_logicalDevice(logicalDevice)
 	{
 		const auto& shaderProgram = readFile(filepath);
@@ -25,7 +26,7 @@ namespace vkUtils
 		m_shaderModule = createShaderModule(shaderProgram);
 		m_shaderInfo = {};
 		m_shaderInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		m_shaderInfo.stage = shaderType;
+		m_shaderInfo.stage = vkInit::shaderStageToVulkanBaseStage(shaderStage);
 		m_shaderInfo.module = m_shaderModule;
 		m_shaderInfo.pName = "main";
 	}

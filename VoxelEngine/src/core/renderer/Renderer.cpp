@@ -63,11 +63,11 @@ namespace VoxelEngine::renderer
     }
     void Renderer::prepareAsset(mesh::Mesh mesh)
     {
-        vulkan::prepareAsset(std::forward<mesh::Mesh>(mesh));
+        vulkan::prepareAsset(std::move(mesh));
     }
     void Renderer::prepareAsset(const mesh::MeshTopology& topology, mesh::Mesh mesh)
     {
-        vulkan::prepareAsset(topology, std::forward<mesh::Mesh>(mesh));
+        vulkan::prepareAsset(topology, std::move(mesh));
     }
     void Renderer::deviceWaitIdle()
     {

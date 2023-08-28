@@ -200,8 +200,8 @@ namespace vulkan
 		// SOLID
 		std::array<VkPipelineShaderStageCreateInfo, 3> shaderStages;
 		{
-			vkUtils::VulkanShader vertexShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/InstancedSolidVert.spv"), VK_SHADER_STAGE_VERTEX_BIT);
-			vkUtils::VulkanShader fragShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/SolidFragShader.spv"), VK_SHADER_STAGE_FRAGMENT_BIT);
+			vkUtils::VulkanShader vertexShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/InstancedSolidVert.spv"), ShaderStage::Vertex);
+			vkUtils::VulkanShader fragShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/SolidFragShader.spv"), ShaderStage::Fragment);
 			shaderStages[0] = vertexShader.getStage();
 			shaderStages[1] = fragShader.getStage();
 			pipelineInfo.pStages = shaderStages.data();		
@@ -215,9 +215,9 @@ namespace vulkan
 
 		// NORMALS
 		{
-			vkUtils::VulkanShader vertexShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/InstancedBaseVert.spv"), VK_SHADER_STAGE_VERTEX_BIT);
-			vkUtils::VulkanShader fragShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/BaseFragShader.spv"), VK_SHADER_STAGE_FRAGMENT_BIT);
-			vkUtils::VulkanShader geomShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/editor/NormalGeomShader.spv"), VK_SHADER_STAGE_GEOMETRY_BIT);
+			vkUtils::VulkanShader vertexShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/InstancedBaseVert.spv"), ShaderStage::Vertex);
+			vkUtils::VulkanShader fragShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/BaseFragShader.spv"), ShaderStage::Fragment);
+			vkUtils::VulkanShader geomShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/editor/NormalGeomShader.spv"), ShaderStage::Geometry);
 			shaderStages[0] = vertexShader.getStage();
 			shaderStages[1] = fragShader.getStage();
 			shaderStages[2] = geomShader.getStage();
@@ -235,8 +235,8 @@ namespace vulkan
 
 		// WIREFRAME
 		{
-			vkUtils::VulkanShader vertexShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/InstancedSolidVert.spv"), VK_SHADER_STAGE_VERTEX_BIT);
-			vkUtils::VulkanShader fragShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/editor/WireframeFragShader.spv"), VK_SHADER_STAGE_FRAGMENT_BIT);
+			vkUtils::VulkanShader vertexShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/InstancedSolidVert.spv"), ShaderStage::Vertex);
+			vkUtils::VulkanShader fragShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/editor/WireframeFragShader.spv"), ShaderStage::Fragment);
 			shaderStages[0] = vertexShader.getStage();
 			shaderStages[1] = fragShader.getStage();
 
@@ -252,8 +252,8 @@ namespace vulkan
 		}
 
 		// EDITOR GRID
-		vkUtils::VulkanShader vertexShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/editor/EditorGridVert.spv"), VK_SHADER_STAGE_VERTEX_BIT);
-		vkUtils::VulkanShader fragShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/editor/EditorGridFrag.spv"), VK_SHADER_STAGE_FRAGMENT_BIT);
+		vkUtils::VulkanShader vertexShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/editor/EditorGridVert.spv"), ShaderStage::Vertex);
+		vkUtils::VulkanShader fragShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/editor/EditorGridFrag.spv"), ShaderStage::Fragment);
 		shaderStages[0] = vertexShader.getStage();
 		shaderStages[1] = fragShader.getStage();
 
@@ -611,8 +611,6 @@ namespace vulkan
 
 		VOXEL_CORE_TRACE("Vulkan setup ended.");
 
-		state.vertexManager = new VoxelEngine::renderer::VertexManager;
-
 		makeAssets();
 
 		prepareInstanceData();
@@ -625,8 +623,8 @@ namespace vulkan
 		state.UIOverlay.queue = state.queues.graphicsQueue;
 		state.UIOverlay.rasterizationSamples = state.msaaSamples;
 
-		vkUtils::VulkanShader vertShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/editor/UIOverlayVert.spv"), VK_SHADER_STAGE_VERTEX_BIT);
-		vkUtils::VulkanShader fragShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/editor/UIOverlayFrag.spv"), VK_SHADER_STAGE_FRAGMENT_BIT);
+		vkUtils::VulkanShader vertShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/editor/UIOverlayVert.spv"), ShaderStage::Vertex);
+		vkUtils::VulkanShader fragShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/editor/UIOverlayFrag.spv"), ShaderStage::Fragment);
 		state.UIOverlay.shaders =
 		{
 			vertShader.getStage(),
@@ -695,6 +693,8 @@ namespace vulkan
 	
 	void makeAssets()
 	{
+		state.vertexManager = new VoxelEngine::renderer::VertexManager;
+
 		for (auto& [topology, mesh] : meshesToPrepare)
 		{
 			uint32 verticesSize = sizeof(Vertex) * mesh.vertexCount;

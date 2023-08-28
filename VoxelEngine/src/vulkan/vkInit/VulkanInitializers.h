@@ -1,5 +1,6 @@
 #pragma once
 #include <vulkan/vulkan.h>
+#include <core/renderer/Shader.h>
 #include <core/renderer/ShaderLayout.h>
 
 namespace vkInit
@@ -771,6 +772,16 @@ namespace vkInit
 		case ShaderDataType::Int4:     return VK_FORMAT_R32G32B32A32_SINT;
 		case ShaderDataType::Bool:     return VK_FORMAT_R8_SINT;
 		default: return VK_FORMAT_UNDEFINED;
+		}
+	}
+	constexpr VkShaderStageFlagBits shaderStageToVulkanBaseStage(ShaderStage shaderStage)
+	{
+		switch (shaderStage)
+		{
+		case ShaderStage::Vertex: return VK_SHADER_STAGE_VERTEX_BIT;
+		case ShaderStage::Fragment: return  VK_SHADER_STAGE_FRAGMENT_BIT;
+		case ShaderStage::Geometry: return VK_SHADER_STAGE_GEOMETRY_BIT;
+		case ShaderStage::Compute: return VK_SHADER_STAGE_COMPUTE_BIT;
 		}
 	}
 

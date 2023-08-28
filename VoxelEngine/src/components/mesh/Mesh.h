@@ -4,10 +4,10 @@
 #include <core/renderer/Vertex.h>
 #include <core/renderer/Buffer.h>
 
-using Vertex = VoxelEngine::renderer::Vertex;
-
 namespace VoxelEngine::components::mesh
 {
+	using Vertex = renderer::Vertex;
+
 	enum MeshTopology
 	{
 		Triangle = 0,
@@ -21,9 +21,9 @@ namespace VoxelEngine::components::mesh
 
 	struct Mesh
 	{
-		const renderer::Vertex* vertices = nullptr;
+		const Vertex* vertices = nullptr;
 		uint32 vertexCount;
-		const renderer::Vertex* normals = nullptr;
+		const Vertex* normals = nullptr;
 		uint32 normalsCount;
 		const uint32* indices = nullptr;
 		uint32 indexCount;

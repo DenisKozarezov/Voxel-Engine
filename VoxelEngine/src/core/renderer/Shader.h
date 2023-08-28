@@ -2,6 +2,8 @@
 #include <pch.h>
 #include <core/PrimitiveTypes.h>
 
+enum ShaderStage : byte { Vertex, Fragment, Geometry, Compute };
+
 namespace VoxelEngine::renderer
 {
 	class Shader
@@ -9,9 +11,11 @@ namespace VoxelEngine::renderer
 	private:
 		string m_name;
 		string m_filepath;
+		ShaderStage m_shaderStage;
 	public:
 		Shader() = delete;
-		Shader(const string& filepath);
+		Shader(const string& filepath, const ShaderStage& shaderStage);
+		Shader(const string& vertexPath, const string& fragmentPath, const string& geomertryPath = nullptr);
 		Shader(Shader const&) noexcept = delete;
 		Shader(Shader&&) noexcept = delete;
 		Shader& operator=(Shader const& rhs) noexcept = delete;

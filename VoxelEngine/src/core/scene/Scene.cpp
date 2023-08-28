@@ -24,12 +24,12 @@ namespace VoxelEngine
 
 		renderer::Renderer::preRender(camera);
 
-		renderer::Renderer::render();
-		renderer::Renderer::updateUIOverlay();
+		renderScene();
+
 		renderer::Renderer::postRender();
 	}
 	void Scene::renderScene()
 	{
-		
+		renderer::Renderer::updateUIOverlay();
 	}
 }

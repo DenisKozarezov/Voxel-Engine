@@ -1,6 +1,5 @@
 #pragma once
 #include <pch.h>
-#include <core/utils/EnumUtils.h>
 #include "../vkUtils/VulkanQueueFamilies.h"
 
 namespace vkInit

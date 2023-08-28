@@ -41,10 +41,6 @@ namespace VoxelEngine::renderer
         };
         vulkan::beginFrame(ubo);
     }
-    void Renderer::render()
-    {
-        
-    }
     void Renderer::postRender()
     {
         vulkan::endFrame();

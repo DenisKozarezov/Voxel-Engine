@@ -26,6 +26,6 @@ namespace VoxelEngine::renderer
 
 		virtual ~Shader() = default;
 	protected:
-		std::vector<char> readFile(const string& filename);
+		string readFile(const string& filename);
 	};
 }

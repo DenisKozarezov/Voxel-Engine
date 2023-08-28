@@ -1,6 +1,5 @@
 #pragma once
 #include <filesystem>
-#include <core/Base.h>
 #include <components/mesh/Mesh.h>
 
 #if defined(VOXEL_PLATFORM_WINDOWS)

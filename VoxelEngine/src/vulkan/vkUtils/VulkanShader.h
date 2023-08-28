@@ -11,7 +11,7 @@ namespace vkUtils
 		VkPipelineShaderStageCreateInfo m_shaderInfo;
 		VkDevice m_logicalDevice;
 
-		const VkShaderModule createShaderModule(const std::vector<char>& code) const;
+		const VkShaderModule createShaderModule(const string& code) const;
 	public:
 		VulkanShader(const VkDevice& logicalDevice, const string& filepath, const ShaderStage& shaderStage);
 

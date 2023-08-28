@@ -15,7 +15,7 @@ namespace VoxelEngine::renderer
 		static constexpr uint32 MAX_VERTICES = MAX_TRIANGLES * 3;
 		static constexpr uint32 MAX_INDICES = MAX_TRIANGLES * 3;
 
-		size_t indexOffset = 0;
+		uint32 indexOffset = 0;
 		std::vector<uint32> indices;		
 	public:
 		std::vector<Vertex> vertices;

@@ -23,7 +23,6 @@ namespace VoxelEngine::renderer
 		static void resetStats();
 		static void init(const Window& window);
 		static void preRender(const components::camera::Camera& camera);
-		static void render();
 		static void postRender();
 		static void updateUIOverlay();
 		static void resize(const uint32& width, const uint32& height);

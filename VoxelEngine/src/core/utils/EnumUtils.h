@@ -65,6 +65,7 @@ constexpr const char* graphicsSpecString(const VoxelEngine::renderer::GraphicsSp
 		STR(Vulkan);
 		STR(OpenGL);
 		STR(DirectX12);
+#undef STR
 	default: return "UNKNOWN_RENDERER_SPEC";
 	}
 }
@@ -76,6 +77,7 @@ constexpr const char* projectionTypeString(const VoxelEngine::components::camera
 #define STR(x) case VoxelEngine::components::camera::ProjectionType::##x: return #x;
 		STR(Perspective);
 		STR(Orthographic);
+#undef STR
 	}
 }
 #pragma endregion

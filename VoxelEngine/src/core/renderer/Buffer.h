@@ -1,6 +1,5 @@
 #pragma once
-#include <core/PrimitiveTypes.h>
-#include <core/Base.h>
+#include <core/Assert.h>
 
 namespace VoxelEngine::renderer
 {

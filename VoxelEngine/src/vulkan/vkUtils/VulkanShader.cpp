@@ -5,7 +5,7 @@
 
 namespace vkUtils
 {
-	const VkShaderModule VulkanShader::createShaderModule(const std::vector<char>& code) const
+	const VkShaderModule VulkanShader::createShaderModule(const string& code) const
 	{
 		VkShaderModuleCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -21,7 +21,7 @@ namespace vkUtils
 		: Shader(filepath, shaderStage),
 		m_logicalDevice(logicalDevice)
 	{
-		const auto& shaderProgram = readFile(filepath);
+		const string shaderProgram = readFile(filepath);
 
 		m_shaderModule = createShaderModule(shaderProgram);
 		m_shaderInfo = {};

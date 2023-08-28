@@ -6,8 +6,8 @@
 #include "vkInit/VulkanSync.h"
 #include "vkInit/VulkanDescriptors.h"
 #include "vkInit/VulkanUIOverlay.h"
+#include "vkUtils/VulkanShader.h"
 #include "vkInit/VulkanCommand.h"
-#include "vkUtils/VulkanUniformBuffer.h"
 #include "vkUtils/VulkanStatistics.h"
 #include "core/renderer/VertexManager.h"
 #include "core/Application.h"
@@ -579,7 +579,7 @@ namespace vulkan
 	{
 		state.viewportPos = VkOffset2D(x, y);
 
-		if (width >= 0 && height >= 0)
+		if (width > 0 && height > 0)
 			state.viewportSize = VkExtent2D(width, height);
 	}
 	void submitRenderables(std::vector<glm::vec3> objects)

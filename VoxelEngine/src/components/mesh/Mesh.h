@@ -1,6 +1,5 @@
 #pragma once
 #include <array>
-#include <core/PrimitiveTypes.h>
 #include <core/renderer/Vertex.h>
 #include <core/renderer/Buffer.h>
 
@@ -57,7 +56,11 @@ namespace VoxelEngine::components::mesh
 		};
 		static constexpr std::array<uint32, 3> indices = { 0, 1, 2 };
 	public:
-		TriangleMesh() : Mesh(vertices.data(), vertices.size(), indices.data(), indices.size()) { }
+		TriangleMesh() : Mesh(
+			vertices.data(), 
+			static_cast<uint32>(vertices.size()), 
+			indices.data(), 
+			static_cast<uint32>(indices.size())) { }
 	};
 
 	struct QuadMesh : public Mesh
@@ -71,7 +74,11 @@ namespace VoxelEngine::components::mesh
 		};
 		static constexpr std::array<uint32, 6> indices = { 0, 1, 2, 2, 3, 0 };
 
-		QuadMesh() : Mesh(vertices.data(), vertices.size(), indices.data(), indices.size()) { }
+		QuadMesh() : Mesh(
+			vertices.data(), 
+			static_cast<uint32>(vertices.size()),
+			indices.data(), 
+			static_cast<uint32>(indices.size())) { }
 	};
 
 	struct VoxelMesh : public Mesh
@@ -122,8 +129,11 @@ namespace VoxelEngine::components::mesh
 			20, 21, 22,		22, 21, 23  
 		};
 	public:
-		VoxelMesh() 
-			: Mesh(vertices.data(), vertices.size(), indices.data(), indices.size()) { }
+		VoxelMesh() : Mesh(
+			vertices.data(), 
+			static_cast<uint32>(vertices.size()), 
+			indices.data(), 
+			static_cast<uint32>(indices.size())) { }
 	};
 
 	struct OptimizedVoxelMesh : public Mesh
@@ -153,7 +163,10 @@ namespace VoxelEngine::components::mesh
 			3,2,6, 6,7,3,
 		};
 	public:
-		OptimizedVoxelMesh() 
-			: Mesh(vertices.data(), vertices.size(), indices.data(), indices.size()) { }
+		OptimizedVoxelMesh() : Mesh(
+			vertices.data(), 
+			static_cast<uint32>(vertices.size()), 
+			indices.data(), 
+			static_cast<uint32>(indices.size())) { }
 	};
 }

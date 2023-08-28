@@ -10,6 +10,9 @@ namespace vkUtils
 		const size_t& bufferSize)
 		: m_logicalDevice(logicalDevice)
 	{ 
+		VOXEL_CORE_ASSERT(vertices, "vertex buffer is attempting to map empty data!");
+		VOXEL_CORE_ASSERT(bufferSize > 0, "vertex buffer is attempting to allocate zero memory device size!");
+
 		auto stagingBuffer = memory::createBuffer(
 			physicalDevice,
 			logicalDevice,

@@ -7,15 +7,17 @@ namespace vkUtils
 	class VulkanShader : public VoxelEngine::renderer::Shader
 	{
 	private:
-		VkShaderModule m_shaderModule;
-		VkPipelineShaderStageCreateInfo m_shaderInfo;
 		VkDevice m_logicalDevice;
+		std::array<VkShaderModule, 3> m_shaderModules = {};
+		std::array<VkPipelineShaderStageCreateInfo, 3> m_shaderStages = {};
 
 		const VkShaderModule createShaderModule(const string& code) const;
 	public:
-		VulkanShader(const VkDevice& logicalDevice, const string& filepath, const ShaderStage& shaderStage);
+		VulkanShader() noexcept = delete;
+		VulkanShader(const VkDevice& logicalDevice, const char* filepath, const ShaderStage& shaderStage);
+		VulkanShader(const VkDevice& logicalDevice, const char* vertexPath, const char* fragmentPath, const char* geomertryPath = nullptr);
 
-		inline VkPipelineShaderStageCreateInfo& getStage() & noexcept { return m_shaderInfo; }
+		inline constexpr std::array<VkPipelineShaderStageCreateInfo, 3>& getStages() & noexcept { return m_shaderStages; }
 
 		void unbind() const override;
 

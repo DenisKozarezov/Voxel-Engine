@@ -41,6 +41,7 @@ namespace vulkan
 	void deviceWaitIdle();
 	void cleanup();
 
+	mesh::Material* createMaterial(const VkPipeline& matPipeline, const VkPipelineLayout& matLayout, const string& matName);
 	renderer::RenderSettings& getRenderSettings();
 	const renderer::RenderFrameStats& getFrameStats();
 	void resetFrameStats();

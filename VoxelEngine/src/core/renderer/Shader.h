@@ -10,12 +10,8 @@ namespace VoxelEngine::renderer
 	{
 	private:
 		string m_name;
-		string m_filepath;
-		ShaderStage m_shaderStage;
 	public:
-		Shader() noexcept = delete;
-		Shader(const string& filepath, const ShaderStage& shaderStage);
-		Shader(const string& vertexPath, const string& fragmentPath, const string& geomertryPath = nullptr);
+		Shader() noexcept = default;
 		Shader(Shader const&) noexcept = delete;
 		Shader(Shader&&) noexcept = delete;
 		Shader& operator=(Shader const& rhs) noexcept = delete;

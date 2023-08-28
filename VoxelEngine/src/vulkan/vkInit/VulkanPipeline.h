@@ -4,37 +4,6 @@
 
 namespace vkInit
 {
-	struct GraphicsPipilineInputBundle
-	{
-		VkDevice logicalDevice;
-		VkRenderPass& renderPass;
-		VkPipelineCache pipelineCache;
-		VkDescriptorSetLayout descriptorSetLayout;
-		VkPipeline basePipilineHandle;
-	};
-
-	struct Pipelines
-	{
-		VkPipeline solid;
-		VkPipeline wireframe;
-		VkPipeline normals;
-		VkPipeline editorGrid;
-
-		void release(const VkDevice& logicalDevice) const
-		{
-			vkDestroyPipeline(logicalDevice, solid, nullptr);
-			vkDestroyPipeline(logicalDevice, wireframe, nullptr);
-			vkDestroyPipeline(logicalDevice, normals, nullptr);
-			vkDestroyPipeline(logicalDevice, editorGrid, nullptr);
-		}
-	};
-
-	struct GraphicsPipelineOutBundle
-	{
-		VkPipeline pipeline;
-		VkPipelineLayout layout;
-	};
-
 	const VkRenderPass createRenderPass(
 		const VkDevice& logicalDevice, 
 		const VkFormat& swapChainImageFormat, 

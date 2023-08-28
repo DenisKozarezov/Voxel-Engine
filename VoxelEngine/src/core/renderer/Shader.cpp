@@ -3,11 +3,6 @@
 
 namespace VoxelEngine::renderer
 {
-	Shader::Shader(const string& filepath, const ShaderStage& shaderStage) 
-		: m_filepath(filepath), m_shaderStage(shaderStage)
-	{
-
-	}
 	string Shader::readFile(const string& filename)
 	{
 		std::ifstream file(filename, std::ios::in | std::ios::binary);

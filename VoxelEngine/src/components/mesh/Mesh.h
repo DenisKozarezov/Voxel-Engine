@@ -18,6 +18,13 @@ namespace VoxelEngine::components::mesh
 		Cube = 6
 	};
 
+	struct Material
+	{
+	public:
+		Material() noexcept = default;
+		virtual ~Material() = default;
+	};
+
 	struct Mesh
 	{
 		const Vertex* vertices = nullptr;

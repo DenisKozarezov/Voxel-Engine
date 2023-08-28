@@ -2,7 +2,7 @@
 #include <core/utils/EnumUtils.h>
 #include <core/Assert.h>
 
-#define VK_CHECK(result, msg) if (result != VK_SUCCESS) VOXEL_CORE_ERROR("[VULKAN] [{0}] {1}", errorString(result), msg); VOXEL_DEBUGBREAK()
+#define VK_CHECK(result, msg) if (result != VK_SUCCESS) { VOXEL_CORE_ERROR("[VULKAN] [{0}] {1}", errorString(result), msg); VOXEL_DEBUGBREAK() }
 
 namespace vkUtils
 {

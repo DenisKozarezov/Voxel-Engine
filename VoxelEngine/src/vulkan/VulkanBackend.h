@@ -6,6 +6,7 @@
 namespace vulkan
 {
 	using namespace VoxelEngine;
+	namespace mesh = components::mesh;
 
 	void makeInstance();
 	void makeDevice();
@@ -22,14 +23,16 @@ namespace vulkan
 	void submitToQueue(const VkQueue& queue, const VkCommandBuffer& commandBuffer, const VkSemaphore* signalSemaphores = nullptr);
 	void cleanupSwapChain();
 	void presentFrame(const uint32& imageIndex, VkSemaphore* signalSemaphores);
-	void prepareFrame(const uint32& imageIndex);
+	void prepareFrame();
 	void prepareScene(const VkCommandBuffer& commandBuffer);
+	void prepareInstanceData();
 	void beginFrame(const VoxelEngine::renderer::UniformBufferObject& ubo);
 	void endFrame();
 	void drawUI(const VkCommandBuffer& commandBuffer);
 	void updateUIOverlay();
 
 	void resize(const uint32& width, const uint32& height);
+	void setClearColor(const glm::vec4 color);
 	void setWindow(const Window& window);
 	void setViewport(const int32_t& x, const int32_t& y, const uint32& width, const uint32& height);
 	void submitRenderables(std::vector<glm::vec3> objects);
@@ -38,15 +41,17 @@ namespace vulkan
 	void deviceWaitIdle();
 	void cleanup();
 
+	mesh::Material* createMaterial(const VkPipeline& matPipeline, const VkPipelineLayout& matLayout, const string& matName);
 	renderer::RenderSettings& getRenderSettings();
 	const renderer::RenderFrameStats& getFrameStats();
 	void resetFrameStats();
 
-	void prepareInstanceData(const std::vector<glm::vec3>& vertices);
 	void makeAssets();
+	void prepareAsset(mesh::Mesh mesh);
+	void prepareAsset(const mesh::MeshTopology& topology, mesh::Mesh mesh);
 	void renderSceneObjects(
 		const VkCommandBuffer& commandBuffer,
-		const components::mesh::MeshType& objectType,
+		const mesh::MeshTopology& objectType,
 		uint32& startInstance,
 		const uint32& instanceCount);
 

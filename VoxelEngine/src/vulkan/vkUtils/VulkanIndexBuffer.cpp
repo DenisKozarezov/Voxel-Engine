@@ -10,6 +10,9 @@ namespace vkUtils
 		const size_t& bufferSize) 
 		: m_logicalDevice(logicalDevice)
 	{
+		VOXEL_CORE_ASSERT(indices, "index buffer is attempting to map empty data!");
+		VOXEL_CORE_ASSERT(bufferSize > 0, "index buffer is attempting to allocate zero memory device size!");
+
 		auto stagingBuffer = memory::createBuffer(
 			physicalDevice, 
 			logicalDevice, 
@@ -40,6 +43,11 @@ namespace vkUtils
 	constexpr uint32 VulkanIndexBuffer::size() const
 	{
 		return static_cast<uint32>(m_indexBuffer.size);
+	}
+	void VulkanIndexBuffer::bind()
+	{
+		VkCommandBuffer commandBuffer = vulkan::getCommandBuffer();
+		vkCmdBindIndexBuffer(commandBuffer, m_indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
 	}
 	void VulkanIndexBuffer::release()
 	{

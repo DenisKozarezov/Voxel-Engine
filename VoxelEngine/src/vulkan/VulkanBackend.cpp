@@ -6,9 +6,10 @@
 #include "vkInit/VulkanSync.h"
 #include "vkInit/VulkanDescriptors.h"
 #include "vkInit/VulkanUIOverlay.h"
+#include "vkUtils/VulkanShader.h"
 #include "vkInit/VulkanCommand.h"
-#include "vkUtils/VulkanUniformBuffer.h"
 #include "vkUtils/VulkanStatistics.h"
+#include "vkUtils/VulkanMaterial.h"
 #include "core/renderer/VertexManager.h"
 #include "core/Application.h"
 #include "threading/ThreadPool.h"
@@ -45,12 +46,12 @@ namespace vulkan
 		// Pipeline-related variables
 		VkPipelineLayout pipelineLayout;
 		VkPipelineCache pipelineCache;
-		vkInit::Pipelines pipelines;
 		VkRenderPass renderPass;
 		VkQueryPool queryPool;
 		vkInit::UIOverlay UIOverlay;
 		VkOffset2D viewportPos;
 		VkExtent2D viewportSize;
+		VkClearColorValue clearColor;
 
 		// Descriptors
 		VkDescriptorPool descriptorPool;
@@ -59,11 +60,13 @@ namespace vulkan
 		bool framebufferResized = false;
 	} state;
 
-	VoxelEngine::threading::ThreadPool* threadPool;
-	std::vector<glm::vec3> objectsToRender;
-	VoxelEngine::renderer::RenderSettings renderSettings;
-	VoxelEngine::renderer::RenderFrameStats renderFrameStats;
-	vkUtils::memory::Buffer instances;
+	threading::ThreadPool* threadPool;
+	renderer::RenderSettings renderSettings;
+	renderer::RenderFrameStats renderFrameStats;
+	vkUtils::memory::Buffer instancedBuffer;
+	std::vector<renderer::InstanceData> instanceData;
+	std::unordered_map<mesh::MeshTopology, mesh::Mesh> meshes;
+	std::unordered_map<std::string, vkUtils::VulkanMaterial> materials;
 
 	static int MAX_FRAMES_IN_FLIGHT = 3;
 	static uint32 CURRENT_FRAME = 0;
@@ -170,14 +173,15 @@ namespace vulkan
 		std::vector<VkDynamicState> dynamicStates =
 		{
 			VK_DYNAMIC_STATE_VIEWPORT,
-			VK_DYNAMIC_STATE_SCISSOR
+			VK_DYNAMIC_STATE_SCISSOR,
+			VK_DYNAMIC_STATE_LINE_WIDTH
 		};
 		VkPipelineDynamicStateCreateInfo dynamicStateCreateInfo = vkInit::pipelineDynamicStateCreateInfo(dynamicStates);
 
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo = vkInit::pipelineLayoutCreateInfo(&state.descriptorSetLayout);
 
 		VkResult err = vkCreatePipelineLayout(state.logicalDevice, &pipelineLayoutInfo, nullptr, &state.pipelineLayout);
-		vkUtils::check_vk_result(err, "failed to create pipeline layout!");
+		VK_CHECK(err, "failed to create pipeline layout!");
 
 		VOXEL_CORE_TRACE("Vulkan pipeline layout created.");
 
@@ -196,68 +200,58 @@ namespace vulkan
 		pipelineInfo.subpass = 0;
 
 		// SOLID
-		std::array<VkPipelineShaderStageCreateInfo, 3> shaderStages;
+		VkPipeline solidPipeline;
 		{
-			vkUtils::VulkanShader vertexShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/InstancedSolidVert.spv"), VK_SHADER_STAGE_VERTEX_BIT);
-			vkUtils::VulkanShader fragShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/SolidFragShader.spv"), VK_SHADER_STAGE_FRAGMENT_BIT);
-			shaderStages[0] = vertexShader.getStage();
-			shaderStages[1] = fragShader.getStage();
-			pipelineInfo.pStages = shaderStages.data();		
+			vkUtils::VulkanShader shader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/InstancedSolidVert.spv"), ASSET_PATH("shaders/SolidFragShader.spv"));
+			pipelineInfo.pStages = shader.getStages().data();
 			pipelineInfo.stageCount = 2;
 
-			err = vkCreateGraphicsPipelines(state.logicalDevice, state.pipelineCache, 1, &pipelineInfo, nullptr, &state.pipelines.solid);
-			vkUtils::check_vk_result(err, "failed to create graphics pipeline!");
-
-			VOXEL_CORE_TRACE("Vulkan solid graphics pipeline created.");
+			err = vkCreateGraphicsPipelines(state.logicalDevice, state.pipelineCache, 1, &pipelineInfo, nullptr, &solidPipeline);
+			VK_CHECK(err, "failed to create graphics pipeline!");
+			createMaterial(solidPipeline, state.pipelineLayout, "solid");
 		}
 
 		// NORMALS
 		{
-			vkUtils::VulkanShader vertexShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/InstancedBaseVert.spv"), VK_SHADER_STAGE_VERTEX_BIT);
-			vkUtils::VulkanShader fragShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/BaseFragShader.spv"), VK_SHADER_STAGE_FRAGMENT_BIT);
-			vkUtils::VulkanShader geomShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/editor/NormalGeomShader.spv"), VK_SHADER_STAGE_GEOMETRY_BIT);
-			shaderStages[0] = vertexShader.getStage();
-			shaderStages[1] = fragShader.getStage();
-			shaderStages[2] = geomShader.getStage();
+			vkUtils::VulkanShader shader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/InstancedBaseVert.spv"), ASSET_PATH("shaders/BaseFragShader.spv"), ASSET_PATH("shaders/editor/NormalGeomShader.spv"));
+			pipelineInfo.pStages = shader.getStages().data();
 
 			pipelineInfo.flags = VK_PIPELINE_CREATE_DERIVATIVE_BIT;
 			pipelineInfo.stageCount = 3;
 			rasterizer.polygonMode = VK_POLYGON_MODE_LINE;
 			inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
-			pipelineInfo.basePipelineHandle = state.pipelines.solid;
-			err = vkCreateGraphicsPipelines(state.logicalDevice, state.pipelineCache, 1, &pipelineInfo, nullptr, &state.pipelines.normals);
-			vkUtils::check_vk_result(err, "failed to create graphics pipeline!");
+			pipelineInfo.basePipelineHandle = solidPipeline;
 
-			VOXEL_CORE_TRACE("Vulkan normals graphics pipeline created.");
+			VkPipeline normals;
+			err = vkCreateGraphicsPipelines(state.logicalDevice, state.pipelineCache, 1, &pipelineInfo, nullptr, &normals);
+			VK_CHECK(err, "failed to create graphics pipeline!");
+			createMaterial(normals, state.pipelineLayout, "normals");
 		}
 
 		// WIREFRAME
+		VkPipeline wireframe;
 		{
-			vkUtils::VulkanShader vertexShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/InstancedSolidVert.spv"), VK_SHADER_STAGE_VERTEX_BIT);
-			vkUtils::VulkanShader fragShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/editor/WireframeFragShader.spv"), VK_SHADER_STAGE_FRAGMENT_BIT);
-			shaderStages[0] = vertexShader.getStage();
-			shaderStages[1] = fragShader.getStage();
+			vkUtils::VulkanShader shader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/InstancedSolidVert.spv"), ASSET_PATH("shaders/editor/WireframeFragShader.spv"));
+			pipelineInfo.pStages = shader.getStages().data();
 
 			pipelineInfo.stageCount = 2;
 			pipelineInfo.flags = VK_PIPELINE_CREATE_DERIVATIVE_BIT;
-			pipelineInfo.basePipelineHandle = state.pipelines.solid;
+			pipelineInfo.basePipelineHandle = solidPipeline;
 			rasterizer.polygonMode = VK_POLYGON_MODE_LINE;
 			inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-			err = vkCreateGraphicsPipelines(state.logicalDevice, state.pipelineCache, 1, &pipelineInfo, nullptr, &state.pipelines.wireframe);
-			vkUtils::check_vk_result(err, "failed to create graphics pipeline!");
-
-			VOXEL_CORE_TRACE("Vulkan wireframe graphics pipeline created.");
+			
+			err = vkCreateGraphicsPipelines(state.logicalDevice, state.pipelineCache, 1, &pipelineInfo, nullptr, &wireframe);
+			VK_CHECK(err, "failed to create graphics pipeline!");
+			createMaterial(wireframe, state.pipelineLayout, "wireframe");
 		}
 
 		// EDITOR GRID
-		vkUtils::VulkanShader vertexShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/editor/EditorGridVert.spv"), VK_SHADER_STAGE_VERTEX_BIT);
-		vkUtils::VulkanShader fragShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/editor/EditorGridFrag.spv"), VK_SHADER_STAGE_FRAGMENT_BIT);
-		shaderStages[0] = vertexShader.getStage();
-		shaderStages[1] = fragShader.getStage();
+		vkUtils::VulkanShader shader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/editor/EditorGridVert.spv"), ASSET_PATH("shaders/editor/EditorGridFrag.spv"));
+		pipelineInfo.pStages = shader.getStages().data();
 
 		pipelineInfo.stageCount = 2;
 		pipelineInfo.flags = VK_PIPELINE_CREATE_DERIVATIVE_BIT;
-		pipelineInfo.basePipelineHandle = state.pipelines.wireframe;
+		pipelineInfo.basePipelineHandle = wireframe;
 		rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
 		rasterizer.cullMode = VK_CULL_MODE_FRONT_BIT;
 		inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
@@ -269,10 +263,10 @@ namespace vulkan
 		colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
 		colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
 
-		err = vkCreateGraphicsPipelines(state.logicalDevice, state.pipelineCache, 1, &pipelineInfo, nullptr, &state.pipelines.editorGrid);
-		vkUtils::check_vk_result(err, "failed to create graphics pipeline!");
-
-		VOXEL_CORE_TRACE("Vulkan editor grid graphics pipeline created.");
+		VkPipeline editorGrid;
+		err = vkCreateGraphicsPipelines(state.logicalDevice, state.pipelineCache, 1, &pipelineInfo, nullptr, &editorGrid);
+		VK_CHECK(err, "failed to create graphics pipeline!");
+		createMaterial(editorGrid, state.pipelineLayout, "editorGrid");
 	}
 	void makeFrameResources()
 	{
@@ -314,8 +308,6 @@ namespace vulkan
 		state.descriptorPool = vkInit::createDescriptorPool(state.logicalDevice);
 
 		makeFrameResources();
-
-		prepareInstanceData(objectsToRender);
 	}
 	
 	void recreateSwapChain()
@@ -342,60 +334,33 @@ namespace vulkan
 	}	
 	void recordCommandBuffer(const VkCommandBuffer& commandBuffer, const uint32& imageIndex)
 	{
-		vkUtils::SwapChainFrame& frame = state.swapChainBundle.frames[imageIndex];
-		VkExtent2D swapChainExtent = state.swapChainBundle.extent;
-
-		std::vector<VkClearValue> clearValues(2);
-		clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
-		clearValues[1].depthStencil = { 1.0f, 0 };
-
-		vkUtils::memory::beginCommand(commandBuffer);
-		VkRenderPassBeginInfo renderPassInfo = vkInit::renderPassBeginInfo(
-			state.renderPass,
-			frame.framebuffer,
-			swapChainExtent,
-			clearValues);
-		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-		VkViewport viewport = vkInit::viewport(state.viewportSize, 0.0f, 1.0f);
-		viewport.x = static_cast<float>(state.viewportPos.x);
-		viewport.y = static_cast<float>(state.viewportPos.y);
-		vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
-
-		VkRect2D scissor = vkInit::rect2D(swapChainExtent, { 0, 0 });
-		scissor.offset.x = state.viewportPos.x;
-		scissor.offset.y = state.viewportPos.y;
-		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
-
 		// =================== RENDER WHOLE STUFF HERE ! ===================		
-		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelineLayout, 0, 1, &frame.descriptorSet, 0, nullptr);
-
 		prepareScene(commandBuffer);
 
 		switch (renderSettings.renderMode)
 		{
-		case 0:
-			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.solid);
+		case renderer::Solid:
+			materials["solid"].bind(commandBuffer);
 			break;
-		case 1:
-			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.wireframe);
+		case renderer::Wireframe:
+			materials["wireframe"].bind(commandBuffer);
 			break;
 		}
 
 		uint32 startInstance = 0;
-		uint32 instancesCount = static_cast<uint32>(objectsToRender.size());
-		renderSceneObjects(commandBuffer, mesh::MeshType::Cube, startInstance, instancesCount);
+		uint32 instancesCount = static_cast<uint32>(instanceData.size());
+		renderSceneObjects(commandBuffer, mesh::MeshTopology::Cube, startInstance, instancesCount);
 
 		if (renderSettings.showNormals)
 		{
-			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.normals);
+			materials["normals"].bind(commandBuffer);
 			startInstance = 0;
-			renderSceneObjects(commandBuffer, mesh::MeshType::Cube, startInstance, instancesCount);
+			renderSceneObjects(commandBuffer, mesh::MeshTopology::Cube, startInstance, instancesCount);
 		}
 
 		startInstance = 0;
-		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelines.editorGrid);
-		renderSceneObjects(commandBuffer, mesh::MeshType::Square, startInstance, 1);
+		materials["editorGrid"].bind(commandBuffer);
+		renderSceneObjects(commandBuffer, mesh::MeshTopology::Quad, startInstance, 1);
 
 		drawUI(commandBuffer);
 
@@ -416,7 +381,7 @@ namespace vulkan
 			waitStages);	
 
 		VkResult err = vkQueueSubmit(queue, 1, &submitInfo, frame.inFlightFence);
-		vkUtils::check_vk_result(err, "failed to submit draw command buffer!");
+		VK_CHECK(err, "failed to submit draw command buffer!");
 	
 		vkUtils::getQueryResults(state.logicalDevice, state.queryPool);
 	}
@@ -448,21 +413,69 @@ namespace vulkan
 			state.framebufferResized = false;
 			recreateSwapChain();
 		}
-		else vkUtils::check_vk_result(err, "failed to present swap chain image!");
+		else VK_CHECK(err, "failed to present swap chain image!");
 	}
-	void prepareFrame(const uint32& imageIndex)
+	void prepareFrame()
 	{
-		vkUtils::SwapChainFrame& frame = state.swapChainBundle.frames[imageIndex];
+		vkUtils::SwapChainFrame& frame = state.swapChainBundle.frames[CURRENT_FRAME];
+
 		frame.writeDescriptorSet();
+
+		VkCommandBuffer commandBuffer = frame.commandBuffer;
+		VkExtent2D swapChainExtent = state.swapChainBundle.extent;
+
+		std::vector<VkClearValue> clearValues(2);
+		clearValues[0].color = state.clearColor;
+		clearValues[1].depthStencil = { 1.0f, 0 };
+
+		vkUtils::memory::beginCommand(commandBuffer);
+		VkRenderPassBeginInfo renderPassInfo = vkInit::renderPassBeginInfo(
+			state.renderPass,
+			frame.framebuffer,
+			swapChainExtent,
+			clearValues);
+		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+		VkViewport viewport = vkInit::viewport(state.viewportSize, 0.0f, 1.0f);
+		viewport.x = static_cast<float>(state.viewportPos.x);
+		viewport.y = static_cast<float>(state.viewportPos.y);
+		vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+
+		VkRect2D scissor = vkInit::rect2D(swapChainExtent, { 0, 0 });
+		scissor.offset.x = state.viewportPos.x;
+		scissor.offset.y = state.viewportPos.y;
+		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+
+		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, state.pipelineLayout, 0, 1, &frame.descriptorSet, 0, nullptr);
+
 	}
 	void prepareScene(const VkCommandBuffer& commandBuffer)
 	{
-		VkBuffer vertexBuffer = *state.vertexManager->vertexBuffer;
-		VkBuffer instanceBuffer = instances.buffer;
-		VkDeviceSize offsets[] = { 0 };
-		vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, &vertexBuffer, offsets);
-		vkCmdBindVertexBuffers(commandBuffer, INSTANCE_BUFFER_BIND_ID, 1, &instanceBuffer, offsets);
-		vkCmdBindIndexBuffer(commandBuffer, *state.vertexManager->indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+		state.vertexManager->vertexBuffer->bind(VERTEX_BUFFER_BIND_ID);
+		state.vertexManager->indexBuffer->bind();
+
+		VkBuffer instanceBuffer = instancedBuffer.buffer;
+		if (instanceBuffer)
+		{
+			VkDeviceSize offsets[] = { 0 };
+			vkCmdBindVertexBuffers(commandBuffer, INSTANCE_BUFFER_BIND_ID, 1, &instanceBuffer, offsets);
+		}
+	}
+	void prepareInstanceData()
+	{
+		if (instanceData.size() == 0)
+			return;
+
+		VkDeviceSize instancedBufferSize = sizeof(renderer::InstanceData) * instanceData.size();
+		instancedBuffer = vkUtils::memory::createBuffer(
+			state.physicalDevice,
+			state.logicalDevice,
+			instancedBufferSize,
+			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+
+		instancedBuffer.map();
+		instancedBuffer.setData(instanceData.data(), instancedBufferSize);
+		instancedBuffer.unmap();
 	}
 	void beginFrame(const renderer::UniformBufferObject& ubo)
 	{
@@ -487,14 +500,14 @@ namespace vulkan
 		vkUtils::memory::resetCommandBuffer(frame.commandBuffer);
 
 		frame.uniformBuffers.view.setData(&ubo, sizeof(ubo));
+
+		prepareFrame();
 	}
 	void endFrame()
 	{
 		vkUtils::SwapChainFrame& frame = state.swapChainBundle.frames[CURRENT_FRAME];
 
 		// Stage 2. GRAPHICS
-		prepareFrame(CURRENT_FRAME);
-
 		recordCommandBuffer(frame.commandBuffer, CURRENT_FRAME);
 
 		VkSemaphore signalSemaphores[] = { frame.renderFinishedSemaphore};
@@ -545,7 +558,10 @@ namespace vulkan
 	{
 		state.framebufferResized = true;
 	}
-
+	void setClearColor(const glm::vec4 color)
+	{
+		state.clearColor = { {color[0], color[1], color[2], color[3] }};
+	}
 	void setWindow(const Window& window)
 	{
 		state.window = &window;
@@ -554,12 +570,19 @@ namespace vulkan
 	{
 		state.viewportPos = VkOffset2D(x, y);
 
-		if (width >= 0 && height >= 0)
+		if (width > 0 && height > 0)
 			state.viewportSize = VkExtent2D(width, height);
 	}
 	void submitRenderables(std::vector<glm::vec3> objects)
 	{
-		objectsToRender.swap(objects);
+		instanceData.reserve(objects.size());
+		for (auto& obj : objects)
+		{
+			instanceData.push_back(renderer::InstanceData
+			{
+				.pos = obj
+			});
+		}
 	}
 	void init()
 	{
@@ -577,9 +600,11 @@ namespace vulkan
 
 		initImGui();
 
-		VOXEL_CORE_TRACE("Vulkan setup ended.")	
+		VOXEL_CORE_TRACE("Vulkan setup ended.");
 
 		makeAssets();
+
+		prepareInstanceData();
 	}
 	void initImGui()
 	{
@@ -589,12 +614,11 @@ namespace vulkan
 		state.UIOverlay.queue = state.queues.graphicsQueue;
 		state.UIOverlay.rasterizationSamples = state.msaaSamples;
 
-		vkUtils::VulkanShader vertShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/editor/UIOverlayVert.spv"), VK_SHADER_STAGE_VERTEX_BIT);
-		vkUtils::VulkanShader fragShader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/editor/UIOverlayFrag.spv"), VK_SHADER_STAGE_FRAGMENT_BIT);
+		vkUtils::VulkanShader shader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/editor/UIOverlayVert.spv"), ASSET_PATH("shaders/editor/UIOverlayFrag.spv"));
 		state.UIOverlay.shaders =
 		{
-			vertShader.getStage(),
-			fragShader.getStage()
+			shader.getStages()[0],
+			shader.getStages()[1]
 		};
 		state.UIOverlay.prepareResources();
 		state.UIOverlay.preparePipeline(
@@ -615,12 +639,20 @@ namespace vulkan
 		delete threadPool;
 
 		cleanupSwapChain();
-		instances.release();
+		instancedBuffer.release();
+
+		for (auto& mesh : meshes)
+			mesh.second.release();
+		meshes.clear();
+
+		for (auto& material : materials)
+			vkDestroyPipeline(state.logicalDevice, material.second.pipeline, nullptr);
+		materials.clear();
 
 		delete state.vertexManager;
 		
-		state.pipelines.release(state.logicalDevice);
 		vkDestroyPipelineLayout(state.logicalDevice, state.pipelineLayout, nullptr);
+		vkDestroyPipelineCache(state.logicalDevice, state.pipelineCache, nullptr);
 		vkDestroyRenderPass(state.logicalDevice, state.renderPass, nullptr);
 		vkDestroyDescriptorPool(state.logicalDevice, state.descriptorPool, nullptr);
 		vkDestroyDescriptorSetLayout(state.logicalDevice, state.descriptorSetLayout, nullptr);
@@ -640,6 +672,17 @@ namespace vulkan
 		vkDestroyInstance(state.instance, nullptr);
 	}
 
+	mesh::Material* createMaterial(const VkPipeline& matPipeline, const VkPipelineLayout& matLayout, const string& matName)
+	{
+		vkUtils::VulkanMaterial mat;
+		mat.pipeline = matPipeline;
+		mat.pipelineLayout = matLayout;
+		materials[matName] = mat;
+
+		VOXEL_CORE_TRACE("Building new material '{0}'...", matName);
+
+		return &materials[matName];
+	}
 	renderer::RenderSettings& getRenderSettings()
 	{
 		return renderSettings;
@@ -653,54 +696,42 @@ namespace vulkan
 		renderFrameStats.drawCalls = 0;
 	}
 	
-	void prepareInstanceData(const std::vector<glm::vec3>& vertices)
-	{
-		std::vector<vkUtils::InstanceData> instanceData;
-		instanceData.reserve(vertices.size());
-		for (const auto& vertex : vertices)
-		{
-			instanceData.push_back(vkUtils::InstanceData
-			{
-				.pos = vertex
-			});
-		}
-
-		VkDeviceSize instanceBufferSize = sizeof(vkUtils::InstanceData) * instanceData.size();
-		instances = vkUtils::memory::createBuffer(
-			state.physicalDevice,
-			state.logicalDevice,
-			instanceBufferSize,
-			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
-
-		instances.map();
-		instances.setData(instanceData.data(), instanceBufferSize);
-		instances.unmap();
-	}
 	void makeAssets()
 	{
 		state.vertexManager = new VoxelEngine::renderer::VertexManager;
 
-		const auto& mesh = mesh::VoxelMesh();
-		state.vertexManager->concatMesh(mesh::MeshType::Cube, mesh.vertices, mesh.indices);
+		for (auto& [topology, mesh] : meshes)
+		{
+			uint32 verticesSize = sizeof(Vertex) * mesh.vertexCount;
+			uint32 indicesSize = sizeof(uint32) * mesh.indexCount;
 
-		const auto& quad = mesh::SquareMesh();
-		state.vertexManager->concatMesh(mesh::MeshType::Square, quad.vertices, quad.indices);
+			mesh.vertexBuffer = renderer::VertexBuffer::Allocate(mesh.vertices, verticesSize);	
+			mesh.indexBuffer = renderer::IndexBuffer::Allocate(mesh.indices, indicesSize);
+		
+			state.vertexManager->concatMesh(topology, mesh);
+		}
 
 		state.vertexManager->finalize(state.physicalDevice, state.logicalDevice);
 
 		renderFrameStats.pipelineStatNames = vkUtils::pipelineStatNames.data();
 		renderFrameStats.pipelineStats = vkUtils::pipelineStats.data();
-
-		uint32 instancesCount = static_cast<uint32>(objectsToRender.size());
-
-		renderFrameStats.indices = instancesCount * static_cast<uint32>(mesh.indices.size());
-		renderFrameStats.vertices = instancesCount * static_cast<uint32>(mesh.vertices.size());
-		renderFrameStats.triangles = instancesCount * 12;
-		renderFrameStats.instances = instancesCount;
+	
+		VOXEL_CORE_WARN("{0} materials are successfully built.", materials.size());
+		VOXEL_CORE_WARN("{0} meshes are successfully prepared.", meshes.size());
+	}
+	void prepareAsset(mesh::Mesh mesh)
+	{
+		auto pair = std::pair<mesh::MeshTopology, mesh::Mesh>(mesh::MeshTopology::Polygone, mesh);
+		meshes.emplace(pair);
+	}
+	void prepareAsset(const mesh::MeshTopology& topology, mesh::Mesh mesh)
+	{
+		auto pair = std::pair<mesh::MeshTopology, mesh::Mesh>(topology, mesh);
+		meshes.emplace(pair);
 	}
 	void renderSceneObjects(
 		const VkCommandBuffer& commandBuffer,
-		const components::mesh::MeshType& objectType,
+		const mesh::MeshTopology& objectType,
 		uint32& startInstance,
 		const uint32& instanceCount)
 	{

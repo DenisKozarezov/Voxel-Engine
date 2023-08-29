@@ -28,7 +28,7 @@ namespace vkUtils::memory
 		allocInfo.memoryTypeIndex = findMemoryType(physicalDevice, requirements.memoryTypeBits, properties);
 
 		VkResult err = vkAllocateMemory(logicalDevice, &allocInfo, nullptr, &memory);
-		vkUtils::check_vk_result(err, "failed to allocate memory!");
+		VK_CHECK(err, "failed to allocate memory!");
 
 		return memory;
 	}
@@ -52,7 +52,7 @@ namespace vkUtils::memory
 
 		VkBuffer buffer;
 		VkResult err = vkCreateBuffer(logicalDevice, &bufferInfo, nullptr, &buffer);
-		vkUtils::check_vk_result(err, "failed to create buffer!");
+		VK_CHECK(err, "failed to create buffer!");
 
 		VkMemoryRequirements memRequirements;
 		vkGetBufferMemoryRequirements(logicalDevice, buffer, &memRequirements);
@@ -120,11 +120,19 @@ namespace vkUtils::memory
 	void Buffer::release()
 	{
 		if (buffer)
+		{
 			vkDestroyBuffer(logicalDevice, buffer, nullptr);
+			buffer = VK_NULL_HANDLE;
+		}
 
 		if (bufferMemory)
+		{
 			vkFreeMemory(logicalDevice, bufferMemory, nullptr);
+			bufferMemory = VK_NULL_HANDLE;
+		}
 
+		descriptor.offset = 0;
+		descriptor.range = 0;
 		size = 0;
 	}
 	VkResult Buffer::map()

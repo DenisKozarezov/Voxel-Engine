@@ -7,7 +7,7 @@ namespace vkUtils::memory
 	struct Buffer
 	{
 	public:
-		VkDevice logicalDevice;
+		VkDevice logicalDevice = VK_NULL_HANDLE;
 		VkDeviceSize size = 0;
 		VkBuffer buffer = VK_NULL_HANDLE;
 		VkDeviceMemory bufferMemory = VK_NULL_HANDLE;

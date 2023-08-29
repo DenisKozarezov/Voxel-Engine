@@ -1,12 +1,14 @@
 #pragma once
-#include <vector>
-#include <glm/vec3.hpp>
+#include <entt/entt.hpp>
+#include <core/renderer/Renderer.h>
 #include "../Timestep.h"
 
 namespace VoxelEngine
 {
 	class Scene
 	{
+	private:
+		entt::registry m_registry;
 	public:
 		std::vector<glm::vec3> vertices;
 
@@ -17,6 +19,7 @@ namespace VoxelEngine
 		Scene& operator=(Scene const& rhs) noexcept = delete;
 		Scene& operator=(Scene&& rhs) noexcept = delete;
 
-		void update(const Timestep& ts);
+		void update(const Timestep& ts, components::camera::Camera& camera);
+		void renderScene();
 	};
 }

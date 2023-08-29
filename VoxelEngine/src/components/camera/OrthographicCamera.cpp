@@ -15,7 +15,6 @@ namespace VoxelEngine::components::camera
 	inline void OrthographicCamera::setAspectRatio(const float& aspectRatio)
 	{
 		m_aspectRatio = aspectRatio;
-		setBounds(aspectRatio, -aspectRatio, 1.0f, -1.0f);
 	}
 
 	void OrthographicCamera::processKeyboard(const CameraMovement& direction, const float& deltaTime)
@@ -31,16 +30,20 @@ namespace VoxelEngine::components::camera
 		switch (direction)
 		{
 		case CameraMovement::Forward:
-			cameraDir = m_front;
+			cameraDir.x = -sin(glm::radians(defaultPitch));
+			cameraDir.y = cos(glm::radians(defaultPitch));
 			break;
 		case CameraMovement::Backward:
-			cameraDir = -m_front;
+			cameraDir.x = sin(glm::radians(defaultPitch));
+			cameraDir.y = -cos(glm::radians(defaultPitch));
 			break;
 		case CameraMovement::Left:
-			cameraDir = -glm::normalize(glm::cross(m_front, m_up));
+			cameraDir.x = -cos(glm::radians(defaultPitch));
+			cameraDir.y = -sin(glm::radians(defaultPitch));
 			break;
 		case CameraMovement::Right:
-			cameraDir = glm::normalize(glm::cross(m_front, m_up));
+			cameraDir.x = cos(glm::radians(defaultPitch));
+			cameraDir.y = sin(glm::radians(defaultPitch));
 			break;
 		}
 

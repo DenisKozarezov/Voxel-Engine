@@ -2,26 +2,26 @@
 #include <pch.h>
 #include <core/PrimitiveTypes.h>
 
+enum ShaderStage : byte { Vertex, Fragment, Geometry, Compute };
+
 namespace VoxelEngine::renderer
 {
 	class Shader
 	{
 	private:
 		string m_name;
-		string m_filepath;
 	public:
-		Shader() = delete;
-		Shader(const string& filepath);
+		Shader() noexcept = default;
 		Shader(Shader const&) noexcept = delete;
 		Shader(Shader&&) noexcept = delete;
 		Shader& operator=(Shader const& rhs) noexcept = delete;
 		Shader& operator=(Shader&& rhs) noexcept = delete;
 
-		inline const string& getName() const noexcept { return m_name; }
+		inline constexpr string getName() noexcept { return m_name; }
 		virtual void unbind() const = 0;
 
 		virtual ~Shader() = default;
 	protected:
-		std::vector<char> readFile(const string& filename);
+		string readFile(const string& filename);
 	};
 }

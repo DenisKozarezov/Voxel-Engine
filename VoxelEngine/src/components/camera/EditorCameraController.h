@@ -32,6 +32,7 @@ namespace VoxelEngine::components::camera
 
 		void switchMode(const ProjectionType& mode);
 		inline void setAspectRatio(const float& aspectRatio) { m_currentCamera->setAspectRatio(aspectRatio); }
+		inline void setClips(const float& nearClip, const float& farClip) { m_currentCamera->setClips(nearClip, farClip); }
 		void setMouseDragging(const bool& isDragging);
 
 		void update(const Timestep& ts);

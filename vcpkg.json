@@ -15,6 +15,7 @@
       ]
     },
     "spdlog",
-    "tinyobjloader"
+    "tinyobjloader",
+    "entt"
   ]
 }

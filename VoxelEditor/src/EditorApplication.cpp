@@ -21,7 +21,7 @@ VoxelEngine::UniqueRef<VoxelEngine::Application> CreateApplication(ApplicationCo
 	ApplicationSpecification spec;
 	spec.ApplicationName = PROJECT_NAME;
 	spec.Version = string("v") + PROJECT_VERSION;
-	spec.WorkingDirectory = g_currentPath;
+	spec.WorkingDirectory = g_environmentPathCache;
 	spec.Maximized = true;
 	spec.CommandLineArgs = args;
 

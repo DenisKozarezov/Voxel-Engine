@@ -12,7 +12,20 @@ namespace VoxelEngine::renderer
         glm::vec3 normal;
         glm::vec3 color;
 
-        const bool operator==(const Vertex& other) const 
+        constexpr Vertex() noexcept 
+            : Vertex(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f))
+        { }
+        constexpr explicit Vertex(glm::vec3 position) noexcept 
+            : Vertex(position, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f))
+        { }
+        constexpr explicit Vertex(glm::vec3 position, glm::vec3 normal) noexcept
+            : Vertex(position, normal, glm::vec3(0.0f, 0.0f, 0.0f))
+        { }
+        constexpr explicit Vertex(glm::vec3 position, glm::vec3 normal, glm::vec3 color) noexcept
+            : pos(position), normal(normal), color(color)
+        { }
+
+        constexpr bool operator==(const Vertex& other) const noexcept
         {
             return pos == other.pos && color == other.color && normal == other.normal;
         }

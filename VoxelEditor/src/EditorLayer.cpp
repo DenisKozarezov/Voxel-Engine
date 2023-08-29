@@ -16,10 +16,16 @@ namespace VoxelEditor
 		{
 			if (ImGui::BeginMenu("File"))
 			{
-				ImGui::MenuItem("Open", "Ctrl+O");
+				if (ImGui::MenuItem("Open", "Ctrl+O"))
+				{ 
+					utils::FileDialog::openFile(".obj");
+				}
 
 				ImGui::Separator();
-				ImGui::MenuItem("Save", "Ctrl+S");
+				if (ImGui::MenuItem("Save", "Ctrl+S"))
+				{
+					utils::FileDialog::saveFile("obj");
+				}
 				ImGui::MenuItem("Save As...");
 				ImGui::Separator();
 				ImGui::MenuItem("Import");
@@ -123,7 +129,7 @@ namespace VoxelEditor
 		m_dispatcher.registerEvent<input::MouseButtonPressedEvent>(BIND_MEMBER_CALLBACK(&m_sceneView, SceneView::onMousePressed));
 		m_dispatcher.registerEvent<input::MouseButtonReleasedEvent>(BIND_MEMBER_CALLBACK(&m_sceneView, SceneView::onMouseReleased));
 
-		renderer::Renderer::submitRenderables(m_scene.vertices);
+		m_scene = MakeShared<Scene>();
 
 		EditorConsole::info("Welcome to {0} {1}!", PROJECT_NAME, PROJECT_VERSION);
 	}				  
@@ -136,6 +142,7 @@ namespace VoxelEditor
 		m_deltaTime = ts;
 
 		m_sceneView.update(ts);
+		m_scene->update(ts, *m_sceneView.m_camera.get());
 	}
 	void EditorLayer::onFixedUpdate(const VoxelEngine::Timestep& ts)
 	{

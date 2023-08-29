@@ -1,4 +1,5 @@
 #include "Scene.h"
+#include <components/Components.h>
 
 namespace VoxelEngine
 {
@@ -14,5 +15,21 @@ namespace VoxelEngine
 				}
 			}
 		}
+		renderer::Renderer::submitRenderables(vertices);
+	}
+
+	void Scene::update(const Timestep& ts, components::camera::Camera& camera)
+	{
+		renderer::Renderer::resetStats();
+
+		renderer::Renderer::preRender(camera);
+
+		renderScene();
+
+		renderer::Renderer::postRender();
+	}
+	void Scene::renderScene()
+	{
+		renderer::Renderer::updateUIOverlay();
 	}
 }

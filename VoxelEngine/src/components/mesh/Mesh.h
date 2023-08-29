@@ -1,91 +1,132 @@
 #pragma once
-#include <vector>
-#include <core/PrimitiveTypes.h>
+#include <array>
 #include <core/renderer/Vertex.h>
+#include <core/renderer/Buffer.h>
 
 namespace VoxelEngine::components::mesh
 {
-	enum MeshType
+	using Vertex = renderer::Vertex;
+
+	enum MeshTopology
 	{
 		Triangle = 0,
-		Square = 1,
-		Polygone = 2,
-		Cube = 3
+		Quad = 1,
+		Line = 2,
+		LineStrip = 3,
+		Points = 4,
+		Polygone = 5,
+		Cube = 6
+	};
+
+	struct Material
+	{
+	public:
+		Material() noexcept = default;
+		virtual ~Material() = default;
 	};
 
 	struct Mesh
 	{
-		std::vector<renderer::Vertex> vertices;
-		std::vector<renderer::Vertex> normals;
-		std::vector<uint32> indices;
+		const Vertex* vertices = nullptr;
+		uint32 vertexCount;
+		const Vertex* normals = nullptr;
+		uint32 normalsCount;
+		const uint32* indices = nullptr;
+		uint32 indexCount;
+		SharedRef<renderer::VertexBuffer> vertexBuffer;
+		SharedRef<renderer::IndexBuffer> indexBuffer;
 
 		Mesh() noexcept = default;
+		Mesh(const Vertex* vertices, uint32 vertexCount, const uint32* indices, uint32 indexCount)
+			: vertexCount(std::move(vertexCount)), indexCount(std::move(indexCount))
+		{
+			this->vertices = vertices;
+			this->indices = indices;
+		}
 		~Mesh() noexcept = default;
-	};
 
-	struct TriangleMesh
-	{
-		const std::vector<renderer::Vertex> vertices =
+		void release()
 		{
-			{{0.0f, -0.5f, 0.0f},	{1.0f, 1.0f, 1.0f}},
-			{{0.5f, 0.5f, 0.0f},	{0.0f, 1.0f, 0.0f}},
-			{{-0.5f, 0.5f, 0.0f},	{0.0f, 0.0f, 1.0f}}
-		};
-		const std::vector<uint32> indices = { 0, 1, 2 };
+			vertexBuffer->release();
+			indexBuffer->release();
+		}
 	};
 
-	struct SquareMesh
+	struct TriangleMesh : public Mesh
 	{
-		const std::vector<renderer::Vertex> vertices =
+	private:
+		static constexpr std::array<renderer::Vertex, 3> vertices =
 		{
-			{{-1.0f, -1.0f, 0.0f}},
-			{{1.0f, -1.0f, 0.0f}},
-			{{1.0f, 1.0f, 0.0f}},
-			{{-1.0f, 1.0f, 0.0f}}
+			Vertex({0.0f, -0.5f, 0.0f}),
+			Vertex({0.5f, 0.5f, 0.0f}),
+			Vertex({-0.5f, 0.5f, 0.0f})
 		};
-		const std::vector<uint32> indices = { 0, 1, 2, 2, 3, 0 };
+		static constexpr std::array<uint32, 3> indices = { 0, 1, 2 };
+	public:
+		TriangleMesh() : Mesh(
+			vertices.data(), 
+			static_cast<uint32>(vertices.size()), 
+			indices.data(), 
+			static_cast<uint32>(indices.size())) { }
 	};
 
-	struct VoxelMesh
+	struct QuadMesh : public Mesh
 	{
-		float s;
+		static constexpr std::array<renderer::Vertex, 4> vertices =
+		{
+			Vertex({-1.0f, -1.0f, 0.0f}),
+			Vertex({1.0f, -1.0f, 0.0f}),
+			Vertex({1.0f, 1.0f, 0.0f}),
+			Vertex({-1.0f, 1.0f, 0.0f})
+		};
+		static constexpr std::array<uint32, 6> indices = { 0, 1, 2, 2, 3, 0 };
+
+		QuadMesh() : Mesh(
+			vertices.data(), 
+			static_cast<uint32>(vertices.size()),
+			indices.data(), 
+			static_cast<uint32>(indices.size())) { }
+	};
+
+	struct VoxelMesh : public Mesh
+	{
+	private:
+		static constexpr float s = 0.1f;
 		
-		constexpr VoxelMesh(float size = 0.1f) : s(size) { }
-
-		const std::vector<renderer::Vertex> vertices =
+		static constexpr std::array<renderer::Vertex, 24> vertices =
 		{
-			{{-s, -s, s},	{0.0f, 0.0f, 1.0f}},
-			{{s, -s, s},	{0.0f, 0.0f, 1.0f}},
-			{{-s, s, s},	{0.0f, 0.0f, 1.0f}},
-			{{s, s, s},		{0.0f, 0.0f, 1.0f}},
+			Vertex({-s, -s, s},	{0.0f, 0.0f, 1.0f}),
+			Vertex({s, -s, s},	{0.0f, 0.0f, 1.0f}),
+			Vertex({-s, s, s},	{0.0f, 0.0f, 1.0f}),
+			Vertex({s, s, s},	{0.0f, 0.0f, 1.0f}),
 
-			{{s, -s, -s},	{0.0f, 0.0f, -1.0f}},
-			{{-s, -s, -s},	{0.0f, 0.0f, -1.0f}},
-			{{s, s, -s},	{0.0f, 0.0f, -1.0f}},
-			{{-s, s, -s},	{0.0f, 0.0f, -1.0f}},
+			Vertex({s, -s, -s},	{0.0f, 0.0f, -1.0f}),
+			Vertex({-s, -s, -s},{0.0f, 0.0f, -1.0f}),
+			Vertex({s, s, -s},	{0.0f, 0.0f, -1.0f}),
+			Vertex({-s, s, -s},	{0.0f, 0.0f, -1.0f}),
 
-			{{-s, s, s},	{0.0f, 1.0f, 0.0f}},
-			{{s, s, s},		{0.0f, 1.0f, 0.0f}},
-			{{-s, s, -s},	{0.0f, 1.0f, 0.0f}},
-			{{s, s, -s},	{0.0f, 1.0f, 0.0f}},
+			Vertex({-s, s, s},	{0.0f, 1.0f, 0.0f}),
+			Vertex({s, s, s},	{0.0f, 1.0f, 0.0f}),
+			Vertex({-s, s, -s},	{0.0f, 1.0f, 0.0f}),
+			Vertex({s, s, -s},	{0.0f, 1.0f, 0.0f}),
 
-			{{-s, -s, -s},	{0.0f, -1.0f, 0.0f}},
-			{{s, -s, -s},	{0.0f, -1.0f, 0.0f}},
-			{{-s, -s, s},	{0.0f, -1.0f, 0.0f}},
-			{{s, -s, s},	{0.0f, -1.0f, 0.0f}},
+			Vertex({-s, -s, -s},{0.0f, -1.0f, 0.0f}),
+			Vertex({s, -s, -s},	{0.0f, -1.0f, 0.0f}),
+			Vertex({-s, -s, s},	{0.0f, -1.0f, 0.0f}),
+			Vertex({s, -s, s},	{0.0f, -1.0f, 0.0f}),
 
-			{{-s, -s, -s},	{-1.0f, 0.0f, 0.0f}},
-			{{-s, -s, s},	{-1.0f, 0.0f, 0.0f}},
-			{{-s, s, -s},	{-1.0f, 0.0f, 0.0f}},
-			{{-s, s, s},	{-1.0f, 0.0f, 0.0f}},
+			Vertex({-s, -s, -s},{-1.0f, 0.0f, 0.0f}),
+			Vertex({-s, -s, s},	{-1.0f, 0.0f, 0.0f}),
+			Vertex({-s, s, -s},	{-1.0f, 0.0f, 0.0f}),
+			Vertex({-s, s, s},	{-1.0f, 0.0f, 0.0f}),
 
-			{{s, -s, s},	{1.0f, 0.0f, 0.0f}},
-			{{s, -s, -s},	{1.0f, 0.0f, 0.0f}},
-			{{s, s, s},		{1.0f, 0.0f, 0.0f}},
-			{{s, s, -s},	{1.0f, 0.0f, 0.0f}}
+			Vertex({s, -s, s},	{1.0f, 0.0f, 0.0f}),
+			Vertex({s, -s, -s},	{1.0f, 0.0f, 0.0f}),
+			Vertex({s, s, s},	{1.0f, 0.0f, 0.0f}),
+			Vertex({s, s, -s},	{1.0f, 0.0f, 0.0f})
 		};
 
-		const std::vector<uint32> indices =
+		static constexpr std::array<uint32, 36> indices =
 		{
 			0, 1, 2,		2, 1, 3, 
 			4, 5, 6,		6, 5, 7, 
@@ -94,25 +135,32 @@ namespace VoxelEngine::components::mesh
 			16, 17, 18,		18, 17, 19, 
 			20, 21, 22,		22, 21, 23  
 		};
+	public:
+		VoxelMesh() : Mesh(
+			vertices.data(), 
+			static_cast<uint32>(vertices.size()), 
+			indices.data(), 
+			static_cast<uint32>(indices.size())) { }
 	};
 
-	struct OptimizedVoxelMesh
+	struct OptimizedVoxelMesh : public Mesh
 	{
-		float s = 1.0f;
+	private:
+		static constexpr float s = 0.1f;
 
-		std::vector<renderer::Vertex> vertices =
+		static constexpr std::array<renderer::Vertex, 8> vertices =
 		{
-			{{-s,-s, s}},
-			{{ s,-s, s}},
-			{{ s, s, s}},
-			{{-s, s, s}},
-			{{-s,-s,-s}},
-			{{ s,-s,-s}},
-			{{ s, s,-s}},
-			{{-s, s,-s}},
+			Vertex({-s,-s, s}),
+			Vertex({ s,-s, s}),
+			Vertex({ s, s, s}),
+			Vertex({-s, s, s}),
+			Vertex({-s,-s,-s}),
+			Vertex({ s,-s,-s}),
+			Vertex({ s, s,-s}),
+			Vertex({-s, s,-s}),
 		};
 
-		const std::vector<uint32> indices =
+		static constexpr std::array<uint32, 36> indices =
 		{
 			0,1,2, 2,3,0,
 			1,5,6, 6,2,1,
@@ -121,31 +169,11 @@ namespace VoxelEngine::components::mesh
 			4,5,1, 1,0,4,
 			3,2,6, 6,7,3,
 		};
-		
-		constexpr OptimizedVoxelMesh(float size = 0.1f) : s(size)
-		{
-			VoxelMesh notOptimizedMesh = VoxelMesh(size);
-			auto notOptimizedVertices = notOptimizedMesh.vertices;
-
-			for (size_t i = 0; i < notOptimizedVertices.size(); i += 4)
-			{
-				glm::vec3 v0 = notOptimizedVertices[i + 0].pos;
-				glm::vec3 v1 = notOptimizedVertices[i + 1].pos;
-				glm::vec3 v2 = notOptimizedVertices[i + 2].pos;
-
-				const glm::vec3 normal = glm::normalize(glm::cross(v1 - v0, v2 - v0));
-
-				notOptimizedVertices[i + 0].normal = normal;
-				notOptimizedVertices[i + 1].normal = normal;
-				notOptimizedVertices[i + 2].normal = normal;
-				notOptimizedVertices[i + 3].normal = normal;
-			}
-
-			int j = 0;
-			for (size_t i = 0; i < notOptimizedVertices.size(); i += 4, j++)
-			{
-				vertices[j].normal = notOptimizedVertices[i].normal;
-			}
-		}
+	public:
+		OptimizedVoxelMesh() : Mesh(
+			vertices.data(), 
+			static_cast<uint32>(vertices.size()), 
+			indices.data(), 
+			static_cast<uint32>(indices.size())) { }
 	};
 }

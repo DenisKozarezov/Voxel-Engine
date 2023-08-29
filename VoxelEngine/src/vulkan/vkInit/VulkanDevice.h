@@ -1,6 +1,5 @@
 #pragma once
 #include <pch.h>
-#include <core/utils/EnumUtils.h>
 #include "../vkUtils/VulkanQueueFamilies.h"
 
 namespace vkInit
@@ -161,7 +160,7 @@ namespace vkInit
 
 		VkDevice device;
 		VkResult err = vkCreateDevice(physicalDevice, &createInfo, nullptr, &device);
-		vkUtils::check_vk_result(err, "failed to create logical device!");
+		VK_CHECK(err, "failed to create logical device!");
 		return device;
 	}
 

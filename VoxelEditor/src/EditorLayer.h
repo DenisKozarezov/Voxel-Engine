@@ -8,7 +8,7 @@ namespace VoxelEditor
 	{
 	private:
 		input::EventDispatcher m_dispatcher;
-		Scene m_scene;
+		VoxelEngine::SharedRef<Scene> m_scene;
 		SceneView m_sceneView;
 		EditorConsole m_console;
 		float m_deltaTime = 0.0f;

@@ -36,7 +36,7 @@ namespace vkUtils
 
 		VkQueryPool queryPool;
 		VkResult err = vkCreateQueryPool(logicalDevice, &queryPoolInfo, NULL, &queryPool);
-		check_vk_result(err, "failed to create statistics query pool!");
+		VK_CHECK(err, "failed to create statistics query pool!");
 		return queryPool;
 	}
 

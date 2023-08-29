@@ -679,7 +679,7 @@ namespace vulkan
 		mat.pipelineLayout = matLayout;
 		materials[matName] = mat;
 
-		VOXEL_CORE_TRACE("Building a material '{0}'...", matName);
+		VOXEL_CORE_TRACE("Building new material '{0}'...", matName);
 
 		return &materials[matName];
 	}
@@ -715,6 +715,9 @@ namespace vulkan
 
 		renderFrameStats.pipelineStatNames = vkUtils::pipelineStatNames.data();
 		renderFrameStats.pipelineStats = vkUtils::pipelineStats.data();
+	
+		VOXEL_CORE_WARN("{0} materials are successfully built.", materials.size());
+		VOXEL_CORE_WARN("{0} meshes are successfully prepared.", meshes.size());
 	}
 	void prepareAsset(mesh::Mesh mesh)
 	{

@@ -6,6 +6,7 @@
 #include <core/imgui/ImGuiUtils.h>
 #include <core/scene/Scene.h>
 #include <core/utils/EnumUtils.h>
+#include <core/utils/PlatformUtils.h>
 #include <assets_management/AssetsProvider.h>
 
 #include <components/camera/FirstPersonCamera.h>

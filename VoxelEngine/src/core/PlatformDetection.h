@@ -26,6 +26,7 @@
 
 #elif __LINUX__ || _DIRECT2DISPLAY
 	#define VOXEL_PLATFORM_LINUX
+	#error "Linux is not supported!"
 #else
 	#error "Unknown platform!"
 #endif

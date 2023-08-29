@@ -16,10 +16,16 @@ namespace VoxelEditor
 		{
 			if (ImGui::BeginMenu("File"))
 			{
-				ImGui::MenuItem("Open", "Ctrl+O");
+				if (ImGui::MenuItem("Open", "Ctrl+O"))
+				{ 
+					utils::FileDialog::openFile(".obj");
+				}
 
 				ImGui::Separator();
-				ImGui::MenuItem("Save", "Ctrl+S");
+				if (ImGui::MenuItem("Save", "Ctrl+S"))
+				{
+					utils::FileDialog::saveFile("obj");
+				}
 				ImGui::MenuItem("Save As...");
 				ImGui::Separator();
 				ImGui::MenuItem("Import");

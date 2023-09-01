@@ -18,37 +18,54 @@ namespace VoxelEngine::components::mesh
 		Cube = 6
 	};
 
-	struct Material
+	class IMaterial
 	{
 	public:
-		Material() noexcept = default;
-		virtual ~Material() = default;
+		IMaterial() noexcept = default;
+
+		virtual void bind() = 0;
+
+		virtual ~IMaterial() = default;
 	};
 
 	struct Mesh
 	{
-		const Vertex* vertices = nullptr;
+		Vertex* vertices = nullptr;
 		uint32 vertexCount;
-		const Vertex* normals = nullptr;
-		uint32 normalsCount;
-		const uint32* indices = nullptr;
+		uint32* indices = nullptr;
 		uint32 indexCount;
 		SharedRef<renderer::VertexBuffer> vertexBuffer;
 		SharedRef<renderer::IndexBuffer> indexBuffer;
 
 		Mesh() noexcept = default;
+		Mesh(const std::vector<Vertex>& vertices, const std::vector<uint32>& indices)
+			: Mesh(
+				vertices.data(), 
+				static_cast<uint32>(vertices.size()), 
+				indices.data(), 
+				static_cast<uint32>(indices.size())) { }
+		
 		Mesh(const Vertex* vertices, uint32 vertexCount, const uint32* indices, uint32 indexCount)
-			: vertexCount(std::move(vertexCount)), indexCount(std::move(indexCount))
+			: vertexCount(vertexCount), indexCount(indexCount)
 		{
-			this->vertices = vertices;
-			this->indices = indices;
+			this->vertices = new Vertex[vertexCount];
+			memcpy(this->vertices, vertices, sizeof(Vertex) * vertexCount);
+			
+			this->indices = new uint32[indexCount];
+			memcpy(this->indices, indices, sizeof(uint32) * indexCount);
 		}
 		~Mesh() noexcept = default;
 
 		void release()
 		{
-			vertexBuffer->release();
-			indexBuffer->release();
+			delete[] vertices;
+			delete[] indices;
+
+			if (vertexBuffer)
+				vertexBuffer->release();
+
+			if (indexBuffer)
+				indexBuffer->release();
 		}
 	};
 
@@ -57,9 +74,9 @@ namespace VoxelEngine::components::mesh
 	private:
 		static constexpr std::array<renderer::Vertex, 3> vertices =
 		{
-			Vertex({0.0f, -0.5f, 0.0f}),
-			Vertex({0.5f, 0.5f, 0.0f}),
-			Vertex({-0.5f, 0.5f, 0.0f})
+			Vertex({0.0f, -1.0f, 0.0f}),
+			Vertex({1.0f, 1.0f, 0.0f}),
+			Vertex({-1.0f, 1.0f, 0.0f})
 		};
 		static constexpr std::array<uint32, 3> indices = { 0, 1, 2 };
 	public:

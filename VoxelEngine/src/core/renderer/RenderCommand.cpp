@@ -25,23 +25,33 @@ namespace VoxelEngine::renderer
 	}
 	void RenderCommand::drawMesh(const mesh::Mesh& mesh)
 	{
+		VOXEL_CORE_ASSERT(mesh.vertexBuffer, "can't draw mesh! Vertex buffer is empty!");
+
 		mesh.vertexBuffer->bind();
 		s_renderer->drawMesh(mesh);
 	}
 	void RenderCommand::drawMeshIndexed(const mesh::Mesh& mesh, uint32 instanceCount, uint32 startInstance)
 	{
+		VOXEL_CORE_ASSERT(mesh.vertexBuffer, "can't draw mesh! Vertex buffer is empty!");
+		VOXEL_CORE_ASSERT(mesh.indexBuffer, "can't draw mesh! Index buffer is empty!");
+
 		mesh.vertexBuffer->bind();
 		mesh.indexBuffer->bind();
 		s_renderer->drawMeshIndexed(mesh, instanceCount, startInstance);
 	}
 	void RenderCommand::drawMeshIndexed(const mesh::Mesh& mesh, renderer::IndexBuffer& indexBuffer, uint32 indexCount, uint32 instanceCount, uint32 startInstance)
 	{
+		VOXEL_CORE_ASSERT(mesh.vertexBuffer, "can't draw mesh! Vertex buffer is empty!");
+
 		mesh.vertexBuffer->bind();
 		indexBuffer.bind();
 		s_renderer->drawMeshIndexed(indexCount, instanceCount, startInstance);
 	}
 	void RenderCommand::drawMeshInstanced(const mesh::Mesh& mesh, InstanceData instanceData[], uint32 instanceCount, uint32 startInstance)
 	{
+		VOXEL_CORE_ASSERT(mesh.vertexBuffer, "can't draw mesh! Vertex buffer is empty!");
+		VOXEL_CORE_ASSERT(mesh.indexBuffer, "can't draw mesh! Index buffer is empty!");
+
 		mesh.vertexBuffer->bind();
 		mesh.indexBuffer->bind();
 		s_renderer->drawMeshInstanced(mesh, instanceData, instanceCount, startInstance);

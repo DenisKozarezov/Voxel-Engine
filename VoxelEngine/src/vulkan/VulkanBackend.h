@@ -1,7 +1,6 @@
 #pragma once
 #include <vulkan/vkUtils/VulkanAlloc.h>
 #include <core/renderer/Renderer.h>
-#include <components/mesh/Mesh.h>
 
 namespace vulkan
 {
@@ -19,7 +18,7 @@ namespace vulkan
 	void finalizeSetup();
 
 	void recreateSwapChain();
-	void recordCommandBuffer(const VkCommandBuffer& commandBuffer, const uint32& imageIndex);
+	void recordCommandBuffer(const VkCommandBuffer& commandBuffer);
 	void submitToQueue(const VkQueue& queue, const VkCommandBuffer& commandBuffer, const VkSemaphore* signalSemaphores = nullptr);
 	void cleanupSwapChain();
 	void presentFrame(const uint32& imageIndex, VkSemaphore* signalSemaphores);
@@ -41,14 +40,12 @@ namespace vulkan
 	void deviceWaitIdle();
 	void cleanup();
 
-	mesh::Material* createMaterial(const VkPipeline& matPipeline, const VkPipelineLayout& matLayout, const string& matName);
 	renderer::RenderSettings& getRenderSettings();
 	const renderer::RenderFrameStats& getFrameStats();
 	void resetFrameStats();
 
 	void makeAssets();
-	void prepareAsset(mesh::Mesh mesh);
-	void prepareAsset(const mesh::MeshTopology& topology, mesh::Mesh mesh);
+	void prepareAsset(const mesh::MeshTopology& topology, const mesh::Mesh& mesh);
 	void renderSceneObjects(
 		const VkCommandBuffer& commandBuffer,
 		const mesh::MeshTopology& objectType,

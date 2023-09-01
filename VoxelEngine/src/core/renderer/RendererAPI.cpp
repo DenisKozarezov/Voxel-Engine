@@ -10,9 +10,11 @@ namespace VoxelEngine::renderer
         switch (g_graphicsSpec)
         {
         case GraphicsSpec::None:
-            VOXEL_CORE_CRITICAL("Unknown renderer API!");
+            VOXEL_CORE_ASSERT(false, "No renderer API selected!");
             break;
-        case GraphicsSpec::Vulkan: return UniqueRef<RendererAPI>(new vulkan::VulkanRendererAPI());
+        case GraphicsSpec::Vulkan: 
+            return MakeUnique<vulkan::VulkanRendererAPI>();
         }
+        return nullptr;
     }
 }

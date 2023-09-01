@@ -8,11 +8,9 @@ namespace VoxelEditor
 	{
 	private:
 		input::EventDispatcher m_dispatcher;
-		VoxelEngine::SharedRef<Scene> m_scene;
+		SharedRef<Scene> m_scene;
 		SceneView m_sceneView;
 		EditorConsole m_console;
-		float m_deltaTime = 0.0f;
-		float m_fixedDeltaTime = 0.0f;
 
 		void drawMenuBar();
 		void drawRenderPerformance();

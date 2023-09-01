@@ -2,19 +2,21 @@
 #include <core/utils/EnumUtils.h>
 #include <core/Assert.h>
 
-#define VK_CHECK(result, msg) if (result != VK_SUCCESS) { VOXEL_CORE_ERROR("[VULKAN] [{0}] {1}", errorString(result), msg); VOXEL_DEBUGBREAK() }
+#define VK_CHECK(result, msg) if (result != VK_SUCCESS) { VOXEL_CORE_ERROR("[VULKAN] [{0}] {1}", errorString(result), msg); VOXEL_DEBUGBREAK(); }
 
 namespace vkUtils
 {
+#define VK_LAYER_VALIDATION_EXT_NAME "VK_LAYER_KHRONOS_validation"
+
 #ifdef VOXEL_RELEASE
 	constexpr bool _enableValidationLayers = false;
 #else
 	constexpr bool _enableValidationLayers = true;
 #endif
 
-	const std::vector<const char*> validationLayers =
+	constexpr std::array<const char*, 1> validationLayers =
 	{
-		"VK_LAYER_KHRONOS_validation"
+		VK_LAYER_VALIDATION_EXT_NAME
 	};
 
 	static VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsCallback(

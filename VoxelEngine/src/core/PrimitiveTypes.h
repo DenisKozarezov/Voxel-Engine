@@ -8,13 +8,13 @@
 	using uint32 = uint32_t;
 	using uint16 = uint16_t;
 	using uint8 = uint8_t;
-	using byte = unsigned char;
+	using byte = uint8_t;
 
 	// -------- signed --------
 	using slong = signed long;
 	using int64 = int64_t;
 	using int16 = int16_t;
-	using sbyte = signed char;
+	using sbyte = int8_t;
 
 	// -------- hybrid -------- 
 	using ldouble = long double;

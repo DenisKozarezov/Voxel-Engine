@@ -28,6 +28,8 @@ namespace VoxelEngine
 		m_window = Window::Create({ name.str(), 1920, 1080 });
 		m_window->setEventCallback(BIND_CALLBACK(onEvent));
 		m_window->setMaximized(spec.Maximized);
+
+		init();
 	}
 
 	inline constexpr Application& Application::getInstance()

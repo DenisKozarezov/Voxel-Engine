@@ -42,7 +42,7 @@ namespace vkInit
 		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 		appInfo.pApplicationName = PROJECT_NAME;
 		appInfo.applicationVersion = VK_MAKE_API_VERSION(0, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
-		appInfo.pEngineName = "No Engine";
+		appInfo.pEngineName = PROJECT_NAME;
 		appInfo.engineVersion = VK_MAKE_API_VERSION(0, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 		appInfo.apiVersion = VK_API_VERSION_1_3;
 

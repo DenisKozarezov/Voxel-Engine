@@ -24,13 +24,13 @@ namespace vkInit
 		return fence;
 	}
 
-	void lockFences(const VkDevice& logicalDevice, const uint32& fenceCount, const VkFence& fence)
+	void lockFences(const VkDevice& logicalDevice, const VkFence* fences, const uint32& fenceCount = 1)
 	{
-		vkWaitForFences(logicalDevice, 1, &fence, VK_TRUE, UINT64_MAX);
+		vkWaitForFences(logicalDevice, fenceCount, fences, VK_TRUE, UINT64_MAX);
 	}
 
-	void resetFences(const VkDevice& logicalDevice, const uint32& fenceCount, const VkFence& fence)
+	void resetFences(const VkDevice& logicalDevice, const VkFence* fences, const uint32& fenceCount = 1)
 	{
-		vkResetFences(logicalDevice, fenceCount, &fence);
+		vkResetFences(logicalDevice, fenceCount, fences);
 	}
 }

@@ -1,5 +1,4 @@
 #include "Scene.h"
-#include <components/Components.h>
 
 namespace VoxelEngine
 {

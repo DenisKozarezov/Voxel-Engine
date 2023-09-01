@@ -16,7 +16,7 @@ namespace VoxelEditor
 	};
 }
 
-VoxelEngine::UniqueRef<VoxelEngine::Application> CreateApplication(ApplicationCommandLineArgs args)
+UniqueRef<VoxelEngine::Application> CreateApplication(ApplicationCommandLineArgs args)
 {
 	ApplicationSpecification spec;
 	spec.ApplicationName = PROJECT_NAME;
@@ -25,5 +25,5 @@ VoxelEngine::UniqueRef<VoxelEngine::Application> CreateApplication(ApplicationCo
 	spec.Maximized = true;
 	spec.CommandLineArgs = args;
 
-	return VoxelEngine::MakeUnique<VoxelEditor::EditorApplication>(spec);
+	return MakeUnique<VoxelEditor::EditorApplication>(spec);
 }

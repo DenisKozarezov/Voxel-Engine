@@ -2,7 +2,7 @@
 #include <version.h>
 #include "Application.h"
 
-extern VoxelEngine::UniqueRef<VoxelEngine::Application> CreateApplication(ApplicationCommandLineArgs args);
+extern UniqueRef<VoxelEngine::Application> CreateApplication(ApplicationCommandLineArgs args);
 
 #ifdef VOXEL_PLATFORM_WINDOWS
 int main(int argc, char** argv)
@@ -13,7 +13,6 @@ int main(int argc, char** argv)
     VOXEL_CORE_WARN("Initializing Logging System...");
 
     auto app = CreateApplication({ argc, argv });
-    app->init();
     app->run();
     app->shutdown();
 

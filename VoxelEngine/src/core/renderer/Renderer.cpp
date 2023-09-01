@@ -24,10 +24,9 @@ namespace VoxelEngine::renderer
     void Renderer::init(const Window& window)
     {
         VOXEL_CORE_WARN("Renderer initialization.");
-
+                       
         prepareAsset(components::mesh::MeshTopology::Cube, components::mesh::VoxelMesh());
         prepareAsset(components::mesh::MeshTopology::Quad, components::mesh::QuadMesh());
-
         RenderCommand::init(window);
     }
     void Renderer::preRender(const components::camera::Camera& camera)
@@ -57,11 +56,7 @@ namespace VoxelEngine::renderer
     {
         vulkan::submitRenderables(renderables);
     }
-    void Renderer::prepareAsset(mesh::Mesh mesh)
-    {
-        vulkan::prepareAsset(std::move(mesh));
-    }
-    void Renderer::prepareAsset(const mesh::MeshTopology& topology, mesh::Mesh mesh)
+    void Renderer::prepareAsset(const mesh::MeshTopology& topology, mesh::Mesh&& mesh)
     {
         vulkan::prepareAsset(topology, std::move(mesh));
     }

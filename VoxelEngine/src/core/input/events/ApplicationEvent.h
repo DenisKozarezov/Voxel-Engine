@@ -9,11 +9,11 @@ namespace VoxelEngine::input
         uint16 m_width, m_height;
     public:
         WindowResizeEvent(uint16 width, uint16 height) : m_width(width), m_height(height) { }
-        WindowResizeEvent(const WindowResizeEvent&) = delete;
+        WindowResizeEvent(const WindowResizeEvent&) noexcept = delete;
 
-        inline const uint16& getWidth() const { return m_width; }
-        inline const uint16& getHeight() const { return m_height; }
-        const string toString() const override
+        INLINE const uint16& getWidth() const { return m_width; }
+        INLINE const uint16& getHeight() const { return m_height; }
+        const string str() const override
         {
             std::stringstream ss;
             ss << "WindowResizeEvent: " << m_width << ", " << m_height;
@@ -23,29 +23,29 @@ namespace VoxelEngine::input
         EVENT_CLASS_TYPE(WindowResize)
         EVENT_CLASS_CATEGORY(EventCategoryApplication)
 
-        ~WindowResizeEvent() = default;
+        ~WindowResizeEvent() noexcept = default;
     };
 
     class WindowCloseEvent final : public Event
     {
     public:
-        WindowCloseEvent() = default;
-        WindowCloseEvent(const WindowCloseEvent&) = delete;
+        WindowCloseEvent() noexcept = default;
+        WindowCloseEvent(const WindowCloseEvent&) noexcept = delete;
 
         EVENT_CLASS_TYPE(WindowClose)
         EVENT_CLASS_CATEGORY(EventCategoryApplication)
 
-        ~WindowCloseEvent() = default;
+        ~WindowCloseEvent() noexcept = default;
     };
 
     class ApplicationUpdateEvent final : public Event
     {
-        ApplicationUpdateEvent() = default;
-        ApplicationUpdateEvent(const ApplicationUpdateEvent&) = delete;
+        ApplicationUpdateEvent() noexcept = default;
+        ApplicationUpdateEvent(const ApplicationUpdateEvent&) noexcept = delete;
 
         EVENT_CLASS_TYPE(AppUpdate)
         EVENT_CLASS_CATEGORY(EventCategoryApplication)
 
-        ~ApplicationUpdateEvent() = default;
+        ~ApplicationUpdateEvent() noexcept = default;
     };
 }

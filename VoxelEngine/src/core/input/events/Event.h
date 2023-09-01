@@ -35,9 +35,9 @@ namespace VoxelEngine::input
 		EventCategoryMouseButton	= BIT(4)
 	};
 
-#define EVENT_CLASS_TYPE(type)	static const EventType getStaticType() { return EventType::type; }				\
-								virtual const EventType eventType() const override { return getStaticType(); }	\
-								virtual const string getName() const override { return #type; }
+#define EVENT_CLASS_TYPE(type)	INLINE static const EventType getStaticType() { return EventType::type; }				\
+								INLINE virtual const EventType eventType() const override { return getStaticType(); }	\
+								INLINE virtual const string getName() const override { return #type; }
 
 #define EVENT_CLASS_CATEGORY(category) virtual const int categoryFlags() const override { return category; }
 
@@ -49,10 +49,10 @@ namespace VoxelEngine::input
 		Event() = default;
 		Event(const Event&) = delete;
 
-		virtual const EventType eventType() const = 0;
-		virtual const string getName() const = 0;
+		INLINE virtual const EventType eventType() const = 0;
+		INLINE virtual const string getName() const = 0;
 		virtual const int categoryFlags() const = 0;
-		virtual const string toString() const { return getName(); }
+		virtual const string str() const { return getName(); }
 		inline const bool isInCategory(const EventCategory& category) const
 		{
 			return categoryFlags() & category;
@@ -63,6 +63,6 @@ namespace VoxelEngine::input
 
 	inline std::ostream& operator<<(std::ostream& os, const Event& e)
 	{
-		return os << e.toString();
+		return os << e.str();
 	}
 }

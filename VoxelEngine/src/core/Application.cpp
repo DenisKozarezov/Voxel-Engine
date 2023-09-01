@@ -32,15 +32,15 @@ namespace VoxelEngine
 		init();
 	}
 
-	inline constexpr Application& Application::getInstance()
+	INLINE Application& Application::getInstance()
 	{
 		return *s_instance;
 	}
-	inline constexpr float& Application::getDeltaTime()
+	INLINE const float& Application::getDeltaTime() const
 	{
 		return m_frameTimer;
 	}
-	inline constexpr uint32& Application::getFPS()
+	INLINE const uint32& Application::getFPS() const
 	{
 		return m_lastFPS;
 	}

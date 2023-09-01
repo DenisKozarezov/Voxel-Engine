@@ -1,6 +1,7 @@
 #pragma once
 #include <pch.h>
 #include <core/PrimitiveTypes.h>
+#include <core/Base.h>
 
 enum class ShaderDataType
 {
@@ -50,21 +51,21 @@ namespace VoxelEngine::renderer
 	public:
 		ShaderLayout(std::initializer_list<ShaderLayoutElement> elements);
 
-		inline const uint32& stride() const noexcept { return m_stride; }
-		inline size_t size() const noexcept { return m_elements.size(); }
-		inline std::list<ShaderLayoutElement>::iterator begin() noexcept
+		INLINE const uint32& stride() const noexcept { return m_stride; }
+		INLINE size_t size() const noexcept { return m_elements.size(); }
+		INLINE std::list<ShaderLayoutElement>::iterator begin() noexcept
 		{
 			return m_elements.begin();
 		}
-		inline std::list<ShaderLayoutElement>::iterator end() noexcept
+		INLINE std::list<ShaderLayoutElement>::iterator end() noexcept
 		{
 			return m_elements.end();
 		}
-		inline std::list<ShaderLayoutElement>::const_iterator cbegin() const noexcept
+		INLINE std::list<ShaderLayoutElement>::const_iterator cbegin() const noexcept
 		{
 			return m_elements.cbegin();
 		}
-		inline std::list<ShaderLayoutElement>::const_iterator cend() const noexcept
+		INLINE std::list<ShaderLayoutElement>::const_iterator cend() const noexcept
 		{
 			return m_elements.cend();
 		}

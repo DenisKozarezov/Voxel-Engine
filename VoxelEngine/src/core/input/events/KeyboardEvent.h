@@ -9,12 +9,12 @@ namespace VoxelEngine::input
     protected:
         KeyCode m_keyCode;
     public:
-        KeyboardEvent() = delete;
+        KeyboardEvent() noexcept = delete;
         KeyboardEvent(const KeyboardEvent& e) : m_keyCode(e.m_keyCode) { }
         KeyboardEvent(const KeyCode& key) : m_keyCode(key) { }
 
-        inline const KeyCode& getKeyCode() const & { return m_keyCode; }
-        const string toString() const override
+        INLINE const KeyCode& getKeyCode() const { return m_keyCode; }
+        const string str() const override
         {
             std::stringstream ss;
             ss << this->getName() << ": " << m_keyCode;
@@ -31,33 +31,33 @@ namespace VoxelEngine::input
     private:
         bool m_isPressed;
     public:
-        KeyPressedEvent() = delete;
+        KeyPressedEvent() noexcept = delete;
         KeyPressedEvent(const KeyCode& key, bool isHold) : KeyboardEvent(key), m_isPressed(isHold) { }
 
         EVENT_CLASS_TYPE(KeyPressed)
 
-        ~KeyPressedEvent() = default;
+        ~KeyPressedEvent() noexcept = default;
     };
 
     class KeyReleasedEvent final : public KeyboardEvent
     {
     public:
-        KeyReleasedEvent() = delete;
+        KeyReleasedEvent() noexcept = delete;
         KeyReleasedEvent(const KeyCode& key) : KeyboardEvent(key) { }
 
         EVENT_CLASS_TYPE(KeyReleased)
 
-        ~KeyReleasedEvent() = default;
+        ~KeyReleasedEvent() noexcept = default;
     };
 
     class KeyTypedEvent final : public KeyboardEvent
     {
     public:
-        KeyTypedEvent() = delete;
+        KeyTypedEvent() noexcept = delete;
         KeyTypedEvent(const KeyCode& key) : KeyboardEvent(key) { }
 
         EVENT_CLASS_TYPE(KeyTyped)
 
-        ~KeyTypedEvent() = default;
+        ~KeyTypedEvent() noexcept = default;
     };
 }

@@ -180,7 +180,7 @@ namespace vulkan
 		pipelineInfo.renderPass = &state.renderPass;
 		pipelineInfo.pipelineLayoutInfo = vkInit::pipelineLayoutCreateInfo(&state.descriptorSetLayout);
 
-		vkUtils::makeMaterials(state.logicalDevice, pipelineInfo, state.pipelineCache);
+		vkUtils::makeMaterials(state.logicalDevice, state.pipelineCache, pipelineInfo);
 	}
 	void makeFrameResources()
 	{
@@ -248,16 +248,18 @@ namespace vulkan
 	}	
 	void recordCommandBuffer(const VkCommandBuffer& commandBuffer)
 	{
+		vkUtils::SwapChainFrame& frame = state.swapChainBundle.frames[CURRENT_FRAME];
+
 		// =================== RENDER WHOLE STUFF HERE ! ===================		
 		prepareScene(commandBuffer);
 
 		switch (renderSettings.renderMode)
 		{
 		case renderer::Solid:
-			vkUtils::getMaterial("solid")->bind(commandBuffer);
+			vkUtils::getMaterial("solid_instanced")->bind(commandBuffer, frame.descriptorSet);
 			break;
 		case renderer::Wireframe:
-			vkUtils::getMaterial("wireframe")->bind(commandBuffer);
+			vkUtils::getMaterial("wireframe_instanced")->bind(commandBuffer, frame.descriptorSet);
 			break;
 		}
 
@@ -267,12 +269,12 @@ namespace vulkan
 
 		if (renderSettings.showNormals)
 		{
-			vkUtils::getMaterial("normals")->bind(commandBuffer);
+			vkUtils::getMaterial("normals")->bind(commandBuffer, frame.descriptorSet);
 			startInstance = 0;
 			renderSceneObjects(commandBuffer, mesh::MeshTopology::Cube, startInstance, instancesCount);
 		}
 		startInstance = 0;
-		vkUtils::getMaterial("editorGrid")->bind(commandBuffer);
+		vkUtils::getMaterial("editor_grid")->bind(commandBuffer, frame.descriptorSet);
 		renderSceneObjects(commandBuffer, mesh::MeshTopology::Quad, startInstance, 1);
 
 		drawUI(commandBuffer);
@@ -360,8 +362,7 @@ namespace vulkan
 		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
 		const vkUtils::VulkanMaterial* defaultMaterial = vkUtils::getMaterial("default");
-		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, defaultMaterial->pipelineLayout, 0, 1, &frame.descriptorSet, 0, nullptr);
-		defaultMaterial->bind(commandBuffer);
+		defaultMaterial->bind(commandBuffer, frame.descriptorSet);
 	}
 	void prepareScene(const VkCommandBuffer& commandBuffer)
 	{

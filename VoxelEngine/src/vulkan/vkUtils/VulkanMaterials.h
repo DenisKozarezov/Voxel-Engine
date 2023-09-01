@@ -1,9 +1,12 @@
 #pragma once
 #include <vulkan/vulkan.h>
+#include <unordered_map>
 #include <core/PrimitiveTypes.h>
 
 namespace vkUtils
 {
+#define MATERIALS_MAX 5
+
 	struct VulkanPipelineCreateInfo
 	{
 		VkPipelineCreateFlags flags = VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT;
@@ -37,14 +40,19 @@ namespace vkUtils
 		VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
 		bool instanced = false;
 
-		void bind(const VkCommandBuffer& commandBuffer) const;
+		void bind(const VkCommandBuffer& commandBuffer, const VkDescriptorSet& descriptorSet) const;
 	};
 
+	using MaterialsCache = std::unordered_map<string, VulkanMaterial>;
+	
 	const VulkanMaterial* createMaterial(const VkPipeline& matPipeline, const VkPipelineLayout& matLayout, const string& matName);
+	
 	const VulkanMaterial* getMaterial(const string& matName);
+	
 	void makeMaterials(
-		const VkDevice& logicalDevice, 
-		VulkanPipelineCreateInfo& pipelineInfo,
-		const VkPipelineCache& pipelineCache);
+		const VkDevice& logicalDevice,
+		const VkPipelineCache& pipelineCache,
+		VulkanPipelineCreateInfo& pipelineInfo);
+	
 	void releaseMaterials(const VkDevice& logicalDevice);
 }

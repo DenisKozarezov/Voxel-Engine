@@ -1,5 +1,6 @@
 #pragma once
 #include <chrono>
+#include <core/Base.h>
 
 namespace VoxelEngine
 {
@@ -15,7 +16,7 @@ namespace VoxelEngine
 
 		template<typename TCast>
 		requires std::is_floating_point_v<TCast>
-		constexpr float elapsedTimeInMilliseconds() const
+		INLINE const float elapsedTimeInMilliseconds() const
 		{
 			return std::chrono::duration<TCast, std::milli>(std::chrono::high_resolution_clock::now() - m_start).count();
 		}

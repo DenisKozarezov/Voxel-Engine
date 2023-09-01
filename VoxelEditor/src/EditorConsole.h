@@ -30,7 +30,7 @@ namespace VoxelEditor
 
 		~LogEntry() noexcept = default;
 
-		inline const string str() const
+		INLINE const string str() const
 		{ 
 			return std::format("{0} [{1}] : {2}\n", time, level, message);
 		}
@@ -51,17 +51,17 @@ namespace VoxelEditor
 		EditorConsole();
 
 		template <typename... Args>
-		inline static void info(std::string_view fmt, Args&&... args)
+		INLINE static void info(std::string_view fmt, Args&&... args)
 		{
 			s_instance->addLog(LogEntry(spdlog::level::info, fmt, std::forward<Args>(args)...).str().c_str());
 		}
 		template <typename... Args>
-		inline static void warn(std::string_view fmt, Args&&... args)
+		INLINE static void warn(std::string_view fmt, Args&&... args)
 		{
 			s_instance->addLog(LogEntry(spdlog::level::warn, fmt, std::forward<Args>(args)...).str().c_str());
 		}
 		template <typename... Args>
-		inline static void error(std::string_view fmt, Args&&... args)
+		INLINE static void error(std::string_view fmt, Args&&... args)
 		{
 			s_instance->addLog(LogEntry(spdlog::level::err, fmt, std::forward<Args>(args)...).str().c_str());
 		}

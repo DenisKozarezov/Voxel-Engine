@@ -19,15 +19,13 @@ namespace VoxelEngine::components::camera
 			const glm::vec3& position = glm::vec3(0.0f, 0.0f, 0.0f),
 			const glm::vec3& up = glm::vec3(0.0f, 1.0f, 0.0f));
 
-		inline void setAspectRatio(const float& aspectRatio) override;
-
-		inline const glm::mat4 viewMatrix() const override 
+		INLINE const glm::mat4 viewMatrix() const override 
 		{ 
 			glm::mat4 transform = glm::translate(glm::mat4(1.0f), m_position) *
-				glm::rotate(glm::mat4(1.0f), glm::radians(defaultPitch), glm::vec3(0, 1, 0));
+			glm::rotate(glm::mat4(1.0f), glm::radians(defaultPitch), glm::vec3(0, 1, 0));
 			return glm::inverse(transform);
 		}
-		inline const glm::mat4 projectionMatrix() const override 
+		INLINE const glm::mat4 projectionMatrix() const override
 		{ 
 			return glm::ortho(-m_aspectRatio, m_aspectRatio, -1.0f, 1.0f, m_nearClip, m_farClip);
 		}

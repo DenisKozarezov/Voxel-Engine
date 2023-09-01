@@ -36,11 +36,11 @@ namespace VoxelEngine::input
 
 		return { (float)xpos, (float)ypos };
 	}
-	inline const float InputSystem::getMouseX()
+	INLINE const float InputSystem::getMouseX()
 	{
 		return getMousePosition().x;
 	}
-	inline const float InputSystem::getMouseY()
+	INLINE const float InputSystem::getMouseY()
 	{
 		return getMousePosition().y;
 	}

@@ -12,11 +12,6 @@ namespace VoxelEngine::components::camera
 
 	}
 
-	inline void OrthographicCamera::setAspectRatio(const float& aspectRatio)
-	{
-		m_aspectRatio = aspectRatio;
-	}
-
 	void OrthographicCamera::processKeyboard(const CameraMovement& direction, const float& deltaTime)
 	{
 		const float velocity = m_movementSpeed * deltaTime;

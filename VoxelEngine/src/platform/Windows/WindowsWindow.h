@@ -23,10 +23,10 @@ namespace VoxelEngine
 		WindowsWindow() = default;
 		WindowsWindow(const WindowProperties&);
 
-		inline const uint16& getWidth() const noexcept override { return m_windowData.Width; }
-		inline const uint16& getHeight() const noexcept override { return m_windowData.Height; }
-		inline const bool& VSyncEnabled() const noexcept override { return m_windowData.VSync; }
-		inline const void* getNativeWindow() const & noexcept override { return m_window; }
+		INLINE const uint16& getWidth() const noexcept override { return m_windowData.Width; }
+		INLINE const uint16& getHeight() const noexcept override { return m_windowData.Height; }
+		INLINE const bool& VSyncEnabled() const noexcept override { return m_windowData.VSync; }
+		INLINE const void* getNativeWindow() const & noexcept override { return m_window; }
 		void setVSync(bool isEnabled) noexcept override;
 		void setEventCallback(const EventCallback& callback) noexcept override;
 		void setMaximized(const bool& isMaximized) override;

@@ -17,7 +17,7 @@ namespace vkUtils
 		VulkanShader(const VkDevice& logicalDevice, const char* filepath, const ShaderStage& shaderStage);
 		VulkanShader(const VkDevice& logicalDevice, const char* vertexPath, const char* fragmentPath, const char* geomertryPath = nullptr);
 
-		inline constexpr std::array<VkPipelineShaderStageCreateInfo, 3>& getStages() & noexcept { return m_shaderStages; }
+		INLINE std::array<VkPipelineShaderStageCreateInfo, 3>& getStages() & noexcept { return m_shaderStages; }
 
 		void unbind() const override;
 

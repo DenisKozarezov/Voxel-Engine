@@ -8,15 +8,15 @@ namespace VoxelEngine
 	class VOXEL_API Log
 	{
 	private:
-		inline static SharedRef<spdlog::logger> _coreLogger;
-		inline static SharedRef<spdlog::logger> _clientLogger;
+		INLINE static SharedRef<spdlog::logger> _coreLogger;
+		INLINE static SharedRef<spdlog::logger> _clientLogger;
 	public:
 		static constexpr const char* s_timePattern = "%H:%M:%S";
 		static constexpr const char* s_logPattern = "[%H:%M:%S.%e] [%l] %n: %v%$";
 
 		static void init(const char* coreProject, const char* editorProject);
-		inline static constexpr SharedRef<spdlog::logger>& getCoreLogger();
-		inline static constexpr SharedRef<spdlog::logger>& getClientLogger();
+		INLINE static const SharedRef<spdlog::logger>& getCoreLogger();
+		INLINE static const SharedRef<spdlog::logger>& getClientLogger();
 	};
 
 #define FORMATTED_TIME string("{0:") + VoxelEngine::Log::s_timePattern + string("}")

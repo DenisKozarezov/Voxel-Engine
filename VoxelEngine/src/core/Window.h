@@ -29,10 +29,10 @@ namespace VoxelEngine
 		Window& operator= (Window const& rhs) noexcept = delete;
 		Window& operator= (Window&& rhs) noexcept = delete;
 
-		virtual inline const uint16& getWidth() const = 0;
-		virtual inline const uint16& getHeight() const = 0;
-		virtual inline const bool& VSyncEnabled() const noexcept = 0;
-		virtual inline const void* getNativeWindow() const & noexcept = 0;
+		virtual INLINE const uint16& getWidth() const = 0;
+		virtual INLINE const uint16& getHeight() const = 0;
+		virtual INLINE const bool& VSyncEnabled() const noexcept = 0;
+		virtual INLINE const void* getNativeWindow() const & noexcept = 0;
 		virtual void setVSync(bool isEnabled) noexcept = 0;
 		virtual void setEventCallback(const EventCallback& callback) noexcept = 0;
 		virtual void setMaximized(const bool& isMaximized) = 0;

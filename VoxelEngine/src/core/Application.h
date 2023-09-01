@@ -76,11 +76,11 @@ namespace VoxelEngine
 		Application& operator=(Application const& rhs) noexcept = delete;
 		Application& operator=(Application&& rhs) noexcept = delete;
 
-		inline static constexpr Application& getInstance();
-		inline constexpr float& getDeltaTime();
-		inline constexpr uint32& getFPS();
+		INLINE static Application& getInstance();
+		INLINE const float& getDeltaTime() const;
+		INLINE const uint32& getFPS() const;
 
-		inline constexpr const UniqueRef<Window>& getWindow() const { return m_window; }
+		INLINE const UniqueRef<Window>& getWindow() const { return m_window; }
 
 		void init();
 		void run();

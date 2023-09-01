@@ -57,8 +57,8 @@ namespace VoxelEngine::renderer
 		if (m_blockEvents)
 		{
 			ImGuiIO& io = ImGui::GetIO();
-			e.Handled |= e.isInCategory(input::EventCategoryMouse) & io.WantCaptureMouse;
-			e.Handled |= e.isInCategory(input::EventCategoryKeyboard) & io.WantCaptureKeyboard;
+			e.Handled |= e.hasCategoryFlag(input::EventCategoryMouse) & io.WantCaptureMouse;
+			e.Handled |= e.hasCategoryFlag(input::EventCategoryKeyboard) & io.WantCaptureKeyboard;
 		}
 	}
 	void ImGuiLayer::preRender()

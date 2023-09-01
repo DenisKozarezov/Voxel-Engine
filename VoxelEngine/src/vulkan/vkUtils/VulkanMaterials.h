@@ -1,7 +1,7 @@
 #pragma once
 #include <vulkan/vulkan.h>
 #include <unordered_map>
-#include <core/PrimitiveTypes.h>
+#include <components/mesh/Mesh.h>
 
 namespace vkUtils
 {
@@ -33,12 +33,14 @@ namespace vkUtils
 			VkPipeline* pipeline);
 	};
 
-	class VulkanMaterial
+	class VulkanMaterial : public VoxelEngine::components::mesh::IMaterial
 	{
 	public:
 		VkPipeline pipeline = VK_NULL_HANDLE;
 		VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
-		bool instanced = false;
+
+		VulkanMaterial() noexcept = default;
+		~VulkanMaterial() noexcept = default;
 
 		void bind(const VkCommandBuffer& commandBuffer, const VkDescriptorSet& descriptorSet) const;
 	};

@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <functional>
 #include <stack>
+#include <core/Base.h>
 
 namespace VoxelEngine
 {
@@ -37,7 +38,7 @@ namespace VoxelEngine
 		int m_maxDepth = 0;
 		int m_voxelCount = 0;
 		std::vector<unsigned int> m_Buffer, m_Far;
-		std::vector<uint8_t> colors;
+		std::vector<uint8> colors;
 		OctreeNode* m_root = nullptr;
 
 		uint32 createChildDescriptor(OctreeNode* node, int& index, int pIndex);
@@ -46,7 +47,9 @@ namespace VoxelEngine
 	public:
 		SparseVoxelOctree(int size, int maxDepth);
 
-		inline constexpr int count() { return m_voxelCount; }
+		INLINE const int& size() { return m_size; }
+		INLINE const int& maxDepth() { return m_maxDepth; }
+		INLINE const int& count() { return m_voxelCount; }
 		void traverse(const std::function<void(OctreeNode*)>& visitor);
 		void build();
 		void build(OctreeNode* node, int& index);

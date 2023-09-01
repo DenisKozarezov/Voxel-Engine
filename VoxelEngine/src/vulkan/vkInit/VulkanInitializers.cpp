@@ -27,7 +27,6 @@ namespace vkInit
 				vertexRateStride += it->m_offset;
 				vertexRateSize += it->m_size;
 			}
-
 			shaderAttributes.push_back(vkInit::vertexInputAttributeDescription(binding, i, format, it->m_offset));
 		}
 

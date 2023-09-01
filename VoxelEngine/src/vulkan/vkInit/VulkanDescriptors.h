@@ -20,14 +20,12 @@ namespace vkInit
 
 		for (int i = 0; i < bindings.count; ++i)
 		{
-			VkDescriptorSetLayoutBinding layoutBinding =
-			{
-				.binding = bindings.indices[i],
-				.descriptorType = bindings.types[i],
-				.descriptorCount = bindings.counts[i],
-				.stageFlags = bindings.stages[i],
-				.pImmutableSamplers = nullptr
-			};
+			VkDescriptorSetLayoutBinding layoutBinding = vkInit::descriptorSetLayoutBinding(
+				bindings.types[i],
+				bindings.stages[i],
+				bindings.indices[i],
+				bindings.counts[i]
+			);
 			layoutBindings.push_back(layoutBinding);
 		}
 
@@ -66,11 +64,10 @@ namespace vkInit
 		const VkDescriptorPool& descriptorPool,
 		const VkDescriptorSetLayout& descriptorSetLayout)
 	{
-		VkDescriptorSetAllocateInfo allocInfo{};
-		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-		allocInfo.descriptorPool = descriptorPool;
-		allocInfo.descriptorSetCount = 1;
-		allocInfo.pSetLayouts = &descriptorSetLayout;
+		VkDescriptorSetAllocateInfo allocInfo = descriptorSetAllocateInfo(
+			descriptorPool,
+			&descriptorSetLayout
+		);
 
 		VkDescriptorSet descriptorSet;
 		VkResult err = vkAllocateDescriptorSets(logicalDevice, &allocInfo, &descriptorSet);

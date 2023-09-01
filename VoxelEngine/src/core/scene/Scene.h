@@ -1,5 +1,4 @@
 #pragma once
-#include <entt/entt.hpp>
 #include <core/renderer/Renderer.h>
 #include "../Timestep.h"
 
@@ -7,8 +6,6 @@ namespace VoxelEngine
 {
 	class Scene
 	{
-	private:
-		entt::registry m_registry;
 	public:
 		std::vector<glm::vec3> vertices;
 

@@ -22,9 +22,6 @@ namespace VoxelEngine::components::mesh
 	{
 	public:
 		IMaterial() noexcept = default;
-
-		virtual void bind() = 0;
-
 		virtual ~IMaterial() = default;
 	};
 

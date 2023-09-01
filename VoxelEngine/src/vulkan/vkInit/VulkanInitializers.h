@@ -392,7 +392,7 @@ namespace vkInit
 	constexpr VkDescriptorSetAllocateInfo descriptorSetAllocateInfo(
 		VkDescriptorPool descriptorPool,
 		const VkDescriptorSetLayout* pSetLayouts,
-		uint32_t descriptorSetCount)
+		uint32_t descriptorSetCount = 1)
 	{
 		VkDescriptorSetAllocateInfo descriptorSetAllocateInfo{};
 		descriptorSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;

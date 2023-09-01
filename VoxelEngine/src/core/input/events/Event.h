@@ -53,7 +53,7 @@ namespace VoxelEngine::input
 		INLINE virtual const string getName() const = 0;
 		virtual const int categoryFlags() const = 0;
 		virtual const string str() const { return getName(); }
-		inline const bool isInCategory(const EventCategory& category) const
+		INLINE const bool hasCategoryFlag(const EventCategory& category) const
 		{
 			return categoryFlags() & category;
 		}
@@ -61,7 +61,7 @@ namespace VoxelEngine::input
 		virtual ~Event() = default;
 	};
 
-	inline std::ostream& operator<<(std::ostream& os, const Event& e)
+	INLINE std::ostream& operator<<(std::ostream& os, const Event& e)
 	{
 		return os << e.str();
 	}

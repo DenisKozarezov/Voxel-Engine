@@ -1,6 +1,7 @@
 #pragma once
 #include <vulkan/vulkan.h>
 #include <core/PrimitiveTypes.h>
+#include <core/Base.h>
 
 namespace vkUtils::memory
 {
@@ -14,7 +15,7 @@ namespace vkUtils::memory
 		void* mappedMemory = nullptr;
 		VkDescriptorBufferInfo descriptor;
 
-		inline operator const VkBuffer& () const& { return buffer; }
+		INLINE operator const VkBuffer& () const& { return buffer; }
 
 		void release();
 		VkResult map();

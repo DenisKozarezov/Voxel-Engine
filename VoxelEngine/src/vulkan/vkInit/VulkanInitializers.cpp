@@ -7,6 +7,8 @@ namespace vkInit
 
 	const VkPipelineVertexInputStateCreateInfo inputStateCreateInfo(VoxelEngine::renderer::ShaderLayout layout)
 	{
+		shaderAttributes.clear();
+		shaderBindings.clear();
 		shaderAttributes.reserve(layout.size());
 
 		uint32 i = 0;

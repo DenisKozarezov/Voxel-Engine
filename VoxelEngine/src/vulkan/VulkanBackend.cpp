@@ -70,7 +70,7 @@ namespace vulkan
 		
 	void makeInstance()
 	{
-		state.instance = vkInit::createInstance();
+		state.instance = vkInit::createInstance(VK_API_VERSION_1_2);
 		vkUtils::setupDebugReportMessenger(state.instance, &state.debugReportMessenger);
 		state.surface = vkInit::createSurface(state.instance, state.window);
 	}

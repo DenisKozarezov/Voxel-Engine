@@ -7,7 +7,7 @@
 namespace vkUtils
 {
 	using ShaderSources = std::unordered_map<ShaderStage, string>;
-	using ShaderBinaries = std::unordered_map<ShaderStage, string>;
+	using ShaderBinaries = std::unordered_map<ShaderStage, std::vector<uint32>>;
 
 	class VulkanShader : public VoxelEngine::renderer::Shader
 	{
@@ -23,7 +23,9 @@ namespace vkUtils
 		void compileOrGetVulkanBinaries(const string& filepath, const ShaderSources& shaderSources);
 		void createCacheDirectoryIfNeeded();
 
+		const VkShaderModule createShaderModule(const std::vector<uint32>& spirv) const;
 		const VkShaderModule createShaderModule(const string& spirv) const;
+		void createShader(const ShaderStage& stage, const std::vector<uint32>& spirv);
 		void createShader(const ShaderStage& stage, const string& spirv);
 	public:
 		VulkanShader() noexcept = delete;

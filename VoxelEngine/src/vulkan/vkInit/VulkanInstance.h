@@ -33,7 +33,7 @@ namespace vkInit
 		return extensions;
 	}
 
-	const VkInstance createInstance()
+	const VkInstance createInstance(const uint32& vulkanApi)
 	{
 		bool layersSupported = vkUtils::_enableValidationLayers && vkUtils::checkValidationLayerSupport();
 		VOXEL_CORE_ASSERT(layersSupported, "validation layers requested, but not available!");
@@ -44,7 +44,7 @@ namespace vkInit
 		appInfo.applicationVersion = VK_MAKE_API_VERSION(0, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 		appInfo.pEngineName = PROJECT_NAME;
 		appInfo.engineVersion = VK_MAKE_API_VERSION(0, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
-		appInfo.apiVersion = VK_API_VERSION_1_3;
+		appInfo.apiVersion = vulkanApi;
 
 		VkInstanceCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;

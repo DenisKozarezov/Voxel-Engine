@@ -81,7 +81,7 @@ namespace vkUtils
 	{
 		std::filesystem::path cacheDirectory = getCacheDirectory();
 
-		auto& shaderData = m_shaderBinaries;
+		auto& shaderBinary = m_shaderBinaries;
 		for (const auto& [stage, source] : shaderSources)
 		{
 			std::filesystem::path shaderFilePath = filepath;
@@ -89,7 +89,7 @@ namespace vkUtils
 
 			if (std::filesystem::exists(cachedPath))
 			{
-				shaderData[stage] = readFile(cachedPath.string());
+				shaderBinary[stage] = readBinary(cachedPath.string());
 			}
 			else
 			{
@@ -102,20 +102,23 @@ namespace vkUtils
 				if (optimize)
 					options.SetOptimizationLevel(shaderc_optimization_level_performance);
 
-				shaderc::SpvCompilationResult module = compiler.CompileGlslToSpv(source, shaderStageToShaderStage(stage), filepath.c_str(), options);
+				shaderc_shader_kind kind = shaderStageToShaderStage(stage);
+				shaderc::PreprocessedSourceCompilationResult preprocess = compiler.PreprocessGlsl(source, kind, filepath.c_str(), options);
+				VOXEL_CORE_ASSERT(preprocess.GetCompilationStatus() == shaderc_compilation_status_success, preprocess.GetErrorMessage());
+
+				shaderc::SpvCompilationResult module = compiler.CompileGlslToSpv(source, kind, filepath.c_str(), options);
 				VOXEL_CORE_ASSERT(module.GetCompilationStatus() == shaderc_compilation_status_success, module.GetErrorMessage());
 
-				shaderData[stage] = std::string(module.cbegin(), module.cend());
+				shaderBinary[stage] = std::vector<uint32>(module.cbegin(), module.cend());
 
 				std::ofstream out(cachedPath, std::ios::out | std::ios::binary);
 				if (out.is_open())
 				{
-					auto& data = shaderData[stage];
-					out.write((char*)data.data(), data.size());
+					size_t size = shaderBinary[stage].size();
+					out.write((char*)shaderBinary[stage].data(), size);
 					out.flush();
 					out.close();
 				}
-
 				VOXEL_CORE_WARN("Shader '{0}' compilation time: {1} ms.", filepath, timer.elapsedTimeInMilliseconds<double>());
 			}
 		}
@@ -130,6 +133,18 @@ namespace vkUtils
 		}
 	}
 
+	const VkShaderModule VulkanShader::createShaderModule(const std::vector<uint32>& spirv) const
+	{
+		VkShaderModuleCreateInfo createInfo = {};
+		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+		createInfo.codeSize = spirv.size() * sizeof(uint32);
+		createInfo.pCode = spirv.data();
+
+		VkShaderModule shaderModule;
+		VkResult err = vkCreateShaderModule(m_logicalDevice, &createInfo, nullptr, &shaderModule);
+		VK_CHECK(err, "failed to create shader module!");
+		return shaderModule;
+	}
 	const VkShaderModule VulkanShader::createShaderModule(const string& spirv) const
 	{
 		VkShaderModuleCreateInfo createInfo = {};
@@ -153,6 +168,17 @@ namespace vkUtils
 		m_shaderStages.push_back(stageInfo);
 		m_shaderModules.push_back(shaderModule);
 	}
+	void VulkanShader::createShader(const ShaderStage& stage, const std::vector<uint32>& spirv)
+	{
+		VkShaderModule shaderModule = createShaderModule(spirv);
+		VkPipelineShaderStageCreateInfo stageInfo = {};
+		stageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		stageInfo.stage = vkInit::shaderStageToVulkanBaseStage(stage);
+		stageInfo.module = shaderModule;
+		stageInfo.pName = "main";
+		m_shaderStages.push_back(stageInfo);
+		m_shaderModules.push_back(shaderModule);
+	}
 
 	VulkanShader::VulkanShader(const VkDevice& logicalDevice, const char* filepath)
 		: m_logicalDevice(logicalDevice)
@@ -161,12 +187,11 @@ namespace vkUtils
 
 		createCacheDirectoryIfNeeded();
 
-		m_shaderStages.reserve(3);
-		m_shaderModules.reserve(3);
+		const string shaderProgram = readFile(filepath);
+		const ShaderSources shaderSources = preProcess(shaderProgram);
 
-		const string& shaderProgram = readFile(filepath);
-		const ShaderSources& shaderSources = preProcess(shaderProgram);
-
+		m_shaderStages.reserve(shaderSources.size());
+		m_shaderModules.reserve(shaderSources.size());
 		compileOrGetVulkanBinaries(filepath, shaderSources);
 		{
 			VoxelEngine::Timer timer;
@@ -187,14 +212,14 @@ namespace vkUtils
 		m_shaderStages.reserve(3);
 		m_shaderModules.reserve(3);
 
-		string vertexSpirv = readFile(vertexPath);
+		auto vertexSpirv = readFile(vertexPath);
 		createShader(Vertex, vertexSpirv);
 		VOXEL_CORE_WARN("Shader '{0}' creation time: {1} ms.", vertexPath, timer.elapsedTimeInMilliseconds<double>());
 
 		if (fragmentPath != nullptr)
 		{
 			timer.reset();
-			string fragmentSpirv = readFile(fragmentPath);
+			auto fragmentSpirv = readFile(fragmentPath);
 			createShader(Fragment, fragmentSpirv);
 			VOXEL_CORE_WARN("Shader '{0}' creation time: {1} ms.", fragmentPath, timer.elapsedTimeInMilliseconds<double>());
 		}
@@ -202,7 +227,7 @@ namespace vkUtils
 		if (geometryPath != nullptr)
 		{
 			timer.reset();
-			string geometrySpirv = readFile(geometryPath);
+			auto geometrySpirv = readFile(geometryPath);
 			createShader(Geometry, geometrySpirv);
 			VOXEL_CORE_WARN("Shader '{0}' creation time: {1} ms.", geometryPath, timer.elapsedTimeInMilliseconds<double>());
 		}

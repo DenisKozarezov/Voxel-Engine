@@ -5,24 +5,43 @@
 
 enum class ShaderDataType
 {
-	Undefined = 0, Float, Float2, Float3, Float4, Mat3, Mat4, Int, Int2, Int3, Int4, Bool
+	Undefined = 0, 
+	Float_S8, Float2_S8, Float3_S8, Float4_S8,
+	Float_U8, Float2_U8, Float3_U8, Float4_U8,
+	Float_S32, Float2_S32, Float3_S32, Float4_S32, 
+	Float_U32, Float2_U32, Float3_U32, Float4_U32,
+	Mat3, Mat4, 
+	Int_S32, Int2_S32, Int3_S32, Int4_S32, 
+	Bool
 };
 
 constexpr static uint32 shaderDataTypeSize(ShaderDataType type)
 {
 	switch (type)
 	{
-	case ShaderDataType::Float:    return 4;
-	case ShaderDataType::Float2:   return 4 * 2;
-	case ShaderDataType::Float3:   return 4 * 3;
-	case ShaderDataType::Float4:   return 4 * 4;
-	case ShaderDataType::Mat3:     return 4 * 3 * 3;
-	case ShaderDataType::Mat4:     return 4 * 4 * 4;
-	case ShaderDataType::Int:      return 4;
-	case ShaderDataType::Int2:     return 4 * 2;
-	case ShaderDataType::Int3:     return 4 * 3;
-	case ShaderDataType::Int4:     return 4 * 4;
-	case ShaderDataType::Bool:     return 1;
+	case ShaderDataType::Float_S8:		return 1;
+	case ShaderDataType::Float2_S8:		return 1 * 2;
+	case ShaderDataType::Float3_S8:		return 1 * 3;
+	case ShaderDataType::Float4_S8:		return 1 * 4;
+	case ShaderDataType::Float_S32:		return 4;
+	case ShaderDataType::Float2_S32:	return 4 * 2;
+	case ShaderDataType::Float3_S32:	return 4 * 3;
+	case ShaderDataType::Float4_S32:	return 4 * 4;
+	case ShaderDataType::Float_U8:		return 1;
+	case ShaderDataType::Float2_U8:		return 1 * 2;
+	case ShaderDataType::Float3_U8:		return 1 * 3;
+	case ShaderDataType::Float4_U8:		return 1 * 4;
+	case ShaderDataType::Float_U32:		return 2;
+	case ShaderDataType::Float2_U32:	return 2 * 2;
+	case ShaderDataType::Float3_U32:	return 2 * 3;
+	case ShaderDataType::Float4_U32:	return 2 * 4;
+	case ShaderDataType::Mat3:			return 4 * 3 * 3;
+	case ShaderDataType::Mat4:			return 4 * 4 * 4;
+	case ShaderDataType::Int_S32:		return 4;
+	case ShaderDataType::Int2_S32:		return 4 * 2;
+	case ShaderDataType::Int3_S32:		return 4 * 3;
+	case ShaderDataType::Int4_S32:		return 4 * 4;
+	case ShaderDataType::Bool:			return 1;
 	default: return 0;
 	}
 }

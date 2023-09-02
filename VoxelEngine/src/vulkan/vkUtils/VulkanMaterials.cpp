@@ -63,9 +63,9 @@ namespace vkUtils
 		// DEFAULT
 		{
 			VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::inputStateCreateInfo({
-				{ ShaderDataType::Float3 },			// Position
-				{ ShaderDataType::Float3 },			// Normal
-				{ ShaderDataType::Float3 }			// Color
+				{ ShaderDataType::Float3_S32 },			// Position
+				{ ShaderDataType::Float3_S32 },			// Normal
+				{ ShaderDataType::Float3_S32 }			// Color
 			});
 			pipelineInfo.vertexInputInfo = &vertexInputInfo;
 
@@ -85,10 +85,10 @@ namespace vkUtils
 		VkPipeline solidPipeline;
 		{
 			VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::inputStateCreateInfo({
-				{ ShaderDataType::Float3 },			// Position
-				{ ShaderDataType::Float3 },			// Normal
-				{ ShaderDataType::Float3 },			// Color
-				{ ShaderDataType::Float3, true }	// Instanced Position
+				{ ShaderDataType::Float3_S32 },			// Position
+				{ ShaderDataType::Float3_S32 },			// Normal
+				{ ShaderDataType::Float3_S32 },			// Color
+				{ ShaderDataType::Float3_S32, true }	// Instanced Position
 			});
 			pipelineInfo.vertexInputInfo = &vertexInputInfo;
 
@@ -106,11 +106,11 @@ namespace vkUtils
 		// NORMALS
 		{
 			VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::inputStateCreateInfo({
-				{ ShaderDataType::Float3 },			// Position
-				{ ShaderDataType::Float3 },			// Normal
-				{ ShaderDataType::Float3 },			// Color
-				{ ShaderDataType::Float3, true }	// Instanced Position
-				});
+				{ ShaderDataType::Float3_S32 },			// Position
+				{ ShaderDataType::Float3_S32 },			// Normal
+				{ ShaderDataType::Float3_S32 },			// Color
+				{ ShaderDataType::Float3_S32, true }	// Instanced Position
+			});
 			pipelineInfo.vertexInputInfo = &vertexInputInfo;
 
 			VkPipelineLayout normalsMaterialLayout;
@@ -134,10 +134,10 @@ namespace vkUtils
 		VkPipeline wireframe;
 		{
 			VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::inputStateCreateInfo({
-				{ ShaderDataType::Float3 },			// Position
-				{ ShaderDataType::Float3 },			// Normal
-				{ ShaderDataType::Float3 },			// Color
-				{ ShaderDataType::Float3, true}		// Instanced Position
+				{ ShaderDataType::Float3_S32 },			// Position
+				{ ShaderDataType::Float3_S32 },			// Normal
+				{ ShaderDataType::Float3_S32 },			// Color
+				{ ShaderDataType::Float3_S32, true}		// Instanced Position
 			});
 			pipelineInfo.vertexInputInfo = &vertexInputInfo;
 
@@ -145,7 +145,7 @@ namespace vkUtils
 			VkResult err = vkCreatePipelineLayout(logicalDevice, &pipelineInfo.pipelineLayoutInfo, nullptr, &wireframeMaterialLayout);
 			VK_CHECK(err, "failed to create pipeline layout!");
 
-			VulkanShader shader = VulkanShader(logicalDevice, ASSET_PATH("shaders/SolidVertShader.spv"), ASSET_PATH("shaders/editor/WireframeFragShader.spv"));
+			VulkanShader shader = VulkanShader(logicalDevice, ASSET_PATH("shaders/wireframe_shader.glsl"));
 			pipelineInfo.shaderStages = shader.getStages().data();
 			pipelineInfo.stagesCount = 2;
 			pipelineInfo.flags = VK_PIPELINE_CREATE_DERIVATIVE_BIT;
@@ -158,17 +158,17 @@ namespace vkUtils
 		// EDITOR GRID
 		{
 			VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::inputStateCreateInfo({
-				{ ShaderDataType::Float3 },			// Position
-				{ ShaderDataType::Float3 },			// Normal
-				{ ShaderDataType::Float3 },			// Color
-				});
+				{ ShaderDataType::Float3_S32 },			// Position
+				{ ShaderDataType::Float3_S32 },			// Normal
+				{ ShaderDataType::Float3_S32 },			// Color
+			});
 			pipelineInfo.vertexInputInfo = &vertexInputInfo;
 
 			VkPipelineLayout editorGridMaterialLayout;
 			VkResult err = vkCreatePipelineLayout(logicalDevice, &pipelineInfo.pipelineLayoutInfo, nullptr, &editorGridMaterialLayout);
 			VK_CHECK(err, "failed to create pipeline layout!");
 
-			VulkanShader shader = VulkanShader(logicalDevice, ASSET_PATH("shaders/editor/EditorGridVert.spv"), ASSET_PATH("shaders/editor/EditorGridFrag.spv"));
+			VulkanShader shader = VulkanShader(logicalDevice, ASSET_PATH("shaders/editor/editor_grid_shader.glsl"));
 			pipelineInfo.shaderStages = shader.getStages().data();
 			pipelineInfo.stagesCount = 2;
 			pipelineInfo.flags = VK_PIPELINE_CREATE_DERIVATIVE_BIT;

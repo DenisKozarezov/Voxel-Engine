@@ -760,17 +760,25 @@ namespace vkInit
 	{
 		switch (type)
 		{
-		case ShaderDataType::Float:    return VK_FORMAT_R32_SFLOAT;
-		case ShaderDataType::Float2:   return VK_FORMAT_R32G32_SFLOAT;
-		case ShaderDataType::Float3:   return VK_FORMAT_R32G32B32_SFLOAT;
-		case ShaderDataType::Float4:   return VK_FORMAT_R32G32B32A32_SFLOAT;
-		case ShaderDataType::Mat3:     return VK_FORMAT_R32G32B32_SFLOAT;
-		case ShaderDataType::Mat4:     return VK_FORMAT_R32G32B32A32_SFLOAT;
-		case ShaderDataType::Int:      return VK_FORMAT_R32_SINT;
-		case ShaderDataType::Int2:     return VK_FORMAT_R32G32_SINT;
-		case ShaderDataType::Int3:     return VK_FORMAT_R32G32B32_SINT;
-		case ShaderDataType::Int4:     return VK_FORMAT_R32G32B32A32_SINT;
-		case ShaderDataType::Bool:     return VK_FORMAT_R8_SINT;
+		case ShaderDataType::Float_S32:		return VK_FORMAT_R32_SFLOAT;
+		case ShaderDataType::Float2_S32:	return VK_FORMAT_R32G32_SFLOAT;
+		case ShaderDataType::Float3_S32:	return VK_FORMAT_R32G32B32_SFLOAT;
+		case ShaderDataType::Float4_S32:	return VK_FORMAT_R32G32B32A32_SFLOAT;
+		case ShaderDataType::Float_S8:		return VK_FORMAT_R8_SNORM;
+		case ShaderDataType::Float2_S8:		return VK_FORMAT_R8G8_SNORM;
+		case ShaderDataType::Float3_S8:		return VK_FORMAT_R8G8B8_SNORM;
+		case ShaderDataType::Float4_S8:		return VK_FORMAT_R8G8B8A8_SNORM;
+		case ShaderDataType::Float_U8:		return VK_FORMAT_R8_UNORM;
+		case ShaderDataType::Float2_U8:		return VK_FORMAT_R8G8_UNORM;
+		case ShaderDataType::Float3_U8:		return VK_FORMAT_R8G8B8_UNORM;
+		case ShaderDataType::Float4_U8:		return VK_FORMAT_R8G8B8A8_UNORM;
+		case ShaderDataType::Mat3:			return VK_FORMAT_R32G32B32_SFLOAT;
+		case ShaderDataType::Mat4:			return VK_FORMAT_R32G32B32A32_SFLOAT;
+		case ShaderDataType::Int_S32:		return VK_FORMAT_R32_SINT;
+		case ShaderDataType::Int2_S32:		return VK_FORMAT_R32G32_SINT;
+		case ShaderDataType::Int3_S32:		return VK_FORMAT_R32G32B32_SINT;
+		case ShaderDataType::Int4_S32:		return VK_FORMAT_R32G32B32A32_SINT;
+		case ShaderDataType::Bool:			return VK_FORMAT_R8_SINT;
 		default: return VK_FORMAT_UNDEFINED;
 		}
 	}

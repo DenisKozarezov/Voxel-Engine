@@ -1,6 +1,9 @@
 # The canonical out-of-tree build subdirectory
 [Bb]uild/
 
+# Ignore all cache folders created by app
+[Cc]ache/
+
 # Visual Studio clutter
 *.sdf
 *.suo

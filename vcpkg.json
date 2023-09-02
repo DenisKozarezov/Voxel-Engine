@@ -15,6 +15,8 @@
       ]
     },
     "spdlog",
-    "tinyobjloader"
+    "tinyobjloader",
+    "shaderc",
+    "spirv-cross"
   ]
 }

@@ -3,7 +3,7 @@
 #include <core/PrimitiveTypes.h>
 #include <core/Base.h>
 
-enum ShaderStage : byte { Vertex, Fragment, Geometry, Compute };
+enum ShaderStage : byte { None, Vertex, Fragment, Geometry, Compute };
 
 namespace VoxelEngine::renderer
 {

@@ -531,20 +531,13 @@ namespace vulkan
 		state.UIOverlay.rasterizationSamples = state.msaaSamples;
 
 		vkUtils::VulkanShader shader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/editor/ui_overlay_shader.glsl"));
-		state.UIOverlay.shaders =
-		{
-			shader.getStages()[0],
-			shader.getStages()[1]
-		};
+		state.UIOverlay.shaders = shader.getStages();
 		state.UIOverlay.prepareResources();
 		state.UIOverlay.preparePipeline(
 			state.pipelineCache, 
 			state.renderPass, 
 			state.swapChainBundle.format, 
 			state.swapChainBundle.depthFormat);
-
-		//vertShader.unbind();
-		//fragShader.unbind();
 	}
 	void deviceWaitIdle()
 	{

@@ -193,7 +193,10 @@ namespace vkUtils
 	void releaseMaterials(const VkDevice& logicalDevice)
 	{
 		for (auto& material : materials)
+		{
 			vkDestroyPipeline(logicalDevice, material.second.pipeline, nullptr);
+			vkDestroyPipelineLayout(logicalDevice, material.second.pipelineLayout, nullptr);
+		}
 		materials.clear();
 	}
 }

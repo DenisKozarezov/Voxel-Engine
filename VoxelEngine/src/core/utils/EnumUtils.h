@@ -1,11 +1,12 @@
 #pragma once
 #include <vulkan/vulkan.h>
+#include <core/renderer/Shader.h>
 #include <core/renderer/RendererAPI.h>
 #include <components/camera/Camera.h>
 #include <spdlog/spdlog.h>
 
 #pragma region VULKAN
-constexpr const char* physicalDeviceTypeString(VkPhysicalDeviceType type)
+constexpr const char* physicalDeviceTypeString(const VkPhysicalDeviceType& type)
 	{
 		switch (type)
 		{
@@ -20,7 +21,7 @@ constexpr const char* physicalDeviceTypeString(VkPhysicalDeviceType type)
 		}
 	}
 
-constexpr const char* errorString(VkResult errorCode)
+constexpr const char* errorString(const VkResult& errorCode)
 {
 	switch (errorCode)
 	{
@@ -79,6 +80,34 @@ constexpr const char* projectionTypeString(const VoxelEngine::components::camera
 		STR(Orthographic);
 #undef STR
 	}
+}
+
+constexpr const char* shaderStageString(const ShaderStage& stage)
+{
+	switch (stage)
+	{
+#define STR(x) case ShaderStage::##x: return #x;
+		STR(Vertex);
+		STR(Fragment);
+		STR(Geometry);
+		STR(Compute);
+#undef STR
+	}
+}
+
+constexpr ShaderStage shaderStageFromString(const string& type)
+{
+	if (type == "vertex")
+		return Vertex;
+	if (type == "fragment")
+		return Fragment;
+	if (type == "geometry")
+		return Geometry;
+	if (type == "compute")
+		return Compute;
+
+	VOXEL_CORE_ASSERT(false, "Unknown shader stage!");
+	return None;
 }
 #pragma endregion
 

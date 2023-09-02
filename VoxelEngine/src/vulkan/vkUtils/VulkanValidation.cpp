@@ -14,17 +14,17 @@ namespace vkUtils
 		switch (messageType)
 		{
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
-			VOXEL_CORE_INFO(message.str())
-				break;
+			VOXEL_CORE_INFO(message.str());
+			break;
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
-			VOXEL_CORE_TRACE(message.str())
-				break;
+			VOXEL_CORE_TRACE(message.str());
+			break;
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
-			VOXEL_CORE_WARN(message.str())
-				break;
+			VOXEL_CORE_WARN(message.str());
+			break;
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
-			VOXEL_CORE_ERROR(message.str())
-				break;
+			VOXEL_CORE_ERROR(message.str());
+			break;
 		}
 		return VK_FALSE;
 	}
@@ -45,17 +45,17 @@ namespace vkUtils
 		switch (objectType)
 		{
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
-			VOXEL_CORE_INFO(message.str())
-				break;
+			VOXEL_CORE_INFO(message.str());
+			break;
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
-			VOXEL_CORE_TRACE(message.str())
-				break;
+			VOXEL_CORE_TRACE(message.str());
+			break;
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
-			VOXEL_CORE_WARN(message.str())
-				break;
+			VOXEL_CORE_WARN(message.str());
+			break;
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
-			VOXEL_CORE_ERROR(message.str())
-				break;
+			VOXEL_CORE_ERROR(message.str());
+			break;
 		}
 		return VK_FALSE;
 	}

@@ -41,7 +41,7 @@ namespace assets
 		TextureData() noexcept = default;
 		~TextureData() noexcept = default;
 
-		inline constexpr bool isValid() const { return m_nativePtr; }
+		INLINE const bool& isValid() const { return m_nativePtr; }
 		
 		void release() const;
 	};

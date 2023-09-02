@@ -1,8 +1,6 @@
 #pragma once
 #include <vulkan/vulkan.h>
 #include <core/renderer/Shader.h>
-#include <vector>
-#include <unordered_map>
 
 namespace vkUtils
 {
@@ -18,8 +16,9 @@ namespace vkUtils
 		ShaderSources m_shaderSources;
 		ShaderBinaries m_shaderBinaries;
 
-		ShaderSources preProcess(const std::string& source);
+		const ShaderSources& preProcess(const std::string& source);
 		constexpr const char* shaderStageCachedVulkanFileExtension(const ShaderStage& stage);
+		const std::vector<uint32> compileShaderToSpirv(const std::string& shaderProgram, const char* filepath, const ShaderStage& stage);
 		void compileOrGetVulkanBinaries(const string& filepath, const ShaderSources& shaderSources);
 		void createCacheDirectoryIfNeeded();
 

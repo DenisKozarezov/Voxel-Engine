@@ -66,14 +66,24 @@ find_package(imgui CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(Stb REQUIRED)
 find_package(tinyobjloader CONFIG REQUIRED)
+find_package(unofficial-shaderc CONFIG REQUIRED)
+find_package(spirv_cross_core CONFIG REQUIRED)
+find_package(spirv_cross_glsl CONFIG REQUIRED)
+find_package(spirv_cross_hlsl CONFIG REQUIRED)
+find_package(spirv_cross_reflect CONFIG REQUIRED)
+find_package(spirv_cross_msl CONFIG REQUIRED)
+find_package(spirv_cross_cpp CONFIG REQUIRED)
+find_package(spirv_cross_c CONFIG REQUIRED)
 
 target_link_libraries(${PROJECT_NAME} 
     PRIVATE
 	${Vulkan_LIBRARIES}
 	glfw
-        tinyobjloader::tinyobjloader
+	tinyobjloader::tinyobjloader
+	unofficial::shaderc::shaderc
+	spirv-cross-c
     PUBLIC
-        spdlog::spdlog
-        imgui::imgui
-        glm::glm
+	spdlog::spdlog
+	imgui::imgui
+	glm::glm
 )

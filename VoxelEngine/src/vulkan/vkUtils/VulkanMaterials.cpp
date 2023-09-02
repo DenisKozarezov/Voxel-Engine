@@ -74,7 +74,7 @@ namespace vkUtils
 			VK_CHECK(err, "failed to create pipeline layout!");
 
 			VkPipeline defaultPipeline;
-			VulkanShader shader = VulkanShader(logicalDevice, ASSET_PATH("shaders/SolidVertShader.spv"), ASSET_PATH("shaders/SolidFragShader.spv"));		
+			VulkanShader shader = VulkanShader(logicalDevice, ASSET_PATH("shaders/default_shader.glsl"));		
 			pipelineInfo.shaderStages = shader.getStages().data();
 			pipelineInfo.stagesCount = 2;
 			pipelineInfo.build(logicalDevice, defaultMaterialLayout, pipelineCache, &defaultPipeline);
@@ -96,7 +96,7 @@ namespace vkUtils
 			VkResult err = vkCreatePipelineLayout(logicalDevice, &pipelineInfo.pipelineLayoutInfo, nullptr, &solidMaterialLayout);
 			VK_CHECK(err, "failed to create pipeline layout!");
 			
-			VulkanShader shader = VulkanShader(logicalDevice, ASSET_PATH("shaders/InstancedSolidVert.spv"), ASSET_PATH("shaders/SolidFragShader.spv"));
+			VulkanShader shader = VulkanShader(logicalDevice, ASSET_PATH("shaders/solid_instanced_shader.glsl"));
 			pipelineInfo.shaderStages = shader.getStages().data();
 			pipelineInfo.stagesCount = 2;
 			pipelineInfo.build(logicalDevice, solidMaterialLayout, pipelineCache, &solidPipeline);
@@ -117,7 +117,7 @@ namespace vkUtils
 			VkResult err = vkCreatePipelineLayout(logicalDevice, &pipelineInfo.pipelineLayoutInfo, nullptr, &normalsMaterialLayout);
 			VK_CHECK(err, "failed to create pipeline layout!");
 
-			VulkanShader shader = VulkanShader(logicalDevice, ASSET_PATH("shaders/InstancedBaseVert.spv"), ASSET_PATH("shaders/BaseFragShader.spv"), ASSET_PATH("shaders/editor/NormalGeomShader.spv"));
+			VulkanShader shader = VulkanShader(logicalDevice, ASSET_PATH("shaders/normals_shader.glsl"));
 			pipelineInfo.shaderStages = shader.getStages().data();
 			pipelineInfo.stagesCount = 3;
 			pipelineInfo.flags = VK_PIPELINE_CREATE_DERIVATIVE_BIT;

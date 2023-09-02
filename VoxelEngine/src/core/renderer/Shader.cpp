@@ -24,9 +24,17 @@ namespace VoxelEngine::renderer
 	{
 		std::ifstream file(filename, std::ios::in | std::ios::binary);
 
-		VOXEL_CORE_ASSERT(file.is_open(), "failed to open shader source file at path: " + filename);
+		VOXEL_CORE_ASSERT(file.is_open(), "failed to open shader binary file at path: " + filename);
 
-		std::vector<uint32> shaderSource(std::istreambuf_iterator<char>(file), {});
+		file.seekg(0, std::ios::end);
+		size_t size = file.tellg();
+
+		VOXEL_CORE_ASSERT(size >= 0, "failed to read shader binary file at path: " + filename);
+
+		std::vector<uint32> shaderSource;
+		shaderSource.resize(size / sizeof(uint32));
+		file.seekg(0, std::ios::beg);
+		file.read((char*)shaderSource.data(), size);
 		return shaderSource;
 	}
 }

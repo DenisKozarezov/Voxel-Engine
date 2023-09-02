@@ -114,7 +114,7 @@ namespace vkUtils
 				std::ofstream out(cachedPath, std::ios::out | std::ios::binary);
 				if (out.is_open())
 				{
-					size_t size = shaderBinary[stage].size();
+					size_t size = shaderBinary[stage].size() * sizeof(uint32);
 					out.write((char*)shaderBinary[stage].data(), size);
 					out.flush();
 					out.close();
@@ -145,29 +145,6 @@ namespace vkUtils
 		VK_CHECK(err, "failed to create shader module!");
 		return shaderModule;
 	}
-	const VkShaderModule VulkanShader::createShaderModule(const string& spirv) const
-	{
-		VkShaderModuleCreateInfo createInfo = {};
-		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-		createInfo.codeSize = spirv.size();
-		createInfo.pCode = reinterpret_cast<const uint32*>(spirv.data());
-
-		VkShaderModule shaderModule;
-		VkResult err = vkCreateShaderModule(m_logicalDevice, &createInfo, nullptr, &shaderModule);
-		VK_CHECK(err, "failed to create shader module!");
-		return shaderModule;
-	}
-	void VulkanShader::createShader(const ShaderStage& stage, const string& spirv)
-	{
-		VkShaderModule shaderModule = createShaderModule(spirv);
-		VkPipelineShaderStageCreateInfo stageInfo = {};
-		stageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		stageInfo.stage = vkInit::shaderStageToVulkanBaseStage(stage);
-		stageInfo.module = shaderModule;
-		stageInfo.pName = "main";
-		m_shaderStages.push_back(stageInfo);
-		m_shaderModules.push_back(shaderModule);
-	}
 	void VulkanShader::createShader(const ShaderStage& stage, const std::vector<uint32>& spirv)
 	{
 		VkShaderModule shaderModule = createShaderModule(spirv);
@@ -187,8 +164,8 @@ namespace vkUtils
 
 		createCacheDirectoryIfNeeded();
 
-		const string shaderProgram = readFile(filepath);
-		const ShaderSources shaderSources = preProcess(shaderProgram);
+		const string& shaderProgram = readFile(filepath);
+		const ShaderSources& shaderSources = preProcess(shaderProgram);
 
 		m_shaderStages.reserve(shaderSources.size());
 		m_shaderModules.reserve(shaderSources.size());
@@ -204,33 +181,6 @@ namespace vkUtils
 
 		m_shaderSources.clear();
 		m_shaderBinaries.clear();
-	}
-	VulkanShader::VulkanShader(const VkDevice& logicalDevice, const char* vertexPath, const char* fragmentPath, const char* geometryPath)
-		: m_logicalDevice(logicalDevice)
-	{
-		VoxelEngine::Timer timer;
-		m_shaderStages.reserve(3);
-		m_shaderModules.reserve(3);
-
-		auto vertexSpirv = readFile(vertexPath);
-		createShader(Vertex, vertexSpirv);
-		VOXEL_CORE_WARN("Shader '{0}' creation time: {1} ms.", vertexPath, timer.elapsedTimeInMilliseconds<double>());
-
-		if (fragmentPath != nullptr)
-		{
-			timer.reset();
-			auto fragmentSpirv = readFile(fragmentPath);
-			createShader(Fragment, fragmentSpirv);
-			VOXEL_CORE_WARN("Shader '{0}' creation time: {1} ms.", fragmentPath, timer.elapsedTimeInMilliseconds<double>());
-		}
-
-		if (geometryPath != nullptr)
-		{
-			timer.reset();
-			auto geometrySpirv = readFile(geometryPath);
-			createShader(Geometry, geometrySpirv);
-			VOXEL_CORE_WARN("Shader '{0}' creation time: {1} ms.", geometryPath, timer.elapsedTimeInMilliseconds<double>());
-		}
 	}
 	void VulkanShader::unbind() const
 	{

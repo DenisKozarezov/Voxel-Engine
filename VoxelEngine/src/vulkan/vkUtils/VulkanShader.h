@@ -24,13 +24,10 @@ namespace vkUtils
 		void createCacheDirectoryIfNeeded();
 
 		const VkShaderModule createShaderModule(const std::vector<uint32>& spirv) const;
-		const VkShaderModule createShaderModule(const string& spirv) const;
 		void createShader(const ShaderStage& stage, const std::vector<uint32>& spirv);
-		void createShader(const ShaderStage& stage, const string& spirv);
 	public:
 		VulkanShader() noexcept = delete;
 		VulkanShader(const VkDevice& logicalDevice, const char* filepath);
-		VulkanShader(const VkDevice& logicalDevice, const char* vertexPath, const char* fragmentPath, const char* geometryPath = nullptr);
 
 		INLINE std::vector<VkPipelineShaderStageCreateInfo>& getStages() & noexcept { return m_shaderStages; }
 

@@ -7,7 +7,7 @@ extern UniqueRef<VoxelEngine::Application> CreateApplication(ApplicationCommandL
 #ifdef VOXEL_PLATFORM_WINDOWS
 int main(int argc, char** argv)
 {
-    VoxelEngine::Log::init(PROJECT_NAME, "EditorApplication");
+    VoxelEngine::Log::init(PROJECT_NAME, "Editor Application");
 
     VOXEL_CORE_TRACE("============ Application Entry Point ============");
     VOXEL_CORE_WARN("Initializing Logging System...");

@@ -1,7 +1,6 @@
 #pragma once
 #include "input/events/ApplicationEvent.h"
 #include "input/events/EventDispatcher.h"
-#include "Assert.h"
 #include "LayerStack.h"
 #include "renderer/Renderer.h"
 #include "imgui/ImGuiLayer.h"
@@ -38,7 +37,7 @@ struct ApplicationSpecification
 
 namespace VoxelEngine
 {
-	class VOXEL_API Application
+	class Application
 	{
 	private:
 		ApplicationSpecification m_specification;
@@ -76,10 +75,9 @@ namespace VoxelEngine
 		Application& operator=(Application const& rhs) noexcept = delete;
 		Application& operator=(Application&& rhs) noexcept = delete;
 
-		INLINE static Application& getInstance();
-		INLINE const float& getDeltaTime() const;
-		INLINE const uint32& getFPS() const;
-
+		INLINE static Application& getInstance() { return *s_instance; }
+		INLINE const float& getDeltaTime() const { return m_frameTimer; }
+		INLINE const uint32& getFPS() const { return m_lastFPS; }
 		INLINE const UniqueRef<Window>& getWindow() const { return m_window; }
 
 		void init();

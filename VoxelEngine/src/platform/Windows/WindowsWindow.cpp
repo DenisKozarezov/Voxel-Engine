@@ -34,8 +34,7 @@ namespace VoxelEngine
 		
 		m_window = glfwCreateWindow(m_windowData.Width, m_windowData.Height, m_windowData.Title.c_str(), nullptr, nullptr);
 		glfwMakeContextCurrent(m_window);
-		glfwSetWindowUserPointer(m_window, &m_windowData);	
-		setVSync(true);
+		glfwSetWindowUserPointer(m_window, &m_windowData);
 
 		glfwSetWindowSizeCallback(m_window, [](GLFWwindow* window, int width, int height)
 		{
@@ -121,15 +120,6 @@ namespace VoxelEngine
 	{
 		glfwDestroyWindow(m_window);
 		m_window = nullptr;
-	}
-	inline void WindowsWindow::setVSync(bool isEnabled) noexcept
-	{
-		glfwSwapInterval(isEnabled);
-		m_windowData.VSync = isEnabled;
-	}
-	inline void WindowsWindow::setEventCallback(const EventCallback& callback) noexcept
-	{
-		m_windowData.EventCallback = callback;
 	}
 	void WindowsWindow::setMaximized(const bool& isMaximized)
 	{

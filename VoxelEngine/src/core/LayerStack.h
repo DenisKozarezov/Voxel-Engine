@@ -4,7 +4,7 @@
 
 namespace VoxelEngine::renderer
 {
-	class VOXEL_API LayerStack final
+	class LayerStack final
 	{
 	private:
 		std::deque<Layer*> m_layers;

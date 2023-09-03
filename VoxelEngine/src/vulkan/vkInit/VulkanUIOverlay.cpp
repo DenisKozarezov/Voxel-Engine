@@ -160,11 +160,22 @@ namespace vkInit
 	/** Prepare a separate pipeline for the UI overlay rendering decoupled from the main application */
 	void UIOverlay::preparePipeline(const VkPipelineCache pipelineCache, const VkRenderPass renderPass, const VkFormat colorFormat, const VkFormat depthFormat)
 	{
-		VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::inputStateCreateInfo({
-			{ ShaderDataType::Float2_S32 },		// Position
-			{ ShaderDataType::Float2_S32 },		// UV
-			{ ShaderDataType::Float4_U8 },		// Color
-		});		
+		constexpr std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions =
+		{
+			vkInit::vertexInputAttributeDescription(VERTEX_BUFFER_BIND_ID, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(ImDrawVert, pos)),
+			vkInit::vertexInputAttributeDescription(VERTEX_BUFFER_BIND_ID, 1, VK_FORMAT_R32G32_SFLOAT, offsetof(ImDrawVert, uv)),
+			vkInit::vertexInputAttributeDescription(VERTEX_BUFFER_BIND_ID, 2, VK_FORMAT_R8G8B8A8_UNORM, offsetof(ImDrawVert, col))
+		};
+		constexpr std::array<VkVertexInputBindingDescription, 1> bindingDescriptions =
+		{
+			vkInit::vertexInputBindingDescription(VERTEX_BUFFER_BIND_ID, sizeof(ImDrawVert), VK_VERTEX_INPUT_RATE_VERTEX),
+		};
+		VkPipelineVertexInputStateCreateInfo vertexInputState = vkInit::pipelineVertexInputStateCreateInfo(
+			bindingDescriptions.data(),
+			static_cast<uint32>(bindingDescriptions.size()),
+			attributeDescriptions.data(),
+			static_cast<uint32>(attributeDescriptions.size())
+		);
 
 		// Pipeline layout
 		// Push constants for UI rendering parameters
@@ -216,7 +227,7 @@ namespace vkInit
 		VkPipelineDynamicStateCreateInfo dynamicState = vkInit::pipelineDynamicStateCreateInfo(dynamicStateEnables);
 
 		VkGraphicsPipelineCreateInfo pipelineCreateInfo = vkInit::pipelineCreateInfo();
-		pipelineCreateInfo.pVertexInputState = &vertexInputInfo;
+		pipelineCreateInfo.pVertexInputState = &vertexInputState;
 		pipelineCreateInfo.pInputAssemblyState = &inputAssemblyState;
 		pipelineCreateInfo.pRasterizationState = &rasterizationState;
 		pipelineCreateInfo.pColorBlendState = &colorBlendState;

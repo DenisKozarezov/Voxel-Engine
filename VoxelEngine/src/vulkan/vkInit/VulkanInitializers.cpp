@@ -1,4 +1,6 @@
 #include "VulkanInitializers.h"
+#include <core/renderer/Vertex.h>
+#include <core/renderer/RendererAPI.h>
 
 namespace vkInit
 {
@@ -34,8 +36,8 @@ namespace vkInit
 
 		shaderBindings =
 		{
-			vkInit::vertexInputBindingDescription(VERTEX_BUFFER_BIND_ID, vertexRateSize, VK_VERTEX_INPUT_RATE_VERTEX),
-			vkInit::vertexInputBindingDescription(INSTANCE_BUFFER_BIND_ID, instanceRateSize, VK_VERTEX_INPUT_RATE_INSTANCE)
+			vkInit::vertexInputBindingDescription(VERTEX_BUFFER_BIND_ID, sizeof(VoxelEngine::renderer::Vertex), VK_VERTEX_INPUT_RATE_VERTEX),
+			vkInit::vertexInputBindingDescription(INSTANCE_BUFFER_BIND_ID, sizeof(VoxelEngine::renderer::InstanceData), VK_VERTEX_INPUT_RATE_INSTANCE)
 		};
 
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::pipelineVertexInputStateCreateInfo(

@@ -261,18 +261,15 @@ namespace vulkan
 		case renderer::Wireframe:
 			vkUtils::getMaterial("wireframe_instanced")->bind(commandBuffer, frame.descriptorSet);
 			break;
+		case renderer::Normals:
+			vkUtils::getMaterial("normals")->bind(commandBuffer, frame.descriptorSet);
+			break;
 		}
 
 		uint32 startInstance = 0;	
 		uint32 instancesCount = static_cast<uint32>(instanceData.size());
 		renderSceneObjects(commandBuffer, mesh::MeshTopology::Cube, startInstance, instancesCount);
 
-		if (renderSettings.showNormals)
-		{
-			vkUtils::getMaterial("normals")->bind(commandBuffer, frame.descriptorSet);
-			startInstance = 0;
-			renderSceneObjects(commandBuffer, mesh::MeshTopology::Cube, startInstance, instancesCount);
-		}
 		startInstance = 0;
 		vkUtils::getMaterial("editor_grid")->bind(commandBuffer, frame.descriptorSet);
 		renderSceneObjects(commandBuffer, mesh::MeshTopology::Quad, startInstance, 1);

@@ -4,19 +4,21 @@ namespace VoxelEditor
 {
 	void SceneView::drawRenderModes()
 	{
-		static int e;
 		auto& settings = renderer::Renderer::getRenderSettings();
 
 		ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
 		window_flags |= ImGuiWindowFlags_NoMove;
-		ImGui::BeginChild("##render_modes", { 200, 100 }, false, window_flags);
-		ImGui::RadioButton("Solid", &e, 0);
-		ImGui::RadioButton("Wireframe", &e, 1);
-		ImGui::Separator();
-		ImGui::Checkbox("Show Normals", &settings.showNormals);
+
+		ImGui::BeginChild("##render_mode", { 300, 100 }, false, window_flags);
+	
+		ImGui::Text("Render Mode");
+
+		static int current_item = 0;
+		ImGui::Combo("##render_modes", &current_item, "Solid\0Wireframe\0Normals\0");
+
 		ImGui::EndChild();
 
-		settings.renderMode = static_cast<renderer::RenderMode>(e);
+		settings.renderMode = static_cast<renderer::RenderMode>(current_item);
 	}
 	void SceneView::drawCameraModes()
 	{

@@ -6,7 +6,8 @@ namespace VoxelEngine::renderer
 	enum RenderMode
 	{
 		Solid,
-		Wireframe
+		Wireframe,
+		Normals
 	};
 
 	struct RenderFrameStats
@@ -24,7 +25,6 @@ namespace VoxelEngine::renderer
 	struct RenderSettings
 	{
 		RenderMode renderMode = RenderMode::Solid;
-		bool showNormals = false;
 	};
 
 }

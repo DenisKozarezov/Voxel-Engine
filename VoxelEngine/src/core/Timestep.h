@@ -1,4 +1,5 @@
 #pragma once
+#include <core/Base.h>
 
 namespace VoxelEngine
 {
@@ -10,9 +11,10 @@ namespace VoxelEngine
 		Timestep(const float& time) noexcept : m_time(time) { }
 		~Timestep() noexcept = default;
 
-		inline constexpr operator float() const & { return m_time; }
+		constexpr operator float&() { return m_time; }
+		constexpr operator float() const& { return m_time; }
 
-		inline constexpr float getSeconds() { return m_time * 0.001f; }
-		inline constexpr float& getMilliseconds() & { return m_time; }
+		INLINE const float getSeconds() const { return m_time * 0.001f; }
+		INLINE const float& getMilliseconds() const { return m_time; }
 	};
 }

@@ -18,7 +18,7 @@ namespace VoxelEngine
 		~WindowProperties() = default;
 	};
 
-	class VOXEL_API Window
+	class Window
 	{
 	public:
 		using EventCallback = std::function<void(input::Event&)>;
@@ -31,9 +31,7 @@ namespace VoxelEngine
 
 		virtual INLINE const uint16& getWidth() const = 0;
 		virtual INLINE const uint16& getHeight() const = 0;
-		virtual INLINE const bool& VSyncEnabled() const noexcept = 0;
 		virtual INLINE const void* getNativeWindow() const & noexcept = 0;
-		virtual void setVSync(bool isEnabled) noexcept = 0;
 		virtual void setEventCallback(const EventCallback& callback) noexcept = 0;
 		virtual void setMaximized(const bool& isMaximized) = 0;
 		virtual void init() = 0;

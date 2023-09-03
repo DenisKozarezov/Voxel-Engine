@@ -14,7 +14,6 @@ namespace VoxelEngine
 		{
 			string Title;
 			uint16 Width = 0, Height = 0;
-			bool VSync = false;
 			EventCallback EventCallback;
 		};
 		WindowsOSData m_windowData;
@@ -25,10 +24,11 @@ namespace VoxelEngine
 
 		INLINE const uint16& getWidth() const noexcept override { return m_windowData.Width; }
 		INLINE const uint16& getHeight() const noexcept override { return m_windowData.Height; }
-		INLINE const bool& VSyncEnabled() const noexcept override { return m_windowData.VSync; }
 		INLINE const void* getNativeWindow() const & noexcept override { return m_window; }
-		void setVSync(bool isEnabled) noexcept override;
-		void setEventCallback(const EventCallback& callback) noexcept override;
+		INLINE void setEventCallback(const EventCallback& callback) noexcept override
+		{
+			m_windowData.EventCallback = callback;
+		}
 		void setMaximized(const bool& isMaximized) override;
 		void onUpdate() override;
 		void waitEvents() const override;

@@ -59,7 +59,7 @@ namespace vkUtils
 		shaderc::SpvCompilationResult module = compiler.CompileGlslToSpv(shaderProgram, kind, filepath, options);
 		VOXEL_CORE_ASSERT(module.GetCompilationStatus() == shaderc_compilation_status_success, module.GetErrorMessage());
 
-		VOXEL_CORE_WARN("Shader '{0}' compilation time: {1} ms.", filepath, timer.elapsedTimeInMilliseconds<double>());
+		VOXEL_CORE_WARN("Shader '{0}' compilation time: {1} ms.", filepath, timer.elapsedTimeInMilliseconds());
 
 		return std::vector<uint32>(module.cbegin(), module.cend());
 	}
@@ -74,13 +74,14 @@ namespace vkUtils
 			VOXEL_CORE_ASSERT(eol != std::string::npos, "Syntax error");
 			size_t begin = pos + typeTokenLength + 1; // Start of shader type name (after "#type " keyword)
 			std::string type = source.substr(begin, eol - begin);
-			VOXEL_CORE_ASSERT(shaderTypeFromString(type), "invalid shader type specified");
+			ShaderStage shaderStage = shaderStageFromString(type);
+			VOXEL_CORE_ASSERT(shaderStage, "invalid shader type specified");
 
 			size_t nextLinePos = source.find_first_not_of("\r\n", eol); // Start of shader code after shader type declaration line
 			VOXEL_CORE_ASSERT(nextLinePos != std::string::npos, "syntax error");
 			pos = source.find(typeToken, nextLinePos); // Start of next shader type declaration line
 
-			m_shaderSources[shaderStageFromString(type)] = (pos == std::string::npos) ? source.substr(nextLinePos) : source.substr(nextLinePos, pos - nextLinePos);
+			m_shaderSources[shaderStage] = (pos == std::string::npos) ? source.substr(nextLinePos) : source.substr(nextLinePos, pos - nextLinePos);
 		}
 
 		return m_shaderSources;
@@ -105,7 +106,7 @@ namespace vkUtils
 				shaderBinary[stage] = compileShaderToSpirv(source, filepath.c_str(), stage);
 
 				std::ofstream out(cachedPath, std::ios::out | std::ios::binary);
-				VOXEL_CORE_ASSERT(out.is_open(), "failed to write cache binary file at path " + cachedPath);
+				VOXEL_CORE_ASSERT(out.is_open(), "failed to write cache binary file at path " + cachedPath.string());
 
 				size_t size = shaderBinary[stage].size() * sizeof(uint32);
 				out.write((char*)shaderBinary[stage].data(), size);
@@ -167,7 +168,7 @@ namespace vkUtils
 			{
 				createShader(stage, spirv);
 			}
-			VOXEL_CORE_WARN("Shader '{0}' creation time: {1} ms.", filepath, timer.elapsedTimeInMilliseconds<double>());
+			VOXEL_CORE_WARN("Shader '{0}' creation time: {1} ms.", filepath, timer.elapsedTimeInMilliseconds());
 		}
 
 		m_shaderSources.clear();

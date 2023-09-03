@@ -32,19 +32,6 @@ namespace VoxelEngine
 		init();
 	}
 
-	INLINE Application& Application::getInstance()
-	{
-		return *s_instance;
-	}
-	INLINE const float& Application::getDeltaTime() const
-	{
-		return m_frameTimer;
-	}
-	INLINE const uint32& Application::getFPS() const
-	{
-		return m_lastFPS;
-	}
-
 	void Application::pushLayer(renderer::Layer* layer)
 	{
 		m_layerStack.pushLayer(layer);

@@ -783,14 +783,14 @@ namespace vkInit
 		}
 	}
 	
-	constexpr VkShaderStageFlagBits shaderStageToVulkanBaseStage(ShaderStage shaderStage)
+	constexpr VkShaderStageFlagBits shaderStageToVulkanBaseStage(byte shaderStage)
 	{
 		switch (shaderStage)
 		{
-		case ShaderStage::Vertex: return VK_SHADER_STAGE_VERTEX_BIT;
-		case ShaderStage::Fragment: return  VK_SHADER_STAGE_FRAGMENT_BIT;
+		case ShaderStage::Vertex:	return VK_SHADER_STAGE_VERTEX_BIT;
+		case ShaderStage::Fragment: return VK_SHADER_STAGE_FRAGMENT_BIT;
 		case ShaderStage::Geometry: return VK_SHADER_STAGE_GEOMETRY_BIT;
-		case ShaderStage::Compute: return VK_SHADER_STAGE_COMPUTE_BIT;
+		case ShaderStage::Compute:	return VK_SHADER_STAGE_COMPUTE_BIT;
 		}
 	}
 

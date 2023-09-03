@@ -3,7 +3,6 @@
 #include "../vkInit/VulkanInitializers.h"
 
 #include <core/Timer.h>
-#include <core/utils/EnumUtils.h>
 #include <shaderc/shaderc.hpp>
 #include <spirv_cross/spirv_cross.hpp>
 #include <spirv_cross/spirv_glsl.hpp>
@@ -11,7 +10,7 @@
 
 namespace vkUtils
 {
-	constexpr shaderc_shader_kind shaderStageToShaderStage(const ShaderStage& stage)
+	constexpr shaderc_shader_kind shaderStageToGlslKind(const ShaderStage& stage)
 	{
 		switch (stage)
 		{
@@ -52,45 +51,22 @@ namespace vkUtils
 		if (optimize)
 			options.SetOptimizationLevel(shaderc_optimization_level_performance);
 
-		shaderc_shader_kind kind = shaderStageToShaderStage(stage);
+		shaderc_shader_kind kind = shaderStageToGlslKind(stage);
 		shaderc::PreprocessedSourceCompilationResult preprocess = compiler.PreprocessGlsl(shaderProgram, kind, filepath, options);
 		VOXEL_CORE_ASSERT(preprocess.GetCompilationStatus() == shaderc_compilation_status_success, preprocess.GetErrorMessage());
 
 		shaderc::SpvCompilationResult module = compiler.CompileGlslToSpv(shaderProgram, kind, filepath, options);
 		VOXEL_CORE_ASSERT(module.GetCompilationStatus() == shaderc_compilation_status_success, module.GetErrorMessage());
 
-		VOXEL_CORE_WARN("Shader '{0}' compilation time: {1} ms.", filepath, timer.elapsedTimeInMilliseconds());
+		VOXEL_CORE_WARN("Shader '{0}' ({1}) compilation time: {2} ms.", filepath, shaderStageString(stage), timer.elapsedTimeInMilliseconds());
 
 		return std::vector<uint32>(module.cbegin(), module.cend());
 	}
-	const ShaderSources& VulkanShader::preProcess(const std::string& source)
-	{
-		const char* typeToken = "#type";
-		size_t typeTokenLength = strlen(typeToken);
-		size_t pos = source.find(typeToken, 0); //Start of shader type declaration line
-		while (pos != std::string::npos)
-		{
-			size_t eol = source.find_first_of("\r\n", pos);
-			VOXEL_CORE_ASSERT(eol != std::string::npos, "Syntax error");
-			size_t begin = pos + typeTokenLength + 1; // Start of shader type name (after "#type " keyword)
-			std::string type = source.substr(begin, eol - begin);
-			ShaderStage shaderStage = shaderStageFromString(type);
-			VOXEL_CORE_ASSERT(shaderStage, "invalid shader type specified");
-
-			size_t nextLinePos = source.find_first_not_of("\r\n", eol); // Start of shader code after shader type declaration line
-			VOXEL_CORE_ASSERT(nextLinePos != std::string::npos, "syntax error");
-			pos = source.find(typeToken, nextLinePos); // Start of next shader type declaration line
-
-			m_shaderSources[shaderStage] = (pos == std::string::npos) ? source.substr(nextLinePos) : source.substr(nextLinePos, pos - nextLinePos);
-		}
-
-		return m_shaderSources;
-	}
-	void VulkanShader::compileOrGetVulkanBinaries(const string& filepath, const ShaderSources& shaderSources)
+	const utils::lexer::ShaderBinaries VulkanShader::compileOrGetVulkanBinaries(const string& filepath, const utils::lexer::ShaderSources& shaderSources)
 	{
 		std::filesystem::path cacheDirectory = getCacheDirectory();
 
-		auto& shaderBinary = m_shaderBinaries;
+		utils::lexer::ShaderBinaries shaderBinaries;
 		for (const auto& [stage, source] : shaderSources)
 		{
 			std::filesystem::path shaderFilePath = filepath;
@@ -98,22 +74,29 @@ namespace vkUtils
 
 			if (std::filesystem::exists(cachedPath))
 			{
+				shaderBinaries[stage] = readBinary(cachedPath.string());
 				VOXEL_CORE_WARN("Shader '{0}' ({1}) is found in cache.", filepath, shaderStageString(stage));
-				shaderBinary[stage] = readBinary(cachedPath.string());
 			}
 			else
 			{
-				shaderBinary[stage] = compileShaderToSpirv(source, filepath.c_str(), stage);
+				VOXEL_CORE_WARN("Shader '{0}' not found in cache. Compiling to SPIR-V...", filepath, shaderStageString(stage));
+
+				shaderBinaries[stage] = compileShaderToSpirv(source, filepath.c_str(), stage);
 
 				std::ofstream out(cachedPath, std::ios::out | std::ios::binary);
 				VOXEL_CORE_ASSERT(out.is_open(), "failed to write cache binary file at path " + cachedPath.string());
 
-				size_t size = shaderBinary[stage].size() * sizeof(uint32);
-				out.write((char*)shaderBinary[stage].data(), size);
+				size_t size = shaderBinaries[stage].size() * sizeof(uint32);
+				out.write((char*)shaderBinaries[stage].data(), size);
 				out.flush();
 				out.close();
 			}
 		}
+
+		if (shaderBinaries.size() > 0)
+			return shaderBinaries;
+		else
+			return utils::lexer::ShaderBinaries(0);
 	}
 	void VulkanShader::createCacheDirectoryIfNeeded()
 	{
@@ -157,22 +140,19 @@ namespace vkUtils
 		createCacheDirectoryIfNeeded();
 
 		const string& shaderProgram = readFile(filepath);
-		const ShaderSources& shaderSources = preProcess(shaderProgram);
+		const auto& shaderSources = utils::lexer::analyzeShaderProgram(shaderProgram);
 
 		m_shaderStages.reserve(shaderSources.size());
 		m_shaderModules.reserve(shaderSources.size());
-		compileOrGetVulkanBinaries(filepath, shaderSources);
+		const auto& shaderBinaries = compileOrGetVulkanBinaries(filepath, shaderSources);
 		{
 			VoxelEngine::Timer timer;
-			for (const auto& [stage, spirv] : m_shaderBinaries)
+			for (const auto& [stage, spirv] : shaderBinaries)
 			{
 				createShader(stage, spirv);
 			}
 			VOXEL_CORE_WARN("Shader '{0}' creation time: {1} ms.", filepath, timer.elapsedTimeInMilliseconds());
 		}
-
-		m_shaderSources.clear();
-		m_shaderBinaries.clear();
 	}
 	void VulkanShader::unbind() const
 	{

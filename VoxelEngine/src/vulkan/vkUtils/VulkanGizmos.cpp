@@ -85,6 +85,6 @@ namespace utils
 	void Gizmos::release()
 	{
 		s_renderData.linesBuffer.release();
-		delete s_renderData.linesPtrStart;
+		delete[] s_renderData.linesPtrStart;
 	}
 }

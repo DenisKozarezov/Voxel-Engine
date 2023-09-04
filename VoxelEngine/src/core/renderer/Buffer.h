@@ -29,6 +29,7 @@ namespace VoxelEngine::renderer
 		virtual void bind() = 0;
 		virtual void release() = 0;
 
+		static SharedRef<IndexBuffer> Allocate(const uint32& size);
 		static SharedRef<IndexBuffer> Allocate(const void* indices, const uint32& size);
 	};
 }

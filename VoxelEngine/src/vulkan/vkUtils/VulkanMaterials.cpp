@@ -54,30 +54,50 @@ namespace vkUtils
 		VOXEL_CORE_ASSERT(materials.contains(matName), "there is no material with such name " + matName);
 		return &materials[matName];
 	}
-	
+
 	void makeMaterials(
 		const VkDevice& logicalDevice, 
 		const VkPipelineCache& pipelineCache,
 		VulkanPipelineCreateInfo& pipelineInfo)
 	{
 		// DEFAULT
+		VkPipeline defaultPipeline;
 		{
 			VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::inputStateCreateInfo({
 				{ ShaderDataType::Float3_S32 },			// Position
 				{ ShaderDataType::Float3_S32 }			// Color
-			});
+			}, 24);
 			pipelineInfo.vertexInputInfo = &vertexInputInfo;
 
 			VkPipelineLayout defaultMaterialLayout;
 			VkResult err = vkCreatePipelineLayout(logicalDevice, &pipelineInfo.pipelineLayoutInfo, nullptr, &defaultMaterialLayout);
 			VK_CHECK(err, "failed to create pipeline layout!");
 
-			VkPipeline defaultPipeline;
 			VulkanShader shader = VulkanShader(logicalDevice, ASSET_PATH("shaders/default_shader.glsl"));		
 			pipelineInfo.shaderStages = shader.getStages().data();
 			pipelineInfo.stagesCount = static_cast<uint32>(shader.getStages().size());
+			pipelineInfo.rasterizer->polygonMode = VK_POLYGON_MODE_FILL;
+			pipelineInfo.inputAssembly->topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 			pipelineInfo.build(logicalDevice, defaultMaterialLayout, pipelineCache, &defaultPipeline);
 			createMaterial(defaultPipeline, defaultMaterialLayout, "default");
+		}
+
+		// LINES
+		{
+			VkPipelineLayout linesMaterialLayout;
+			VkResult err = vkCreatePipelineLayout(logicalDevice, &pipelineInfo.pipelineLayoutInfo, nullptr, &linesMaterialLayout);
+			VK_CHECK(err, "failed to create pipeline layout!");
+
+			VkPipeline linesPipeline;
+			VulkanShader shader = VulkanShader(logicalDevice, ASSET_PATH("shaders/default_shader.glsl"));
+			pipelineInfo.shaderStages = shader.getStages().data();
+			pipelineInfo.stagesCount = static_cast<uint32>(shader.getStages().size());
+			pipelineInfo.rasterizer->polygonMode = VK_POLYGON_MODE_LINE;
+			pipelineInfo.inputAssembly->topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+			pipelineInfo.flags = VK_PIPELINE_CREATE_DERIVATIVE_BIT;
+			pipelineInfo.basePipelineHandle = defaultPipeline;
+			pipelineInfo.build(logicalDevice, linesMaterialLayout, pipelineCache, &linesPipeline);
+			createMaterial(linesPipeline, linesMaterialLayout, "lines");
 		}
 
 		// SOLID INSTANCED
@@ -99,6 +119,7 @@ namespace vkUtils
 			pipelineInfo.shaderStages = shader.getStages().data();
 			pipelineInfo.stagesCount = static_cast<uint32>(shader.getStages().size());
 			pipelineInfo.rasterizer->polygonMode = VK_POLYGON_MODE_FILL;
+			pipelineInfo.inputAssembly->topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 			pipelineInfo.build(logicalDevice, solidMaterialLayout, pipelineCache, &solidPipeline);
 			createMaterial(solidPipeline, solidMaterialLayout, "solid_instanced");
 		}

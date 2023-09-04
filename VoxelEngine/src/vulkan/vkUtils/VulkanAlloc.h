@@ -18,7 +18,7 @@ namespace vkUtils::memory
 		INLINE operator const VkBuffer& () const& { return buffer; }
 
 		void release();
-		VkResult map();
+		void map();
 		void unmap();
 		void setData(const void* data, const size_t& size) const;
 		VkResult flush(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0) const;

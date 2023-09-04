@@ -160,22 +160,11 @@ namespace vkInit
 	/** Prepare a separate pipeline for the UI overlay rendering decoupled from the main application */
 	void UIOverlay::preparePipeline(const VkPipelineCache pipelineCache, const VkRenderPass renderPass, const VkFormat colorFormat, const VkFormat depthFormat)
 	{
-		constexpr std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions =
-		{
-			vkInit::vertexInputAttributeDescription(VERTEX_BUFFER_BIND_ID, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(ImDrawVert, pos)),
-			vkInit::vertexInputAttributeDescription(VERTEX_BUFFER_BIND_ID, 1, VK_FORMAT_R32G32_SFLOAT, offsetof(ImDrawVert, uv)),
-			vkInit::vertexInputAttributeDescription(VERTEX_BUFFER_BIND_ID, 2, VK_FORMAT_R8G8B8A8_UNORM, offsetof(ImDrawVert, col))
-		};
-		constexpr std::array<VkVertexInputBindingDescription, 1> bindingDescriptions =
-		{
-			vkInit::vertexInputBindingDescription(VERTEX_BUFFER_BIND_ID, sizeof(ImDrawVert), VK_VERTEX_INPUT_RATE_VERTEX),
-		};
-		VkPipelineVertexInputStateCreateInfo vertexInputState = vkInit::pipelineVertexInputStateCreateInfo(
-			bindingDescriptions.data(),
-			static_cast<uint32>(bindingDescriptions.size()),
-			attributeDescriptions.data(),
-			static_cast<uint32>(attributeDescriptions.size())
-		);
+		VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::inputStateCreateInfo({
+			{ ShaderDataType::Float2_S32 },		// Position
+			{ ShaderDataType::Float2_S32 },		// UV
+			{ ShaderDataType::Float4_U8 },		// Color
+		}, sizeof(ImDrawVert));
 
 		// Pipeline layout
 		// Push constants for UI rendering parameters
@@ -227,7 +216,7 @@ namespace vkInit
 		VkPipelineDynamicStateCreateInfo dynamicState = vkInit::pipelineDynamicStateCreateInfo(dynamicStateEnables);
 
 		VkGraphicsPipelineCreateInfo pipelineCreateInfo = vkInit::pipelineCreateInfo();
-		pipelineCreateInfo.pVertexInputState = &vertexInputState;
+		pipelineCreateInfo.pVertexInputState = &vertexInputInfo;
 		pipelineCreateInfo.pInputAssemblyState = &inputAssemblyState;
 		pipelineCreateInfo.pRasterizationState = &rasterizationState;
 		pipelineCreateInfo.pColorBlendState = &colorBlendState;
@@ -273,9 +262,8 @@ namespace vkInit
 		VkDeviceSize indexBufferSize = imDrawData->TotalIdxCount * sizeof(ImDrawIdx);
 
 		// Update buffers only if vertex or index count has been changed compared to current buffer size
-		if ((vertexBufferSize == 0) || (indexBufferSize == 0)) {
+		if ((vertexBufferSize == 0) || (indexBufferSize == 0))
 			return false;
-		}
 
 		// Vertex buffer
 		if ((vertexBuffer.buffer == VK_NULL_HANDLE) || (vertexCount != imDrawData->TotalVtxCount)) {

@@ -135,9 +135,9 @@ namespace vkUtils::memory
 		descriptor.range = 0;
 		size = 0;
 	}
-	VkResult Buffer::map()
+	void Buffer::map()
 	{
-		return vkMapMemory(logicalDevice, bufferMemory, 0, size, 0, &mappedMemory);
+		VK_CHECK(vkMapMemory(logicalDevice, bufferMemory, 0, size, 0, &mappedMemory), "failed to map memory!");
 	}
 	void Buffer::unmap()
 	{

@@ -2,6 +2,7 @@
 #include <vulkan/vulkan.h>
 #include <core/renderer/Shader.h>
 #include <core/renderer/ShaderLayout.h>
+#include <core/renderer/Vertex.h>
 
 namespace vkInit
 {
@@ -794,5 +795,5 @@ namespace vkInit
 		}
 	}
 
-	const VkPipelineVertexInputStateCreateInfo inputStateCreateInfo(VoxelEngine::renderer::ShaderLayout layout);
+	const VkPipelineVertexInputStateCreateInfo inputStateCreateInfo(VoxelEngine::renderer::ShaderLayout layout, const uint32& vertexStride = sizeof(VoxelEngine::renderer::Vertex));
 }

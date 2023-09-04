@@ -7,6 +7,7 @@
 #include "vkInit/VulkanDescriptors.h"
 #include "vkInit/VulkanUIOverlay.h"
 #include "vkUtils/VulkanShader.h"
+#include "vkUtils/VulkanGizmos.h"
 #include "vkInit/VulkanCommand.h"
 #include "vkUtils/VulkanStatistics.h"
 #include "vkUtils/VulkanMaterials.h"
@@ -274,6 +275,8 @@ namespace vulkan
 		vkUtils::getMaterial("editor_grid")->bind(commandBuffer, frame.descriptorSet);
 		renderSceneObjects(commandBuffer, mesh::MeshTopology::Quad, startInstance, 1);
 
+		utils::Gizmos::onGizmosDraw(frame);
+
 		drawUI(commandBuffer);
 
 		vkCmdEndRenderPass(commandBuffer);
@@ -358,8 +361,7 @@ namespace vulkan
 		scissor.offset.y = state.viewportPos.y;
 		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-		const vkUtils::VulkanMaterial* defaultMaterial = vkUtils::getMaterial("default");
-		defaultMaterial->bind(commandBuffer, frame.descriptorSet);
+		utils::Gizmos::startBatch();
 	}
 	void prepareScene(const VkCommandBuffer& commandBuffer)
 	{
@@ -515,6 +517,8 @@ namespace vulkan
 
 		initImGui();
 
+		utils::Gizmos::init(state.physicalDevice, state.logicalDevice);
+
 		VOXEL_CORE_TRACE("Vulkan setup ended.");
 
 		makeAssets();
@@ -549,6 +553,7 @@ namespace vulkan
 			mesh.second.release();
 		meshes.clear();
 
+		utils::Gizmos::release();
 		vkUtils::releaseMaterials(state.logicalDevice);
 
 		delete state.vertexManager;
@@ -586,7 +591,7 @@ namespace vulkan
 	{
 		renderFrameStats.drawCalls = 0;
 	}
-	
+
 	void makeAssets()
 	{
 		state.vertexManager = new VoxelEngine::renderer::VertexManager;

@@ -5,24 +5,20 @@
 #include "vkInit/VulkanFramebuffer.h"
 #include "vkInit/VulkanSync.h"
 #include "vkInit/VulkanDescriptors.h"
-#include "vkInit/VulkanUIOverlay.h"
 #include "vkUtils/VulkanShader.h"
 #include "vkUtils/VulkanGizmos.h"
 #include "vkInit/VulkanCommand.h"
 #include "vkUtils/VulkanStatistics.h"
 #include "vkUtils/VulkanMaterials.h"
-#include "core/renderer/VertexManager.h"
-#include "core/Application.h"
-#include "core/input/InputSystem.h"
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_vulkan.h>
 
 namespace vulkan
 {	
 	using namespace VoxelEngine::components;
 
 	struct VulkanState
-	{
-		renderer::VertexManager* vertexManager;
-		
+	{		
 		// Instance-related variables
 		const VoxelEngine::Window* window;
 		VkInstance instance;
@@ -48,7 +44,6 @@ namespace vulkan
 		VkPipelineCache pipelineCache;
 		VkRenderPass renderPass;
 		VkQueryPool queryPool;
-		vkInit::UIOverlay UIOverlay;
 		VkOffset2D viewportPos;
 		VkExtent2D viewportSize;
 		VkClearColorValue clearColor;
@@ -64,7 +59,6 @@ namespace vulkan
 	renderer::RenderFrameStats renderFrameStats;
 	vkUtils::memory::Buffer instancedBuffer;
 	std::vector<renderer::InstanceData> instanceData;
-	std::unordered_map<mesh::MeshTopology, mesh::Mesh> meshes;
 
 	static int MAX_FRAMES_IN_FLIGHT = 3;
 	static uint32 CURRENT_FRAME = 0;
@@ -244,40 +238,16 @@ namespace vulkan
 		makeFramebuffers();
 		makeFrameResources();
 		makeCommandBuffers();
-
-		state.UIOverlay.resize(static_cast<uint32>(width), static_cast<uint32>(height));	
 	}	
 	void recordCommandBuffer(const VkCommandBuffer& commandBuffer)
 	{
 		vkUtils::SwapChainFrame& frame = state.swapChainBundle.frames[CURRENT_FRAME];
 
 		// =================== RENDER WHOLE STUFF HERE ! ===================		
-		prepareScene(commandBuffer);
-
-		switch (renderSettings.renderMode)
-		{
-		case renderer::Solid:
-			vkUtils::getMaterial("solid_instanced")->bind(commandBuffer, frame.descriptorSet);
-			break;
-		case renderer::Wireframe:
-			vkUtils::getMaterial("wireframe_instanced")->bind(commandBuffer, frame.descriptorSet);
-			break;
-		case renderer::Normals:
-			vkUtils::getMaterial("normals")->bind(commandBuffer, frame.descriptorSet);
-			break;
-		}
-
-		uint32 startInstance = 0;	
-		uint32 instancesCount = static_cast<uint32>(instanceData.size());
-		renderSceneObjects(commandBuffer, mesh::MeshTopology::Cube, startInstance, instancesCount);
-
-		startInstance = 0;
-		vkUtils::getMaterial("editor_grid")->bind(commandBuffer, frame.descriptorSet);
-		renderSceneObjects(commandBuffer, mesh::MeshTopology::Quad, startInstance, 1);
-
 		utils::Gizmos::onGizmosDraw(frame);
 
-		drawUI(commandBuffer);
+		ImDrawData* main_draw_data = ImGui::GetDrawData();
+		ImGui_ImplVulkan_RenderDrawData(main_draw_data, commandBuffer);
 
 		vkCmdEndRenderPass(commandBuffer);
 		vkUtils::memory::endCommand(commandBuffer);
@@ -363,18 +333,6 @@ namespace vulkan
 
 		utils::Gizmos::startBatch();
 	}
-	void prepareScene(const VkCommandBuffer& commandBuffer)
-	{
-		state.vertexManager->vertexBuffer->bind(VERTEX_BUFFER_BIND_ID);
-		state.vertexManager->indexBuffer->bind();
-
-		VkBuffer instanceBuffer = instancedBuffer.buffer;
-		if (instanceBuffer)
-		{
-			VkDeviceSize offsets[] = { 0 };
-			vkCmdBindVertexBuffers(commandBuffer, INSTANCE_BUFFER_BIND_ID, 1, &instanceBuffer, offsets);
-		}
-	}
 	void prepareInstanceData()
 	{
 		if (instanceData.size() == 0)
@@ -435,41 +393,6 @@ namespace vulkan
 		CURRENT_FRAME = (CURRENT_FRAME + 1) % MAX_FRAMES_IN_FLIGHT;
 	}
 
-	void drawUI(const VkCommandBuffer& commandBuffer)
-	{
-		if (state.UIOverlay.visible) 
-		{
-			VkExtent2D extent = state.swapChainBundle.extent;
-
-			VkViewport viewport = vkInit::viewport(extent, 0.0f, 1.0f);
-			vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
-
-			VkRect2D scissor = vkInit::rect2D(extent, { 0, 0 });
-			vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
-
-			state.UIOverlay.draw(commandBuffer);
-		}
-	}
-	void updateUIOverlay()
-	{
-		ImGuiIO& io = ImGui::GetIO();
-
-		io.DisplaySize = ImVec2((float)state.swapChainBundle.extent.width, (float)state.swapChainBundle.extent.height);
-		io.DeltaTime = VoxelEngine::Application::getInstance().getDeltaTime();
-
-		glm::vec2 mousePos = input::InputSystem::getMousePosition();
-
-		io.MousePos = { mousePos.x, mousePos.y };
-		io.MouseDown[0] = input::InputSystem::isMouseButtonPressed(input::ButtonLeft) && state.UIOverlay.visible;
-		io.MouseDown[1] = input::InputSystem::isMouseButtonPressed(input::ButtonRight) && state.UIOverlay.visible;
-		io.MouseDown[2] = input::InputSystem::isMouseButtonPressed(input::ButtonMiddle) && state.UIOverlay.visible;
-
-		if (state.UIOverlay.update() || state.UIOverlay.updated)
-		{
-			state.UIOverlay.updated = false;
-		}
-	}
-	
 	void resize(const uint32& width, const uint32& height)
 	{
 		state.framebufferResized = true;
@@ -517,28 +440,40 @@ namespace vulkan
 
 		initImGui();
 
+		prepareStatistics();
+
 		utils::Gizmos::init(state.physicalDevice, state.logicalDevice);
 
 		VOXEL_CORE_TRACE("Vulkan setup ended.");
-
-		makeAssets();
 	}
 	void initImGui()
 	{
-		state.UIOverlay.logicalDevice = state.logicalDevice;
-		state.UIOverlay.physicalDevice = state.physicalDevice;
-		state.UIOverlay.commandPool = state.commandPool;
-		state.UIOverlay.queue = state.queues.graphicsQueue;
-		state.UIOverlay.rasterizationSamples = state.msaaSamples;
+		ImGui_ImplVulkan_InitInfo init_info = {};
+		init_info.Instance = state.instance;
+		init_info.PhysicalDevice = state.physicalDevice;
+		init_info.Device = state.logicalDevice;
+		init_info.QueueFamily = state.queueFamilyIndices.graphicsFamily.value();
+		init_info.Queue = state.queues.graphicsQueue;
+		init_info.PipelineCache = state.pipelineCache;
+		init_info.DescriptorPool = state.descriptorPool;
+		init_info.Subpass = 0;
+		init_info.MinImageCount = MAX_FRAMES_IN_FLIGHT;
+		init_info.ImageCount = MAX_FRAMES_IN_FLIGHT;
+		init_info.MSAASamples = state.msaaSamples;
+		init_info.Allocator = nullptr;
+		ImGui_ImplGlfw_InitForVulkan((GLFWwindow*)state.window->getNativeWindow(), true);
+		ImGui_ImplVulkan_Init(&init_info, state.renderPass);
 
-		vkUtils::VulkanShader shader = vkUtils::VulkanShader(state.logicalDevice, ASSET_PATH("shaders/editor/ui_overlay_shader.glsl"));
-		state.UIOverlay.shaders = shader.getStages();
-		state.UIOverlay.prepareResources();
-		state.UIOverlay.preparePipeline(
-			state.pipelineCache, 
-			state.renderPass, 
-			state.swapChainBundle.format, 
-			state.swapChainBundle.depthFormat);
+		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		string fontPath = ASSET_PATH("fonts/Roboto-Medium.ttf");
+
+		io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 14.0f);
+		{
+			VkCommandBuffer commandBuffer = vkUtils::memory::beginSingleTimeCommands(state.commandPool);
+			ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
+			endSingleTimeCommands(commandBuffer);
+			ImGui_ImplVulkan_DestroyFontUploadObjects();
+		}
 	}
 	void deviceWaitIdle()
 	{
@@ -549,23 +484,15 @@ namespace vulkan
 		cleanupSwapChain();
 		instancedBuffer.release();
 
-		for (auto& mesh : meshes)
-			mesh.second.release();
-		meshes.clear();
-
 		utils::Gizmos::release();
 		vkUtils::releaseMaterials(state.logicalDevice);
 
-		delete state.vertexManager;
-		
 		vkDestroyPipelineLayout(state.logicalDevice, state.pipelineLayout, nullptr);
 		vkDestroyPipelineCache(state.logicalDevice, state.pipelineCache, nullptr);
 		vkDestroyRenderPass(state.logicalDevice, state.renderPass, nullptr);
 		vkDestroyDescriptorPool(state.logicalDevice, state.descriptorPool, nullptr);
 		vkDestroyDescriptorSetLayout(state.logicalDevice, state.descriptorSetLayout, nullptr);
 		vkDestroyQueryPool(state.logicalDevice, state.queryPool, nullptr);
-
-		state.UIOverlay.freeResources();
 
 		vkDestroyCommandPool(state.logicalDevice, state.commandPool, nullptr);
 		vkDestroyDevice(state.logicalDevice, nullptr);
@@ -592,40 +519,10 @@ namespace vulkan
 		renderFrameStats.drawCalls = 0;
 	}
 
-	void makeAssets()
+	void prepareStatistics()
 	{
-		state.vertexManager = new VoxelEngine::renderer::VertexManager;
-
-		for (auto& [topology, mesh] : meshes)
-		{
-			state.vertexManager->concatMesh(topology, mesh);
-		}
-
-		state.vertexManager->finalize(state.physicalDevice, state.logicalDevice);
-
 		renderFrameStats.pipelineStatNames = vkUtils::pipelineStatNames.data();
 		renderFrameStats.pipelineStats = vkUtils::pipelineStats.data();
-	
-		VOXEL_CORE_WARN("{0} meshes are successfully prepared.", meshes.size());
-	}
-	void prepareAsset(const mesh::MeshTopology& topology, const mesh::Mesh& mesh)
-	{
-		auto pair = std::pair<mesh::MeshTopology, mesh::Mesh>(topology, mesh);
-		meshes.emplace(pair);
-	}
-	void renderSceneObjects(
-		const VkCommandBuffer& commandBuffer,
-		const mesh::MeshTopology& objectType,
-		uint32& startInstance,
-		const uint32& instanceCount)
-	{
-		uint32 indexCount = static_cast<uint32>(state.vertexManager->indexCounts.find(objectType)->second);
-		uint32 firstIndex = static_cast<uint32>(state.vertexManager->firstIndices.find(objectType)->second);
-
-		vkCmdDrawIndexed(commandBuffer, indexCount, instanceCount, firstIndex, 0, startInstance);
-	
-		startInstance += instanceCount;
-		renderFrameStats.drawCalls++;
 	}
 
 	const VkDevice& getLogicalDevice()
@@ -639,6 +536,10 @@ namespace vulkan
 	const VkCommandBuffer& getCommandBuffer()
 	{
 		return state.swapChainBundle.frames[CURRENT_FRAME].commandBuffer;
+	}
+	const vkUtils::SwapChainFrame& getCurrentFrame()
+	{
+		return state.swapChainBundle.frames[CURRENT_FRAME];
 	}
 	const VkCommandPool& getCommandPool()
 	{

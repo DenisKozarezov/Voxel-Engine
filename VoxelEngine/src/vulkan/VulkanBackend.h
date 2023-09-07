@@ -1,5 +1,6 @@
 #pragma once
 #include <vulkan/vkUtils/VulkanAlloc.h>
+#include <vulkan/vkUtils/VulkanSwapChainFrame.h>
 #include <core/renderer/Renderer.h>
 
 namespace vulkan
@@ -27,8 +28,6 @@ namespace vulkan
 	void prepareInstanceData();
 	void beginFrame(const VoxelEngine::renderer::UniformBufferObject& ubo);
 	void endFrame();
-	void drawUI(const VkCommandBuffer& commandBuffer);
-	void updateUIOverlay();
 
 	void resize(const uint32& width, const uint32& height);
 	void setClearColor(const glm::vec4 color);
@@ -44,8 +43,7 @@ namespace vulkan
 	const renderer::RenderFrameStats& getFrameStats();
 	void resetFrameStats();
 
-	void makeAssets();
-	void prepareAsset(const mesh::MeshTopology& topology, const mesh::Mesh& mesh);
+	void prepareStatistics();
 	void renderSceneObjects(
 		const VkCommandBuffer& commandBuffer,
 		const mesh::MeshTopology& objectType,
@@ -65,6 +63,8 @@ namespace vulkan
 	/// </summary>
 	/// <returns></returns>
 	const VkCommandBuffer& getCommandBuffer();
+
+	const vkUtils::SwapChainFrame& getCurrentFrame();
 
 	/// <summary>
 	/// Returns a pool of commands for subsequent allocation of command buffers.

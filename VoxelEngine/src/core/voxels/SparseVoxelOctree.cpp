@@ -3,131 +3,155 @@
 
 namespace VoxelEngine
 {
-	static int childCount = 0;
+	std::vector<int> convertVectorIndicesToInts(const uint32* indices, uint32 indexCount) 
+	{
+		std::vector<int> intVector(indexCount);
 
-	SparseVoxelOctree::SparseVoxelOctree(int size, int maxDepth)
-		: m_size(std::move(size)), m_maxDepth(std::move(maxDepth))
+		for (int i = 0; i < indexCount; i++)
+		{
+			intVector[i] = indices[i];
+		}
+		return intVector;
+	}
+
+
+	SparseVoxelOctree::SparseVoxelOctree(const SharedRef<components::mesh::Mesh>& mesh, int maxDepth)
+		: m_maxDepth(std::move(maxDepth))
+	{
+		m_root = OctreeNode();
+
+		Box boundingBox = meshBounds(mesh);
+		m_root.box = boundingBox;
+
+		//intialize root.points
+		//std::vector<int> pointsInsideMesh(mesh->indexCount);
+		//std::vector<int> pointsInsideBox;
+		////convert ofIndexType vector to int vector
+		//pointsInsideMesh = convertVectorIndicesToInts(mesh->indices, mesh->indexCount);
+		//int totalPointsInBox = getMeshPointsInBox(mesh, pointsInsideMesh, boundingBox, pointsInsideBox);
+
+		//m_root.points = pointsInsideBox;
+
+		subdivide(mesh, m_root, 0);
+	}
+	SparseVoxelOctree::~SparseVoxelOctree()
 	{
 
 	}
 
-	uint32 SparseVoxelOctree::createChildDescriptor(OctreeNode* node, int& index, int pIndex)
+	int SparseVoxelOctree::getMeshPointsInBox(
+		const SharedRef<components::mesh::Mesh>& mesh,
+		const std::vector<int>& points,
+		Box& box,
+		std::vector<int>& pointsRtn)
 	{
-		unsigned int childDesc = 0;
-		int ValidChildCount = 0;
-		for (byte i = 0; i < 8; i++) 
+		int count = 0;
+		for (int i = 0; i < points.size(); i++) 
 		{
-			if (OctreeNode* child = node->children[i]) 
+			glm::vec3 pos = mesh->vertices[points[i]].pos;
+			if (box.inside(pos))
 			{
-				childDesc |= 1 << i;
-				if (child->isLeaf) 
-				{
-					childDesc |= BIT(i + 8);
-					m_voxelCount++;
-				}
-				else 
-				{
-					if (!ValidChildCount) 
-					{
-						if ((index - pIndex) >= std::exp2(15)) 
-						{
-							childDesc |= BIT(16);
-							m_Far.push_back(index - pIndex);
-							childDesc |= m_Far.size() - 1 << 17;
-						}
-						else
-							childDesc |= (index - pIndex) << 17;
-					}
-					ValidChildCount++;
-				}
+				count++;
+				pointsRtn.push_back(points[i]);
 			}
 		}
-
-		childCount = ValidChildCount;
-		index += ValidChildCount;
-		return childDesc;
+		return count;
 	}
-	void SparseVoxelOctree::traverse(const std::function<void(OctreeNode*)>& visitor)
+	void SparseVoxelOctree::traverse(const std::function<void(OctreeNode&)>& visitor)
 	{
 		traverse(m_root, visitor);
 	}
+	Box SparseVoxelOctree::meshBounds(const SharedRef<components::mesh::Mesh>& mesh)
+	{
+		if (mesh->vertexCount == 0)
+			return Box();
 
-	void SparseVoxelOctree::traverse(OctreeNode* root, const std::function<void(OctreeNode*)>& visitor)
+		glm::vec3 vertex = mesh->vertices[0].pos;
+		glm::vec3 max = vertex;
+		glm::vec3 min = vertex;
+		for (int i = 1; i < mesh->vertexCount; i++)
+		{
+			vertex = mesh->vertices[i].pos;
+
+			if (vertex.x > max.x)       max.x = vertex.x;
+			else if (vertex.x < min.x)  min.x = vertex.x;
+
+			if (vertex.y > max.y)       max.y = vertex.y;
+			else if (vertex.y < min.y)  min.y = vertex.y;
+
+			if (vertex.z > max.z)       max.z = vertex.z;
+			else if (vertex.z < min.z)  min.z = vertex.z;
+		}
+		return Box(min, max);
+	}
+	void SparseVoxelOctree::subdivide(const SharedRef<components::mesh::Mesh>& mesh, OctreeNode& node, int level)
+	{
+		level++;		
+
+		if (level > m_maxDepth)
+			return;
+
+		//divide the node.box by 8 and put each box into a boxList
+		std::vector<Box> boxList;
+		subDivideBox8(node.box, boxList);
+
+		//create 8 nodes and attach it to that root.children
+		for (int i = 0; i < 8; i++)
+		{
+			OctreeNode child = OctreeNode();
+
+			child.box = boxList[i];
+
+			//getMeshPointsInBox(mesh, node.points, child.box, child.points);
+
+			subdivide(mesh, child, level);
+
+			node.children.push_back(child);
+
+			m_voxelCount++;
+		}
+	}
+
+	void SparseVoxelOctree::subDivideBox8(const Box& box, std::vector<Box>& boxList)
+	{
+		glm::vec3 min = box.min();
+		glm::vec3 max = box.max();
+		glm::vec3 center = box.center();
+		glm::vec3 bounds = max - min;
+		float xdist = (max.x - min.x) * 0.5f;
+		float ydist = (max.y - min.y) * 0.5f;
+		float zdist = (max.z - min.z) * 0.5f;
+		glm::vec3 h = glm::vec3(0.0f, ydist, 0.0f);
+
+		//  generate ground floor
+		//
+		Box b[8];
+		b[0] = Box(min, center);
+		b[1] = Box(b[0].min() + glm::vec3(xdist, 0, 0), b[0].max() + glm::vec3(xdist, 0, 0));
+		b[2] = Box(b[1].min() + glm::vec3(0, 0, zdist), b[1].max() + glm::vec3(0, 0, zdist));
+		b[3] = Box(b[2].min() + glm::vec3(-xdist, 0, 0), b[2].max() + glm::vec3(-xdist, 0, 0));
+
+		boxList.clear();
+		for (int i = 0; i < 4; i++)
+			boxList.push_back(b[i]);
+
+		// generate second story
+		//
+		for (int i = 4; i < 8; i++) {
+			b[i] = Box(b[i - 4].min() + h, b[i - 4].max() + h);
+			boxList.push_back(b[i]);
+		}
+	}
+
+	void SparseVoxelOctree::traverse(OctreeNode& root, const std::function<void(OctreeNode&)>& visitor)
 	{
 		for (byte i = 0; i < 8; ++i) 
 		{
-			if (root->children[i] != nullptr) 
+			if (root.children.size() > 0) 
 			{
-				visitor(root->children[i]);
-				traverse(root->children[i], visitor);
+				visitor(root.children[i]);
+				traverse(root.children[i], visitor);
 			}
 		}
-	}
-	void SparseVoxelOctree::build()
-	{
-		int i = 0;
-		build(m_root, i);
-	}
-	void SparseVoxelOctree::build(OctreeNode* node, int& index)
-	{
-		if (node == m_root)
-			m_Buffer.push_back(createChildDescriptor(node, ++index, 0));
-
-		int pIndex = index - childCount;
-		m_Buffer.resize(index);
-		for (byte i = 0; i < 8; i++) 
-		{
-			if (OctreeNode* child = node->children[i]) 
-			{
-				if (!child->isLeaf) 
-				{
-					m_Buffer.at(pIndex) = createChildDescriptor(child, index, pIndex);
-					pIndex++;
-					build(child, index);
-				}
-			}
-		}
-
-		/*int pIndex = index - childCount;
-		traverse(node, [&](OctreeNode* node) {
-			node->far = createChildDescriptor(node, index, pIndex);
-		});*/
-	}
-	void SparseVoxelOctree::insert(OctreeNode** node, glm::vec3 point, glm::vec4 color, glm::ivec3 position, int depth)
-	{
-		if (*node == nullptr) 
-		{
-			*node = new OctreeNode;
-		}
-
-		if (depth >= m_maxDepth)
-		{
-			(*node)->data.color = color;
-			(*node)->isLeaf = true;
-			return;
-		}
-
-		(*node)->data.color = color;
-		float size = (1.f / std::exp2(depth)) * m_size;
-		glm::ivec3 childPos;
-
-		childPos.x = (int)std::round((point.x - ((float)(position.x) * size)) / size);
-		childPos.y = (int)std::round((point.y - ((float)(position.y) * size)) / size);
-		childPos.z = (int)std::round((point.z - ((float)(position.z) * size)) / size);
-
-		int childIndex = (childPos.x << 0) | (childPos.y << 1) | (childPos.z << 2);
-
-		position = glm::vec3(
-			(position.x << 1)	| childPos.x,
-			(position.y << 1)	| childPos.y,
-			(position.z << 1)	| childPos.z
-		);
-		(*node)->data.position = position;
-
-		insert(&(*node)->children[childIndex], point, color, position, ++depth);
-	}
-	void SparseVoxelOctree::insert(glm::vec3 position, glm::vec4 color)
-	{
-		insert(&m_root, position, color, glm::ivec3(0), 0);
 	}
 }

@@ -3,7 +3,8 @@
 #include <glm/glm.hpp>
 #include <functional>
 #include <stack>
-#include <core/Base.h>
+#include <core/voxels/Box.h>
+#include <components/mesh/Mesh.h>
 
 namespace VoxelEngine
 {
@@ -15,20 +16,11 @@ namespace VoxelEngine
 
 	struct OctreeNode
 	{
-		bool isLeaf;
-		OctreeNode* children[8];
-		VolumetricData data;
+		std::vector<OctreeNode> children;
+		std::vector<int> points;
+		Box box;
 
-		constexpr OctreeNode()
-		{
-			isLeaf = false;
-			data.position = glm::vec3(0.0f);
-			data.color = glm::vec4(0.0f);
-			for (int i = 0; i < 8; ++i)
-			{
-				children[i] = nullptr;
-			}
-		}
+		OctreeNode() = default;
 	};
 
 	class SparseVoxelOctree
@@ -37,23 +29,25 @@ namespace VoxelEngine
 		int m_size = 0;
 		int m_maxDepth = 0;
 		int m_voxelCount = 0;
-		std::vector<unsigned int> m_Buffer, m_Far;
-		std::vector<uint8> colors;
-		OctreeNode* m_root = nullptr;
+		OctreeNode m_root;
 
-		uint32 createChildDescriptor(OctreeNode* node, int& index, int pIndex);
-		bool intersects(const glm::vec3& voxelMin, const glm::vec3& voxelMax, const glm::vec3& nodeMin, const glm::vec3& nodeMax);
-		void traverse(OctreeNode* root, const std::function<void(OctreeNode*)>& visitor);
+		Box meshBounds(const SharedRef<components::mesh::Mesh>& mesh);
+		int getMeshPointsInBox(
+			const SharedRef<components::mesh::Mesh>& mesh,
+			const std::vector<int>& points,
+			Box& box,
+			std::vector<int>& pointsRtn);
+		void subdivide(const SharedRef<components::mesh::Mesh>& mesh, OctreeNode& node, int level);
+		void subDivideBox8(const Box& box, std::vector<Box>& boxList);
+		void traverse(OctreeNode& root, const std::function<void(OctreeNode&)>& visitor);
 	public:
-		SparseVoxelOctree(int size, int maxDepth);
+		SparseVoxelOctree(const SharedRef<components::mesh::Mesh>& mesh, int maxDepth);
+		~SparseVoxelOctree();
 
 		INLINE const int& size() { return m_size; }
 		INLINE const int& maxDepth() { return m_maxDepth; }
 		INLINE const int& count() { return m_voxelCount; }
-		void traverse(const std::function<void(OctreeNode*)>& visitor);
-		void build();
-		void build(OctreeNode* node, int& index);
-		void insert(OctreeNode** node, glm::vec3 point, glm::vec4 color, glm::ivec3 position, int depth);
-		void insert(glm::vec3 position, glm::vec4 color);
+
+		void traverse(const std::function<void(OctreeNode&)>& visitor);
 	};
 }

@@ -69,77 +69,17 @@ namespace assets
         uint32 vertexCount = static_cast<uint32>(vertices.size());
         uint32 indexCount = static_cast<uint32>(indices.size());
 
+        auto mesh = MakeShared<Mesh>(vertices, indices);
+        mesh->vertexBuffer = VoxelEngine::renderer::VertexBuffer::Allocate(vertices.data(), vertexCount * sizeof(Vertex));
+        mesh->indexBuffer = VoxelEngine::renderer::IndexBuffer::Allocate(indices.data(), indexCount * sizeof(uint32));
+
         VOXEL_CORE_TRACE("Finished to load OBJ mesh at path '{0}'.", path);
         VOXEL_CORE_TRACE("Loaded vertices count: '{0}'.", vertexCount);
         VOXEL_CORE_TRACE("Loaded indices count: '{0}'.", indexCount);
 
-        return MakeShared<Mesh>(vertices, indices);
+        return mesh;
     }
-    const SharedRef<VoxelEngine::SparseVoxelOctree> AssetsProvider::loadObjVoxelizedMesh(const string& path, const int& size, const int& depth)
-    {
-        std::ifstream fp(path);
-        std::string line;
-        VOXEL_CORE_ASSERT(fp, "failed to load obj file at path" + path);
-
-        std::vector<glm::vec3> positions;
-        std::vector<glm::ivec3> faces;
-
-        glm::vec3 modelMax{0};
-        glm::vec3 modelMin{100000.f};
-
-        while (std::getline(fp, line)) {
-            if (line.rfind("v ") == 0) {
-                line.erase(0, line.find(' ') + 1);
-                glm::vec3 pos;
-                for (int i = 0; i < 3; i++) {
-                    int index = line.find(' ');
-                    pos[i] = std::stof(line.substr(0, index));
-                    if (pos[i] > modelMax[i]) modelMax[i] = pos[i];
-                    if (pos[i] < modelMin[i]) modelMin[i] = pos[i];
-                    line.erase(0, index + 1);
-                }
-                positions.push_back(pos);
-            }
-            if (line.rfind("f ") == 0) {
-                line.erase(0, line.find(' ') + 1);
-                glm::ivec3 f;
-                for (int i = 0; i < 3; i++) {
-                    for (int j = 0; j < 3; j++) {
-                        int index = line.find('/') < line.find(' ') ? line.find('/') : line.find(' ');
-                        if (j == 0)
-                            f[i] = std::stoi(line.substr(0, index));
-                        else
-                            std::stoi(line.substr(0, index));
-                        line.erase(0, index + 1);
-                    }
-                }
-                faces.push_back(f);
-            }
-        }
-
-        VoxelEngine::SparseVoxelOctree octree(size, depth);
-        float min = std::min(std::min(modelMin.x, modelMin.y), modelMin.z);
-        float max = std::max(std::max(modelMax.x, modelMax.y), modelMax.z);
-
-        for (auto face : faces) 
-        {
-            glm::vec3 triangle[3];
-            for (int i = 0; i < 3; i++) 
-            {
-                triangle[i] = {
-                    ((positions[face[i] - 1].x + std::abs(min)) / (std::abs(min) + max))* size,
-                    ((positions[face[i] - 1].y + std::abs(min)) / (std::abs(min) + max)) * size,
-                    ((positions[face[i] - 1].z + std::abs(min)) / (std::abs(min) + max)) * size,
-                };
-            }
-            for (glm::vec3 point : voxelize(triangle, size, depth)) 
-            {
-                octree.insert(point, {255, 255, 255, 255});
-            }
-        }
-
-        return MakeShared<VoxelEngine::SparseVoxelOctree>(octree);
-    }
+  
     const std::vector<glm::vec3> AssetsProvider::voxelize(glm::vec3* triangle, const int& size, const int& depth)
     {
         glm::vec3 max = { 0, 0, 0 }, min{ 1000, 1000, 1000 };

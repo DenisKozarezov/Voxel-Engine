@@ -1,5 +1,7 @@
 #include "ImGuiLayer.h"
 #include <core/Log.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_vulkan.h>
 #include <assets_management/AssetsProvider.h>
 
 namespace VoxelEngine::renderer
@@ -49,6 +51,9 @@ namespace VoxelEngine::renderer
 	}
 	void ImGuiLayer::onDetach()
 	{
+		ImGui_ImplVulkan_Shutdown();
+		ImGui_ImplGlfw_Shutdown();
+
 		if (ImGui::GetCurrentContext())
 			ImGui::DestroyContext();
 	}
@@ -63,6 +68,8 @@ namespace VoxelEngine::renderer
 	}
 	void ImGuiLayer::preRender()
 	{
+		ImGui_ImplVulkan_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 	}
 	void ImGuiLayer::postRender()

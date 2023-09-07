@@ -12,6 +12,14 @@ namespace utils
 		glm::vec3 color;
 	};
 
+	struct CircleVertex
+	{
+		glm::vec3 pos;
+		glm::vec3 axis;
+		glm::vec3 color;
+		float radius;
+	};
+
 	struct RenderData
 	{
 		uint32 linesVertexCount = 0;
@@ -19,6 +27,12 @@ namespace utils
 		LineVertex* linesPtrCurrent = nullptr;
 		vkUtils::VulkanVertexBuffer linesBuffer;
 		const vkUtils::VulkanMaterial* linesMaterial;
+
+		uint32 circleVertexCount = 0;
+		CircleVertex* circlePtrStart = nullptr;
+		CircleVertex* circlePtrCurrent = nullptr;
+		vkUtils::VulkanVertexBuffer circleBuffer;
+		const vkUtils::VulkanMaterial* circleMaterial;
 	} s_renderData;
 
 	void Gizmos::init(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice)
@@ -70,6 +84,10 @@ namespace utils
 		drawLine(p2, p6, color);
 		drawLine(p3, p7, color);
 		drawLine(p4, p8, color);
+	}
+	void Gizmos::drawWireframeCircle(const glm::vec3& position, const float& radius, const glm::vec3& axis)
+	{
+
 	}
 	void Gizmos::onGizmosDraw(const vkUtils::SwapChainFrame& frame)
 	{

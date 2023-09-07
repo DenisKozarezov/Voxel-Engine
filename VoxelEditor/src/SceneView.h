@@ -9,13 +9,13 @@ namespace VoxelEditor
 	{
 	private:
 		ImVec2 m_viewportSize;
+		bool m_viewportFocused;
+		bool m_viewportHovered;
 
 		void drawRenderModes();
 		void drawCameraModes();
 	public:
 		UniqueRef<VoxelEngine::components::camera::EditorCameraController> m_camera;
-		bool m_viewportFocused;
-		bool m_viewportHovered;
 
 		SceneView();
 		~SceneView() noexcept = default;

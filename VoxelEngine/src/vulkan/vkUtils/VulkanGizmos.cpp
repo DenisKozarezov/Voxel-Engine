@@ -38,7 +38,7 @@ namespace utils
 	void Gizmos::init(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice)
 	{
 		s_renderData.linesMaterial = vkUtils::getMaterial("lines");
-		s_renderData.linesBuffer = vkUtils::VulkanVertexBuffer(physicalDevice, logicalDevice, MAX_VERTICES);
+		s_renderData.linesBuffer = vkUtils::VulkanVertexBuffer(physicalDevice, logicalDevice, sizeof(LineVertex) * MAX_VERTICES);
 		s_renderData.linesPtrStart = new LineVertex[MAX_VERTICES];
 	}
 	void Gizmos::startBatch()
@@ -58,17 +58,17 @@ namespace utils
 
 		s_renderData.linesVertexCount += 2;
 	}
-	void Gizmos::drawWireframeCube(const glm::vec3& position, const glm::vec3& size, const glm::vec3& color)
+	void Gizmos::drawWireframeCube(const glm::vec3& center, const glm::vec3& size, const glm::vec3& color)
 	{
-		glm::vec3 p1 = glm::vec3(position.x - size.x * 0.5f, position.y - size.y * 0.5f, position.z + size.z * 0.5f);
-		glm::vec3 p2 = glm::vec3(position.x + size.x * 0.5f, position.y - size.y * 0.5f, position.z + size.z * 0.5f);
-		glm::vec3 p3 = glm::vec3(position.x + size.x * 0.5f, position.y + size.y * 0.5f, position.z + size.z * 0.5f);
-		glm::vec3 p4 = glm::vec3(position.x - size.x * 0.5f, position.y + size.y * 0.5f, position.z + size.z * 0.5f);
+		glm::vec3 p1 = glm::vec3(center.x - size.x * 0.5f, center.y - size.y * 0.5f, center.z + size.z * 0.5f);
+		glm::vec3 p2 = glm::vec3(center.x + size.x * 0.5f, center.y - size.y * 0.5f, center.z + size.z * 0.5f);
+		glm::vec3 p3 = glm::vec3(center.x + size.x * 0.5f, center.y + size.y * 0.5f, center.z + size.z * 0.5f);
+		glm::vec3 p4 = glm::vec3(center.x - size.x * 0.5f, center.y + size.y * 0.5f, center.z + size.z * 0.5f);
 		
-		glm::vec3 p5 = glm::vec3(position.x - size.x * 0.5f, position.y - size.y * 0.5f, position.z - size.z * 0.5f);
-		glm::vec3 p6 = glm::vec3(position.x + size.x * 0.5f, position.y - size.y * 0.5f, position.z - size.z * 0.5f);
-		glm::vec3 p7 = glm::vec3(position.x + size.x * 0.5f, position.y + size.y * 0.5f, position.z - size.z * 0.5f);
-		glm::vec3 p8 = glm::vec3(position.x - size.x * 0.5f, position.y + size.y * 0.5f, position.z - size.z * 0.5f);
+		glm::vec3 p5 = glm::vec3(center.x - size.x * 0.5f, center.y - size.y * 0.5f, center.z - size.z * 0.5f);
+		glm::vec3 p6 = glm::vec3(center.x + size.x * 0.5f, center.y - size.y * 0.5f, center.z - size.z * 0.5f);
+		glm::vec3 p7 = glm::vec3(center.x + size.x * 0.5f, center.y + size.y * 0.5f, center.z - size.z * 0.5f);
+		glm::vec3 p8 = glm::vec3(center.x - size.x * 0.5f, center.y + size.y * 0.5f, center.z - size.z * 0.5f);
 
 		drawLine(p1, p2, color);
 		drawLine(p2, p3, color);

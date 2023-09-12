@@ -25,6 +25,7 @@ namespace VoxelEngine::renderer
 	struct RenderSettings
 	{
 		RenderMode renderMode = RenderMode::Solid;
+		bool showEditorGrid = false;
 	};
 
 }

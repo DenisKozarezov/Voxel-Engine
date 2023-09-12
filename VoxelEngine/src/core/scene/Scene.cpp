@@ -1,12 +1,12 @@
 #include "Scene.h"
-#include <core/voxels/SparseVoxelOctree.h>
+#include <core/voxels/Octree.h>
 #include <assets_management/AssetsProvider.h>
 #include <vulkan/vkUtils/VulkanGizmos.h>
 #include <vulkan/vkUtils/VulkanMaterials.h>
 
 namespace VoxelEngine
 {
-	SparseVoxelOctree* svo;
+	Octree* svo;
 	renderer::mesh::QuadMesh editorGrid;
 	SharedRef<Mesh> mesh;
 
@@ -28,9 +28,8 @@ namespace VoxelEngine
 		materials.wireframe = utils::getMaterial("wireframe_instanced");
 		materials.normals = utils::getMaterial("normals");
 
-		mesh = assets::AssetsProvider::loadObjMesh(ASSET_PATH("models/viking_room.obj"));
-
-		svo = new SparseVoxelOctree(mesh, 1);
+		mesh = assets::AssetsProvider::loadObjMesh(ASSET_PATH("models/FinalBaseMesh.obj"));
+		svo = new Octree(mesh, 3);
 	}
 	Scene::~Scene()
 	{
@@ -51,10 +50,15 @@ namespace VoxelEngine
 	}
 	void Scene::renderScene()
 	{
-		editorGrid.material->bind();
-		renderer::RenderCommand::drawMeshIndexed(editorGrid);
+		auto& renderSettings = renderer::Renderer::getRenderSettings();
+
+		if (renderSettings.showEditorGrid)
+		{
+			editorGrid.material->bind();
+			renderer::RenderCommand::drawMeshIndexed(editorGrid);
+		}
 		
-		switch (renderer::Renderer::getRenderSettings().renderMode)
+		switch (renderSettings.renderMode)
 		{
 		case renderer::Solid:
 			materials.solid->bind();
@@ -68,9 +72,13 @@ namespace VoxelEngine
 		}
 		renderer::RenderCommand::drawMeshIndexed(*mesh.get());
 				
-		svo->traverse([&](OctreeNode& node)
+		svo->traverse([&](OctreeNode* node)
 		{
-			utils::Gizmos::drawWireframeCube(node.box.min(), node.box.max());
+			if (!node->isLeaf())
+				return;
+
+			glm::vec3 dimensions = node->box.max() - node->box.min();
+			utils::Gizmos::drawWireframeCube(node->box.min() + dimensions * 0.5f, dimensions);
 		});
 	}
 }

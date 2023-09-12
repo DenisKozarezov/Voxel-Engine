@@ -16,6 +16,9 @@ namespace VoxelEditor
 		static int current_item = 0;
 		ImGui::Combo("##render_modes", &current_item, "Solid\0Wireframe\0Normals\0");
 
+		static bool showGrid;
+		ImGui::Checkbox("Show Editor Grid", &settings.showEditorGrid);
+
 		ImGui::EndChild();
 
 		settings.renderMode = static_cast<renderer::RenderMode>(current_item);

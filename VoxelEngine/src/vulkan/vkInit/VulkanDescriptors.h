@@ -1,6 +1,7 @@
 #pragma once
 #include "VulkanInitializers.h"
 #include "../vkUtils/VulkanValidation.h"
+#include <imgui_internal.h>
 
 namespace vkInit
 {
@@ -48,7 +49,7 @@ namespace vkInit
 		VkDescriptorPoolCreateInfo poolInfo = descriptorPoolCreateInfo(
 			pool_sizes.data(),
 			size,
-			1000 * size);
+			1000 * IM_ARRAYSIZE(pool_sizes.data()));
 
 		VkDescriptorPool pool;
 		VkResult err = vkCreateDescriptorPool(logicalDevice, &poolInfo, nullptr, &pool);

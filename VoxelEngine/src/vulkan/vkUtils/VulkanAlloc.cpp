@@ -11,7 +11,7 @@ namespace vkUtils::memory
 
 		for (uint32 i = 0; i < memProperties.memoryTypeCount; i++)
 		{
-			if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
+			if ((typeFilter & BIT(i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
 			{
 				return i;
 			}
@@ -135,9 +135,9 @@ namespace vkUtils::memory
 		descriptor.range = 0;
 		size = 0;
 	}
-	VkResult Buffer::map()
+	void Buffer::map()
 	{
-		return vkMapMemory(logicalDevice, bufferMemory, 0, size, 0, &mappedMemory);
+		VK_CHECK(vkMapMemory(logicalDevice, bufferMemory, 0, size, 0, &mappedMemory), "failed to map memory!");
 	}
 	void Buffer::unmap()
 	{

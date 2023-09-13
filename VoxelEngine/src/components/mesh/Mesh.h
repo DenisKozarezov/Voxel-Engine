@@ -22,6 +22,9 @@ namespace VoxelEngine::components::mesh
 	{
 	public:
 		IMaterial() noexcept = default;
+
+		virtual void bind() const = 0;
+
 		virtual ~IMaterial() = default;
 	};
 
@@ -31,6 +34,7 @@ namespace VoxelEngine::components::mesh
 		uint32 vertexCount;
 		uint32* indices = nullptr;
 		uint32 indexCount;
+		const IMaterial* material = nullptr;
 		SharedRef<renderer::VertexBuffer> vertexBuffer;
 		SharedRef<renderer::IndexBuffer> indexBuffer;
 

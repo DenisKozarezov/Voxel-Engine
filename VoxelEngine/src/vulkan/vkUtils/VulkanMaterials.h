@@ -1,11 +1,11 @@
 #pragma once
 #include <vulkan/vulkan.h>
 #include <unordered_map>
-#include <components/mesh/Mesh.h>
+#include <assets_management/AssetsProvider.h>
 
 namespace vkUtils
 {
-#define MATERIALS_MAX 5
+#define MATERIALS_MAX 20
 
 	struct VulkanPipelineCreateInfo
 	{
@@ -42,6 +42,7 @@ namespace vkUtils
 		VulkanMaterial() noexcept = default;
 		~VulkanMaterial() noexcept = default;
 
+		void bind() const override;
 		void bind(const VkCommandBuffer& commandBuffer, const VkDescriptorSet& descriptorSet) const;
 	};
 
@@ -50,11 +51,16 @@ namespace vkUtils
 	const VulkanMaterial* createMaterial(const VkPipeline& matPipeline, const VkPipelineLayout& matLayout, const string& matName);
 	
 	const VulkanMaterial* getMaterial(const string& matName);
-	
+
 	void makeMaterials(
 		const VkDevice& logicalDevice,
 		const VkPipelineCache& pipelineCache,
 		VulkanPipelineCreateInfo& pipelineInfo);
 	
 	void releaseMaterials(const VkDevice& logicalDevice);
+}
+
+namespace utils
+{
+	const VoxelEngine::components::mesh::IMaterial* getMaterial(const string& matName);
 }

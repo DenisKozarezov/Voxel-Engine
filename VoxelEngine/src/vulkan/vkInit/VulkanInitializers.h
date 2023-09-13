@@ -2,6 +2,7 @@
 #include <vulkan/vulkan.h>
 #include <core/renderer/Shader.h>
 #include <core/renderer/ShaderLayout.h>
+#include <core/renderer/Vertex.h>
 
 namespace vkInit
 {
@@ -327,8 +328,17 @@ namespace vkInit
 	{
 		std::vector<VkDescriptorPoolSize> poolSizes =
 		{
-			{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 2 },
-			{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 2 }
+			{ VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
+			{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
+			{ VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
+			{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
+			{ VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
 		};
 		return poolSizes;
 	}
@@ -783,16 +793,16 @@ namespace vkInit
 		}
 	}
 	
-	constexpr VkShaderStageFlagBits shaderStageToVulkanBaseStage(ShaderStage shaderStage)
+	constexpr VkShaderStageFlagBits shaderStageToVulkanBaseStage(byte shaderStage)
 	{
 		switch (shaderStage)
 		{
-		case ShaderStage::Vertex: return VK_SHADER_STAGE_VERTEX_BIT;
-		case ShaderStage::Fragment: return  VK_SHADER_STAGE_FRAGMENT_BIT;
+		case ShaderStage::Vertex:	return VK_SHADER_STAGE_VERTEX_BIT;
+		case ShaderStage::Fragment: return VK_SHADER_STAGE_FRAGMENT_BIT;
 		case ShaderStage::Geometry: return VK_SHADER_STAGE_GEOMETRY_BIT;
-		case ShaderStage::Compute: return VK_SHADER_STAGE_COMPUTE_BIT;
+		case ShaderStage::Compute:	return VK_SHADER_STAGE_COMPUTE_BIT;
 		}
 	}
 
-	const VkPipelineVertexInputStateCreateInfo inputStateCreateInfo(VoxelEngine::renderer::ShaderLayout layout);
+	const VkPipelineVertexInputStateCreateInfo inputStateCreateInfo(VoxelEngine::renderer::ShaderLayout layout, const uint32& vertexStride = sizeof(VoxelEngine::renderer::Vertex));
 }

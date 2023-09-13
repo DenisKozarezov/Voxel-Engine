@@ -88,6 +88,10 @@ namespace VoxelEngine
 
 		if (!m_minimized)
 		{
+			s_imguiLayer->preRender();
+			m_layerStack.onImGuiRender();
+			s_imguiLayer->postRender();
+
 			m_layerStack.onUpdate(m_frameTimer);
 
 			m_accumulator += m_frameTimer;
@@ -96,10 +100,6 @@ namespace VoxelEngine
 				m_layerStack.onFixedUpdate(fixedDeltaTime);
 				m_accumulator -= fixedDeltaTime;
 			}
-
-			s_imguiLayer->preRender();
-			m_layerStack.onImGuiRender();
-			s_imguiLayer->postRender();
 
 			m_frameCounter++;
 

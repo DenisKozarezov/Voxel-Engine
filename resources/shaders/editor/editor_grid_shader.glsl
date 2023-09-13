@@ -52,7 +52,7 @@ vec4 computeGridColor(vec2 grid, vec2 derivative, float fragPos, float axisPos) 
     float zAxis = (fragPos > -0.1 * minimumx && fragPos < 0.1 * minimumx) ? 1.0 : 0.1;
     float xAxis = (axisPos > -0.1 * minimumz && axisPos < 0.1 * minimumz) ? 1.0 : 0.1;
     
-    return vec4(xAxis, 0.1, zAxis, 1.0 - min(line, 1.0));;
+    return vec4(xAxis, 0.1, zAxis, 1.0 - min(line, 1.0));
 }
 
 float computeDepth(vec3 pos) {

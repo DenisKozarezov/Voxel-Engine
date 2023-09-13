@@ -2,7 +2,7 @@
 #include <vulkan/vkUtils/VulkanShader.h>
 #include <vulkan/vkUtils/VulkanValidation.h>
 #include <vulkan/vkInit/VulkanInitializers.h>
-#include <assets_management/AssetsProvider.h>
+#include <vulkan/VulkanBackend.h>
 
 namespace vkUtils
 {
@@ -31,6 +31,11 @@ namespace vkUtils
 		VK_CHECK(err, "failed to create graphics pipeline!");
 	}
 	
+	void VulkanMaterial::bind() const
+	{
+		const auto& frame = vulkan::getCurrentFrame();
+		bind(frame.commandBuffer, frame.descriptorSet);
+	}
 	void VulkanMaterial::bind(const VkCommandBuffer& commandBuffer, const VkDescriptorSet& descriptorSet) const
 	{
 		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
@@ -54,35 +59,78 @@ namespace vkUtils
 		VOXEL_CORE_ASSERT(materials.contains(matName), "there is no material with such name " + matName);
 		return &materials[matName];
 	}
-	
+
 	void makeMaterials(
 		const VkDevice& logicalDevice, 
 		const VkPipelineCache& pipelineCache,
 		VulkanPipelineCreateInfo& pipelineInfo)
 	{
 		// DEFAULT
+		VkPipeline defaultPipeline;
 		{
 			VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::inputStateCreateInfo({
 				{ ShaderDataType::Float3_S32 },			// Position
-				{ ShaderDataType::Float3_S32 },			// Normal
 				{ ShaderDataType::Float3_S32 }			// Color
-			});
+			}, 24);
 			pipelineInfo.vertexInputInfo = &vertexInputInfo;
 
 			VkPipelineLayout defaultMaterialLayout;
 			VkResult err = vkCreatePipelineLayout(logicalDevice, &pipelineInfo.pipelineLayoutInfo, nullptr, &defaultMaterialLayout);
 			VK_CHECK(err, "failed to create pipeline layout!");
 
-			VkPipeline defaultPipeline;
 			VulkanShader shader = VulkanShader(logicalDevice, ASSET_PATH("shaders/default_shader.glsl"));		
 			pipelineInfo.shaderStages = shader.getStages().data();
-			pipelineInfo.stagesCount = 2;
+			pipelineInfo.stagesCount = static_cast<uint32>(shader.getStages().size());
+			pipelineInfo.rasterizer->polygonMode = VK_POLYGON_MODE_FILL;
+			pipelineInfo.inputAssembly->topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 			pipelineInfo.build(logicalDevice, defaultMaterialLayout, pipelineCache, &defaultPipeline);
 			createMaterial(defaultPipeline, defaultMaterialLayout, "default");
 		}
 
-		// SOLID INSTANCED
+		// LINES
+		{
+			VkPipelineLayout linesMaterialLayout;
+			VkResult err = vkCreatePipelineLayout(logicalDevice, &pipelineInfo.pipelineLayoutInfo, nullptr, &linesMaterialLayout);
+			VK_CHECK(err, "failed to create pipeline layout!");
+
+			VkPipeline linesPipeline;
+			VulkanShader shader = VulkanShader(logicalDevice, ASSET_PATH("shaders/default_shader.glsl"));
+			pipelineInfo.shaderStages = shader.getStages().data();
+			pipelineInfo.stagesCount = static_cast<uint32>(shader.getStages().size());
+			pipelineInfo.rasterizer->polygonMode = VK_POLYGON_MODE_LINE;
+			pipelineInfo.inputAssembly->topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+			pipelineInfo.flags = VK_PIPELINE_CREATE_DERIVATIVE_BIT;
+			pipelineInfo.basePipelineHandle = defaultPipeline;
+			pipelineInfo.build(logicalDevice, linesMaterialLayout, pipelineCache, &linesPipeline);
+			createMaterial(linesPipeline, linesMaterialLayout, "lines");
+		}
+
+		// SOLID
 		VkPipeline solidPipeline;
+		{
+			VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::inputStateCreateInfo({
+				{ ShaderDataType::Float3_S32 },			// Position
+				{ ShaderDataType::Float3_S32 },			// Normal
+				{ ShaderDataType::Float3_S32 },			// Color
+			});
+			pipelineInfo.vertexInputInfo = &vertexInputInfo;
+
+			VkPipelineLayout solidMaterialLayout;
+			VkResult err = vkCreatePipelineLayout(logicalDevice, &pipelineInfo.pipelineLayoutInfo, nullptr, &solidMaterialLayout);
+			VK_CHECK(err, "failed to create pipeline layout!");
+
+			VulkanShader shader = VulkanShader(logicalDevice, ASSET_PATH("shaders/solid_shader.glsl"));
+			pipelineInfo.shaderStages = shader.getStages().data();
+			pipelineInfo.stagesCount = static_cast<uint32>(shader.getStages().size());
+			pipelineInfo.rasterizer->polygonMode = VK_POLYGON_MODE_FILL;
+			pipelineInfo.inputAssembly->topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+			pipelineInfo.flags = VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT;
+			pipelineInfo.build(logicalDevice, solidMaterialLayout, pipelineCache, &solidPipeline);
+			createMaterial(solidPipeline, solidMaterialLayout, "solid");
+		}
+
+		// SOLID INSTANCED
+		VkPipeline solidInstancedPipeline;
 		{
 			VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::inputStateCreateInfo({
 				{ ShaderDataType::Float3_S32 },			// Position
@@ -98,18 +146,21 @@ namespace vkUtils
 			
 			VulkanShader shader = VulkanShader(logicalDevice, ASSET_PATH("shaders/solid_instanced_shader.glsl"));
 			pipelineInfo.shaderStages = shader.getStages().data();
-			pipelineInfo.stagesCount = 2;
-			pipelineInfo.build(logicalDevice, solidMaterialLayout, pipelineCache, &solidPipeline);
-			createMaterial(solidPipeline, solidMaterialLayout, "solid_instanced");
+			pipelineInfo.stagesCount = static_cast<uint32>(shader.getStages().size());
+			pipelineInfo.rasterizer->polygonMode = VK_POLYGON_MODE_FILL;
+			pipelineInfo.inputAssembly->topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+			pipelineInfo.flags = VK_PIPELINE_CREATE_DERIVATIVE_BIT;
+			pipelineInfo.basePipelineHandle = solidPipeline;
+			pipelineInfo.build(logicalDevice, solidMaterialLayout, pipelineCache, &solidInstancedPipeline);
+			createMaterial(solidInstancedPipeline, solidMaterialLayout, "solid_instanced");
 		}
 
 		// NORMALS
 		{
 			VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::inputStateCreateInfo({
 				{ ShaderDataType::Float3_S32 },			// Position
-				{ ShaderDataType::Float3_S32 },			// Normal
-				{ ShaderDataType::Float3_S32 },			// Color
-				{ ShaderDataType::Float3_S32, true }	// Instanced Position
+				{ ShaderDataType::Float3_S32 },			// Normal,
+				{ ShaderDataType::Float3_S32, true },	// Instanced Position
 			});
 			pipelineInfo.vertexInputInfo = &vertexInputInfo;
 
@@ -117,12 +168,12 @@ namespace vkUtils
 			VkResult err = vkCreatePipelineLayout(logicalDevice, &pipelineInfo.pipelineLayoutInfo, nullptr, &normalsMaterialLayout);
 			VK_CHECK(err, "failed to create pipeline layout!");
 
-			VulkanShader shader = VulkanShader(logicalDevice, ASSET_PATH("shaders/normals_shader.glsl"));
+			VulkanShader shader = VulkanShader(logicalDevice, ASSET_PATH("shaders/normals_color_shader.glsl"));
 			pipelineInfo.shaderStages = shader.getStages().data();
-			pipelineInfo.stagesCount = 3;
+			pipelineInfo.stagesCount = static_cast<uint32>(shader.getStages().size());
 			pipelineInfo.flags = VK_PIPELINE_CREATE_DERIVATIVE_BIT;
-			pipelineInfo.rasterizer->polygonMode = VK_POLYGON_MODE_LINE;
-			pipelineInfo.inputAssembly->topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+			pipelineInfo.rasterizer->polygonMode = VK_POLYGON_MODE_FILL;
+			pipelineInfo.inputAssembly->topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 			pipelineInfo.basePipelineHandle = solidPipeline;
 
 			VkPipeline normals;
@@ -135,8 +186,6 @@ namespace vkUtils
 		{
 			VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::inputStateCreateInfo({
 				{ ShaderDataType::Float3_S32 },			// Position
-				{ ShaderDataType::Float3_S32 },			// Normal
-				{ ShaderDataType::Float3_S32 },			// Color
 				{ ShaderDataType::Float3_S32, true}		// Instanced Position
 			});
 			pipelineInfo.vertexInputInfo = &vertexInputInfo;
@@ -147,10 +196,11 @@ namespace vkUtils
 
 			VulkanShader shader = VulkanShader(logicalDevice, ASSET_PATH("shaders/wireframe_shader.glsl"));
 			pipelineInfo.shaderStages = shader.getStages().data();
-			pipelineInfo.stagesCount = 2;
+			pipelineInfo.stagesCount = static_cast<uint32>(shader.getStages().size());
 			pipelineInfo.flags = VK_PIPELINE_CREATE_DERIVATIVE_BIT;
-			pipelineInfo.basePipelineHandle = solidPipeline;
+			pipelineInfo.rasterizer->polygonMode = VK_POLYGON_MODE_LINE;
 			pipelineInfo.inputAssembly->topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+			pipelineInfo.basePipelineHandle = solidInstancedPipeline;
 			pipelineInfo.build(logicalDevice, wireframeMaterialLayout, pipelineCache, &wireframe);
 			createMaterial(wireframe, wireframeMaterialLayout, "wireframe_instanced");
 		}
@@ -170,11 +220,11 @@ namespace vkUtils
 
 			VulkanShader shader = VulkanShader(logicalDevice, ASSET_PATH("shaders/editor/editor_grid_shader.glsl"));
 			pipelineInfo.shaderStages = shader.getStages().data();
-			pipelineInfo.stagesCount = 2;
+			pipelineInfo.stagesCount = static_cast<uint32>(shader.getStages().size());
 			pipelineInfo.flags = VK_PIPELINE_CREATE_DERIVATIVE_BIT;
-			pipelineInfo.basePipelineHandle = wireframe;
 			pipelineInfo.rasterizer->polygonMode = VK_POLYGON_MODE_FILL;
-			pipelineInfo.rasterizer->cullMode = VK_CULL_MODE_FRONT_BIT;
+			pipelineInfo.rasterizer->cullMode = VK_CULL_MODE_NONE;
+			pipelineInfo.basePipelineHandle = wireframe;
 			pipelineInfo.colorBlendAttachment->blendEnable = VK_TRUE;
 			pipelineInfo.colorBlendAttachment->srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
 			pipelineInfo.colorBlendAttachment->dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
@@ -192,11 +242,19 @@ namespace vkUtils
 	
 	void releaseMaterials(const VkDevice& logicalDevice)
 	{
-		for (auto& material : materials)
+		for (const auto& material : materials)
 		{
 			vkDestroyPipeline(logicalDevice, material.second.pipeline, nullptr);
 			vkDestroyPipelineLayout(logicalDevice, material.second.pipelineLayout, nullptr);
 		}
 		materials.clear();
+	}
+}
+
+namespace utils
+{
+	const VoxelEngine::components::mesh::IMaterial* getMaterial(const string& matName)
+	{
+		return vkUtils::getMaterial(matName);
 	}
 }

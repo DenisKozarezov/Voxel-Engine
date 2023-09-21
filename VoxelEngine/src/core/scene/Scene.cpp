@@ -7,7 +7,7 @@
 namespace VoxelEngine
 {
 	Octree* svo;
-	renderer::mesh::QuadMesh editorGrid;
+	renderer::mesh::Mesh editorGrid;
 	SharedRef<Mesh> mesh;
 
 	struct MaterialsCache
@@ -20,8 +20,8 @@ namespace VoxelEngine
 	Scene::Scene()
 	{
 		editorGrid = renderer::mesh::QuadMesh();
-		editorGrid.vertexBuffer = VoxelEngine::renderer::VertexBuffer::Allocate(editorGrid.vertices.data(), editorGrid.vertexCount * sizeof(renderer::Vertex));
-		editorGrid.indexBuffer = VoxelEngine::renderer::IndexBuffer::Allocate(editorGrid.indices.data(), editorGrid.indexCount * sizeof(uint32));
+		editorGrid.vertexBuffer = VoxelEngine::renderer::VertexBuffer::Allocate(editorGrid.vertices, editorGrid.vertexCount * sizeof(renderer::Vertex));
+		editorGrid.indexBuffer = VoxelEngine::renderer::IndexBuffer::Allocate(editorGrid.indices, editorGrid.indexCount * sizeof(uint32));
 		editorGrid.material = utils::getMaterial("editor_grid");
 
 		materials.solid = utils::getMaterial("solid_instanced");

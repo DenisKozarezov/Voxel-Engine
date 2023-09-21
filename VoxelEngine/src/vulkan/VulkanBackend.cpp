@@ -5,7 +5,6 @@
 #include "vkInit/VulkanFramebuffer.h"
 #include "vkInit/VulkanSync.h"
 #include "vkInit/VulkanDescriptors.h"
-#include "vkUtils/VulkanShader.h"
 #include "vkUtils/VulkanGizmos.h"
 #include "vkInit/VulkanCommand.h"
 #include "vkUtils/VulkanStatistics.h"

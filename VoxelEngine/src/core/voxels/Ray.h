@@ -26,18 +26,8 @@ public:
         this->direction = direction;
         inverse = inverseRay();
     }
-    constexpr Ray(const Ray& rhs) noexcept
-    {
-        origin = rhs.origin;
-        direction = rhs.direction;
-        inverse = inverseRay();
-    }
-    constexpr Ray(Ray&& rhs) noexcept
-    {
-        origin = std::move(rhs.origin);
-        direction = std::move(rhs.direction);
-        inverse = inverseRay();
-    }
+    constexpr Ray(const Ray& rhs) noexcept : Ray(rhs.origin, rhs.direction) { }
+    constexpr Ray(Ray&& rhs) noexcept : Ray(std::move(rhs.origin), std::move(rhs.direction)) { }
     constexpr Ray& operator=(const Ray& rhs)
     {
         origin = rhs.origin;

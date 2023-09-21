@@ -8,8 +8,8 @@ namespace vkUtils
 	class VulkanVertexBuffer : public VoxelEngine::renderer::VertexBuffer
 	{
 	private:
-		VkDevice m_logicalDevice;
-		VkPhysicalDevice m_physicalDevice;
+		VkDevice m_logicalDevice = VK_NULL_HANDLE;
+		VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
 		memory::Buffer m_vertexBuffer;
 	public:
 		VulkanVertexBuffer() noexcept = default;
@@ -22,6 +22,8 @@ namespace vkUtils
 			const VkDevice& logicalDevice, 
 			const void* vertices,
 			const size_t& bufferSize);
+		VulkanVertexBuffer(const VulkanVertexBuffer& rhs);
+		VulkanVertexBuffer(VulkanVertexBuffer&& rhs);
 		VulkanVertexBuffer& operator=(const VulkanVertexBuffer& buffer);
 
 		INLINE operator const VkBuffer&() const & { return m_vertexBuffer.buffer; }

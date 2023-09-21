@@ -21,6 +21,8 @@ namespace vkUtils
 			const VkDevice& logicalDevice, 
 			const void* indices, 
 			const size_t& bufferSize);
+		VulkanIndexBuffer(const VulkanIndexBuffer& rhs);
+		VulkanIndexBuffer(VulkanIndexBuffer&& rhs);
 		VulkanIndexBuffer& operator=(const VulkanIndexBuffer& buffer);
 
 		INLINE operator const VkBuffer&() const & { return m_indexBuffer.buffer; }

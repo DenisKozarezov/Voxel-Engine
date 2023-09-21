@@ -8,6 +8,7 @@ project(VoxelEngine VERSION 0.0.1)
 
 add_subdirectory(VoxelEngine)
 add_subdirectory(VoxelEditor)
+add_subdirectory(ThirdParty)
 
 # ================ BUILD DIRECTORIES ================
 set(LIBRARY_OUTPUT_DIR "$<0:>${CMAKE_BINARY_DIR}/bin/$<CONFIG>")

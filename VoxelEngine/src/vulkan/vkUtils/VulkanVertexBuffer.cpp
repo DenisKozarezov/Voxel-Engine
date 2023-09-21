@@ -46,25 +46,56 @@ namespace vkUtils
 		stagingBuffer.release();
 	}
 
-	VulkanVertexBuffer& VulkanVertexBuffer::operator=(const VulkanVertexBuffer& buffer)
+	VulkanVertexBuffer::VulkanVertexBuffer(const VulkanVertexBuffer& rhs)
 	{
-		this->m_vertexBuffer.unmap();
-		this->m_vertexBuffer.release();
-
 		if (m_vertexBuffer.size == 0)
 		{
 			this->m_vertexBuffer = memory::createBuffer(
-				buffer.m_physicalDevice,
-				buffer.m_logicalDevice,
-				buffer.m_vertexBuffer.size,
+				rhs.m_physicalDevice,
+				rhs.m_logicalDevice,
+				rhs.m_vertexBuffer.size,
 				VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
 
-			this->m_logicalDevice = buffer.m_logicalDevice;
-			this->m_physicalDevice = buffer.m_physicalDevice;
+			this->m_logicalDevice = rhs.m_logicalDevice;
+			this->m_physicalDevice = rhs.m_physicalDevice;
 		}
-		vulkan::copyBuffer(buffer.m_vertexBuffer, this->m_vertexBuffer, buffer.m_vertexBuffer.size);
+		vulkan::copyBuffer(rhs.m_vertexBuffer, this->m_vertexBuffer, rhs.m_vertexBuffer.size);
 		this->m_vertexBuffer.map();
+	}
+	VulkanVertexBuffer::VulkanVertexBuffer(VulkanVertexBuffer&& rhs)
+	{
+		release();
 
+		this->m_vertexBuffer.buffer = std::move(rhs.m_vertexBuffer.buffer);
+		this->m_vertexBuffer.bufferMemory = std::move(rhs.m_vertexBuffer.bufferMemory);
+		this->m_vertexBuffer.descriptor = std::move(rhs.m_vertexBuffer.descriptor);
+		this->m_vertexBuffer.logicalDevice = std::move(rhs.m_vertexBuffer.logicalDevice);
+		this->m_vertexBuffer.mappedMemory = rhs.m_vertexBuffer.mappedMemory;
+		this->m_vertexBuffer.size = rhs.m_vertexBuffer.size;
+
+		rhs.release();
+	}
+
+	VulkanVertexBuffer& VulkanVertexBuffer::operator=(const VulkanVertexBuffer& rhs)
+	{
+		if (this == &rhs)
+			return *this;
+
+		release();
+
+		if (this->m_vertexBuffer.size == 0)
+		{
+			this->m_vertexBuffer = memory::createBuffer(
+				rhs.m_physicalDevice,
+				rhs.m_logicalDevice,
+				rhs.m_vertexBuffer.size,
+				VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+
+			this->m_logicalDevice = rhs.m_logicalDevice;
+			this->m_physicalDevice = rhs.m_physicalDevice;
+		}
+		vulkan::copyBuffer(rhs.m_vertexBuffer, this->m_vertexBuffer, rhs.m_vertexBuffer.size);
+		this->m_vertexBuffer.map();
 		return *this;
 	}
 
@@ -90,6 +121,7 @@ namespace vkUtils
 	}
 	void VulkanVertexBuffer::release()
 	{
+		m_vertexBuffer.unmap();
 		m_vertexBuffer.release();
 	}
 

@@ -55,6 +55,44 @@ namespace VoxelEngine::components::mesh
 			this->indices = new uint32[indexCount];
 			memcpy(this->indices, indices, sizeof(uint32) * indexCount);
 		}
+		Mesh(const Mesh& rhs) : vertexCount(rhs.vertexCount), indexCount(rhs.indexCount)
+		{
+			this->vertices = new Vertex[vertexCount];
+			memcpy(this->vertices, rhs.vertices, sizeof(Vertex) * vertexCount);
+
+			this->indices = new uint32[indexCount];
+			memcpy(this->indices, rhs.indices, sizeof(uint32) * indexCount);
+
+			this->vertexBuffer = rhs.vertexBuffer;
+			this->indexBuffer = rhs.indexBuffer;
+		}
+		Mesh(Mesh&& rhs)
+		{
+			this->vertices = rhs.vertices;
+			this->vertexCount = rhs.vertexCount;
+			this->indices = rhs.indices;
+			this->indexCount = rhs.indexCount;
+			this->material = rhs.material;
+			this->vertexBuffer.swap(rhs.vertexBuffer);
+			this->indexBuffer.swap(rhs.indexBuffer);
+
+			rhs.release();
+		}
+		Mesh& operator=(const Mesh& rhs)
+		{
+			if (this == &rhs)
+				return *this;
+
+			this->vertices = rhs.vertices;
+			this->vertexCount = rhs.vertexCount;
+			this->indices = rhs.indices;
+			this->indexCount = rhs.indexCount;
+			this->material = rhs.material;
+			this->vertexBuffer = rhs.vertexBuffer;
+			this->indexBuffer = rhs.indexBuffer;
+
+			return *this;
+		}
 		~Mesh() noexcept = default;
 
 		void release()
@@ -108,7 +146,6 @@ namespace VoxelEngine::components::mesh
 
 	struct VoxelMesh : public Mesh
 	{
-	private:
 		static constexpr float s = 0.1f;
 		
 		static constexpr std::array<renderer::Vertex, 24> vertices =
@@ -153,7 +190,7 @@ namespace VoxelEngine::components::mesh
 			16, 17, 18,		18, 17, 19, 
 			20, 21, 22,		22, 21, 23  
 		};
-	public:
+
 		VoxelMesh() : Mesh(
 			vertices.data(), 
 			static_cast<uint32>(vertices.size()), 

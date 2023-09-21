@@ -86,4 +86,5 @@ target_link_libraries(${PROJECT_NAME}
 	spdlog::spdlog
 	imgui::imgui
 	glm::glm
+	VModels
 )

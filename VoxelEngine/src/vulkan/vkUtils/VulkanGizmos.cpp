@@ -94,6 +94,9 @@ namespace utils
 		if (s_renderData.linesVertexCount > 0)
 		{
 			uint32 dataSize = (uint32)((uint8*)s_renderData.linesPtrCurrent - (uint8*)s_renderData.linesPtrStart);
+			
+			dataSize = glm::clamp<uint32>(dataSize, 0, MAX_VERTICES * sizeof(LineVertex));
+			
 			s_renderData.linesBuffer.setData(s_renderData.linesPtrStart, dataSize);
 			s_renderData.linesBuffer.bind(frame.commandBuffer, VERTEX_BUFFER_BIND_ID);
 			s_renderData.linesMaterial->bind(frame.commandBuffer, frame.descriptorSet);

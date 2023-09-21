@@ -24,7 +24,6 @@ namespace vulkan
 	void cleanupSwapChain();
 	void presentFrame(const uint32& imageIndex, VkSemaphore* signalSemaphores);
 	void prepareFrame();
-	void prepareScene(const VkCommandBuffer& commandBuffer);
 	void prepareInstanceData();
 	void beginFrame(const VoxelEngine::renderer::UniformBufferObject& ubo);
 	void endFrame();
@@ -42,13 +41,7 @@ namespace vulkan
 	renderer::RenderSettings& getRenderSettings();
 	const renderer::RenderFrameStats& getFrameStats();
 	void resetFrameStats();
-
 	void prepareStatistics();
-	void renderSceneObjects(
-		const VkCommandBuffer& commandBuffer,
-		const mesh::MeshTopology& objectType,
-		uint32& startInstance,
-		const uint32& instanceCount);
 
 	const VkDevice& getLogicalDevice();
 

@@ -46,7 +46,7 @@ namespace VoxelEditor
 
 	SceneView::SceneView()
 	{
-		glm::vec3 cameraPos = { 2.0f, 2.0f, 2.0f };
+		glm::vec3 cameraPos = { 10.0f, 10.0f, 10.0f };
 
 		m_camera = MakeUnique<components::camera::EditorCameraController>(cameraPos);
 	}

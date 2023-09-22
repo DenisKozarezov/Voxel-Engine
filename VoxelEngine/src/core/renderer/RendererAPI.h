@@ -30,9 +30,8 @@ namespace VoxelEngine::renderer
 		virtual void setClearColor(const glm::vec4 color) = 0;
 		virtual void setLineWidth(const float& width) = 0;
 		virtual void drawMesh(const mesh::Mesh& mesh) = 0;
-		virtual void drawMeshIndexed(const mesh::Mesh& mesh, uint32 instanceCount = 1, uint32 startInstance = 0) = 0;
-		virtual void drawMeshIndexed(uint32 indexCount, uint32 instanceCount = 1, uint32 startInstance = 0) = 0;
-		virtual void drawMeshInstanced(const mesh::Mesh& mesh, InstanceData instanceData[], uint32 instanceCount = 1, uint32 startInstance = 0) = 0;
+		virtual void drawMeshIndexed(const mesh::Mesh& mesh, uint32 instanceCount = 1, uint32 startIndex = 0, uint32 startInstance = 0) = 0;
+		virtual void drawMeshIndexed(uint32 indexCount, uint32 instanceCount = 1, uint32 startIndex = 0, uint32 startInstance = 0) = 0;
 
 		static UniqueRef<RendererAPI> Create();
 	};

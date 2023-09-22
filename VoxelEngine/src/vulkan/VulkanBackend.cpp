@@ -56,8 +56,6 @@ namespace vulkan
 
 	renderer::RenderSettings renderSettings;
 	renderer::RenderFrameStats renderFrameStats;
-	vkUtils::memory::Buffer instancedBuffer;
-	std::vector<renderer::InstanceData> instanceData;
 
 	static int MAX_FRAMES_IN_FLIGHT = 3;
 	static uint32 CURRENT_FRAME = 0;
@@ -332,24 +330,6 @@ namespace vulkan
 
 		utils::Gizmos::startBatch();
 	}
-	void prepareInstanceData()
-	{
-		if (instanceData.size() == 0)
-			return;
-
-		instancedBuffer.release();
-
-		VkDeviceSize instancedBufferSize = sizeof(renderer::InstanceData) * instanceData.size();
-		instancedBuffer = vkUtils::memory::createBuffer(
-			state.physicalDevice,
-			state.logicalDevice,
-			instancedBufferSize,
-			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
-
-		instancedBuffer.map();
-		instancedBuffer.setData(instanceData.data(), instancedBufferSize);
-		instancedBuffer.unmap();
-	}
 	void beginFrame(const renderer::UniformBufferObject& ubo)
 	{
 		vkUtils::SwapChainFrame& frame = state.swapChainBundle.frames[CURRENT_FRAME];
@@ -411,18 +391,6 @@ namespace vulkan
 		if (width > 0 && height > 0)
 			state.viewportSize = VkExtent2D(width, height);
 	}
-	void submitRenderables(std::vector<glm::vec3> objects)
-	{
-		instanceData.reserve(objects.size());
-		for (auto& obj : objects)
-		{
-			instanceData.push_back(renderer::InstanceData
-			{
-				.pos = obj
-			});
-		}
-		prepareInstanceData();
-	}
 	void init()
 	{
 		makeInstance();
@@ -481,7 +449,6 @@ namespace vulkan
 	void cleanup()
 	{
 		cleanupSwapChain();
-		instancedBuffer.release();
 
 		utils::Gizmos::release();
 		vkUtils::releaseMaterials(state.logicalDevice);

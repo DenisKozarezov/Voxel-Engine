@@ -1,7 +1,6 @@
 #pragma once
 #include <core/renderer/Buffer.h>
 #include <vulkan/vkUtils/VulkanAlloc.h>
-#include <vulkan/vkInit/VulkanInitializers.h>
 
 namespace vkUtils
 {
@@ -31,9 +30,8 @@ namespace vkUtils
 		constexpr uint32 size() const override;
 
 		void setData(const void* data, const uint32& size) override;
-		INLINE void bind() override { bind(VERTEX_BUFFER_BIND_ID); }
-		void bind(const uint32& binding);
-		void bind(const VkCommandBuffer& commandBuffer, const uint32& binding);
+		void bind(const uint32& binding = 0) override;
+		void bind(const VkCommandBuffer& commandBuffer, const uint32& binding = 0);
 		void release() override;
 
 		~VulkanVertexBuffer();

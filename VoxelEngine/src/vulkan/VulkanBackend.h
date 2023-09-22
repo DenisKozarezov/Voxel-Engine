@@ -24,7 +24,6 @@ namespace vulkan
 	void cleanupSwapChain();
 	void presentFrame(const uint32& imageIndex, VkSemaphore* signalSemaphores);
 	void prepareFrame();
-	void prepareInstanceData();
 	void beginFrame(const VoxelEngine::renderer::UniformBufferObject& ubo);
 	void endFrame();
 
@@ -32,7 +31,6 @@ namespace vulkan
 	void setClearColor(const glm::vec4 color);
 	void setWindow(const Window& window);
 	void setViewport(const int32_t& x, const int32_t& y, const uint32& width, const uint32& height);
-	void submitRenderables(std::vector<glm::vec3> objects);
 	void init();
 	void initImGui();	
 	void deviceWaitIdle();

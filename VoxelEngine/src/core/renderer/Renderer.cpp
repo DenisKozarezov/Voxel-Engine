@@ -46,10 +46,6 @@ namespace VoxelEngine::renderer
     {
         vulkan::resize(width, height);
     }
-    void Renderer::submitRenderables(const std::vector<glm::vec3>& renderables)
-    {
-        vulkan::submitRenderables(renderables);
-    }
     void Renderer::deviceWaitIdle()
     {
         vulkan::deviceWaitIdle();

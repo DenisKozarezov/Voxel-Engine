@@ -98,7 +98,7 @@ namespace utils
 			dataSize = glm::clamp<uint32>(dataSize, 0, MAX_VERTICES * sizeof(LineVertex));
 			
 			s_renderData.linesBuffer.setData(s_renderData.linesPtrStart, dataSize);
-			s_renderData.linesBuffer.bind(frame.commandBuffer, VERTEX_BUFFER_BIND_ID);
+			s_renderData.linesBuffer.bind(frame.commandBuffer);
 			s_renderData.linesMaterial->bind(frame.commandBuffer, frame.descriptorSet);
 			vkCmdDraw(frame.commandBuffer, s_renderData.linesVertexCount, 1, 0, 0);
 		}

@@ -146,7 +146,7 @@ namespace VoxelEngine::components::mesh
 
 	struct VoxelMesh : public Mesh
 	{
-		static constexpr float s = 0.1f;
+		static constexpr float s = 0.5f;
 		
 		static constexpr std::array<renderer::Vertex, 24> vertices =
 		{

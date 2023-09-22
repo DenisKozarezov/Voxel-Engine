@@ -3,12 +3,16 @@
 #include <assets_management/AssetsProvider.h>
 #include <vulkan/vkUtils/VulkanGizmos.h>
 #include <vulkan/vkUtils/VulkanMaterials.h>
+#include <VModels.h>
 
 namespace VoxelEngine
 {
 	Octree* svo;
 	renderer::mesh::Mesh editorGrid;
 	SharedRef<Mesh> mesh;
+	Mesh voxel;
+	SharedRef<renderer::VertexBuffer> instancedBuffer;
+	uint32 instancesCount;
 
 	struct MaterialsCache
 	{
@@ -30,12 +34,31 @@ namespace VoxelEngine
 
 		mesh = assets::AssetsProvider::loadObjMesh(ASSET_PATH("models/FinalBaseMesh.obj"));
 		svo = new Octree(mesh, 3);
+
+		const auto& VModelMesh = VModels::Primitives::Sphere(5);
+		instancesCount = static_cast<uint32>(VModelMesh.size());
+
+		voxel = renderer::mesh::VoxelMesh();
+		voxel.vertexBuffer = renderer::VertexBuffer::Allocate(voxel.vertices, voxel.vertexCount * sizeof(renderer::Vertex));
+		voxel.indexBuffer = renderer::IndexBuffer::Allocate(voxel.indices, voxel.indexCount * sizeof(uint32));
+
+		std::vector<renderer::InstanceData> instanceData;
+		instanceData.reserve(instancesCount);
+		for (size_t i = 0; i < instancesCount; ++i)
+		{
+			instanceData.push_back(renderer::InstanceData{
+				.pos = glm::vec3(VModelMesh[i].x, VModelMesh[i].y, VModelMesh[i].z)
+			});
+		}
+		instancedBuffer = renderer::VertexBuffer::Allocate(instanceData.data(), sizeof(renderer::InstanceData) * instancesCount);
 	}
 	Scene::~Scene()
 	{
 		delete svo;
 		editorGrid.release();
 		mesh->release();
+		voxel.release();
+		instancedBuffer->release();
 	}
 
 	void Scene::update(const Timestep& ts, components::camera::Camera& camera)
@@ -70,7 +93,8 @@ namespace VoxelEngine
 			materials.normals->bind();
 			break;
 		}
-		renderer::RenderCommand::drawMeshIndexed(*mesh.get());
+		renderer::RenderCommand::drawMeshInstanced(voxel, *instancedBuffer.get(), instancesCount);
+		/*renderer::RenderCommand::drawMeshIndexed(*mesh.get());
 				
 		svo->traverse([&](OctreeNode* node)
 		{
@@ -79,6 +103,6 @@ namespace VoxelEngine
 
 			glm::vec3 dimensions = node->box.max() - node->box.min();
 			utils::Gizmos::drawWireframeCube(node->box.min() + dimensions * 0.5f, dimensions);
-		});
+		});*/
 	}
 }

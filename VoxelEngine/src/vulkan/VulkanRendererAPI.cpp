@@ -25,19 +25,13 @@ namespace vulkan
 		VkCommandBuffer commandBuffer = vulkan::getCommandBuffer();
 		vkCmdDraw(commandBuffer, mesh.vertexCount, 1, 0, 0);
 	}
-	void VulkanRendererAPI::drawMeshIndexed(const components::mesh::Mesh& mesh, uint32 instanceCount, uint32 startInstance)
+	void VulkanRendererAPI::drawMeshIndexed(const components::mesh::Mesh& mesh, uint32 instanceCount, uint32 startIndex, uint32 startInstance)
 	{
-		VkCommandBuffer commandBuffer = vulkan::getCommandBuffer();
-		vkCmdDrawIndexed(commandBuffer, mesh.indexCount, instanceCount, 0, 0, startInstance);
+		drawMeshIndexed(mesh.indexCount, instanceCount, startIndex, startInstance);
 	}
-	void VulkanRendererAPI::drawMeshIndexed(uint32 indexCount, uint32 instanceCount, uint32 startInstance)
+	void VulkanRendererAPI::drawMeshIndexed(uint32 indexCount, uint32 instanceCount, uint32 startIndex, uint32 startInstance)
 	{
 		VkCommandBuffer commandBuffer = vulkan::getCommandBuffer();
-		vkCmdDrawIndexed(commandBuffer, indexCount, instanceCount, 0, 0, startInstance);
-	}
-	void VulkanRendererAPI::drawMeshInstanced(const components::mesh::Mesh& mesh, renderer::InstanceData instanceData[], uint32 instanceCount, uint32 startInstance)
-	{
-		VkCommandBuffer commandBuffer = vulkan::getCommandBuffer();
-		vkCmdDrawIndexed(commandBuffer, mesh.indexCount, instanceCount, 0, 0, startInstance);
+		vkCmdDrawIndexed(commandBuffer, indexCount, instanceCount, startIndex, 0, startInstance);
 	}
 }

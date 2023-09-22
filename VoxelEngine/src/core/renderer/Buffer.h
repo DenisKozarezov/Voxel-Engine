@@ -12,7 +12,7 @@ namespace VoxelEngine::renderer
 		virtual constexpr uint32 size() const = 0;
 
 		virtual void setData(const void* data, const uint32& size) = 0;
-		virtual void bind() = 0;
+		virtual void bind(const uint32& binding = 0) = 0;
 		virtual void release() = 0;
 
 		static SharedRef<VertexBuffer> Allocate(const uint32& size);

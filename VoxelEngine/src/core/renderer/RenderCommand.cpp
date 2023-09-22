@@ -37,7 +37,7 @@ namespace VoxelEngine::renderer
 
 		mesh.vertexBuffer->bind();
 		mesh.indexBuffer->bind();
-		s_renderer->drawMeshIndexed(mesh, instanceCount, startInstance);
+		s_renderer->drawMeshIndexed(mesh, instanceCount, 0, startInstance);
 	}
 	void RenderCommand::drawMeshIndexed(const mesh::Mesh& mesh, renderer::IndexBuffer& indexBuffer, uint32 indexCount, uint32 instanceCount, uint32 startInstance)
 	{
@@ -46,16 +46,17 @@ namespace VoxelEngine::renderer
 
 		mesh.vertexBuffer->bind();
 		indexBuffer.bind();
-		s_renderer->drawMeshIndexed(indexCount, instanceCount, startInstance);
+		s_renderer->drawMeshIndexed(indexCount, instanceCount, 0, startInstance);
 	}
-	void RenderCommand::drawMeshInstanced(const mesh::Mesh& mesh, InstanceData instanceData[], uint32 instanceCount, uint32 startInstance)
+	void RenderCommand::drawMeshInstanced(const mesh::Mesh& mesh, renderer::VertexBuffer& instancedBuffer, uint32 instanceCount, uint32 startInstance)
 	{
 		VOXEL_CORE_ASSERT(mesh.vertexBuffer, "can't draw mesh! Vertex buffer is empty!");
 		VOXEL_CORE_ASSERT(mesh.indexBuffer, "can't draw mesh! Index buffer is empty!");
 
 		mesh.vertexBuffer->bind();
 		mesh.indexBuffer->bind();
-		s_renderer->drawMeshInstanced(mesh, instanceData, instanceCount, startInstance);
+		instancedBuffer.bind(1);
+		s_renderer->drawMeshIndexed(mesh.indexCount, instanceCount, 0, startInstance);
 	}
 	void RenderCommand::drawPrimitivesIndexed(const mesh::MeshTopology& topology, renderer::IndexBuffer& indexBuffer, uint32 indexCount, uint32 startIndex, uint32 instanceCount)
 	{

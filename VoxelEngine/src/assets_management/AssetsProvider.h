@@ -50,6 +50,5 @@ namespace assets
 	public:
 		static const TextureData loadTexture(const string& path, ImageColorFormat req_comp = ImageColorFormat::RGB_alpha);
 		static const SharedRef<Mesh> loadObjMesh(const string& path);
-		static const std::vector<glm::vec3> voxelize(glm::vec3* triangle, const int& size, const int& depth);
 	};
 }

@@ -65,7 +65,6 @@ namespace vkUtils
 		this->m_indexBuffer.buffer = std::move(rhs.m_indexBuffer.buffer);
 		this->m_indexBuffer.bufferMemory = std::move(rhs.m_indexBuffer.bufferMemory);
 		this->m_indexBuffer.descriptor = std::move(rhs.m_indexBuffer.descriptor);
-		this->m_indexBuffer.logicalDevice = std::move(rhs.m_indexBuffer.logicalDevice);
 		this->m_indexBuffer.mappedMemory = rhs.m_indexBuffer.mappedMemory;
 		this->m_indexBuffer.size = rhs.m_indexBuffer.size;
 

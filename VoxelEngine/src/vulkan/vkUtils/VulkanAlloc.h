@@ -17,10 +17,16 @@ namespace vkUtils::memory
 
 		INLINE operator const VkBuffer& () const& { return buffer; }
 
-		void release();
-		void map();
+		INLINE void map()
+		{
+			vkMapMemory(logicalDevice, bufferMemory, 0, size, 0, &mappedMemory);
+		}
+		INLINE void setData(const void* data, const size_t& size) const 
+		{ 
+			memcpy(mappedMemory, data, size); 
+		}
 		void unmap();
-		void setData(const void* data, const size_t& size) const;
+		void release();
 		VkResult flush(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0) const;
 	};
 
@@ -31,8 +37,6 @@ namespace vkUtils::memory
 	const VkCommandBuffer beginSingleTimeCommands(const VkCommandPool& commandPool);
 
 	Buffer createBuffer(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice, const VkDeviceSize& size, const VkBufferUsageFlags& usage, const VkMemoryPropertyFlags& properties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-	void destroyBuffer(const VkDevice& logicalDevice, const VkBuffer& buffer);
-	void freeDeviceMemory(const VkDevice& logicalDevice, const VkDeviceMemory& memory);
 
 	constexpr uint32 alignedSize(uint32 value, uint32 alignment);
 	constexpr size_t alignedSize(size_t value, size_t alignment);

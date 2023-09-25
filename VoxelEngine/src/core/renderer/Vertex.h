@@ -15,13 +15,7 @@ namespace VoxelEngine::renderer
         constexpr Vertex() noexcept 
             : Vertex(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f))
         { }
-        constexpr explicit Vertex(glm::vec3 position) noexcept 
-            : Vertex(position, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f))
-        { }
-        constexpr explicit Vertex(glm::vec3 position, glm::vec3 normal) noexcept
-            : Vertex(position, normal, glm::vec3(0.0f, 0.0f, 0.0f))
-        { }
-        constexpr explicit Vertex(glm::vec3 position, glm::vec3 normal, glm::vec3 color) noexcept
+        constexpr explicit Vertex(glm::vec3 position, glm::vec3 normal = { 0.0f, 0.0f, 0.0f }, glm::vec3 color = { 0.0f, 0.0f, 0.0f }) noexcept
             : pos(position), normal(normal), color(color)
         { }
 

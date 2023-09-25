@@ -53,10 +53,6 @@ namespace vkUtils::memory
 
 		return buffers;
 	}
-	void resetCommandBuffer(const VkCommandBuffer& buffer)
-	{
-		vkResetCommandBuffer(buffer, /*VkCommandBufferResetFlagBits*/ 0);
-	}
 	void beginCommand(const VkCommandBuffer& buffer)
 	{
 		VkCommandBufferBeginInfo begin_info = {};
@@ -69,15 +65,5 @@ namespace vkUtils::memory
 	{
 		VkResult err = vkEndCommandBuffer(buffer);
 		VK_CHECK(err, "failed to record command buffer!");
-	}
-	void releaseCommandBuffer(const VkCommandBuffer& buffer, const VkCommandPool& commandPool)
-	{
-		auto logicalDevice = vulkan::getLogicalDevice();
-		vkFreeCommandBuffers(logicalDevice, commandPool, 1, &buffer);
-	}
-	void releaseCommandBuffer(const std::vector<VkCommandBuffer>& buffers, const VkCommandPool& commandPool)
-	{
-		auto logicalDevice = vulkan::getLogicalDevice();
-		vkFreeCommandBuffers(logicalDevice, commandPool, static_cast<uint32>(buffers.size()), buffers.data());
 	}
 }

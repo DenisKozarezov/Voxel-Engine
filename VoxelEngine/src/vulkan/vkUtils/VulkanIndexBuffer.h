@@ -30,7 +30,7 @@ namespace vkUtils
 
 		constexpr uint32 size() const override;
 		void bind() override;
-		void release();
+		INLINE void release();
 
 		~VulkanIndexBuffer() noexcept = default;
 	};

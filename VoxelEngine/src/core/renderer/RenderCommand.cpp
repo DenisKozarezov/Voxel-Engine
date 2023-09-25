@@ -30,33 +30,22 @@ namespace VoxelEngine::renderer
 		mesh.vertexBuffer->bind();
 		s_renderer->drawMesh(mesh);
 	}
-	void RenderCommand::drawMeshIndexed(const mesh::Mesh& mesh, uint32 instanceCount, uint32 startInstance)
-	{
-		VOXEL_CORE_ASSERT(mesh.vertexBuffer, "can't draw mesh! Vertex buffer is empty!");
-		VOXEL_CORE_ASSERT(mesh.indexBuffer, "can't draw mesh! Index buffer is empty!");
-
-		mesh.vertexBuffer->bind();
-		mesh.indexBuffer->bind();
-		s_renderer->drawMeshIndexed(mesh, instanceCount, 0, startInstance);
-	}
-	void RenderCommand::drawMeshIndexed(const mesh::Mesh& mesh, renderer::IndexBuffer& indexBuffer, uint32 indexCount, uint32 instanceCount, uint32 startInstance)
+	void RenderCommand::drawMeshIndexed(const mesh::Mesh& mesh, const SharedRef<renderer::IndexBuffer>& indexBuffer, uint32 indexCount, uint32 instanceCount, uint32 startInstance)
 	{
 		VOXEL_CORE_ASSERT(mesh.vertexBuffer, "can't draw mesh! Vertex buffer is empty!");
 		VOXEL_CORE_ASSERT(indexBuffer.size() > 0, "can't draw mesh! Index buffer is empty!");
 
-		mesh.vertexBuffer->bind();
-		indexBuffer.bind();
-		s_renderer->drawMeshIndexed(indexCount, instanceCount, 0, startInstance);
-	}
-	void RenderCommand::drawMeshInstanced(const mesh::Mesh& mesh, renderer::VertexBuffer& instancedBuffer, uint32 instanceCount, uint32 startInstance)
-	{
-		VOXEL_CORE_ASSERT(mesh.vertexBuffer, "can't draw mesh! Vertex buffer is empty!");
-		VOXEL_CORE_ASSERT(mesh.indexBuffer, "can't draw mesh! Index buffer is empty!");
+		if (mesh.material)
+			mesh.material->bind();
 
 		mesh.vertexBuffer->bind();
-		mesh.indexBuffer->bind();
-		instancedBuffer.bind(1);
-		s_renderer->drawMeshIndexed(mesh.indexCount, instanceCount, 0, startInstance);
+		indexBuffer->bind();
+		s_renderer->drawMeshIndexed(indexCount, instanceCount, 0, startInstance);
+	}
+	void RenderCommand::drawMeshInstanced(const mesh::Mesh& mesh, const SharedRef<renderer::VertexBuffer>& instancedBuffer, uint32 instanceCount, uint32 startInstance)
+	{
+		instancedBuffer->bind(1);
+		drawMeshIndexed(mesh, instanceCount, startInstance);
 	}
 	void RenderCommand::drawPrimitivesIndexed(const mesh::MeshTopology& topology, renderer::IndexBuffer& indexBuffer, uint32 indexCount, uint32 startIndex, uint32 instanceCount)
 	{

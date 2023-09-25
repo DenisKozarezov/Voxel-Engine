@@ -15,7 +15,7 @@ namespace vkInit
 		VkQueue presentQueue;
 	};
 
-	inline const unsigned int getHardwareConcurrency() noexcept
+	INLINE const unsigned int getHardwareConcurrency() noexcept
 	{
 		return std::thread::hardware_concurrency();
 	}

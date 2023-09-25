@@ -55,7 +55,6 @@ namespace vkUtils
 		VkPipelineStageFlags srcStageMask,
 		VkPipelineStageFlags dstStageMask);
 
-	// Fixed sub resource on first mip level and layer
 	void setImageLayout(
 		VkCommandBuffer cmdbuffer,
 		VkImage image,

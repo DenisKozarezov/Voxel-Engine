@@ -78,14 +78,6 @@ namespace vkUtils::memory
 		};
 		return result;
 	}
-	void destroyBuffer(const VkDevice& logicalDevice, const VkBuffer& buffer)
-	{
-		vkDestroyBuffer(logicalDevice, buffer, nullptr);
-	}
-	void freeDeviceMemory(const VkDevice& logicalDevice, const VkDeviceMemory& memory)
-	{
-		vkFreeMemory(logicalDevice, memory, nullptr);
-	}
 
 	constexpr uint32 alignedSize(uint32 value, uint32 alignment)
 	{
@@ -119,6 +111,8 @@ namespace vkUtils::memory
 
 	void Buffer::release()
 	{
+		unmap();
+
 		if (buffer)
 		{
 			vkDestroyBuffer(logicalDevice, buffer, nullptr);
@@ -135,10 +129,6 @@ namespace vkUtils::memory
 		descriptor.range = 0;
 		size = 0;
 	}
-	void Buffer::map()
-	{
-		VK_CHECK(vkMapMemory(logicalDevice, bufferMemory, 0, size, 0, &mappedMemory), "failed to map memory!");
-	}
 	void Buffer::unmap()
 	{
 		if (mappedMemory)
@@ -146,10 +136,6 @@ namespace vkUtils::memory
 			vkUnmapMemory(logicalDevice, bufferMemory);
 			mappedMemory = nullptr;
 		}
-	}
-	void Buffer::setData(const void* data, const size_t& size) const
-	{
-		memcpy(mappedMemory, data, size);
 	}
 	VkResult Buffer::flush(VkDeviceSize size, VkDeviceSize offset) const
 	{

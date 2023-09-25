@@ -1,6 +1,5 @@
 #include "AssetsProvider.h"
 #include <core/Assert.h>
-#include <core/voxels/AABB.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -79,49 +78,7 @@ namespace assets
 
         return mesh;
     }
-  
-    const std::vector<glm::vec3> AssetsProvider::voxelize(glm::vec3* triangle, const int& size, const int& depth)
-    {
-        glm::vec3 max = { 0, 0, 0 }, min{ 1000, 1000, 1000 };
 
-        for (int i = 0; i < 3; i++) 
-        {
-            for (int j = 0; j < 3; j++) 
-            {
-                if (triangle[i][j] < min[j]) min[j] = triangle[i][j];
-                if (triangle[i][j] > max[j]) max[j] = triangle[i][j];
-            }
-        }
-
-        float s = std::exp2(-depth) * size;
-
-        max = { std::ceil(max.x / s) * s, std::ceil(max.y / s) * s, std::ceil(max.z / s) * s };
-        min = { std::floor(min.x / s) * s, std::floor(min.y / s) * s, std::floor(min.z / s) * s };
-        std::vector<glm::vec3> overlapPoints;
-
-        for (int z = (int)(min.z / s); z <= (int)(max.z / s); z++) 
-        {
-            for (int y = (int)(min.y / s); y <= (int)(max.y / s); y++) 
-            {
-                for (int x = (int)(min.x / s); x <= (int)(max.x / s); x++) 
-                {
-                    glm::vec3 halfWidth = { s / 2.f, s / 2.f, s / 2.f };
-                    glm::vec3 center = glm::vec3{ x * s, y * s, z * s } +
-                        glm::vec3{
-                            x == (int)(max.x / s) ? -halfWidth.x : halfWidth.x,
-                            y == (int)(max.y / s) ? -halfWidth.y : halfWidth.y,
-                            z == (int)(max.z / s) ? -halfWidth.z : halfWidth.z,
-                    };
-                    if (triBoxOverlap(center, halfWidth, triangle)) 
-                    {
-                        overlapPoints.push_back(center);
-                    }
-                }
-            }
-        }
-
-        return overlapPoints;
-    }
     void TextureData::release() const
     {
         stbi_image_free(m_nativePtr);

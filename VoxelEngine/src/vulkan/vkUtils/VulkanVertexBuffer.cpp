@@ -64,7 +64,6 @@ namespace vkUtils
 		this->m_vertexBuffer.buffer = std::move(rhs.m_vertexBuffer.buffer);
 		this->m_vertexBuffer.bufferMemory = std::move(rhs.m_vertexBuffer.bufferMemory);
 		this->m_vertexBuffer.descriptor = std::move(rhs.m_vertexBuffer.descriptor);
-		this->m_vertexBuffer.logicalDevice = std::move(rhs.m_vertexBuffer.logicalDevice);
 		this->m_vertexBuffer.mappedMemory = rhs.m_vertexBuffer.mappedMemory;
 		this->m_vertexBuffer.size = rhs.m_vertexBuffer.size;
 

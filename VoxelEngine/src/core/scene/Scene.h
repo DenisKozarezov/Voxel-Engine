@@ -6,6 +6,9 @@ namespace VoxelEngine
 {
 	class Scene
 	{
+	private:
+		void prepareTestInstancedMesh();
+		void prepareTestOctree();
 	public:
 		std::vector<glm::vec3> vertices;
 

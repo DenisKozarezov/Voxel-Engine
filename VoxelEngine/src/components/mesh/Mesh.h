@@ -55,30 +55,45 @@ namespace VoxelEngine::components::mesh
 			this->indices = new uint32[indexCount];
 			memcpy(this->indices, indices, sizeof(uint32) * indexCount);
 		}
-		Mesh(const Mesh& rhs) : vertexCount(rhs.vertexCount), indexCount(rhs.indexCount)
+		Mesh(const Mesh& rhs) : Mesh(rhs.vertices, rhs.vertexCount, rhs.indices, rhs.indexCount)
 		{
-			this->vertices = new Vertex[vertexCount];
-			memcpy(this->vertices, rhs.vertices, sizeof(Vertex) * vertexCount);
-
-			this->indices = new uint32[indexCount];
-			memcpy(this->indices, rhs.indices, sizeof(uint32) * indexCount);
-
 			this->vertexBuffer = rhs.vertexBuffer;
 			this->indexBuffer = rhs.indexBuffer;
 		}
-		Mesh(Mesh&& rhs)
+		Mesh(Mesh&& rhs) noexcept : vertexCount(rhs.vertexCount), indexCount(rhs.indexCount)
 		{
 			this->vertices = rhs.vertices;
-			this->vertexCount = rhs.vertexCount;
 			this->indices = rhs.indices;
-			this->indexCount = rhs.indexCount;
 			this->material = rhs.material;
 			this->vertexBuffer.swap(rhs.vertexBuffer);
 			this->indexBuffer.swap(rhs.indexBuffer);
 
-			rhs.release();
+			rhs.vertices = nullptr;
+			rhs.indices = nullptr;
 		}
 		Mesh& operator=(const Mesh& rhs)
+		{
+			if (this == &rhs)
+				return *this;
+
+			release();
+
+			this->vertexCount = rhs.vertexCount;
+			this->indexCount = rhs.indexCount;
+
+			this->vertices = new Vertex[rhs.vertexCount];
+			memcpy(this->vertices, rhs.vertices, sizeof(Vertex) * rhs.vertexCount);
+
+			this->indices = new uint32[rhs.indexCount];
+			memcpy(this->indices, rhs.indices, sizeof(uint32) * rhs.indexCount);
+
+			this->material = rhs.material;
+			this->vertexBuffer = rhs.vertexBuffer;
+			this->indexBuffer = rhs.indexBuffer;
+
+			return *this;
+		}
+		Mesh& operator=(Mesh&& rhs) noexcept
 		{
 			if (this == &rhs)
 				return *this;
@@ -88,8 +103,11 @@ namespace VoxelEngine::components::mesh
 			this->indices = rhs.indices;
 			this->indexCount = rhs.indexCount;
 			this->material = rhs.material;
-			this->vertexBuffer = rhs.vertexBuffer;
-			this->indexBuffer = rhs.indexBuffer;
+			this->vertexBuffer.swap(rhs.vertexBuffer);
+			this->indexBuffer.swap(rhs.indexBuffer);
+			
+			rhs.vertices = nullptr;
+			rhs.indices = nullptr;
 
 			return *this;
 		}
@@ -146,7 +164,7 @@ namespace VoxelEngine::components::mesh
 
 	struct VoxelMesh : public Mesh
 	{
-		static constexpr float s = 0.5f;
+		static constexpr float s = 0.1f;
 		
 		static constexpr std::array<renderer::Vertex, 24> vertices =
 		{

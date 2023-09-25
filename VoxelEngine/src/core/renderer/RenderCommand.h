@@ -13,9 +13,12 @@ namespace VoxelEngine::renderer
 		static void setClearColor(const glm::vec4 color);
 		static void setLineWidth(const float& width);
 		static void drawMesh(const mesh::Mesh& mesh);
-		static void drawMeshIndexed(const mesh::Mesh& mesh, uint32 instanceCount = 1, uint32 startInstance = 0);
-		static void drawMeshIndexed(const mesh::Mesh& mesh, renderer::IndexBuffer& indexBuffer, uint32 indexCount, uint32 instanceCount = 1, uint32 startInstance = 0);
-		static void drawMeshInstanced(const mesh::Mesh& mesh, renderer::VertexBuffer& instancedBuffer, uint32 instanceCount = 1, uint32 startInstance = 0);
+		INLINE static void drawMeshIndexed(const mesh::Mesh& mesh, uint32 instanceCount = 1, uint32 startInstance = 0)
+		{
+			drawMeshIndexed(mesh, mesh.indexBuffer, mesh.indexCount, instanceCount, startInstance);
+		}
+		static void drawMeshIndexed(const mesh::Mesh& mesh, const SharedRef<renderer::IndexBuffer>& indexBuffer, uint32 indexCount, uint32 instanceCount = 1, uint32 startInstance = 0);
+		static void drawMeshInstanced(const mesh::Mesh& mesh, const SharedRef<renderer::VertexBuffer>& instancedBuffer, uint32 instanceCount = 1, uint32 startInstance = 0);
 		static void drawPrimitivesIndexed(const mesh::MeshTopology& topology, renderer::IndexBuffer& indexBuffer, uint32 indexCount, uint32 startIndex = 0, uint32 instanceCount = 1);
 	};
 }

@@ -273,7 +273,7 @@ namespace vulkan
 
 		for (vkUtils::SwapChainFrame& frame : state.swapChainBundle.frames)
 		{
-			vkUtils::memory::releaseCommandBuffer(frame.commandBuffer, state.commandPool);
+			vkUtils::memory::releaseCommandBuffer(state.logicalDevice, frame.commandBuffer, state.commandPool);
 		}
 	}
 	void presentFrame(const uint32& imageIndex, VkSemaphore* signalSemaphores)
@@ -537,7 +537,7 @@ namespace vulkan
 		vkQueueSubmit(state.queues.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
 		vkQueueWaitIdle(state.queues.graphicsQueue);
 
-		vkUtils::memory::releaseCommandBuffer(commandBuffer, state.commandPool);
+		vkUtils::memory::releaseCommandBuffer(state.logicalDevice, commandBuffer, state.commandPool);
 	}
 	
 	void copyBufferToImage(vkUtils::memory::Buffer buffer, VkImage image, uint32 width, uint32 height) 
@@ -598,7 +598,7 @@ namespace vulkan
 		vkQueueSubmit(state.queues.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
 		vkQueueWaitIdle(state.queues.graphicsQueue);
 
-		vkUtils::memory::releaseCommandBuffer(cmdBuffer, cmdPool);
+		vkUtils::memory::releaseCommandBuffer(state.logicalDevice, cmdBuffer, cmdPool);
 	}
 	void transitionImageLayout(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout) 
 	{

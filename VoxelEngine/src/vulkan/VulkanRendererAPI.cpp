@@ -25,10 +25,6 @@ namespace vulkan
 		VkCommandBuffer commandBuffer = vulkan::getCommandBuffer();
 		vkCmdDraw(commandBuffer, mesh.vertexCount, 1, 0, 0);
 	}
-	void VulkanRendererAPI::drawMeshIndexed(const components::mesh::Mesh& mesh, uint32 instanceCount, uint32 startIndex, uint32 startInstance)
-	{
-		drawMeshIndexed(mesh.indexCount, instanceCount, startIndex, startInstance);
-	}
 	void VulkanRendererAPI::drawMeshIndexed(uint32 indexCount, uint32 instanceCount, uint32 startIndex, uint32 startInstance)
 	{
 		VkCommandBuffer commandBuffer = vulkan::getCommandBuffer();

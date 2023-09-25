@@ -22,8 +22,9 @@ namespace vkUtils
 			const void* indices, 
 			const size_t& bufferSize);
 		VulkanIndexBuffer(const VulkanIndexBuffer& rhs);
-		VulkanIndexBuffer(VulkanIndexBuffer&& rhs);
-		VulkanIndexBuffer& operator=(const VulkanIndexBuffer& buffer);
+		VulkanIndexBuffer(VulkanIndexBuffer&& rhs) noexcept;
+		VulkanIndexBuffer& operator=(const VulkanIndexBuffer& rhs);
+		VulkanIndexBuffer& operator=(VulkanIndexBuffer&& rhs);
 
 		INLINE operator const VkBuffer&() const & { return m_indexBuffer.buffer; }
 

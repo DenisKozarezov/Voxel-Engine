@@ -22,8 +22,9 @@ namespace vkUtils
 			const void* vertices,
 			const size_t& bufferSize);
 		VulkanVertexBuffer(const VulkanVertexBuffer& rhs);
-		VulkanVertexBuffer(VulkanVertexBuffer&& rhs);
-		VulkanVertexBuffer& operator=(const VulkanVertexBuffer& buffer);
+		VulkanVertexBuffer(VulkanVertexBuffer&& rhs) noexcept;
+		VulkanVertexBuffer& operator=(const VulkanVertexBuffer& rhs);
+		VulkanVertexBuffer& operator=(VulkanVertexBuffer&& rhs) noexcept;
 
 		INLINE operator const VkBuffer&() const & { return m_vertexBuffer.buffer; }
 
@@ -34,6 +35,6 @@ namespace vkUtils
 		void bind(const VkCommandBuffer& commandBuffer, const uint32& binding = 0);
 		void release() override;
 
-		~VulkanVertexBuffer();
+		~VulkanVertexBuffer() noexcept = default;
 	};	
 }

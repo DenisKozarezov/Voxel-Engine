@@ -63,10 +63,8 @@ namespace vkUtils
 		vulkan::copyBuffer(rhs.m_indexBuffer, this->m_indexBuffer, rhs.m_indexBuffer.size);
 		this->m_indexBuffer.map();
 	}
-	VulkanIndexBuffer::VulkanIndexBuffer(VulkanIndexBuffer&& rhs)
+	VulkanIndexBuffer::VulkanIndexBuffer(VulkanIndexBuffer&& rhs) noexcept
 	{
-		release();
-
 		this->m_indexBuffer.buffer = std::move(rhs.m_indexBuffer.buffer);
 		this->m_indexBuffer.bufferMemory = std::move(rhs.m_indexBuffer.bufferMemory);
 		this->m_indexBuffer.descriptor = std::move(rhs.m_indexBuffer.descriptor);
@@ -74,7 +72,7 @@ namespace vkUtils
 		this->m_indexBuffer.mappedMemory = rhs.m_indexBuffer.mappedMemory;
 		this->m_indexBuffer.size = rhs.m_indexBuffer.size;
 
-		rhs.release();
+		rhs.m_indexBuffer.mappedMemory = nullptr;
 	}
 	VulkanIndexBuffer& VulkanIndexBuffer::operator=(const VulkanIndexBuffer& rhs)
 	{
@@ -98,6 +96,24 @@ namespace vkUtils
 		this->m_indexBuffer.map();
 
 		return *this;	
+	}
+	VulkanIndexBuffer& VulkanIndexBuffer::operator=(VulkanIndexBuffer&& rhs)
+	{
+		if (this == &rhs)
+			return *this;
+
+		release();
+
+		this->m_indexBuffer.buffer = std::move(rhs.m_indexBuffer.buffer);
+		this->m_indexBuffer.bufferMemory = std::move(rhs.m_indexBuffer.bufferMemory);
+		this->m_indexBuffer.descriptor = std::move(rhs.m_indexBuffer.descriptor);
+		this->m_indexBuffer.logicalDevice = std::move(rhs.m_indexBuffer.logicalDevice);
+		this->m_indexBuffer.mappedMemory = rhs.m_indexBuffer.mappedMemory;
+		this->m_indexBuffer.size = rhs.m_indexBuffer.size;
+
+		rhs.m_indexBuffer.mappedMemory = nullptr;
+
+		return *this;
 	}
 	constexpr uint32 VulkanIndexBuffer::size() const
 	{

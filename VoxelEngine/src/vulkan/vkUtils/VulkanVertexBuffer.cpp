@@ -62,10 +62,8 @@ namespace vkUtils
 		vulkan::copyBuffer(rhs.m_vertexBuffer, this->m_vertexBuffer, rhs.m_vertexBuffer.size);
 		this->m_vertexBuffer.map();
 	}
-	VulkanVertexBuffer::VulkanVertexBuffer(VulkanVertexBuffer&& rhs)
+	VulkanVertexBuffer::VulkanVertexBuffer(VulkanVertexBuffer&& rhs) noexcept
 	{
-		release();
-
 		this->m_vertexBuffer.buffer = std::move(rhs.m_vertexBuffer.buffer);
 		this->m_vertexBuffer.bufferMemory = std::move(rhs.m_vertexBuffer.bufferMemory);
 		this->m_vertexBuffer.descriptor = std::move(rhs.m_vertexBuffer.descriptor);
@@ -73,9 +71,8 @@ namespace vkUtils
 		this->m_vertexBuffer.mappedMemory = rhs.m_vertexBuffer.mappedMemory;
 		this->m_vertexBuffer.size = rhs.m_vertexBuffer.size;
 
-		rhs.release();
+		rhs.m_vertexBuffer.mappedMemory = nullptr;
 	}
-
 	VulkanVertexBuffer& VulkanVertexBuffer::operator=(const VulkanVertexBuffer& rhs)
 	{
 		if (this == &rhs)
@@ -96,6 +93,24 @@ namespace vkUtils
 		}
 		vulkan::copyBuffer(rhs.m_vertexBuffer, this->m_vertexBuffer, rhs.m_vertexBuffer.size);
 		this->m_vertexBuffer.map();
+		return *this;
+	}
+	VulkanVertexBuffer& VulkanVertexBuffer::operator=(VulkanVertexBuffer&& rhs) noexcept
+	{
+		if (this == &rhs)
+			return *this;
+
+		release();
+
+		this->m_vertexBuffer.buffer = std::move(rhs.m_vertexBuffer.buffer);
+		this->m_vertexBuffer.bufferMemory = std::move(rhs.m_vertexBuffer.bufferMemory);
+		this->m_vertexBuffer.descriptor = std::move(rhs.m_vertexBuffer.descriptor);
+		this->m_vertexBuffer.logicalDevice = std::move(rhs.m_vertexBuffer.logicalDevice);
+		this->m_vertexBuffer.mappedMemory = rhs.m_vertexBuffer.mappedMemory;
+		this->m_vertexBuffer.size = rhs.m_vertexBuffer.size;
+
+		rhs.m_vertexBuffer.mappedMemory = nullptr;
+
 		return *this;
 	}
 
@@ -122,10 +137,5 @@ namespace vkUtils
 	{
 		m_vertexBuffer.unmap();
 		m_vertexBuffer.release();
-	}
-
-	VulkanVertexBuffer::~VulkanVertexBuffer()
-	{
-		release();
 	}
 }

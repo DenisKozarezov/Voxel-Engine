@@ -23,9 +23,13 @@ namespace VoxelEditor
 		}
 		template <typename... Args>
 		LogEntry(const LogEntry& log) : 
-			time(std::move(log.time)), 
-			level(std::move(log.level)), 
-			message(std::move(log.message))
+			time(log.time),
+			level(log.level),
+			message(log.message)
+		{ }
+
+		template <typename... Args>
+		LogEntry(LogEntry&& log) : LogEntry(std::move(log.time), std::move(log.level), std::move(log.message))
 		{ }
 
 		~LogEntry() noexcept = default;

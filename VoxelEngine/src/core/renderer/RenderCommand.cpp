@@ -33,7 +33,7 @@ namespace VoxelEngine::renderer
 	void RenderCommand::drawMeshIndexed(const mesh::Mesh& mesh, const SharedRef<renderer::IndexBuffer>& indexBuffer, uint32 indexCount, uint32 instanceCount, uint32 startInstance)
 	{
 		VOXEL_CORE_ASSERT(mesh.vertexBuffer, "can't draw mesh! Vertex buffer is empty!");
-		VOXEL_CORE_ASSERT(indexBuffer.size() > 0, "can't draw mesh! Index buffer is empty!");
+		VOXEL_CORE_ASSERT(indexBuffer->size() > 0, "can't draw mesh! Index buffer is empty!");
 
 		if (mesh.material)
 			mesh.material->bind();

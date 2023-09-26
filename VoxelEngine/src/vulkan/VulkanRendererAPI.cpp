@@ -23,7 +23,7 @@ namespace vulkan
 	void VulkanRendererAPI::drawMesh(const components::mesh::Mesh& mesh)
 	{
 		VkCommandBuffer commandBuffer = vulkan::getCommandBuffer();
-		vkCmdDraw(commandBuffer, mesh.vertexCount, 1, 0, 0);
+		vkCmdDraw(commandBuffer, mesh.vertexCount(), 1, 0, 0);
 	}
 	void VulkanRendererAPI::drawMeshIndexed(uint32 indexCount, uint32 instanceCount, uint32 startIndex, uint32 startInstance)
 	{

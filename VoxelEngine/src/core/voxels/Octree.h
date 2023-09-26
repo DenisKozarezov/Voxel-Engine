@@ -1,6 +1,5 @@
 #pragma once
 #include <functional>
-#include <stack>
 #include <core/voxels/OctreeNode.h>
 #include <components/mesh/Mesh.h>
 
@@ -19,7 +18,7 @@ namespace VoxelEngine
 		Box meshBounds(const SharedRef<components::mesh::Mesh>& mesh);
 		const std::vector<glm::vec3> getMeshPointsInBox(
 			const SharedRef<components::mesh::Mesh>& mesh,
-			const Box& box);
+			const Box& bounds);
 		void subdivide(const SharedRef<components::mesh::Mesh>& mesh, OctreeNode* node, int level);
 		constexpr std::array<Box, 8> getSubdividedOctants(OctreeNode* currentNode);
 		void traverse(OctreeNode* root, const std::function<void(OctreeNode*)>& visitor);
@@ -33,6 +32,9 @@ namespace VoxelEngine
 		INLINE const int& maxDepth() { return m_maxDepth; }
 		INLINE const int& count() { return m_voxelCount; }
 
-		void traverse(const std::function<void(OctreeNode*)>& visitor);
+		INLINE void traverse(const std::function<void(OctreeNode*)>& visitor)
+		{
+			traverse(m_root, visitor);
+		}
 	};
 }

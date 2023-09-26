@@ -17,7 +17,7 @@ namespace vulkan
 		void drawMesh(const components::mesh::Mesh& mesh) override;
 		INLINE void drawMeshIndexed(const components::mesh::Mesh& mesh, uint32 instanceCount = 1, uint32 startIndex = 0, uint32 startInstance = 0) override
 		{
-			drawMeshIndexed(mesh.indexCount, instanceCount, startIndex, startInstance);
+			drawMeshIndexed(mesh.indexCount(), instanceCount, startIndex, startInstance);
 		}
 		void drawMeshIndexed(uint32 indexCount, uint32 instanceCount = 1, uint32 startIndex = 0, uint32 startInstance = 0) override;
 

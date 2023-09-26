@@ -47,8 +47,4 @@ namespace VoxelEngine::renderer
 		instancedBuffer->bind(1);
 		drawMeshIndexed(mesh, instanceCount, startInstance);
 	}
-	void RenderCommand::drawPrimitivesIndexed(const mesh::MeshTopology& topology, renderer::IndexBuffer& indexBuffer, uint32 indexCount, uint32 startIndex, uint32 instanceCount)
-	{
-		//drawMeshIndexed(topologyMesh, indexBuffer, indexCount, startIndex, instanceCount);
-	}
 }

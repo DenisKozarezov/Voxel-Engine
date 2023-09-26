@@ -4,6 +4,7 @@
 #include <vulkan/vkUtils/VulkanGizmos.h>
 #include <vulkan/vkUtils/VulkanMaterials.h>
 #include <VModels.h>
+#include <components/mesh/MeshPrimitives.h>
 
 namespace VoxelEngine
 {
@@ -34,30 +35,31 @@ namespace VoxelEngine
 				.pos = glm::vec3(VModelMesh[i].x, VModelMesh[i].y, VModelMesh[i].z)
 			});
 		}
-		instancedBuffer = renderer::VertexBuffer::Allocate(instanceData.data(), sizeof(renderer::InstanceData) * instancesCount);
+		instancedBuffer = renderer::VertexBuffer::Allocate(instanceData.data(), instancesCount * sizeof(renderer::InstanceData));
 	}
 	void Scene::prepareTestOctree()
 	{
-		mesh = assets::AssetsProvider::loadObjMesh(ASSET_PATH("models/FinalBaseMesh.obj"));
+		mesh = assets::AssetsProvider::loadObjMesh(ASSET_PATH("models/FinalBaseMesh.obj"));	
 		svo = new Octree(mesh, 3);
 	}
 
 	Scene::Scene()
 	{
 		editorGrid = renderer::mesh::QuadMesh();
-		editorGrid.vertexBuffer = VoxelEngine::renderer::VertexBuffer::Allocate(editorGrid.vertices, editorGrid.vertexCount * sizeof(renderer::Vertex));
-		editorGrid.indexBuffer = VoxelEngine::renderer::IndexBuffer::Allocate(editorGrid.indices, editorGrid.indexCount * sizeof(uint32));
+		editorGrid.vertexBuffer = VoxelEngine::renderer::VertexBuffer::Allocate(editorGrid.vertices.data(), editorGrid.vertexCount() * sizeof(renderer::Vertex));
+		editorGrid.indexBuffer = VoxelEngine::renderer::IndexBuffer::Allocate(editorGrid.indices.data(), editorGrid.indexCount() * sizeof(uint32));
 		editorGrid.material = utils::getMaterial("editor_grid");
 
 		voxel = renderer::mesh::VoxelMesh();
-		voxel.vertexBuffer = renderer::VertexBuffer::Allocate(voxel.vertices, voxel.vertexCount * sizeof(renderer::Vertex));
-		voxel.indexBuffer = renderer::IndexBuffer::Allocate(voxel.indices, voxel.indexCount * sizeof(uint32));
+		voxel.vertexBuffer = renderer::VertexBuffer::Allocate(voxel.vertices.data(), voxel.vertexCount() * sizeof(renderer::Vertex));
+		voxel.indexBuffer = renderer::IndexBuffer::Allocate(voxel.indices.data(), voxel.indexCount() * sizeof(uint32));
 
 		materials.solid = utils::getMaterial("solid_instanced");
 		materials.wireframe = utils::getMaterial("wireframe_instanced");
 		materials.normals = utils::getMaterial("normals");
 
 		prepareTestInstancedMesh();
+		//prepareTestOctree();
 	}
 	Scene::~Scene()
 	{
@@ -101,15 +103,15 @@ namespace VoxelEngine
 		}
 		renderer::RenderCommand::drawMeshInstanced(voxel, instancedBuffer, instancesCount);
 
-		//renderer::RenderCommand::drawMeshIndexed(*mesh.get());
+		/*renderer::RenderCommand::drawMeshIndexed(*mesh.get());
 				
-		//svo->traverse([&](OctreeNode* node)
-		//{
-		//	if (!node->isLeaf())
-		//		return;
+		svo->traverse([&](OctreeNode* node)
+		{
+			if (!node->isLeaf())
+				return;
 
-		//	glm::vec3 dimensions = node->box.max() - node->box.min();
-		//	utils::Gizmos::drawWireframeCube(node->box.min() + dimensions * 0.5f, dimensions);
-		//});
+			glm::vec3 dimensions = node->bounds.max() - node->bounds.min();
+			utils::Gizmos::drawWireframeCube(node->bounds.min() + dimensions * 0.5f, dimensions);
+		});*/
 	}
 }

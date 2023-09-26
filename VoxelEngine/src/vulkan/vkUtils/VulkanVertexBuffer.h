@@ -25,6 +25,7 @@ namespace vkUtils
 		VulkanVertexBuffer(VulkanVertexBuffer&& rhs) noexcept;
 		VulkanVertexBuffer& operator=(const VulkanVertexBuffer& rhs);
 		VulkanVertexBuffer& operator=(VulkanVertexBuffer&& rhs) noexcept;
+		~VulkanVertexBuffer();
 
 		INLINE operator const VkBuffer&() const & { return m_vertexBuffer.buffer; }
 
@@ -34,7 +35,5 @@ namespace vkUtils
 		void bind(const uint32& binding = 0) override;
 		void bind(const VkCommandBuffer& commandBuffer, const uint32& binding = 0);
 		INLINE void release() override;
-
-		~VulkanVertexBuffer() noexcept = default;
 	};	
 }

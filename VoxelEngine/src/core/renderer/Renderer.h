@@ -1,8 +1,8 @@
 #pragma once
 #include "RenderSettings.h"
 #include "RenderCommand.h"
+#include "GizmosAPI.h"
 #include <components/camera/Camera.h>
-#include <core/renderer/UniformBuffer.h>
 
 namespace VoxelEngine::renderer
 {
@@ -17,12 +17,15 @@ namespace VoxelEngine::renderer
 
 	class Renderer
 	{
+	private:
+		static UniqueRef<utils::GizmosAPI> s_gizmosAPI;
 	public:
 		static RenderSettings& getRenderSettings();
 		static const RenderPerformanceStats& getStats();
 		static void resetStats();
 		static void init(const Window& window);
 		static void preRender(const components::camera::Camera& camera);
+		static void render();
 		static void postRender();
 		static void resize(const uint32& width, const uint32& height);
 		static void deviceWaitIdle();

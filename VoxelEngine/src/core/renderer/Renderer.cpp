@@ -4,6 +4,7 @@
 namespace VoxelEngine::renderer
 {
     static RenderPerformanceStats s_renderPerformanceStats;
+    UniqueRef<utils::GizmosAPI> Renderer::s_gizmosAPI = nullptr;
 
     RenderSettings& Renderer::getRenderSettings()
     {
@@ -26,6 +27,8 @@ namespace VoxelEngine::renderer
         VOXEL_CORE_WARN("Renderer initialization.");
                        
         RenderCommand::init(window);
+
+        s_gizmosAPI = utils::GizmosAPI::Create();
     }
     void Renderer::preRender(const components::camera::Camera& camera)
     {
@@ -36,7 +39,13 @@ namespace VoxelEngine::renderer
             .viewproj = ubo.proj * ubo.view,
             .lightPos = camera.getPosition()
         };
+
+        s_gizmosAPI->startBatch();
         vulkan::beginFrame(ubo);
+    }
+    void Renderer::render()
+    {
+        s_gizmosAPI->onGizmosDraw();
     }
     void Renderer::postRender()
     {
@@ -52,6 +61,7 @@ namespace VoxelEngine::renderer
     }
     void Renderer::shutdown()
     {
+        s_gizmosAPI.reset();
         vulkan::cleanup();
     }
 }

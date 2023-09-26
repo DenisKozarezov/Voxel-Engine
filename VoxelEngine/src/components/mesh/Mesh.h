@@ -18,6 +18,15 @@ namespace VoxelEngine::components::mesh
 
 	struct Mesh
 	{
+	private:
+		void release()
+		{
+			if (vertexBuffer)
+				vertexBuffer->release();
+
+			if (indexBuffer)
+				indexBuffer->release();
+		}
 	public:
 		std::vector<Vertex> vertices;
 		std::vector<uint32> indices;
@@ -83,18 +92,9 @@ namespace VoxelEngine::components::mesh
 		INLINE const uint32 indexCount() const { return static_cast<uint32>(indices.size()); }
 		INLINE const uint32 vertexCount() const { return static_cast<uint32>(vertices.size()); }
 
-		~Mesh() noexcept = default;
-
-		void release()
+		~Mesh() noexcept
 		{
-			vertices.clear();
-			indices.clear();
-
-			if (vertexBuffer)
-				vertexBuffer->release();
-
-			if (indexBuffer)
-				indexBuffer->release();
+			release();
 		}
 	};
 }

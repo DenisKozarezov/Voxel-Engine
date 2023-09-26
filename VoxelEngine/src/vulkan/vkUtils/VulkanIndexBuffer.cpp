@@ -42,8 +42,6 @@ namespace vkUtils
 			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, 
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 		vulkan::copyBuffer(stagingBuffer, m_indexBuffer, bufferSize);
-
-		stagingBuffer.release();
 	}
 	VulkanIndexBuffer::VulkanIndexBuffer(const VulkanIndexBuffer& rhs)
 		: m_physicalDevice(rhs.m_physicalDevice), m_logicalDevice(rhs.m_logicalDevice)
@@ -62,13 +60,7 @@ namespace vkUtils
 	VulkanIndexBuffer::VulkanIndexBuffer(VulkanIndexBuffer&& rhs) noexcept
 		: m_physicalDevice(std::move(rhs.m_physicalDevice)), m_logicalDevice(std::move(rhs.m_logicalDevice))
 	{
-		this->m_indexBuffer.buffer = std::move(rhs.m_indexBuffer.buffer);
-		this->m_indexBuffer.bufferMemory = std::move(rhs.m_indexBuffer.bufferMemory);
-		this->m_indexBuffer.descriptor = std::move(rhs.m_indexBuffer.descriptor);
-		this->m_indexBuffer.mappedMemory = rhs.m_indexBuffer.mappedMemory;
-		this->m_indexBuffer.size = rhs.m_indexBuffer.size;
-
-		rhs.m_indexBuffer.mappedMemory = nullptr;
+		std::swap(this->m_indexBuffer, rhs.m_indexBuffer);
 	}
 	VulkanIndexBuffer& VulkanIndexBuffer::operator=(const VulkanIndexBuffer& rhs)
 	{
@@ -99,17 +91,13 @@ namespace vkUtils
 			return *this;
 
 		release();
-
-		this->m_indexBuffer.buffer = std::move(rhs.m_indexBuffer.buffer);
-		this->m_indexBuffer.bufferMemory = std::move(rhs.m_indexBuffer.bufferMemory);
-		this->m_indexBuffer.descriptor = std::move(rhs.m_indexBuffer.descriptor);
-		this->m_indexBuffer.logicalDevice = std::move(rhs.m_indexBuffer.logicalDevice);
-		this->m_indexBuffer.mappedMemory = rhs.m_indexBuffer.mappedMemory;
-		this->m_indexBuffer.size = rhs.m_indexBuffer.size;
-
-		rhs.m_indexBuffer.mappedMemory = nullptr;
+		std::swap(this->m_indexBuffer, rhs.m_indexBuffer);
 
 		return *this;
+	}
+	VulkanIndexBuffer::~VulkanIndexBuffer()
+	{
+		release();
 	}
 	constexpr uint32 VulkanIndexBuffer::size() const
 	{
@@ -119,9 +107,5 @@ namespace vkUtils
 	{
 		VkCommandBuffer commandBuffer = vulkan::getCommandBuffer();
 		vkCmdBindIndexBuffer(commandBuffer, m_indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
-	}
-	INLINE void VulkanIndexBuffer::release()
-	{
-		m_indexBuffer.release();
 	}
 }

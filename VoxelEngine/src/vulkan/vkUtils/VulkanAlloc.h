@@ -13,7 +13,14 @@ namespace vkUtils::memory
 		VkBuffer buffer = VK_NULL_HANDLE;
 		VkDeviceMemory bufferMemory = VK_NULL_HANDLE;
 		void* mappedMemory = nullptr;
-		VkDescriptorBufferInfo descriptor;
+		VkDescriptorBufferInfo descriptor{};
+
+		Buffer() noexcept = default;
+		Buffer(const Buffer&) = default;
+		Buffer(Buffer&& rhs) noexcept;
+		Buffer& operator=(const Buffer& rhs) = default;
+		Buffer& operator=(Buffer&& rhs);
+		~Buffer();
 
 		INLINE operator const VkBuffer& () const& { return buffer; }
 

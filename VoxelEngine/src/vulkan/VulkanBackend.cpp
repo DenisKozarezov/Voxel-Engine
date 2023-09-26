@@ -5,7 +5,6 @@
 #include "vkInit/VulkanFramebuffer.h"
 #include "vkInit/VulkanSync.h"
 #include "vkInit/VulkanDescriptors.h"
-#include "vkUtils/VulkanGizmos.h"
 #include "vkInit/VulkanCommand.h"
 #include "vkUtils/VulkanStatistics.h"
 #include "vkUtils/VulkanMaterials.h"
@@ -241,8 +240,6 @@ namespace vulkan
 		vkUtils::SwapChainFrame& frame = state.swapChainBundle.frames[CURRENT_FRAME];
 
 		// =================== RENDER WHOLE STUFF HERE ! ===================		
-		utils::Gizmos::onGizmosDraw(frame);
-
 		ImDrawData* main_draw_data = ImGui::GetDrawData();
 		ImGui_ImplVulkan_RenderDrawData(main_draw_data, commandBuffer);
 
@@ -327,8 +324,6 @@ namespace vulkan
 		scissor.offset.x = state.viewportPos.x;
 		scissor.offset.y = state.viewportPos.y;
 		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
-
-		utils::Gizmos::startBatch();
 	}
 	void beginFrame(const renderer::UniformBufferObject& ubo)
 	{
@@ -409,8 +404,6 @@ namespace vulkan
 
 		prepareStatistics();
 
-		utils::Gizmos::init(state.physicalDevice, state.logicalDevice);
-
 		VOXEL_CORE_TRACE("Vulkan setup ended.");
 	}
 	void initImGui()
@@ -450,7 +443,6 @@ namespace vulkan
 	{
 		cleanupSwapChain();
 
-		utils::Gizmos::release();
 		vkUtils::releaseMaterials(state.logicalDevice);
 
 		vkDestroyPipelineLayout(state.logicalDevice, state.pipelineLayout, nullptr);
@@ -634,9 +626,8 @@ namespace vulkan
 			sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
 			destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 		}
-		else {
+		else
 			throw std::invalid_argument("unsupported layout transition!");
-		}
 
 		vkCmdPipelineBarrier(
 			commandBuffer,

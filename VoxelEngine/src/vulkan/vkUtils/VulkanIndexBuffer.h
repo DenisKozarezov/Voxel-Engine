@@ -25,13 +25,15 @@ namespace vkUtils
 		VulkanIndexBuffer(VulkanIndexBuffer&& rhs) noexcept;
 		VulkanIndexBuffer& operator=(const VulkanIndexBuffer& rhs);
 		VulkanIndexBuffer& operator=(VulkanIndexBuffer&& rhs);
+		~VulkanIndexBuffer();
 
 		INLINE operator const VkBuffer&() const & { return m_indexBuffer.buffer; }
 
 		constexpr uint32 size() const override;
 		void bind() override;
-		INLINE void release();
-
-		~VulkanIndexBuffer() noexcept = default;
+		INLINE void release()
+		{
+			m_indexBuffer.release();
+		}
 	};
 }

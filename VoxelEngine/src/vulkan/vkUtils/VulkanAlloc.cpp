@@ -68,14 +68,12 @@ namespace vkUtils::memory
 			.range = size
 		};
 
-		Buffer result =
-		{
-			.logicalDevice = logicalDevice,
-			.size = size,
-			.buffer = buffer,
-			.bufferMemory = bufferMemory,
-			.descriptor = descriptorInfo
-		};
+		Buffer result;
+		result.logicalDevice = logicalDevice;
+		result.size = size;
+		result.buffer = buffer;
+		result.bufferMemory = bufferMemory;
+		result.descriptor = descriptorInfo;
 		return result;
 	}
 
@@ -109,6 +107,44 @@ namespace vkUtils::memory
 #endif
 	}
 
+	Buffer::Buffer(Buffer&& rhs) noexcept
+	{
+		this->logicalDevice = std::move(rhs.logicalDevice);
+		std::swap(this->descriptor, rhs.descriptor);
+		std::swap(this->size, rhs.size);
+		std::swap(this->buffer, rhs.buffer);
+		std::swap(this->bufferMemory, rhs.bufferMemory);
+		std::swap(this->mappedMemory, rhs.mappedMemory);
+	}
+	Buffer& Buffer::operator=(Buffer&& rhs)
+	{
+		if (this == &rhs)
+			return *this;
+
+		release();
+
+		this->logicalDevice = std::move(rhs.logicalDevice);
+		std::swap(this->descriptor, rhs.descriptor);
+		std::swap(this->size, rhs.size);
+		std::swap(this->buffer, rhs.buffer);
+		std::swap(this->bufferMemory, rhs.bufferMemory);
+		std::swap(this->mappedMemory, rhs.mappedMemory);
+
+		return *this;
+	}
+	Buffer::~Buffer()
+	{
+		release();
+	}
+
+	void Buffer::unmap()
+	{
+		if (mappedMemory)
+		{
+			vkUnmapMemory(logicalDevice, bufferMemory);
+			mappedMemory = nullptr;
+		}
+	}
 	void Buffer::release()
 	{
 		unmap();
@@ -128,14 +164,6 @@ namespace vkUtils::memory
 		descriptor.offset = 0;
 		descriptor.range = 0;
 		size = 0;
-	}
-	void Buffer::unmap()
-	{
-		if (mappedMemory)
-		{
-			vkUnmapMemory(logicalDevice, bufferMemory);
-			mappedMemory = nullptr;
-		}
 	}
 	VkResult Buffer::flush(VkDeviceSize size, VkDeviceSize offset) const
 	{

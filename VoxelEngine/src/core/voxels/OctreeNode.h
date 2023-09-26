@@ -14,18 +14,21 @@ namespace VoxelEngine
 	{
 		std::vector<OctreeNode*> children;
 		std::vector<glm::vec3> points;
-		Box box;
+		Box bounds;
 
-		constexpr OctreeNode() noexcept = default;
+		constexpr OctreeNode(Box bounds) noexcept
+		{
+			this->bounds = bounds;
+		}
 		constexpr OctreeNode(const OctreeNode& node)
 		{
-			box = node.box;
-			std::copy(node.children.begin(), node.children.end(), std::back_inserter(children));
-			std::copy(node.points.begin(), node.points.end(), std::back_inserter(points));
+			bounds = node.bounds;
+			children.assign(node.children.begin(), node.children.end());
+			points.assign(node.points.begin(), node.points.end());
 		}
 		constexpr OctreeNode(OctreeNode&& node) noexcept
 		{
-			box = std::move(node.box);
+			bounds = std::move(node.bounds);
 			children.swap(node.children);
 			points.swap(node.points);
 		}
@@ -35,9 +38,7 @@ namespace VoxelEngine
 				delete node;
 		}
 
-		INLINE const bool isLeaf() const
-		{
-			return children.size() == 0;
-		}
+		INLINE bool isLeaf() { return children.size() == 0; }
+		INLINE const bool isLeaf() const { return children.size() == 0; }
 	};
 }

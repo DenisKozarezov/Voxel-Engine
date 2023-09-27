@@ -78,6 +78,8 @@ namespace VoxelEngine::components::mesh
 			if (this == &rhs)
 				return *this;
 
+			release();
+
 			this->vertices.swap(rhs.vertices);
 			this->indices.swap(rhs.indices);
 			this->material = rhs.material;
@@ -92,7 +94,7 @@ namespace VoxelEngine::components::mesh
 		INLINE const uint32 indexCount() const { return static_cast<uint32>(indices.size()); }
 		INLINE const uint32 vertexCount() const { return static_cast<uint32>(vertices.size()); }
 
-		~Mesh() noexcept
+		~Mesh()
 		{
 			release();
 		}

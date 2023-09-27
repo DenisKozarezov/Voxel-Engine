@@ -10,7 +10,6 @@ namespace utils
 	{
 	private:
 		static GizmosAPI* s_instance;
-		INLINE static GizmosAPI* getInstance() { return s_instance; }
 
 		friend class Gizmos;
 	public:

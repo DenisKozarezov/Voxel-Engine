@@ -13,8 +13,8 @@ namespace vkUtils
 	struct SwapChainFrame
 	{
 	public:
-		VkPhysicalDevice physicalDevice;
-		VkDevice logicalDevice;
+		VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+		VkDevice logicalDevice = VK_NULL_HANDLE;
 
 		VkImage image;
 		VkImageView imageView;

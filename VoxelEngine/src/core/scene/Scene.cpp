@@ -14,8 +14,8 @@ namespace VoxelEngine
 
 	void Scene::prepareTestOctree()
 	{
-		meshes.objMesh = assets::AssetsProvider::loadObjMesh(ASSET_PATH("models/FinalBaseMesh.obj"));
-		svo = new Octree(meshes.objMesh, 3);
+		meshes.mesh = assets::AssetsProvider::loadObjMesh(ASSET_PATH("models/FinalBaseMesh.obj"));
+		svo = new Octree(meshes.mesh, 3);
 	}
 #endif
 
@@ -120,16 +120,16 @@ namespace VoxelEngine
 		switch (renderSettings.renderMode)
 		{
 		case renderer::Solid:
-			meshes.objMesh->material = materials.solid;
+			meshes.mesh->material = materials.solid;
 			break;
 		case renderer::Wireframe:
-			meshes.objMesh->material = materials.wireframe;
+			meshes.mesh->material = materials.wireframe;
 			break;
 		case renderer::Normals:
-			meshes.objMesh->material = materials.normals;
+			meshes.mesh->material = materials.normals;
 			break;
 		}
-		renderer::RenderCommand::drawMeshIndexed(*meshes.objMesh.get());
+		renderer::RenderCommand::drawMeshIndexed(*meshes.mesh.get());
 				
 		svo->traverse([&](OctreeNode* node)
 		{

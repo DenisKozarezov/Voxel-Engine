@@ -10,19 +10,19 @@ namespace vkUtils
 	struct VulkanPipelineCreateInfo
 	{
 		VkPipelineCreateFlags flags = VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT;
-		VkPipelineVertexInputStateCreateInfo* vertexInputInfo;
-		VkPipelineInputAssemblyStateCreateInfo* inputAssembly;
-		VkPipelineViewportStateCreateInfo* viewportState;
-		VkPipelineRasterizationStateCreateInfo* rasterizer;
-		VkPipelineMultisampleStateCreateInfo* multisampling;
-		VkPipelineColorBlendAttachmentState* colorBlendAttachment;
-		VkPipelineColorBlendStateCreateInfo* colorBlending;
-		VkPipelineDepthStencilStateCreateInfo* depthStencil;
-		VkPipelineDynamicStateCreateInfo* dynamicState;
-		VkDescriptorSetLayout* descriptorSetLayout;
-		VkRenderPass* renderPass;
-		VkPipelineShaderStageCreateInfo* shaderStages;
-		VkPipeline basePipelineHandle;
+		VkPipelineVertexInputStateCreateInfo* vertexInputInfo = nullptr;
+		VkPipelineInputAssemblyStateCreateInfo* inputAssembly = nullptr;
+		VkPipelineViewportStateCreateInfo* viewportState = nullptr;
+		VkPipelineRasterizationStateCreateInfo* rasterizer = nullptr;
+		VkPipelineMultisampleStateCreateInfo* multisampling = nullptr;
+		VkPipelineColorBlendAttachmentState* colorBlendAttachment = nullptr;
+		VkPipelineColorBlendStateCreateInfo* colorBlending = nullptr;
+		VkPipelineDepthStencilStateCreateInfo* depthStencil = nullptr;
+		VkPipelineDynamicStateCreateInfo* dynamicState = nullptr;
+		VkDescriptorSetLayout* descriptorSetLayout = nullptr;
+		VkRenderPass* renderPass = nullptr;
+		VkPipelineShaderStageCreateInfo* shaderStages = nullptr;
+		VkPipeline basePipelineHandle = VK_NULL_HANDLE;
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo;
 		uint32 stagesCount;
 

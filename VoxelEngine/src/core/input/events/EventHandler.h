@@ -2,6 +2,7 @@
 #include <functional>
 #include <typeinfo>
 #include <future>
+#include <core/Base.h>
 
 namespace VoxelEngine::input
 {
@@ -24,9 +25,9 @@ namespace VoxelEngine::input
         IEventHandler() noexcept = default;
         virtual ~IEventHandler() noexcept = default;
 
-        virtual inline const size_t& getHashCode() const = 0;
-        virtual inline void invoke(input::Event& arg) = 0;
-        virtual inline std::future<void> invoke_async(input::Event& arg, const std::launch& launch) = 0;
+        virtual INLINE const size_t& getHashCode() const = 0;
+        virtual INLINE void invoke(input::Event& arg) = 0;
+        virtual INLINE std::future<void> invoke_async(input::Event& arg, const std::launch& launch) = 0;
     };
 
     template <typename TEvent>
@@ -46,38 +47,44 @@ namespace VoxelEngine::input
         { }
         ~EventHandler() noexcept = default;
 
-        const bool operator==(const EventHandler& rhs) noexcept
+        INLINE bool operator==(const EventHandler& rhs) noexcept
         {
             return m_eventType == rhs.m_eventType;
         }  
-        EventHandler& operator=(const EventHandler& src) noexcept
+        EventHandler& operator=(const EventHandler& rhs) noexcept
         {
-            m_cbFunc = src.m_cbFunc;
-            m_eventType = src.m_eventType;
+            if (this == &rhs)
+                return this;
+
+            m_cbFunc = rhs.m_cbFunc;
+            m_eventType = rhs.m_eventType;
             return *this;
         }
-        EventHandler& operator=(EventHandler&& src)
+        EventHandler& operator=(EventHandler&& rhs)
         {
-            std::swap(m_cbFunc, src.m_cbFunc);
-            m_eventType = src.m_eventType;
+            if (this == &rhs)
+                return this;
+
+            std::swap(m_cbFunc, rhs.m_cbFunc);
+            m_eventType = rhs.m_eventType;
             return *this;
         }
-        inline void operator()(TEvent& arg) const
+        INLINE void operator()(TEvent& arg) const
         {
             invoke(arg);
         }
 
-        inline const size_t& getHashCode() const override { return m_eventType; }
+        INLINE const size_t& getHashCode() const override { return m_eventType; }
 
-        inline void invoke(input::Event& arg) override
+        INLINE void invoke(input::Event& arg) override
         {            
-            this->invoke(dynamic_cast<TEvent&>(arg));
+            this->invoke(static_cast<TEvent&>(arg));
         }
-        inline std::future<void> invoke_async(input::Event& arg, const std::launch& launch) override
+        INLINE std::future<void> invoke_async(input::Event& arg, const std::launch& launch) override
         {
-            return this->invoke_async(dynamic_cast<TEvent&>(arg), launch);
+            return this->invoke_async(static_cast<TEvent&>(arg), launch);
         }
-        inline void invoke(TEvent& arg)
+        INLINE void invoke(TEvent& arg)
         { 
             this->m_cbFunc(std::forward<TEvent&>(arg));
         }

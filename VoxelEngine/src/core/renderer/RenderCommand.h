@@ -3,6 +3,9 @@
 
 namespace VoxelEngine::renderer
 {
+	/*
+		Facade class for rendering.
+	*/
 	class RenderCommand
 	{
 	private:

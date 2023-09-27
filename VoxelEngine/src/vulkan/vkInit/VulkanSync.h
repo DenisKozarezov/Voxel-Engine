@@ -7,7 +7,6 @@ namespace vkInit
 	const VkSemaphore createSemaphore(const VkDevice& logicalDevice) 
 	{
 		VkSemaphoreCreateInfo semaphoreInfo = semaphoreCreateInfo();
-
 		VkSemaphore semaphore;
 		VkResult err = vkCreateSemaphore(logicalDevice, &semaphoreInfo, nullptr, &semaphore);
 		VK_CHECK(err, "failed to create semaphore!");
@@ -24,12 +23,12 @@ namespace vkInit
 		return fence;
 	}
 
-	void lockFences(const VkDevice& logicalDevice, const VkFence* fences, const uint32& fenceCount = 1)
+	INLINE void lockFences(const VkDevice& logicalDevice, const VkFence* fences, const uint32& fenceCount = 1)
 	{
 		vkWaitForFences(logicalDevice, fenceCount, fences, VK_TRUE, UINT64_MAX);
 	}
 
-	void resetFences(const VkDevice& logicalDevice, const VkFence* fences, const uint32& fenceCount = 1)
+	INLINE void resetFences(const VkDevice& logicalDevice, const VkFence* fences, const uint32& fenceCount = 1)
 	{
 		vkResetFences(logicalDevice, fenceCount, fences);
 	}

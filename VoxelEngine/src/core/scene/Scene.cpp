@@ -60,18 +60,20 @@ namespace VoxelEngine
 
 		meshes.editorGrid.vertexBuffer = VoxelEngine::renderer::VertexBuffer::Allocate(vertices, vertexCount * sizeof(renderer::Vertex));
 		meshes.editorGrid.indexBuffer = VoxelEngine::renderer::IndexBuffer::Allocate(indices, indexCount * sizeof(uint32));
-		meshes.editorGrid.material = utils::getMaterial("editor_grid");
-
-		materials.solid = utils::getMaterial("solid_instanced");
-		materials.wireframe = utils::getMaterial("wireframe_instanced");
-		materials.normals = utils::getMaterial("normals");
+		meshes.editorGrid.material = utils::getMaterial("editor_grid");	
 
 #if TEST_INSTANCED_MESH
 		prepareTestInstancedMesh();
+		materials.solid = utils::getMaterial("solid_instanced");
+		materials.wireframe = utils::getMaterial("wireframe_instanced");
+		materials.normals = utils::getMaterial("normals_instanced");
 #endif
 
 #if TEST_OCTREE
 		prepareTestOctree();
+		materials.solid = utils::getMaterial("solid");
+		materials.wireframe = utils::getMaterial("wireframe");
+		materials.normals = utils::getMaterial("normals");
 #endif
 	}
 	Scene::~Scene()
@@ -94,12 +96,12 @@ namespace VoxelEngine
 	void Scene::renderScene()
 	{
 		auto& renderSettings = renderer::Renderer::getRenderSettings();
-
+		
 		if (renderSettings.showEditorGrid)
 		{
 			renderer::RenderCommand::drawMeshIndexed(meshes.editorGrid);
 		}
-		
+
 #if TEST_INSTANCED_MESH
 		switch (renderSettings.renderMode)
 		{

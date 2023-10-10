@@ -4,7 +4,6 @@
 layout(set = 0, binding = 0) readonly uniform UniformBufferObject {
     mat4 view;
     mat4 proj;
-    mat4 viewproj;
     vec3 lightPos;
 } ubo;
 
@@ -21,7 +20,7 @@ layout(location = 4) out vec3 outViewPos;
 void main() {
     vec4 pos = vec4(inPosition, 1.0);
 
-    gl_Position = ubo.viewproj * pos;
+    gl_Position = ubo.proj * ubo.view * pos;
 
     outPosition = inPosition;
     outNormal = inNormal;

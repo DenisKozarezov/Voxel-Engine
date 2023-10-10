@@ -36,8 +36,7 @@ namespace VoxelEngine::renderer
         {
             .view = camera.viewMatrix(),
             .proj = camera.projectionMatrix(),
-            .viewproj = ubo.proj * ubo.view,
-            .lightPos = camera.getPosition()
+            .lightPos = glm::vec3(0.0f, 2.0f, 1.0f)
         };
 
         s_gizmosAPI->startBatch();

@@ -28,10 +28,10 @@ namespace VoxelEditor
 		ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
 		window_flags |= ImGuiWindowFlags_NoMove;
 		ImRect basePos = ImGui::GetCurrentWindow()->WorkRect;
-		ImVec2 pos = { basePos.Min.x + m_viewportSize.x - 100, basePos.Min.y };
+		ImVec2 pos = { basePos.Min.x + m_viewportSize.x - 400, basePos.Min.y };
 		ImGui::SetNextWindowPos(pos, ImGuiCond_Always);
 		
-		ImGui::BeginChild("##cameraModes", { 100, 100 }, false, window_flags);
+		ImGui::BeginChild("##cameraModes", { 400, 100 }, false, window_flags);
 		ImGui::Text("Camera Mode");
 
 		components::camera::ProjectionType projectionType = m_camera->projectionType();
@@ -41,6 +41,12 @@ namespace VoxelEditor
 			int modeInt = (static_cast<int>(projectionType) + 1) % 2;
 			m_camera->switchMode((components::camera::ProjectionType)modeInt);
 		}
+
+		ImGui::SameLine();
+		static int cameraSpeed = 5;
+		if (ImGui::SliderInt("Camera Speed", &cameraSpeed, 0, 10, "%d", ImGuiSliderFlags_AlwaysClamp))
+			m_camera->setSpeed(cameraSpeed);
+
 		ImGui::EndChild();
 	}
 

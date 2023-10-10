@@ -156,11 +156,11 @@ namespace vkUtils
 		}
 
 		// NORMALS
+		VkPipeline normals;
 		{
 			VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::inputStateCreateInfo({
 				{ ShaderDataType::Float3_S32 },			// Position
-				{ ShaderDataType::Float3_S32 },			// Normal,
-				{ ShaderDataType::Float3_S32, true },	// Instanced Position
+				{ ShaderDataType::Float3_S32 },			// Normal
 			});
 			pipelineInfo.vertexInputInfo = &vertexInputInfo;
 
@@ -176,9 +176,32 @@ namespace vkUtils
 			pipelineInfo.inputAssembly->topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 			pipelineInfo.basePipelineHandle = solidPipeline;
 
-			VkPipeline normals;
 			pipelineInfo.build(logicalDevice, normalsMaterialLayout, pipelineCache, &normals);
 			createMaterial(normals, normalsMaterialLayout, "normals");
+		}
+
+		// NORMALS INSTANCED
+		{
+			VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::inputStateCreateInfo({
+				{ ShaderDataType::Float3_S32 },			// Position
+				{ ShaderDataType::Float3_S32 },			// Normal,
+				{ ShaderDataType::Float3_S32, true },	// Instanced Position
+				});
+			pipelineInfo.vertexInputInfo = &vertexInputInfo;
+
+			VkPipelineLayout normalsMaterialLayout;
+			VkResult err = vkCreatePipelineLayout(logicalDevice, &pipelineInfo.pipelineLayoutInfo, nullptr, &normalsMaterialLayout);
+			VK_CHECK(err, "failed to create pipeline layout!");
+
+			VulkanShader shader = VulkanShader(logicalDevice, ASSET_PATH("shaders/normals_color_instanced_shader.glsl"));
+			pipelineInfo.shaderStages = shader.getStages().data();
+			pipelineInfo.stagesCount = static_cast<uint32>(shader.getStages().size());
+			pipelineInfo.flags = VK_PIPELINE_CREATE_DERIVATIVE_BIT;
+			pipelineInfo.basePipelineHandle = normals;
+
+			VkPipeline normalsInstanced;
+			pipelineInfo.build(logicalDevice, normalsMaterialLayout, pipelineCache, &normalsInstanced);
+			createMaterial(normalsInstanced, normalsMaterialLayout, "normals_instanced");
 		}
 
 		// WIREFRAME
@@ -186,7 +209,6 @@ namespace vkUtils
 		{
 			VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::inputStateCreateInfo({
 				{ ShaderDataType::Float3_S32 },			// Position
-				{ ShaderDataType::Float3_S32, true}		// Instanced Position
 			});
 			pipelineInfo.vertexInputInfo = &vertexInputInfo;
 
@@ -202,7 +224,28 @@ namespace vkUtils
 			pipelineInfo.inputAssembly->topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 			pipelineInfo.basePipelineHandle = solidInstancedPipeline;
 			pipelineInfo.build(logicalDevice, wireframeMaterialLayout, pipelineCache, &wireframe);
-			createMaterial(wireframe, wireframeMaterialLayout, "wireframe_instanced");
+			createMaterial(wireframe, wireframeMaterialLayout, "wireframe");
+		}
+
+		// WIREFRAME INSTANCED
+		{
+			VkPipeline wireframeInstanced;
+			VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::inputStateCreateInfo({
+				{ ShaderDataType::Float3_S32 },			// Position
+				{ ShaderDataType::Float3_S32, true}		// Instanced Position
+			});
+			pipelineInfo.vertexInputInfo = &vertexInputInfo;
+
+			VkPipelineLayout wireframeMaterialLayout;
+			VkResult err = vkCreatePipelineLayout(logicalDevice, &pipelineInfo.pipelineLayoutInfo, nullptr, &wireframeMaterialLayout);
+			VK_CHECK(err, "failed to create pipeline layout!");
+
+			VulkanShader shader = VulkanShader(logicalDevice, ASSET_PATH("shaders/wireframe_instanced_shader.glsl"));
+			pipelineInfo.shaderStages = shader.getStages().data();
+			pipelineInfo.stagesCount = static_cast<uint32>(shader.getStages().size());
+			pipelineInfo.basePipelineHandle = wireframe;
+			pipelineInfo.build(logicalDevice, wireframeMaterialLayout, pipelineCache, &wireframeInstanced);
+			createMaterial(wireframeInstanced, wireframeMaterialLayout, "wireframe_instanced");
 		}
 
 		// EDITOR GRID
@@ -225,6 +268,9 @@ namespace vkUtils
 			pipelineInfo.rasterizer->polygonMode = VK_POLYGON_MODE_FILL;
 			pipelineInfo.rasterizer->cullMode = VK_CULL_MODE_NONE;
 			pipelineInfo.basePipelineHandle = wireframe;
+			pipelineInfo.depthStencil->depthTestEnable = VK_TRUE;
+			pipelineInfo.depthStencil->depthWriteEnable = false;
+			pipelineInfo.depthStencil->depthCompareOp = VK_COMPARE_OP_LESS;
 			pipelineInfo.colorBlendAttachment->blendEnable = VK_TRUE;
 			pipelineInfo.colorBlendAttachment->srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
 			pipelineInfo.colorBlendAttachment->dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;

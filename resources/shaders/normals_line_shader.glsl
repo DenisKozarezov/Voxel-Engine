@@ -36,7 +36,6 @@ layout(line_strip, max_vertices = 2) out;
 layout(binding = 0) readonly uniform UniformBufferObject {
     mat4 view;
     mat4 proj;
-    mat4 viewproj;
 } ubo;
 
 layout (location = 0) in vec3 inNormal[];
@@ -51,11 +50,11 @@ void main() {
         vec3 pos = gl_in[i].gl_Position.xyz + inInstancePosition[i];
         vec3 normal = inNormal[i].xyz;
 
-        gl_Position = ubo.viewproj * vec4(pos, 1.0);
+        gl_Position = ubo.proj * ubo.view * vec4(pos, 1.0);
         outColor = vec3(0.0, 1.0, 0.0);
         EmitVertex();
 
-        gl_Position = ubo.viewproj * vec4(pos + normal * normalLength, 1.0);
+        gl_Position = ubo.proj * ubo.view * vec4(pos + normal * normalLength, 1.0);
         outColor = vec3(0.0, 1.0, 1.0);
         EmitVertex();
 

@@ -14,7 +14,7 @@ namespace vkInit
 		std::vector<VkShaderStageFlags> stages;
 	};
 
-	const VkDescriptorSetLayout createDescriptorSetLayout(const VkDevice& logicalDevice, const DescriptorSetLayoutInputBundle& bindings)
+	const VkDescriptorSetLayout createDescriptorSetLayout(const vkInit::VulkanDevice& device, const DescriptorSetLayoutInputBundle& bindings)
 	{
 		std::vector<VkDescriptorSetLayoutBinding> layoutBindings;
 		layoutBindings.reserve(bindings.count);
@@ -33,7 +33,7 @@ namespace vkInit
 		VkDescriptorSetLayoutCreateInfo layoutInfo = descriptorSetLayoutCreateInfo(layoutBindings);
 
 		VkDescriptorSetLayout layout;
-		VkResult err = vkCreateDescriptorSetLayout(logicalDevice, &layoutInfo, nullptr, &layout);
+		VkResult err = vkCreateDescriptorSetLayout(device.logicalDevice, &layoutInfo, nullptr, &layout);
 		VK_CHECK(err, "failed to create descriptor set layout!");
 
 		VOXEL_CORE_TRACE("Vulkan descriptor set layout created.")
@@ -41,7 +41,7 @@ namespace vkInit
 		return layout;
 	}
 
-	const VkDescriptorPool createDescriptorPool(const VkDevice& logicalDevice)
+	const VkDescriptorPool createDescriptorPool(const vkInit::VulkanDevice& device)
 	{
 		const auto& pool_sizes = descriptorPoolSize();
 
@@ -52,7 +52,7 @@ namespace vkInit
 			1000 * IM_ARRAYSIZE(pool_sizes.data()));
 
 		VkDescriptorPool pool;
-		VkResult err = vkCreateDescriptorPool(logicalDevice, &poolInfo, nullptr, &pool);
+		VkResult err = vkCreateDescriptorPool(device.logicalDevice, &poolInfo, nullptr, &pool);
 		VK_CHECK(err, "failed to create descriptor pool!");
 
 		VOXEL_CORE_TRACE("Vulkan descriptor pool created.")
@@ -61,7 +61,7 @@ namespace vkInit
 	}
 
 	const VkDescriptorSet allocateDescriptorSet(
-		const VkDevice& logicalDevice,
+		const vkInit::VulkanDevice& device,
 		const VkDescriptorPool& descriptorPool,
 		const VkDescriptorSetLayout& descriptorSetLayout)
 	{
@@ -71,7 +71,7 @@ namespace vkInit
 		);
 
 		VkDescriptorSet descriptorSet;
-		VkResult err = vkAllocateDescriptorSets(logicalDevice, &allocInfo, &descriptorSet);
+		VkResult err = vkAllocateDescriptorSets(device.logicalDevice, &allocInfo, &descriptorSet);
 		VK_CHECK(err, "failed to allocate descriptor set!");
 
 		VOXEL_CORE_TRACE("Vulkan descriptor set allocated.")

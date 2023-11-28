@@ -5,14 +5,12 @@
 
 namespace vkInit
 {
-	const VkCommandPool createCommandPool(
-		const VkDevice& logicalDevice,
-		const uint32& queueFamily)
+	const VkCommandPool createCommandPool(const vkInit::VulkanDevice& device, const uint32& queueFamily)
 	{
 		VkCommandPoolCreateInfo poolInfo = vkInit::commandPoolCreateInfo(queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 
 		VkCommandPool commandPool;
-		VkResult err = vkCreateCommandPool(logicalDevice, &poolInfo, nullptr, &commandPool);
+		VkResult err = vkCreateCommandPool(device.logicalDevice, &poolInfo, nullptr, &commandPool);
 		VK_CHECK(err, "failed to create command pool!");
 
 		VOXEL_CORE_TRACE("Vulkan command pool created.")
@@ -32,8 +30,8 @@ namespace vkUtils::memory
 		allocInfo.commandBufferCount = 1;
 
 		VkCommandBuffer commandBuffer;
-		auto logicalDevice = vulkan::getLogicalDevice();
-		vkAllocateCommandBuffers(logicalDevice, &allocInfo, &commandBuffer);
+		auto& device = vulkan::getDevice();
+		vkAllocateCommandBuffers(device.logicalDevice, &allocInfo, &commandBuffer);
 
 		return commandBuffer;
 	}
@@ -47,8 +45,8 @@ namespace vkUtils::memory
 		allocInfo.commandPool = commandPool;
 		allocInfo.commandBufferCount = buffersCount;
 
-		auto logicalDevice = vulkan::getLogicalDevice();
-		VkResult err = vkAllocateCommandBuffers(logicalDevice, &allocInfo, buffers.data());
+		auto& device = vulkan::getDevice();
+		VkResult err = vkAllocateCommandBuffers(device.logicalDevice, &allocInfo, buffers.data());
 		VK_CHECK(err, "failed to allocate command buffers!");
 
 		return buffers;

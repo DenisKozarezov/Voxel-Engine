@@ -1,14 +1,12 @@
 #pragma once
-#include <vulkan/vulkan.h>
-#include <core/PrimitiveTypes.h>
-#include <core/Base.h>
+#include <vulkan/vkInit/VulkanDevice.h>
 
 namespace vkUtils::memory
 {
 	struct Buffer
 	{
 	public:
-		VkDevice logicalDevice = VK_NULL_HANDLE;
+		vkInit::VulkanDevice device;
 		VkDeviceSize size = 0;
 		VkBuffer buffer = VK_NULL_HANDLE;
 		VkDeviceMemory bufferMemory = VK_NULL_HANDLE;
@@ -26,7 +24,7 @@ namespace vkUtils::memory
 
 		INLINE void map()
 		{
-			vkMapMemory(logicalDevice, bufferMemory, 0, size, 0, &mappedMemory);
+			vkMapMemory(device.logicalDevice, bufferMemory, 0, size, 0, &mappedMemory);
 		}
 		INLINE void setData(const void* data, const size_t& size) const 
 		{ 
@@ -39,11 +37,11 @@ namespace vkUtils::memory
 
 	const uint32 findMemoryType(const VkPhysicalDevice& physicalDevice, const uint32& typeFilter, const VkMemoryPropertyFlags& properties);
 	
-	const VkDeviceMemory allocateMemory(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice, const VkMemoryRequirements& requirements, const VkMemoryPropertyFlags& properties);
+	const VkDeviceMemory allocateMemory(const vkInit::VulkanDevice& device, const VkMemoryRequirements& requirements, const VkMemoryPropertyFlags& properties);
 	
 	const VkCommandBuffer beginSingleTimeCommands(const VkCommandPool& commandPool);
 
-	Buffer createBuffer(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice, const VkDeviceSize& size, const VkBufferUsageFlags& usage, const VkMemoryPropertyFlags& properties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+	Buffer createBuffer(const vkInit::VulkanDevice& device, const VkDeviceSize& size, const VkBufferUsageFlags& usage, const VkMemoryPropertyFlags& properties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
 	constexpr uint32 alignedSize(uint32 value, uint32 alignment);
 	constexpr size_t alignedSize(size_t value, size_t alignment);

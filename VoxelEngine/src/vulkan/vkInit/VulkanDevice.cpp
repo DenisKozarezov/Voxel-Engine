@@ -1,5 +1,5 @@
 #include "VulkanDevice.h"
-#include "../vkUtils/VulkanValidation.h"
+#include "../vkUtils/VulkanStatistics.h"
 
 namespace vkInit
 {
@@ -45,24 +45,24 @@ namespace vkInit
 			&& supportedFeatures.pipelineStatisticsQuery;
 	}
 	
-	const VkPhysicalDevice pickPhysicalDevice(const VkInstance& instance, const VkSurfaceKHR& surface, VkPhysicalDeviceLimits* limits)
+	void setupPhysicalDevice(const VkInstance& instance, VulkanDevice* vulkanDevice)
 	{
 		uint32 deviceCount = 0;
 		vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
 
 		VOXEL_CORE_ASSERT(deviceCount != 0, "failed to find GPUs with Vulkan support!");
 
-		std::vector<VkPhysicalDevice> devices(deviceCount);
-		vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
+		std::vector<VkPhysicalDevice> candidates(deviceCount);
+		vkEnumeratePhysicalDevices(instance, &deviceCount, candidates.data());
 
-		for (const auto& device : devices)
+		for (const auto& physicalDevice : candidates)
 		{
 			VkPhysicalDeviceProperties deviceProperties;
-			vkGetPhysicalDeviceProperties(device, &deviceProperties);
+			vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
 
-			vkUtils::QueueFamilyIndices queueFamilyIndices = vkUtils::findQueueFamilies(device, surface);
+			vkUtils::QueueFamilyIndices queueFamilyIndices = vkUtils::findQueueFamilies(physicalDevice, vulkanDevice->surface);
 
-			if (isDeviceSuitable(device, queueFamilyIndices))
+			if (isDeviceSuitable(physicalDevice, queueFamilyIndices))
 			{
 				VOXEL_CORE_TRACE("Physical device candidate: {0}.", deviceProperties.deviceName);
 				VOXEL_CORE_TRACE("Device vendor ID: {0}.", deviceProperties.vendorID);
@@ -70,20 +70,23 @@ namespace vkInit
 				VOXEL_CORE_TRACE("Device ID: {0}.", deviceProperties.deviceID);
 				VOXEL_CORE_TRACE("Device hardware concurrency: {0}.", getHardwareConcurrency());
 
-				limits = &deviceProperties.limits;
-				return device;
+				vulkanDevice->queueFamilyIndices = queueFamilyIndices;
+				vulkanDevice->properties = deviceProperties;
+				vulkanDevice->limits = deviceProperties.limits;
+				vulkanDevice->physicalDevice = physicalDevice;
+				return;
 			}
 		}
 		throw std::runtime_error("failed to find a suitable GPU!");
 	}
 	
-	const VkDevice createLogicalDevice(const VkPhysicalDevice& physicalDevice, const VkSurfaceKHR& surface, const vkUtils::QueueFamilyIndices& queueFamilyIndices)
+	const VkDevice createLogicalDevice(const VulkanDevice* vulkanDevice)
 	{
-		VOXEL_CORE_ASSERT(physicalDevice, "failed to create logical device!");
+		VOXEL_CORE_ASSERT(vulkanDevice->physicalDevice, "failed to create logical device!");
 
 		float queuePriority = 1.0f;
-		uint32 graphicsFamilyIndex = queueFamilyIndices.graphicsFamily.value();
-		uint32 presentFamilyIndex = queueFamilyIndices.presentFamily.value();
+		uint32 graphicsFamilyIndex = vulkanDevice->queueFamilyIndices.graphicsFamily.value();
+		uint32 presentFamilyIndex = vulkanDevice->queueFamilyIndices.presentFamily.value();
 		VkDeviceQueueCreateInfo queueCreateInfo = {};
 		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 		queueCreateInfo.queueFamilyIndex = graphicsFamilyIndex;
@@ -111,22 +114,38 @@ namespace vkInit
 		else createInfo.enabledLayerCount = 0;
 
 		VkDevice device;
-		VkResult err = vkCreateDevice(physicalDevice, &createInfo, nullptr, &device);
+		VkResult err = vkCreateDevice(vulkanDevice->physicalDevice, &createInfo, nullptr, &device);
 		VK_CHECK(err, "failed to create logical device!");
 		return device;
 	}
 	
-	const DeviceQueues getDeviceQueues(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice, const VkSurfaceKHR& surface)
+	const DeviceQueues getDeviceQueues(const VulkanDevice* device)
 	{
-		vkUtils::QueueFamilyIndices queueFamilyIndices = vkUtils::findQueueFamilies(physicalDevice, surface);
-
-		VOXEL_CORE_TRACE("Device graphics family: {0}.", queueFamilyIndices.graphicsFamily.value());
-		VOXEL_CORE_TRACE("Device present family: {0}.", queueFamilyIndices.presentFamily.value());
+		VOXEL_CORE_TRACE("Device graphics family: {0}.", device->queueFamilyIndices.graphicsFamily.value());
+		VOXEL_CORE_TRACE("Device present family: {0}.", device->queueFamilyIndices.presentFamily.value());
 
 		DeviceQueues queues;
-		vkGetDeviceQueue(logicalDevice, queueFamilyIndices.graphicsFamily.value(), 0, &queues.graphicsQueue);
-		vkGetDeviceQueue(logicalDevice, queueFamilyIndices.presentFamily.value(), 0, &queues.presentQueue);
-
+		vkGetDeviceQueue(device->logicalDevice, device->queueFamilyIndices.graphicsFamily.value(), 0, &queues.graphicsQueue);
+		vkGetDeviceQueue(device->logicalDevice, device->queueFamilyIndices.presentFamily.value(), 0, &queues.presentQueue);
 		return queues;
+	}
+	
+	VulkanDevice::VulkanDevice(const VkInstance& instance, const VkSurfaceKHR& surface)
+	{
+		this->surface = surface;
+		setupPhysicalDevice(instance, this);
+		this->logicalDevice = createLogicalDevice(this);
+		this->deviceQueues = getDeviceQueues(this);
+		this->queryPool = vkUtils::createQueryPool(logicalDevice);
+	}
+
+	VulkanDevice::~VulkanDevice()
+	{
+		
+	}
+	void VulkanDevice::release()
+	{
+		vkDestroyQueryPool(logicalDevice, queryPool, nullptr);
+		vkDestroyDevice(logicalDevice, nullptr);
 	}
 }

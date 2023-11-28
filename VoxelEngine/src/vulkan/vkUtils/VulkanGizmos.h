@@ -40,7 +40,7 @@ namespace vkUtils
 	private:
 		RenderData m_renderData;
 	public:
-		VulkanGizmos(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice);
+		VulkanGizmos(const vkInit::VulkanDevice& device);
 		
 		void startBatch() override;
 		void drawLine(const glm::vec3& point1, const glm::vec3& point2, const glm::vec3& color = glm::vec3(0.0f, 1.0f, 0.0f)) override;

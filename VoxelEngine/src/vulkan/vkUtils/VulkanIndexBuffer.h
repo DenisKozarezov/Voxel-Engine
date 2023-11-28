@@ -7,20 +7,12 @@ namespace vkUtils
 	class VulkanIndexBuffer : public VoxelEngine::renderer::IndexBuffer
 	{
 	private:
-		VkPhysicalDevice m_physicalDevice;
-		VkDevice m_logicalDevice;
+		vkInit::VulkanDevice m_device;
 		memory::Buffer m_indexBuffer;
 	public:
 		VulkanIndexBuffer() noexcept = default;
-		VulkanIndexBuffer(
-			const VkPhysicalDevice& physicalDevice,
-			const VkDevice& logicalDevice,
-			const size_t& bufferSize);
-		VulkanIndexBuffer(
-			const VkPhysicalDevice& physicalDevice, 
-			const VkDevice& logicalDevice, 
-			const void* indices, 
-			const size_t& bufferSize);
+		VulkanIndexBuffer(const vkInit::VulkanDevice& device, const size_t& bufferSize);
+		VulkanIndexBuffer(const vkInit::VulkanDevice& device, const void* indices, const size_t& bufferSize);
 		VulkanIndexBuffer(const VulkanIndexBuffer& rhs);
 		VulkanIndexBuffer(VulkanIndexBuffer&& rhs) noexcept;
 		VulkanIndexBuffer& operator=(const VulkanIndexBuffer& rhs);

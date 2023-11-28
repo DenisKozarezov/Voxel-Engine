@@ -8,8 +8,8 @@ namespace vulkan
 	using namespace VoxelEngine;
 	namespace mesh = components::mesh;
 
-	void makeInstance();
-	void makeDevice();
+	const VkSurfaceKHR makeInstance();
+	void makeDevice(const VkSurfaceKHR& surface);
 	void makeSwapChain();
 	void makeFramebuffers();
 	void makeDescriptorSetLayout();
@@ -39,15 +39,12 @@ namespace vulkan
 	renderer::RenderSettings& getRenderSettings();
 	const renderer::RenderFrameStats& getFrameStats();
 	void resetFrameStats();
-	void prepareStatistics();
-
-	const VkDevice& getLogicalDevice();
 
 	/// <summary>
-	/// Returns the physical GPU device currently in use for Vulkan.
+	/// Returns the vulkan device currently in use.
 	/// </summary>
 	/// <returns></returns>
-	const VkPhysicalDevice& getPhysicalDevice();
+	const vkInit::VulkanDevice& getDevice();
 
 	/// <summary>
 	/// Returns the command buffer used in this frame in flight.

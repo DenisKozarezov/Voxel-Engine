@@ -7,26 +7,18 @@ namespace VoxelEngine::renderer
 {
     SharedRef<VertexBuffer> VertexBuffer::Allocate(const uint32& size)
     {
-        const auto& physicalDevice = vulkan::getPhysicalDevice();
-        const auto& logicalDevice = vulkan::getLogicalDevice();
-        return MakeShared<vkUtils::VulkanVertexBuffer>(physicalDevice, logicalDevice, size);
+        return MakeShared<vkUtils::VulkanVertexBuffer>(vulkan::getDevice(), size);
     }
     SharedRef<VertexBuffer> VertexBuffer::Allocate(const void* vertices, const uint32& size)
     {
-        const auto& physicalDevice = vulkan::getPhysicalDevice();
-        const auto& logicalDevice = vulkan::getLogicalDevice();
-        return MakeShared<vkUtils::VulkanVertexBuffer>(physicalDevice, logicalDevice, vertices, size);
+        return MakeShared<vkUtils::VulkanVertexBuffer>(vulkan::getDevice(), vertices, size);
     }
     SharedRef<IndexBuffer> IndexBuffer::Allocate(const uint32& size)
     {
-        const auto& physicalDevice = vulkan::getPhysicalDevice();
-        const auto& logicalDevice = vulkan::getLogicalDevice();
-        return MakeShared<vkUtils::VulkanIndexBuffer>(physicalDevice, logicalDevice, size);
+        return MakeShared<vkUtils::VulkanIndexBuffer>(vulkan::getDevice(), size);
     }
     SharedRef<IndexBuffer> IndexBuffer::Allocate(const void* indices, const uint32& size)
     {
-        const auto& physicalDevice = vulkan::getPhysicalDevice();
-        const auto& logicalDevice = vulkan::getLogicalDevice();
-        return MakeShared<vkUtils::VulkanIndexBuffer>(physicalDevice, logicalDevice, indices, size);
+        return MakeShared<vkUtils::VulkanIndexBuffer>(vulkan::getDevice(), indices, size);
     }
 }

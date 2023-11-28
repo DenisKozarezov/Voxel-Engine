@@ -18,16 +18,16 @@ namespace vkUtils::memory
 		}
 		throw std::runtime_error("failed to find suitable memory type!");
 	}
-	const VkDeviceMemory allocateMemory(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice, const VkMemoryRequirements& requirements, const VkMemoryPropertyFlags& properties)
+	const VkDeviceMemory allocateMemory(const vkInit::VulkanDevice& device, const VkMemoryRequirements& requirements, const VkMemoryPropertyFlags& properties)
 	{
 		VkDeviceMemory memory;
 
 		VkMemoryAllocateInfo allocInfo = {};
 		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		allocInfo.allocationSize = requirements.size;
-		allocInfo.memoryTypeIndex = findMemoryType(physicalDevice, requirements.memoryTypeBits, properties);
+		allocInfo.memoryTypeIndex = findMemoryType(device.physicalDevice, requirements.memoryTypeBits, properties);
 
-		VkResult err = vkAllocateMemory(logicalDevice, &allocInfo, nullptr, &memory);
+		VkResult err = vkAllocateMemory(device.logicalDevice, &allocInfo, nullptr, &memory);
 		VK_CHECK(err, "failed to allocate memory!");
 
 		return memory;
@@ -39,10 +39,9 @@ namespace vkUtils::memory
 		return commandBuffer;
 	}
 	
-	Buffer createBuffer(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice, const VkDeviceSize& size, const VkBufferUsageFlags& usage, const VkMemoryPropertyFlags& properties)
+	Buffer createBuffer(const vkInit::VulkanDevice& device, const VkDeviceSize& size, const VkBufferUsageFlags& usage, const VkMemoryPropertyFlags& properties)
 	{
-		VOXEL_CORE_ASSERT(physicalDevice, "failed to create buffer!");
-		VOXEL_CORE_ASSERT(logicalDevice, "failed to create buffer!");
+		VOXEL_CORE_ASSERT(device.physicalDevice && device.logicalDevice, "failed to create buffer!");
 
 		VkBufferCreateInfo bufferInfo = {};
 		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -51,15 +50,14 @@ namespace vkUtils::memory
 		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
 		VkBuffer buffer;
-		VkResult err = vkCreateBuffer(logicalDevice, &bufferInfo, nullptr, &buffer);
+		VkResult err = vkCreateBuffer(device.logicalDevice, &bufferInfo, nullptr, &buffer);
 		VK_CHECK(err, "failed to create buffer!");
 
 		VkMemoryRequirements memRequirements;
-		vkGetBufferMemoryRequirements(logicalDevice, buffer, &memRequirements);
+		vkGetBufferMemoryRequirements(device.logicalDevice, buffer, &memRequirements);
 
-		VkDeviceMemory bufferMemory = allocateMemory(physicalDevice, logicalDevice, memRequirements, properties);
-
-		vkBindBufferMemory(logicalDevice, buffer, bufferMemory, 0);
+		VkDeviceMemory bufferMemory = allocateMemory(device, memRequirements, properties);
+		vkBindBufferMemory(device.logicalDevice, buffer, bufferMemory, 0);
 
 		VkDescriptorBufferInfo descriptorInfo =
 		{
@@ -69,7 +67,7 @@ namespace vkUtils::memory
 		};
 
 		Buffer result;
-		result.logicalDevice = logicalDevice;
+		result.device = device;
 		result.size = size;
 		result.buffer = buffer;
 		result.bufferMemory = bufferMemory;
@@ -109,7 +107,7 @@ namespace vkUtils::memory
 
 	Buffer::Buffer(Buffer&& rhs) noexcept
 	{
-		this->logicalDevice = std::move(rhs.logicalDevice);
+		this->device = std::move(rhs.device);
 		std::swap(this->descriptor, rhs.descriptor);
 		std::swap(this->size, rhs.size);
 		std::swap(this->buffer, rhs.buffer);
@@ -123,7 +121,7 @@ namespace vkUtils::memory
 
 		release();
 
-		this->logicalDevice = std::move(rhs.logicalDevice);
+		this->device = std::move(rhs.device);
 		std::swap(this->descriptor, rhs.descriptor);
 		std::swap(this->size, rhs.size);
 		std::swap(this->buffer, rhs.buffer);
@@ -141,7 +139,7 @@ namespace vkUtils::memory
 	{
 		if (mappedMemory)
 		{
-			vkUnmapMemory(logicalDevice, bufferMemory);
+			vkUnmapMemory(device.logicalDevice, bufferMemory);
 			mappedMemory = nullptr;
 		}
 	}
@@ -151,13 +149,13 @@ namespace vkUtils::memory
 
 		if (buffer)
 		{
-			vkDestroyBuffer(logicalDevice, buffer, nullptr);
+			vkDestroyBuffer(device.logicalDevice, buffer, nullptr);
 			buffer = VK_NULL_HANDLE;
 		}
 
 		if (bufferMemory)
 		{
-			vkFreeMemory(logicalDevice, bufferMemory, nullptr);
+			vkFreeMemory(device.logicalDevice, bufferMemory, nullptr);
 			bufferMemory = VK_NULL_HANDLE;
 		}
 
@@ -172,6 +170,6 @@ namespace vkUtils::memory
 		mappedRange.memory = bufferMemory;
 		mappedRange.offset = offset;
 		mappedRange.size = size;
-		return vkFlushMappedMemoryRanges(logicalDevice, 1, &mappedRange);
+		return vkFlushMappedMemoryRanges(device.logicalDevice, 1, &mappedRange);
 	}
 }

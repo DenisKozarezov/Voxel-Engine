@@ -2,6 +2,7 @@
 #include <vector>
 #include <vulkan/vkUtils/VulkanAlloc.h>
 #include <core/renderer/UniformBuffer.h>
+#include <vulkan/vkInit/VulkanDevice.h>
 
 namespace vkUtils
 {
@@ -13,8 +14,7 @@ namespace vkUtils
 	struct SwapChainFrame
 	{
 	public:
-		VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-		VkDevice logicalDevice = VK_NULL_HANDLE;
+		vkInit::VulkanDevice vulkanDevice;
 
 		VkImage image;
 		VkImageView imageView;

@@ -31,22 +31,22 @@ namespace vkInit
 		VkDeviceMemory colorImageMemory;
 		VkImageView colorImageView;
 
-		void release(const VkDevice& logicalDevice)
+		void release(const vkInit::VulkanDevice& device)
 		{
 			for (auto& frame : frames)
 			{
 				frame.release();
 			}
 
-			vkDestroyImage(logicalDevice, colorImage, nullptr);
-			vkDestroyImageView(logicalDevice, colorImageView, nullptr);
-			vkFreeMemory(logicalDevice, colorImageMemory, nullptr);
+			vkDestroyImage(device.logicalDevice, colorImage, nullptr);
+			vkDestroyImageView(device.logicalDevice, colorImageView, nullptr);
+			vkFreeMemory(device.logicalDevice, colorImageMemory, nullptr);
 			
-			vkDestroyImage(logicalDevice, depthImage, nullptr);
-			vkDestroyImageView(logicalDevice, depthImageView, nullptr);
-			vkFreeMemory(logicalDevice, depthImageMemory, nullptr);
+			vkDestroyImage(device.logicalDevice, depthImage, nullptr);
+			vkDestroyImageView(device.logicalDevice, depthImageView, nullptr);
+			vkFreeMemory(device.logicalDevice, depthImageMemory, nullptr);
 
-			vkDestroySwapchainKHR(logicalDevice, swapchain, nullptr);
+			vkDestroySwapchainKHR(device.logicalDevice, swapchain, nullptr);
 		}
 	};
 
@@ -150,8 +150,7 @@ namespace vkInit
 	}
 
 	void createDepthResources(
-		const VkPhysicalDevice& physicalDevice,
-		const VkDevice& logicalDevice,
+		const vkInit::VulkanDevice& device,
 		const uint32& width,
 		const uint32& height,
 		const VkSampleCountFlagBits& msaaSamples,
@@ -160,10 +159,9 @@ namespace vkInit
 		VkImageView& depthImageView,
 		VkDeviceMemory& depthImageMemory)
 	{
-		depthFormat = vkUtils::findDepthFormat(physicalDevice);
+		depthFormat = vkUtils::findDepthFormat(device.physicalDevice);
 		depthImage = vkUtils::createImage(
-			physicalDevice,
-			logicalDevice,
+			device,
 			width, height,
 			depthFormat,
 			msaaSamples,
@@ -173,15 +171,14 @@ namespace vkInit
 			depthImageMemory);
 
 		depthImageView = vkUtils::createImageView(
-			logicalDevice,
+			device.logicalDevice,
 			depthImage,
 			depthFormat,
 			VK_IMAGE_ASPECT_DEPTH_BIT);
 	}
 	
 	void createColorResources(
-		const VkPhysicalDevice& physicalDevice,
-		const VkDevice& logicalDevice,
+		const vkInit::VulkanDevice& device,
 		const uint32& width,
 		const uint32& height,
 		const VkSampleCountFlagBits& msaaSamples, 
@@ -191,8 +188,7 @@ namespace vkInit
 		VkDeviceMemory& colorImageMemory)
 	{
 		colorImage = vkUtils::createImage(
-			physicalDevice,
-			logicalDevice,
+			device,
 			width, height,
 			colorFormat,
 			msaaSamples,
@@ -202,7 +198,7 @@ namespace vkInit
 			colorImageMemory);
 
 		colorImageView = vkUtils::createImageView(
-			logicalDevice,
+			device.logicalDevice,
 			colorImage,
 			colorFormat,
 			VK_IMAGE_ASPECT_COLOR_BIT
@@ -210,14 +206,12 @@ namespace vkInit
 	}
 
 	const SwapChainBundle createSwapChain(
-		const VkPhysicalDevice& physicalDevice, 
-		const VkDevice& logicalDevice, 
-		const VkSurfaceKHR& surface, 
+		const vkInit::VulkanDevice& device,
 		const uint32& width, 
 		const uint32& height,
 		const VkSampleCountFlagBits& msaaSamples)
 	{
-		SwapChainSupportDetails swapChainSupport = querySwapChainSupport(physicalDevice, surface);
+		SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device.physicalDevice, device.surface);
 		VkSurfaceFormatKHR surfaceFormat = chooseSwapChainSurfaceFormat(swapChainSupport.formats);
 		VkPresentModeKHR presentMode = chooseSwapChainPresentMode(swapChainSupport.presentModes);
 		VkExtent2D extent = chooseSwapChainExtent(width, height, swapChainSupport.capabilities);
@@ -226,7 +220,7 @@ namespace vkInit
 
 		VkSwapchainCreateInfoKHR createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-		createInfo.surface = surface;
+		createInfo.surface = device.surface;
 		createInfo.minImageCount = imageCount;
 		createInfo.imageFormat = surfaceFormat.format;
 		createInfo.imageColorSpace = surfaceFormat.colorSpace;
@@ -239,7 +233,7 @@ namespace vkInit
 		createInfo.clipped = VK_TRUE;
 		createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-		vkUtils::QueueFamilyIndices indices = vkUtils::findQueueFamilies(physicalDevice, surface);
+		vkUtils::QueueFamilyIndices indices = device.queueFamilyIndices;
 		uint32 queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
 		if (indices.graphicsFamily != indices.presentFamily)
@@ -257,7 +251,7 @@ namespace vkInit
 
 		SwapChainBundle bundle;
 		VkSwapchainKHR swapchain;
-		VkResult err = vkCreateSwapchainKHR(logicalDevice, &createInfo, nullptr, &swapchain);
+		VkResult err = vkCreateSwapchainKHR(device.logicalDevice, &createInfo, nullptr, &swapchain);
 		VK_CHECK(err, "failed to create swap chain!");
 
 		bundle.swapchain = swapchain;
@@ -265,8 +259,7 @@ namespace vkInit
 		bundle.extent = extent;
 
 		createColorResources(
-			physicalDevice,
-			logicalDevice,
+			device,
 			width, height,
 			msaaSamples,
 			bundle.format,
@@ -275,8 +268,7 @@ namespace vkInit
 			bundle.colorImageMemory);
 
 		createDepthResources(
-			physicalDevice,
-			logicalDevice,
+			device,
 			width, height,
 			msaaSamples,
 			bundle.depthFormat,
@@ -284,7 +276,7 @@ namespace vkInit
 			bundle.depthImageView,
 			bundle.depthImageMemory);		
 
-		std::vector<VkImage> images = getSwapChainImagesKHR(logicalDevice, bundle.swapchain, &imageCount);
+		std::vector<VkImage> images = getSwapChainImagesKHR(device.logicalDevice, bundle.swapchain, &imageCount);
 		bundle.frames.resize(images.size());
 		for (size_t i = 0; i < images.size(); ++i) 
 		{
@@ -296,7 +288,7 @@ namespace vkInit
 				VK_COMPONENT_SWIZZLE_IDENTITY
 			};
 			bundle.frames[i].image = images[i];
-			bundle.frames[i].imageView = vkUtils::createImageView(logicalDevice, images[i], bundle.format, components);
+			bundle.frames[i].imageView = vkUtils::createImageView(device.logicalDevice, images[i], bundle.format, components);
 		}
 
 		VOXEL_CORE_TRACE("Vulkan swap chain created.");

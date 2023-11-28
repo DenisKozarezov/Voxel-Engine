@@ -8,9 +8,8 @@ namespace utils
 
 	UniqueRef<GizmosAPI> GizmosAPI::Create()
 	{
-		auto& physicalDevice = vulkan::getPhysicalDevice();
-		auto& logicalDevice = vulkan::getLogicalDevice();
-		return MakeUnique<vkUtils::VulkanGizmos>(physicalDevice, logicalDevice);
+		auto& device = vulkan::getDevice();
+		return MakeUnique<vkUtils::VulkanGizmos>(device);
 	}
 
 	GizmosAPI::GizmosAPI()

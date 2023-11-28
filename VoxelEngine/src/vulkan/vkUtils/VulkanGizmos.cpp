@@ -5,10 +5,10 @@ namespace vkUtils
 {
 	constexpr uint32 MAX_VERTICES = 10000;
 
-	VulkanGizmos::VulkanGizmos(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice)
+	VulkanGizmos::VulkanGizmos(const vkInit::VulkanDevice& device)
 	{
 		m_renderData.linesMaterial = vkUtils::getMaterial("lines");
-		m_renderData.linesBuffer = vkUtils::VulkanVertexBuffer(physicalDevice, logicalDevice, sizeof(LineVertex) * MAX_VERTICES);
+		m_renderData.linesBuffer = vkUtils::VulkanVertexBuffer(device, sizeof(LineVertex) * MAX_VERTICES);
 		m_renderData.linesPtrStart = new LineVertex[MAX_VERTICES];
 	}
 	void VulkanGizmos::startBatch()

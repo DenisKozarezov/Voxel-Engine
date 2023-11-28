@@ -8,8 +8,7 @@ namespace vkUtils
 	{
 		VkDeviceSize size = sizeof(VoxelEngine::renderer::UniformBufferObject);
 		uniformBuffers.view = vkUtils::memory::createBuffer(
-			physicalDevice,
-			logicalDevice,
+			vulkanDevice,
 			size,
 			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
 
@@ -25,16 +24,16 @@ namespace vkUtils
 			0,
 			&uniformBuffers.view.descriptor);
 
-		vkUpdateDescriptorSets(logicalDevice, static_cast<uint32>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+		vkUpdateDescriptorSets(vulkanDevice.logicalDevice, static_cast<uint32>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}
 
 	void SwapChainFrame::release()
 	{
-		vkDestroyImageView(logicalDevice, imageView, nullptr);
-		vkDestroyFramebuffer(logicalDevice, framebuffer, nullptr);
-		vkDestroyFence(logicalDevice, inFlightFence, nullptr);
-		vkDestroySemaphore(logicalDevice, imageAvailableSemaphore, nullptr);
-		vkDestroySemaphore(logicalDevice, renderFinishedSemaphore, nullptr);
+		vkDestroyImageView(vulkanDevice.logicalDevice, imageView, nullptr);
+		vkDestroyFramebuffer(vulkanDevice.logicalDevice, framebuffer, nullptr);
+		vkDestroyFence(vulkanDevice.logicalDevice, inFlightFence, nullptr);
+		vkDestroySemaphore(vulkanDevice.logicalDevice, imageAvailableSemaphore, nullptr);
+		vkDestroySemaphore(vulkanDevice.logicalDevice, renderFinishedSemaphore, nullptr);
 
 		uniformBuffers.view.release();
 	}

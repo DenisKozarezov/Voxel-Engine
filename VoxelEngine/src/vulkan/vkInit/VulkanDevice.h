@@ -16,6 +16,28 @@ namespace vkInit
 		VkQueue presentQueue;
 	};
 
+	struct VulkanDevice
+	{
+		VkDevice logicalDevice = VK_NULL_HANDLE;
+		VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+		DeviceQueues deviceQueues;
+		VkQueryPool queryPool = VK_NULL_HANDLE;
+		VkSurfaceKHR surface = VK_NULL_HANDLE;
+		VkPhysicalDeviceProperties properties;
+		VkPhysicalDeviceFeatures features;
+		VkPhysicalDeviceMemoryProperties memoryProperties;
+		VkPhysicalDeviceLimits limits;
+		vkUtils::QueueFamilyIndices queueFamilyIndices;
+		std::vector<VkQueueFamilyProperties> queueFamilyProperties;
+		std::vector<string> supportedExtensions;
+
+		VulkanDevice() noexcept = default;
+		explicit VulkanDevice(const VkInstance& instance, const VkSurfaceKHR& surface);
+		~VulkanDevice();
+
+		void release();
+	};
+
 	INLINE const unsigned int getHardwareConcurrency() noexcept
 	{
 		return std::thread::hardware_concurrency();
@@ -24,23 +46,4 @@ namespace vkInit
 	const bool checkDeviceExtensionSupport(
 		const VkPhysicalDevice& device,
 		const bool& enableValidation);
-
-	const bool isDeviceSuitable(
-		const VkPhysicalDevice& device,
-		const vkUtils::QueueFamilyIndices& queueFamilyIndices);
-
-	const VkPhysicalDevice pickPhysicalDevice(
-		const VkInstance& instance,
-		const VkSurfaceKHR& surface,
-		VkPhysicalDeviceLimits* limits);
-
-	const VkDevice createLogicalDevice(
-		const VkPhysicalDevice& physicalDevice,
-		const VkSurfaceKHR& surface,
-		const vkUtils::QueueFamilyIndices& queueFamilyIndices);
-
-	const DeviceQueues getDeviceQueues(
-		const VkPhysicalDevice& physicalDevice,
-		const VkDevice& logicalDevice,
-		const VkSurfaceKHR& surface);
 }

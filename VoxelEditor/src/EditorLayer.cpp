@@ -92,12 +92,6 @@ namespace VoxelEditor
 				ImGui::Text("Vertices: %d", stats.frameStats.vertices);
 				ImGui::Text("Indices: %d", stats.frameStats.indices);
 				ImGui::Text("Instances: %d", stats.frameStats.instances);
-				ImGui::NextColumn();
-
-				for (int i = 0; i < 6; ++i)
-				{
-					ImGui::Text("%s: %d", stats.frameStats.pipelineStatNames[i].c_str(), stats.frameStats.pipelineStats[i]);
-				}
 
 				ImGui::Text("Batches: %d", 0);
 				ImGui::EndColumns();

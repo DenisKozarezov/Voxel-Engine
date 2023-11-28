@@ -40,8 +40,7 @@ namespace vkUtils
 	}
 
 	const VkImage createImage(
-		const VkPhysicalDevice& physicalDevice,
-		const VkDevice& logicalDevice,
+		const vkInit::VulkanDevice& device,
 		const uint32& width,
 		const uint32& height,
 		const VkFormat& format,
@@ -67,15 +66,15 @@ namespace vkUtils
 		imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
 		VkImage image;
-		VkResult err = vkCreateImage(logicalDevice, &imageInfo, nullptr, &image);
+		VkResult err = vkCreateImage(device.logicalDevice, &imageInfo, nullptr, &image);
 		VK_CHECK(err, "failed to create image!");
 
 		VkMemoryRequirements memRequirements;
-		vkGetImageMemoryRequirements(logicalDevice, image, &memRequirements);
+		vkGetImageMemoryRequirements(device.logicalDevice, image, &memRequirements);
 
-		imageMemory = memory::allocateMemory(physicalDevice, logicalDevice, memRequirements, properties);
+		imageMemory = memory::allocateMemory(device, memRequirements, properties);
 
-		vkBindImageMemory(logicalDevice, image, imageMemory, 0);
+		vkBindImageMemory(device.logicalDevice, image, imageMemory, 0);
 		return image;
 	}
 
@@ -125,17 +124,17 @@ namespace vkUtils
 		VK_CHECK(err, "failed to create image view!");
 		return imageView;
 	}
-	const VkSampler createTextureSampler(const VkDevice& logicalDevice, const VkSamplerCreateInfo& samplerInfo)
+	const VkSampler createTextureSampler(const vkInit::VulkanDevice& device, const VkSamplerCreateInfo& samplerInfo)
 	{
 		VkSampler sampler;
-		VkResult err = vkCreateSampler(logicalDevice, &samplerInfo, nullptr, &sampler);
+		VkResult err = vkCreateSampler(device.logicalDevice, &samplerInfo, nullptr, &sampler);
 		VK_CHECK(err, "failed to create texture sampler!");
 		return sampler;
 	}
-	const VkSampler createTextureSampler(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice)
+	const VkSampler createTextureSampler(const vkInit::VulkanDevice& device)
 	{
 		VkPhysicalDeviceProperties properties = {};
-		vkGetPhysicalDeviceProperties(physicalDevice, &properties);
+		vkGetPhysicalDeviceProperties(device.physicalDevice, &properties);
 
 		VkSamplerCreateInfo samplerInfo = {};
 		samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -155,7 +154,7 @@ namespace vkUtils
 		samplerInfo.minLod = 0.0f;
 
 		VkSampler sampler;
-		VkResult err = vkCreateSampler(logicalDevice, &samplerInfo, nullptr, &sampler);
+		VkResult err = vkCreateSampler(device.logicalDevice, &samplerInfo, nullptr, &sampler);
 		VK_CHECK(err, "failed to create texture sampler!");
 		return sampler;
 	}

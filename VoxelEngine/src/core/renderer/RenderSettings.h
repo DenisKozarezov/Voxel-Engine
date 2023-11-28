@@ -12,9 +12,6 @@ namespace VoxelEngine::renderer
 
 	struct RenderFrameStats
 	{
-		const string* pipelineStatNames;
-		uint64* pipelineStats;
-
 		uint32 drawCalls;
 		uint64 triangles;
 		uint64 vertices;

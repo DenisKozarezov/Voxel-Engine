@@ -3,31 +3,25 @@
 
 namespace vkUtils
 {
-	VulkanVertexBuffer::VulkanVertexBuffer(const VkPhysicalDevice& physicalDevice, const VkDevice& logicalDevice, const size_t& bufferSize)
-		: m_physicalDevice(physicalDevice), m_logicalDevice(logicalDevice)
+	VulkanVertexBuffer::VulkanVertexBuffer(const vkInit::VulkanDevice& device, const size_t& bufferSize)
+		: m_device(device)
 	{
 		VOXEL_CORE_ASSERT(bufferSize > 0, "vertex buffer is attempting to allocate zero memory device size!");
 
 		m_vertexBuffer = memory::createBuffer(
-			physicalDevice,
-			logicalDevice,
+			device,
 			bufferSize,
 			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
 		m_vertexBuffer.map();
 	}
-	VulkanVertexBuffer::VulkanVertexBuffer(
-		const VkPhysicalDevice& physicalDevice, 
-		const VkDevice& logicalDevice, 
-		const void* vertices, 
-		const size_t& bufferSize)
-		: m_physicalDevice(physicalDevice), m_logicalDevice(logicalDevice)
+	VulkanVertexBuffer::VulkanVertexBuffer(const vkInit::VulkanDevice& device, const void* vertices, const size_t& bufferSize)
+		: m_device(device)
 	{ 
 		VOXEL_CORE_ASSERT(vertices, "vertex buffer is attempting to map empty data!");
 		VOXEL_CORE_ASSERT(bufferSize > 0, "vertex buffer is attempting to allocate zero memory device size!");
 
 		auto stagingBuffer = memory::createBuffer(
-			physicalDevice,
-			logicalDevice,
+			device,
 			bufferSize, 
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
 
@@ -35,20 +29,17 @@ namespace vkUtils
 		stagingBuffer.setData(vertices, bufferSize);
 
 		m_vertexBuffer = memory::createBuffer(
-			physicalDevice,
-			logicalDevice,
+			device,
 			bufferSize, 
 			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, 
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 		vulkan::copyBuffer(stagingBuffer, m_vertexBuffer, bufferSize);
 	}
 
-	VulkanVertexBuffer::VulkanVertexBuffer(const VulkanVertexBuffer& rhs) :
-		m_physicalDevice(rhs.m_physicalDevice), m_logicalDevice(rhs.m_logicalDevice)
+	VulkanVertexBuffer::VulkanVertexBuffer(const VulkanVertexBuffer& rhs) : m_device(rhs.m_device)
 	{
 		this->m_vertexBuffer = memory::createBuffer(
-			rhs.m_physicalDevice,
-			rhs.m_logicalDevice,
+			rhs.m_device,
 			rhs.m_vertexBuffer.size,
 			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
 
@@ -56,8 +47,7 @@ namespace vkUtils
 
 		this->m_vertexBuffer.map();
 	}
-	VulkanVertexBuffer::VulkanVertexBuffer(VulkanVertexBuffer&& rhs) noexcept 
-		: m_physicalDevice(std::move(rhs.m_physicalDevice)), m_logicalDevice(std::move(rhs.m_logicalDevice))
+	VulkanVertexBuffer::VulkanVertexBuffer(VulkanVertexBuffer&& rhs) noexcept : m_device(std::move(rhs.m_device))
 	{
 		std::swap(this->m_vertexBuffer, rhs.m_vertexBuffer);
 	}
@@ -68,14 +58,12 @@ namespace vkUtils
 
 		release();
 
-		this->m_logicalDevice = rhs.m_logicalDevice;
-		this->m_physicalDevice = rhs.m_physicalDevice;
+		this->m_device = rhs.m_device;
 
 		if (this->m_vertexBuffer.size == 0)
 		{
 			this->m_vertexBuffer = memory::createBuffer(
-				rhs.m_physicalDevice,
-				rhs.m_logicalDevice,
+				rhs.m_device,
 				rhs.m_vertexBuffer.size,
 				VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
 		}

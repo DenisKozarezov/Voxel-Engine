@@ -15,7 +15,7 @@ namespace vkUtils
 	};
 	std::vector<uint64> pipelineStats;
 
-	const VkQueryPool setupQueryPool(const VkDevice& logicalDevice)
+	const VkQueryPool createQueryPool(const VkDevice& logicalDevice)
 	{
 		VkQueryPoolCreateInfo queryPoolInfo{};
 		queryPoolInfo.sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO;
@@ -40,12 +40,12 @@ namespace vkUtils
 		return queryPool;
 	}
 
-	void getQueryResults(const VkDevice& logicalDevice, const VkQueryPool& queryPool)
+	void getQueryResults(const vkInit::VulkanDevice& device)
 	{
 		uint32 count = static_cast<uint32>(pipelineStats.size());
 		vkGetQueryPoolResults(
-			logicalDevice,
-			queryPool,
+			device.logicalDevice,
+			device.queryPool,
 			0,
 			1,
 			count * sizeof(uint64),

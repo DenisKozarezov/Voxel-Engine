@@ -4,7 +4,7 @@
 namespace vkInit
 {
 	const VkFramebuffer createFramebuffer(
-		const VkDevice& logicalDevice,
+		const vkInit::VulkanDevice& device,
 		const VkRenderPass& renderPass,
 		const VkExtent2D& swapChainExtent,
 		const std::vector<VkImageView>& attachments)
@@ -19,7 +19,7 @@ namespace vkInit
 		framebufferInfo.layers = 1;
 
 		VkFramebuffer framebuffer;
-		VkResult err = vkCreateFramebuffer(logicalDevice, &framebufferInfo, nullptr, &framebuffer);
+		VkResult err = vkCreateFramebuffer(device.logicalDevice, &framebufferInfo, nullptr, &framebuffer);
 		VK_CHECK(err, "failed to create framebuffer!");
 
 		VOXEL_CORE_TRACE("Vulkan framebuffer allocated.");
@@ -27,8 +27,8 @@ namespace vkInit
 		return framebuffer;
 	}
 
-	void destroyFramebuffer(const VkDevice& logicalDevice, const VkFramebuffer& framebuffer)
+	void destroyFramebuffer(const vkInit::VulkanDevice& device, const VkFramebuffer& framebuffer)
 	{
-		vkDestroyFramebuffer(logicalDevice, framebuffer, nullptr);
+		vkDestroyFramebuffer(device.logicalDevice, framebuffer, nullptr);
 	}
 }

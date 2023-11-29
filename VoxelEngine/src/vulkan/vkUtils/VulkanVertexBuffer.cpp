@@ -106,8 +106,4 @@ namespace vkUtils
 		VkDeviceSize offsets[] = { 0 };
 		vkCmdBindVertexBuffers(commandBuffer, binding, 1, &m_vertexBuffer.buffer, offsets);
 	}
-	INLINE void VulkanVertexBuffer::release()
-	{
-		m_vertexBuffer.release();
-	}
 }

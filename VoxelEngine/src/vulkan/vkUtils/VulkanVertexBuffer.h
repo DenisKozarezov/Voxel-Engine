@@ -9,6 +9,8 @@ namespace vkUtils
 	private:
 		vkInit::VulkanDevice m_device;
 		memory::Buffer m_vertexBuffer;
+
+		INLINE void release() override { m_vertexBuffer.release(); }
 	public:
 		VulkanVertexBuffer() noexcept = default;
 		VulkanVertexBuffer(const vkInit::VulkanDevice& device, const size_t& bufferSize);
@@ -26,6 +28,5 @@ namespace vkUtils
 		INLINE void setData(const void* data, const uint32& size) override;
 		void bind(const uint32& binding = 0) override;
 		void bind(const VkCommandBuffer& commandBuffer, const uint32& binding = 0);
-		INLINE void release() override;
 	};	
 }

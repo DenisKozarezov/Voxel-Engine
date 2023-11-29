@@ -4,14 +4,11 @@
 
 namespace vkUtils::memory
 {
-	const uint32 findMemoryType(const VkPhysicalDevice& physicalDevice, const uint32& typeFilter, const VkMemoryPropertyFlags& properties)
+	const uint32 findMemoryType(const vkInit::VulkanDevice& device, const uint32& typeFilter, const VkMemoryPropertyFlags& properties)
 	{
-		VkPhysicalDeviceMemoryProperties memProperties;
-		vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
-
-		for (uint32 i = 0; i < memProperties.memoryTypeCount; ++i)
+		for (uint32 i = 0; i < device.memoryProperties.memoryTypeCount; ++i)
 		{
-			if ((typeFilter & BIT(i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
+			if ((typeFilter & BIT(i)) && (device.memoryProperties.memoryTypes[i].propertyFlags & properties) == properties)
 			{
 				return i;
 			}
@@ -25,7 +22,7 @@ namespace vkUtils::memory
 		VkMemoryAllocateInfo allocInfo = {};
 		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		allocInfo.allocationSize = requirements.size;
-		allocInfo.memoryTypeIndex = findMemoryType(device.physicalDevice, requirements.memoryTypeBits, properties);
+		allocInfo.memoryTypeIndex = findMemoryType(device, requirements.memoryTypeBits, properties);
 
 		VkResult err = vkAllocateMemory(device.logicalDevice, &allocInfo, nullptr, &memory);
 		VK_CHECK(err, "failed to allocate memory!");
@@ -114,7 +111,7 @@ namespace vkUtils::memory
 		std::swap(this->bufferMemory, rhs.bufferMemory);
 		std::swap(this->mappedMemory, rhs.mappedMemory);
 	}
-	Buffer& Buffer::operator=(Buffer&& rhs)
+	Buffer& Buffer::operator=(Buffer&& rhs) noexcept
 	{
 		if (this == &rhs)
 			return *this;
@@ -135,7 +132,7 @@ namespace vkUtils::memory
 		release();
 	}
 
-	void Buffer::unmap()
+	void Buffer::unmap() noexcept
 	{
 		if (mappedMemory)
 		{
@@ -143,7 +140,7 @@ namespace vkUtils::memory
 			mappedMemory = nullptr;
 		}
 	}
-	void Buffer::release()
+	void Buffer::release() noexcept
 	{
 		unmap();
 

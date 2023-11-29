@@ -50,18 +50,15 @@ namespace vkInit
 		}
 	};
 
-	const VkSampleCountFlagBits findMaxSamplesCount(const VkPhysicalDevice& physicalDevice)
+	constexpr const VkSampleCountFlagBits findMaxSamplesCount(const VkPhysicalDeviceLimits& limits)
 	{
-		VkPhysicalDeviceProperties properties;
-		vkGetPhysicalDeviceProperties(physicalDevice, &properties);
-		const VkSampleCountFlags samplesCount = properties.limits.framebufferColorSampleCounts & properties.limits.framebufferDepthSampleCounts;
+		const VkSampleCountFlags samplesCount = limits.framebufferColorSampleCounts & limits.framebufferDepthSampleCounts;
 
 		for (int i = 64; i != 1; i >>= 1)
 		{
 			if (samplesCount & i)
 				return (VkSampleCountFlagBits)i;
 		}
-
 		return VK_SAMPLE_COUNT_1_BIT;
 	}
 

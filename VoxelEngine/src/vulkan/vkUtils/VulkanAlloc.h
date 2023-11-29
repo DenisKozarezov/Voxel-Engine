@@ -17,7 +17,7 @@ namespace vkUtils::memory
 		Buffer(const Buffer&) = default;
 		Buffer(Buffer&& rhs) noexcept;
 		Buffer& operator=(const Buffer& rhs) = default;
-		Buffer& operator=(Buffer&& rhs);
+		Buffer& operator=(Buffer&& rhs) noexcept;
 		~Buffer();
 
 		INLINE operator const VkBuffer& () const& { return buffer; }
@@ -30,12 +30,12 @@ namespace vkUtils::memory
 		{ 
 			memcpy(mappedMemory, data, size); 
 		}
-		void unmap();
-		void release();
+		void unmap() noexcept;
+		void release() noexcept;
 		VkResult flush(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0) const;
 	};
 
-	const uint32 findMemoryType(const VkPhysicalDevice& physicalDevice, const uint32& typeFilter, const VkMemoryPropertyFlags& properties);
+	const uint32 findMemoryType(const vkInit::VulkanDevice& device, const uint32& typeFilter, const VkMemoryPropertyFlags& properties);
 	
 	const VkDeviceMemory allocateMemory(const vkInit::VulkanDevice& device, const VkMemoryRequirements& requirements, const VkMemoryPropertyFlags& properties);
 	

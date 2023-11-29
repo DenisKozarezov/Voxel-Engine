@@ -59,7 +59,7 @@ namespace vulkan
 	void makeDevice(const VkSurfaceKHR& surface)
 	{
 		vkInit::VulkanDevice device = vkInit::VulkanDevice(state.instance, surface);
-		state.msaaSamples = vkInit::findMaxSamplesCount(device.physicalDevice);
+		state.msaaSamples = vkInit::findMaxSamplesCount(device.limits);
 		state.vulkanDevice = device;
 
 		VOXEL_CORE_TRACE("Device max samples count: {0}.", (int)state.msaaSamples);

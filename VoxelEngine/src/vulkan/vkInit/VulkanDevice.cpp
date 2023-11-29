@@ -57,23 +57,27 @@ namespace vkInit
 
 		for (const auto& physicalDevice : candidates)
 		{
-			VkPhysicalDeviceProperties deviceProperties;
-			vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
-
 			vkUtils::QueueFamilyIndices queueFamilyIndices = vkUtils::findQueueFamilies(physicalDevice, vulkanDevice->surface);
 
 			if (isDeviceSuitable(physicalDevice, queueFamilyIndices))
 			{
-				VOXEL_CORE_TRACE("Physical device candidate: {0}.", deviceProperties.deviceName);
-				VOXEL_CORE_TRACE("Device vendor ID: {0}.", deviceProperties.vendorID);
-				VOXEL_CORE_TRACE("Device type: {0}.", physicalDeviceTypeString(deviceProperties.deviceType));
-				VOXEL_CORE_TRACE("Device ID: {0}.", deviceProperties.deviceID);
-				VOXEL_CORE_TRACE("Device hardware concurrency: {0}.", getHardwareConcurrency());
+				VkPhysicalDeviceProperties deviceProperties;
+				vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
+
+				VkPhysicalDeviceMemoryProperties memProperties;
+				vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
 
 				vulkanDevice->queueFamilyIndices = queueFamilyIndices;
 				vulkanDevice->properties = deviceProperties;
 				vulkanDevice->limits = deviceProperties.limits;
 				vulkanDevice->physicalDevice = physicalDevice;
+				vulkanDevice->memoryProperties = memProperties;
+
+				VOXEL_CORE_TRACE("Physical device candidate: {0}.", deviceProperties.deviceName);
+				VOXEL_CORE_TRACE("Device vendor ID: {0}.", deviceProperties.vendorID);
+				VOXEL_CORE_TRACE("Device type: {0}.", physicalDeviceTypeString(deviceProperties.deviceType));
+				VOXEL_CORE_TRACE("Device ID: {0}.", deviceProperties.deviceID);
+				VOXEL_CORE_TRACE("Device hardware concurrency: {0}.", getHardwareConcurrency());
 				return;
 			}
 		}

@@ -26,9 +26,4 @@ namespace vkInit
 
 		return framebuffer;
 	}
-
-	void destroyFramebuffer(const vkInit::VulkanDevice& device, const VkFramebuffer& framebuffer)
-	{
-		vkDestroyFramebuffer(device.logicalDevice, framebuffer, nullptr);
-	}
 }

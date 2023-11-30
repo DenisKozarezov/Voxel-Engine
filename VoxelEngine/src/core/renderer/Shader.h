@@ -17,10 +17,9 @@ namespace VoxelEngine::renderer
 		Shader& operator=(Shader&& rhs) noexcept = delete;
 
 		virtual void unbind() const = 0;
+		static string readFile(const string& filename);
+		static std::vector<uint32> readBinary(const string& filename);
 
 		virtual ~Shader() = default;
-	protected:
-		string readFile(const string& filename);
-		std::vector<uint32> readBinary(const string& filename);
 	};
 }

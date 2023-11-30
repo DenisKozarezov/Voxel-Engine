@@ -15,6 +15,7 @@ const string g_environmentPathCache = std::filesystem::current_path().string() +
 #define ASSET_PATH(path) RESOURCES_DIR path
 #define ASSET_ABSOLUTE_PATH(relativePath) g_environmentPathCache + ASSET_PATH(relativePath)
 #define CACHE_PATH(path) ASSET_PATH("cache" PATH_SEPARATOR ##path)
+#define SHADERS_PATH(path) ASSET_PATH("shaders" PATH_SEPARATOR##path)
 
 using Mesh = VoxelEngine::components::mesh::Mesh;
 

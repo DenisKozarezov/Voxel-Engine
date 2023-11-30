@@ -283,6 +283,35 @@ namespace vkUtils
 			pipelineInfo.build(device.logicalDevice, editorGridMaterialLayout, pipelineCache, &editorGrid);
 			createMaterial(editorGrid, editorGridMaterialLayout, "editor_grid");
 		}
+
+		// FULLSCREEN QUAD
+		{
+			VkPipelineVertexInputStateCreateInfo emptyInputState;
+			emptyInputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+			emptyInputState.vertexAttributeDescriptionCount = 0;
+			emptyInputState.pVertexAttributeDescriptions = nullptr;
+			emptyInputState.vertexBindingDescriptionCount = 0;
+			emptyInputState.pVertexBindingDescriptions = nullptr;
+			emptyInputState.pNext = nullptr;
+			pipelineInfo.vertexInputInfo = &emptyInputState;
+
+			VkPipelineLayout fullscreenQuadMaterialLayout;
+			VkResult err = vkCreatePipelineLayout(device.logicalDevice, &pipelineInfo.pipelineLayoutInfo, nullptr, &fullscreenQuadMaterialLayout);
+			VK_CHECK(err, "failed to create pipeline layout!");
+
+			VulkanShader shader = VulkanShader(device.logicalDevice, ASSET_PATH("shaders/ray_marching/ray_marching_shader.glsl"));
+			pipelineInfo.shaderStages = shader.getStages().data();
+			pipelineInfo.stagesCount = static_cast<uint32>(shader.getStages().size());
+			pipelineInfo.flags = VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT;
+			pipelineInfo.rasterizer->polygonMode = VK_POLYGON_MODE_FILL;
+			pipelineInfo.rasterizer->cullMode = VK_CULL_MODE_FRONT_BIT;
+			pipelineInfo.rasterizer->frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+			pipelineInfo.inputAssembly->topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+
+			VkPipeline fullscreenQuad;
+			pipelineInfo.build(device.logicalDevice, fullscreenQuadMaterialLayout, pipelineCache, &fullscreenQuad);
+			createMaterial(fullscreenQuad, fullscreenQuadMaterialLayout, "fullscreen_quad");
+		}
 		VOXEL_CORE_WARN("{0} materials are successfully built.", materials.size());
 	}
 	

@@ -3,9 +3,11 @@
 #include <assets_management/AssetsProvider.h>
 #include <VModels.h>
 #include <components/mesh/MeshPrimitives.h>
+#include <vulkan/VulkanBackend.h>
 
-#define TEST_INSTANCED_MESH 1
+#define TEST_INSTANCED_MESH 0
 #define TEST_OCTREE 0
+#define TEST_RAYMARCHING 1
 
 namespace VoxelEngine
 {
@@ -75,6 +77,10 @@ namespace VoxelEngine
 		materials.wireframe = utils::getMaterial("wireframe");
 		materials.normals = utils::getMaterial("normals");
 #endif
+
+#if TEST_RAYMARCHING
+		materials.fullscreenQuad = utils::getMaterial("fullscreen_quad");
+#endif
 	}
 	Scene::~Scene()
 	{
@@ -95,12 +101,17 @@ namespace VoxelEngine
 	}
 	void Scene::renderScene()
 	{
+#if TEST_RAYMARCHING
+		materials.fullscreenQuad->bind();	
+		vkCmdDraw(vulkan::getCommandBuffer(), 3, 1, 0, 0);
+#endif
 		auto& renderSettings = renderer::Renderer::getRenderSettings();
 		
 		if (renderSettings.showEditorGrid)
 		{
 			renderer::RenderCommand::drawMeshIndexed(meshes.editorGrid);
 		}
+
 
 #if TEST_INSTANCED_MESH
 		switch (renderSettings.renderMode)

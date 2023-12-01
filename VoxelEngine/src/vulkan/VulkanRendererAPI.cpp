@@ -20,10 +20,10 @@ namespace vulkan
 	{
 		vkCmdSetLineWidth(getCommandBuffer(), width);
 	}
-	void VulkanRendererAPI::drawMesh(const components::mesh::Mesh& mesh)
+	void VulkanRendererAPI::draw(uint32 vertexCount, uint32 instanceCount, uint32 startVertex, uint32 startInstance)
 	{
 		VkCommandBuffer commandBuffer = vulkan::getCommandBuffer();
-		vkCmdDraw(commandBuffer, mesh.vertexCount(), 1, 0, 0);
+		vkCmdDraw(commandBuffer, vertexCount, instanceCount, startVertex, startInstance);
 	}
 	void VulkanRendererAPI::drawMeshIndexed(uint32 indexCount, uint32 instanceCount, uint32 startIndex, uint32 startInstance)
 	{

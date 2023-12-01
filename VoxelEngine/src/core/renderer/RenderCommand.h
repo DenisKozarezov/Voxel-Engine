@@ -1,5 +1,6 @@
 #pragma once
 #include "RendererAPI.h"
+#include <components/mesh/Mesh.h>
 
 namespace VoxelEngine::renderer
 {
@@ -15,6 +16,7 @@ namespace VoxelEngine::renderer
 		static void setViewport(const int32_t& x, const int32_t& y, const uint32& width, const uint32& height);
 		static void setClearColor(const glm::vec4 color);
 		static void setLineWidth(const float& width);
+		static void draw(const mesh::IMaterial* material, uint32 vertexCount, uint32 instanceCount = 1, uint32 startVertex = 0, uint32 startInstance = 0);
 		static void drawMesh(const mesh::Mesh& mesh);
 		INLINE static void drawMeshIndexed(const mesh::Mesh& mesh, uint32 instanceCount = 1, uint32 startInstance = 0)
 		{

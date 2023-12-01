@@ -284,7 +284,7 @@ namespace vkUtils
 			createMaterial(editorGrid, editorGridMaterialLayout, "editor_grid");
 		}
 
-		// FULLSCREEN QUAD
+		// RAYMARCH QUAD
 		{
 			VkPipelineVertexInputStateCreateInfo emptyInputState;
 			emptyInputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -308,9 +308,9 @@ namespace vkUtils
 			pipelineInfo.rasterizer->frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 			pipelineInfo.inputAssembly->topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 
-			VkPipeline fullscreenQuad;
-			pipelineInfo.build(device.logicalDevice, fullscreenQuadMaterialLayout, pipelineCache, &fullscreenQuad);
-			createMaterial(fullscreenQuad, fullscreenQuadMaterialLayout, "fullscreen_quad");
+			VkPipeline raymarchQuad;
+			pipelineInfo.build(device.logicalDevice, fullscreenQuadMaterialLayout, pipelineCache, &raymarchQuad);
+			createMaterial(raymarchQuad, fullscreenQuadMaterialLayout, "raymarch_quad");
 		}
 		VOXEL_CORE_WARN("{0} materials are successfully built.", materials.size());
 	}

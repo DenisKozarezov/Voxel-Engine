@@ -23,9 +23,19 @@ namespace VoxelEngine::renderer
 		VOXEL_CORE_ASSERT(width > 0.0f, "line width must be greater than zero!");
 		s_renderer->setLineWidth(width);
 	}
+	void RenderCommand::draw(const mesh::IMaterial* material, uint32 vertexCount, uint32 instanceCount, uint32 startVertex, uint32 startInstance)
+	{
+		if (material)
+			material->bind();
+
+		s_renderer->draw(vertexCount, instanceCount, startVertex, startInstance);
+	}
 	void RenderCommand::drawMesh(const mesh::Mesh& mesh)
 	{
 		VOXEL_CORE_ASSERT(mesh.vertexBuffer, "can't draw mesh! Vertex buffer is empty!");
+
+		if (mesh.material)
+			mesh.material->bind();
 
 		mesh.vertexBuffer->bind();
 		s_renderer->drawMesh(mesh);
@@ -44,6 +54,9 @@ namespace VoxelEngine::renderer
 	}
 	void RenderCommand::drawMeshInstanced(const mesh::Mesh& mesh, const SharedRef<renderer::VertexBuffer>& instancedBuffer, uint32 instanceCount, uint32 startInstance)
 	{
+		if (mesh.material)
+			mesh.material->bind();
+
 		instancedBuffer->bind(1);
 		drawMeshIndexed(mesh, instanceCount, startInstance);
 	}

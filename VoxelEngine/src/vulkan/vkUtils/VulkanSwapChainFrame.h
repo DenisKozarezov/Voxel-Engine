@@ -9,6 +9,7 @@ namespace vkUtils
 	typedef struct
 	{
 		vkUtils::memory::Buffer view;
+		vkUtils::memory::Buffer raymarch;
 	} UniformBuffers;
 
 	struct SwapChainFrame

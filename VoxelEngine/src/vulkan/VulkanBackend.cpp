@@ -95,11 +95,16 @@ namespace vulkan
 	void makeDescriptorSetLayout()
 	{
 		vkInit::DescriptorSetLayoutInputBundle bindings;
-		bindings.count = 1;
+		bindings.count = 2;
 
 		bindings.indices.push_back(0);
 		bindings.types.push_back(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
 		bindings.stages.push_back(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_GEOMETRY_BIT);
+		bindings.counts.push_back(1);
+
+		bindings.indices.push_back(0);
+		bindings.types.push_back(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+		bindings.stages.push_back(VK_SHADER_STAGE_FRAGMENT_BIT);
 		bindings.counts.push_back(1);
 
 		state.descriptorSetLayout = vkInit::createDescriptorSetLayout(state.vulkanDevice, bindings);
@@ -331,6 +336,12 @@ namespace vulkan
 		vkUtils::memory::resetCommandBuffer(frame.commandBuffer);
 
 		frame.uniformBuffers.view.setData(&ubo, sizeof(ubo));
+
+		renderer::RaymarchData data;
+		data.resolution = glm::vec2(state.viewportSize.width, state.viewportSize.height);
+		data.mousePos = glm::vec2(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
+		data.voxelSize = 0.5f;
+		frame.uniformBuffers.raymarch.setData(&data, sizeof(data));
 
 		prepareFrame();
 	}

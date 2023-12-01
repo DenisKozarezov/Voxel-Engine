@@ -9,4 +9,11 @@ namespace VoxelEngine::renderer
 		alignas(16) glm::mat4 proj;
 		glm::vec3 lightPos;
 	};
+
+	struct RaymarchData
+	{
+		glm::vec2 resolution;
+		glm::vec2 mousePos;
+		float voxelSize;
+	};
 }

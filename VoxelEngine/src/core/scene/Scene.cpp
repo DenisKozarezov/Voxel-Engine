@@ -79,7 +79,7 @@ namespace VoxelEngine
 #endif
 
 #if TEST_RAYMARCHING
-		materials.fullscreenQuad = utils::getMaterial("fullscreen_quad");
+		materials.raymarchQuad = utils::getMaterial("raymarch_quad");
 #endif
 	}
 	Scene::~Scene()
@@ -102,8 +102,7 @@ namespace VoxelEngine
 	void Scene::renderScene()
 	{
 #if TEST_RAYMARCHING
-		materials.fullscreenQuad->bind();	
-		vkCmdDraw(vulkan::getCommandBuffer(), 3, 1, 0, 0);
+		renderer::RenderCommand::draw(materials.raymarchQuad, 3);
 #endif
 		auto& renderSettings = renderer::Renderer::getRenderSettings();
 		
@@ -111,7 +110,6 @@ namespace VoxelEngine
 		{
 			renderer::RenderCommand::drawMeshIndexed(meshes.editorGrid);
 		}
-
 
 #if TEST_INSTANCED_MESH
 		switch (renderSettings.renderMode)

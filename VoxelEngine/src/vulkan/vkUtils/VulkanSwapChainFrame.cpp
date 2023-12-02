@@ -25,18 +25,18 @@ namespace vkUtils
 
 	void SwapChainFrame::writeDescriptorSet() const
 	{
-		std::array<VkWriteDescriptorSet, 2> descriptorWrites = {};
+		std::array<VkWriteDescriptorSet, 1> descriptorWrites = {};
 		descriptorWrites[0] = vkInit::writeDescriptorSet(
 			descriptorSet,
 			VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
 			0,
 			&uniformBuffers.view.descriptor);
 
-		descriptorWrites[1] = vkInit::writeDescriptorSet(
+		/*descriptorWrites[1] = vkInit::writeDescriptorSet(
 			descriptorSet,
 			VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
 			0,
-			&uniformBuffers.raymarch.descriptor);
+			&uniformBuffers.raymarch.descriptor);*/
 
 		vkUpdateDescriptorSets(vulkanDevice.logicalDevice, static_cast<uint32>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}

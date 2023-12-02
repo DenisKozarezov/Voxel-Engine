@@ -41,17 +41,17 @@ layout(location = 4) in vec3 viewPos;
 
 layout(location = 0) out vec4 outColor;
 
-const vec3 lightColor = vec3(1.0, 1.0, 1.0);
 const vec3 objectColor = vec3(1.0, 1.0, 1.0);
 
 void main() {
     vec3 N = normalize(inNormal);
-    vec3 L = normalize(lightPos - inPosition);
+    vec3 L = normalize(lightPos);
+    vec3 V = normalize(viewPos);
+    vec3 R = reflect(-L, N);
 
-    float ambientStrength = 0.1;
-    vec3 ambient = ambientStrength * lightColor;
-    vec3 diffuse = clamp(dot(L, N), 0.0, 1.0) * lightColor;
-    vec3 result = (ambient + diffuse) * objectColor;
-
-    outColor = vec4(result, 1.0);
+    vec3 specColor = vec3(0.5);
+    vec3 specular = specColor * pow(clamp(dot(R, V), 0.0, 1.0), 10.0);
+    vec3 diffuse = objectColor * clamp(dot(L, N), 0.0, 1.0);
+    vec3 ambient = objectColor * 0.1;
+    outColor = vec4(diffuse + ambient + specular, 1.0);	
 }

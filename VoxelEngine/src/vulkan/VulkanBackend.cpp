@@ -95,17 +95,17 @@ namespace vulkan
 	void makeDescriptorSetLayout()
 	{
 		vkInit::DescriptorSetLayoutInputBundle bindings;
-		bindings.count = 2;
+		bindings.count = 1;
 
 		bindings.indices.push_back(0);
 		bindings.types.push_back(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
 		bindings.stages.push_back(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_GEOMETRY_BIT);
 		bindings.counts.push_back(1);
 
-		bindings.indices.push_back(0);
+	/*	bindings.indices.push_back(0);
 		bindings.types.push_back(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
 		bindings.stages.push_back(VK_SHADER_STAGE_FRAGMENT_BIT);
-		bindings.counts.push_back(1);
+		bindings.counts.push_back(1);*/
 
 		state.descriptorSetLayout = vkInit::createDescriptorSetLayout(state.vulkanDevice, bindings);
 	}

@@ -3,24 +3,14 @@
 #include <assets_management/AssetsProvider.h>
 #include <VModels.h>
 #include <components/mesh/MeshPrimitives.h>
-#include <vulkan/VulkanBackend.h>
+#include <vulkan/vkUtils/VulkanMaterials.h>
 
 #define TEST_INSTANCED_MESH 0
-#define TEST_OCTREE 0
-#define TEST_RAYMARCHING 1
+#define TEST_OCTREE 1
+#define TEST_RAYMARCHING 0
 
 namespace VoxelEngine
 {
-#if TEST_OCTREE
-	Octree* svo = nullptr;
-
-	void Scene::prepareTestOctree()
-	{
-		meshes.mesh = assets::AssetsProvider::loadObjMesh(ASSET_PATH("models/FinalBaseMesh.obj"));
-		svo = new Octree(meshes.mesh, 3);
-	}
-#endif
-
 #if TEST_INSTANCED_MESH
 	uint32 instancesCount;
 
@@ -51,6 +41,11 @@ namespace VoxelEngine
 	}
 #endif
 
+	void Scene::release()
+	{
+		meshes.loadedModel.reset();
+		delete meshes.svo;
+	}
 	Scene::Scene()
 	{
 		meshes.editorGrid = renderer::mesh::QuadMesh();
@@ -71,22 +66,24 @@ namespace VoxelEngine
 		materials.normals = utils::getMaterial("normals_instanced");
 #endif
 
-#if TEST_OCTREE
-		prepareTestOctree();
-		materials.solid = utils::getMaterial("solid");
-		materials.wireframe = utils::getMaterial("wireframe");
-		materials.normals = utils::getMaterial("normals");
-#endif
-
 #if TEST_RAYMARCHING
 		materials.raymarchQuad = utils::getMaterial("raymarch_quad");
 #endif
 	}
 	Scene::~Scene()
 	{
-#if TEST_OCTREE
-		delete svo;
-#endif
+		release();
+	}
+
+	void Scene::setLoadedMesh(const SharedRef<components::mesh::Mesh>& mesh)
+	{
+		release();
+
+		meshes.loadedModel = mesh;
+		meshes.svo = new Octree(mesh, 3);
+		materials.solid = utils::getMaterial("solid");
+		materials.wireframe = utils::getMaterial("wireframe");
+		materials.normals = utils::getMaterial("normals");
 	}
 
 	void Scene::update(const Timestep& ts, components::camera::Camera& camera)
@@ -127,30 +124,33 @@ namespace VoxelEngine
 		renderer::RenderCommand::drawMeshInstanced(meshes.voxel, instancedBuffer, instancesCount);
 #endif
 
-#if TEST_OCTREE
-		switch (renderSettings.renderMode)
+		if (meshes.loadedModel)
 		{
-		case renderer::Solid:
-			meshes.mesh->material = materials.solid;
-			break;
-		case renderer::Wireframe:
-			meshes.mesh->material = materials.wireframe;
-			break;
-		case renderer::Normals:
-			meshes.mesh->material = materials.normals;
-			break;
-		}
-		renderer::RenderCommand::drawMeshIndexed(*meshes.mesh.get());
-				
-		svo->traverse([&](OctreeNode* node)
-		{
-			if (!node->isLeaf())
-				return;
+			switch (renderSettings.renderMode)
+			{
+			case renderer::Solid:
+				meshes.loadedModel->material = materials.solid;
+				break;
+			case renderer::Wireframe:
+				meshes.loadedModel->material = materials.wireframe;
+				break;
+			case renderer::Normals:
+				meshes.loadedModel->material = materials.normals;
+				break;
+			}
+			renderer::RenderCommand::drawMeshIndexed(*meshes.loadedModel.get());
 
-			glm::vec3 dimensions = node->bounds.max() - node->bounds.min();
-			utils::Gizmos::drawWireframeCube(node->bounds.min() + dimensions * 0.5f, dimensions);
-		});
+#if TEST_OCTREE
+			meshes.svo->traverse([&](OctreeNode* node)
+			{
+				if (!node->isLeaf())
+					return;
+
+				glm::vec3 dimensions = node->bounds.max() - node->bounds.min();
+				utils::Gizmos::drawWireframeCube(node->bounds.min() + dimensions * 0.5f, dimensions);
+			});
 #endif
+		}
 
 		renderer::Renderer::render();
 	}

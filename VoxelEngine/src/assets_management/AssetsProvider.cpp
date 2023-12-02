@@ -41,14 +41,16 @@ namespace assets
         {
             for (const auto& index : shape.mesh.indices)
             {
+                VOXEL_CORE_ASSERT(attrib.normals.size() > 0, "there are no normals in the attribute from the .obj file!");
+
                 glm::vec3 pos =
                 {
                     attrib.vertices[3 * index.vertex_index + 0],
                     attrib.vertices[3 * index.vertex_index + 1],
                     attrib.vertices[3 * index.vertex_index + 2]
                 };
-                glm::vec3 normal =
-                {
+
+                glm::vec3 normal = {
                     attrib.normals[3 * index.normal_index + 0],
                     attrib.normals[3 * index.normal_index + 1],
                     attrib.normals[3 * index.normal_index + 2],

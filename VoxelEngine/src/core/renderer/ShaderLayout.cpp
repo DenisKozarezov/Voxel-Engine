@@ -38,6 +38,5 @@ namespace VoxelEngine::renderer
 	}
 	ShaderLayoutElement::ShaderLayoutElement(ShaderDataType type, bool instanced, bool normalized)
 		: m_type(type), m_size(shaderDataTypeSize(type)), m_offset(0), m_instanced(instanced), m_normalized(normalized)
-	{
-	}
+	{ }
 }

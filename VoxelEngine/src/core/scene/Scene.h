@@ -1,5 +1,7 @@
 #pragma once
 #include <core/renderer/Renderer.h>
+#include <core/input/events/ApplicationEvent.h>
+#include <core/input/events/EventDispatcher.h>
 #include "../Timestep.h"
 
 namespace VoxelEngine
@@ -41,7 +43,7 @@ namespace VoxelEngine
 		Scene& operator=(Scene const& rhs) noexcept = delete;
 		Scene& operator=(Scene&& rhs) noexcept = delete;
 
-		void setLoadedMesh(const SharedRef<components::mesh::Mesh>& mesh);
+		bool onMeshLoaded(const input::MeshLoadedEvent& e);
 		void update(const Timestep& ts, components::camera::Camera& camera);
 		void renderScene();
 	};

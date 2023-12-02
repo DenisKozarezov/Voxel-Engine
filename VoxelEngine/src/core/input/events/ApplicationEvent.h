@@ -1,5 +1,6 @@
 #pragma once
 #include "Event.h"
+#include <components/mesh/Mesh.h>
 
 namespace VoxelEngine::input
 {
@@ -47,5 +48,24 @@ namespace VoxelEngine::input
         EVENT_CLASS_CATEGORY(EventCategoryApplication)
 
         ~ApplicationUpdateEvent() noexcept = default;
+    };
+
+    class MeshLoadedEvent final : public Event
+    {
+    private:
+        SharedRef<components::mesh::Mesh> m_loadedMesh;
+    public:
+        MeshLoadedEvent(const SharedRef<components::mesh::Mesh>& mesh) noexcept : m_loadedMesh(mesh)
+        {
+
+        }
+        MeshLoadedEvent(const MeshLoadedEvent&) noexcept = delete;
+
+        INLINE const SharedRef<components::mesh::Mesh> getLoadedMesh() const { return m_loadedMesh; }
+
+        EVENT_CLASS_TYPE(MeshLoaded)
+        EVENT_CLASS_CATEGORY(EventCategoryApplication)
+
+        ~MeshLoadedEvent() noexcept = default;
     };
 }

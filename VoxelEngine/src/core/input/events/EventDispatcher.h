@@ -6,20 +6,9 @@
 
 namespace VoxelEngine::input
 {
-    class EventDispatcher
+    static class EventDispatcher
     {
     public:
-        EventDispatcher() noexcept = default;
-        EventDispatcher(const EventDispatcher& src) noexcept
-        {
-            std::lock_guard<std::mutex> lock(src.m_handlersLocker);
-            m_eventList = src.m_eventList;
-        }
-        EventDispatcher(EventDispatcher&& src) noexcept
-        {
-            std::lock_guard<std::mutex> lock(src.m_handlersLocker);
-            m_eventList = std::move(src.m_eventList);
-        }
         ~EventDispatcher()
         {
             for (const auto& el : m_eventList)
@@ -29,31 +18,16 @@ namespace VoxelEngine::input
             }
         }
 
-        EventDispatcher& operator=(const EventDispatcher& src) noexcept
-        {
-            std::lock_guard<std::mutex> lock(m_handlersLocker);
-            std::lock_guard<std::mutex> lock2(src.m_handlersLocker);
-            m_eventList = src.m_eventList;
-            return *this;
-        }
-        EventDispatcher& operator=(EventDispatcher&& src) noexcept
-        {
-            std::lock_guard<std::mutex> lock(m_handlersLocker);
-            std::lock_guard<std::mutex> lock2(src.m_handlersLocker);
-            std::swap(m_eventList, src.m_eventList);
-            return *this;
-        }
-
         template<typename TEvent>
         requires is_event<TEvent>
-        constexpr void registerEvent(EventHandler<TEvent>::Callback callback)
+        constexpr static void registerEvent(EventHandler<TEvent>::Callback callback)
         {
             if (callback)
             {
                 registerEvent(new EventHandler<TEvent>(callback));
             }
         }
-        void registerEvent(IEventHandler* event)
+        static void registerEvent(IEventHandler* event)
         {
             if (event)
             {
@@ -65,7 +39,7 @@ namespace VoxelEngine::input
         
         template<typename TEvent>
         requires is_event<TEvent>
-        void unregisterEvent()
+        static void unregisterEvent()
         {
             std::lock_guard<std::mutex> lock(m_handlersLocker);
 
@@ -77,7 +51,7 @@ namespace VoxelEngine::input
                 m_eventList.erase(hash);
             }
         }
-        void unregisterEvent(IEventHandler* event)
+        static void unregisterEvent(IEventHandler* event)
         {
             std::lock_guard<std::mutex> lock(m_handlersLocker);
 
@@ -94,7 +68,7 @@ namespace VoxelEngine::input
         }
 
         template<typename TEvent>
-        void dispatchEvent(TEvent& arg)
+        static void dispatchEvent(TEvent& arg)
         {
             size_t hash = typeid(arg).hash_code();
 
@@ -110,7 +84,7 @@ namespace VoxelEngine::input
             }
         }
         template<typename TEvent>
-        void dispatchEvent(TEvent& arg, const std::launch& launch)
+        static void dispatchEvent(TEvent& arg, const std::launch& launch)
         {
             size_t hash = typeid(arg).hash_code();
 
@@ -136,7 +110,8 @@ namespace VoxelEngine::input
         }
     private:
         typedef std::list<IEventHandler*> EventCallbacks;
-        std::unordered_map<size_t, EventCallbacks> m_eventList;
-        mutable std::mutex m_handlersLocker;
+        typedef std::unordered_map<size_t, EventCallbacks> EventsList;
+        static EventsList m_eventList;
+        static std::mutex m_handlersLocker;
     };
 }

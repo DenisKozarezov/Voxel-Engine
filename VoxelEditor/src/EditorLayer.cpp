@@ -16,7 +16,9 @@ namespace VoxelEditor
 		if (!filepath.empty()) 
 		{
 			auto& mesh = assets::AssetsProvider::loadObjMesh(filepath);
-			m_scene->setLoadedMesh(mesh);		
+
+			input::MeshLoadedEvent e = input::MeshLoadedEvent(mesh);
+			input::EventDispatcher::dispatchEvent(e);	
 		}
 	}
 
@@ -130,8 +132,8 @@ namespace VoxelEditor
 
 	void EditorLayer::onAttach()
 	{				  
-		m_dispatcher.registerEvent<input::MouseButtonPressedEvent>(BIND_MEMBER_CALLBACK(&m_sceneView, SceneView::onMousePressed));
-		m_dispatcher.registerEvent<input::MouseButtonReleasedEvent>(BIND_MEMBER_CALLBACK(&m_sceneView, SceneView::onMouseReleased));
+		input::EventDispatcher::registerEvent<input::MouseButtonPressedEvent>(BIND_MEMBER_CALLBACK(&m_sceneView, SceneView::onMousePressed));
+		input::EventDispatcher::registerEvent<input::MouseButtonReleasedEvent>(BIND_MEMBER_CALLBACK(&m_sceneView, SceneView::onMouseReleased));
 
 		m_scene = MakeShared<Scene>();
 
@@ -213,6 +215,6 @@ namespace VoxelEditor
 	}				  
 	void EditorLayer::onEvent(input::Event& e)
 	{
-		m_dispatcher.dispatchEvent(e, std::launch::async);
+		input::EventDispatcher::dispatchEvent(e, std::launch::async);
 	}
 }

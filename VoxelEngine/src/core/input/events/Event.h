@@ -22,7 +22,8 @@ namespace VoxelEngine::input
 		MouseButtonPressed,
 		MouseButtonReleased,
 		MouseMoved,
-		MouseScrolled
+		MouseScrolled,
+		MeshLoaded
 	};
 
 	enum EventCategory : byte

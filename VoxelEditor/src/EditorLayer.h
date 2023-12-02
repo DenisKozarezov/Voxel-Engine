@@ -7,7 +7,6 @@ namespace VoxelEditor
 	class EditorLayer : public renderer::Layer
 	{
 	private:
-		input::EventDispatcher m_dispatcher;
 		SharedRef<Scene> m_scene;
 		SceneView m_sceneView;
 		EditorConsole m_console;

@@ -79,8 +79,8 @@ namespace VoxelEngine
 
 	void Application::setupInputCallbacks()
 	{
-		m_dispatcher.registerEvent<input::WindowCloseEvent>(BIND_CALLBACK(onWindowClose));
-		m_dispatcher.registerEvent<input::WindowResizeEvent>(BIND_CALLBACK(onWindowResize));
+		input::EventDispatcher::registerEvent<input::WindowCloseEvent>(BIND_CALLBACK(onWindowClose));
+		input::EventDispatcher::registerEvent<input::WindowResizeEvent>(BIND_CALLBACK(onWindowResize));
 	}
 	void Application::nextFrame()
 	{
@@ -123,7 +123,7 @@ namespace VoxelEngine
 	}
 	void Application::onEvent(input::Event& e)
 	{
-		m_dispatcher.dispatchEvent(e, std::launch::async);
+		input::EventDispatcher::dispatchEvent(e, std::launch::async);
 		m_layerStack.onEvent(e);
 	}
 	bool Application::onWindowClose(const input::WindowCloseEvent& e)

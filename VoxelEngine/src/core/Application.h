@@ -43,7 +43,6 @@ namespace VoxelEngine
 		ApplicationSpecification m_specification;
 		UniqueRef<Window> m_window;
 		renderer::LayerStack m_layerStack;
-		input::EventDispatcher m_dispatcher;
 		bool m_running = false;
 		bool m_minimized = false;
 

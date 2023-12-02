@@ -59,6 +59,8 @@ namespace VoxelEngine
 		meshes.editorGrid.indexBuffer = VoxelEngine::renderer::IndexBuffer::Allocate(indices, indexCount * sizeof(uint32));
 		meshes.editorGrid.material = utils::getMaterial("editor_grid");	
 
+		input::EventDispatcher::registerEvent<input::MeshLoadedEvent>(BIND_CALLBACK(onMeshLoaded));
+
 #if TEST_INSTANCED_MESH
 		prepareTestInstancedMesh();
 		materials.solid = utils::getMaterial("solid_instanced");
@@ -75,15 +77,17 @@ namespace VoxelEngine
 		release();
 	}
 
-	void Scene::setLoadedMesh(const SharedRef<components::mesh::Mesh>& mesh)
+	bool Scene::onMeshLoaded(const input::MeshLoadedEvent& e)
 	{
 		release();
 
+		auto& mesh = e.getLoadedMesh();
 		meshes.loadedModel = mesh;
 		meshes.svo = new Octree(mesh, 3);
 		materials.solid = utils::getMaterial("solid");
 		materials.wireframe = utils::getMaterial("wireframe");
 		materials.normals = utils::getMaterial("normals");
+		return true;
 	}
 
 	void Scene::update(const Timestep& ts, components::camera::Camera& camera)

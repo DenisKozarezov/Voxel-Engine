@@ -3,6 +3,7 @@
 #include <typeinfo>
 #include <future>
 #include <core/Base.h>
+#include <core/input/events/Event.h>
 
 namespace VoxelEngine::input
 {

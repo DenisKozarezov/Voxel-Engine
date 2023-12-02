@@ -1,15 +1,19 @@
 #pragma once
 #include <core/renderer/Renderer.h>
 #include "../Timestep.h"
-#include <vulkan/vkUtils/VulkanMaterials.h>
 
 namespace VoxelEngine
 {
+	class Octree;
+	class renderer::mesh::IMaterial;
+	struct components::mesh::Mesh;
+
 	struct MeshesCache
 	{
-		renderer::mesh::Mesh editorGrid;
-		SharedRef<Mesh> mesh;
-		Mesh voxel;
+		components::mesh::Mesh editorGrid;
+		components::mesh::Mesh* voxel = nullptr;
+		Octree* svo = nullptr;
+		SharedRef<components::mesh::Mesh> loadedModel;
 	};
 
 	struct MaterialsCache
@@ -28,7 +32,7 @@ namespace VoxelEngine
 		SharedRef<renderer::VertexBuffer> instancedBuffer;
 
 		void prepareTestInstancedMesh();
-		void prepareTestOctree();
+		void release();
 	public:
 		Scene();
 		~Scene();
@@ -37,6 +41,7 @@ namespace VoxelEngine
 		Scene& operator=(Scene const& rhs) noexcept = delete;
 		Scene& operator=(Scene&& rhs) noexcept = delete;
 
+		void setLoadedMesh(const SharedRef<components::mesh::Mesh>& mesh);
 		void update(const Timestep& ts, components::camera::Camera& camera);
 		void renderScene();
 	};

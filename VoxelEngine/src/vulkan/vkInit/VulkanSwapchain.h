@@ -31,7 +31,7 @@ namespace vkInit
 		VkDeviceMemory colorImageMemory;
 		VkImageView colorImageView;
 
-		void release(const vkInit::VulkanDevice& device)
+		void release(const VulkanDevice& device)
 		{
 			for (auto& frame : frames)
 			{

@@ -36,7 +36,7 @@ namespace VoxelEngine::renderer
         {
             .view = camera.viewMatrix(),
             .proj = camera.projectionMatrix(),
-            .lightPos = glm::vec3(0.0f, 2.0f, 1.0f)
+            .lightPos = glm::vec3(0.0f, 20.0f, 0.0f)
         };
 
         s_gizmosAPI->startBatch();

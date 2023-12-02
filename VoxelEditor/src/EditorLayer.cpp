@@ -10,6 +10,16 @@ namespace VoxelEditor
 		
 	}
 
+	void EditorLayer::loadModel()
+	{
+		string filepath = utils::FileDialog::openFile(".obj");
+		if (!filepath.empty()) 
+		{
+			auto& mesh = assets::AssetsProvider::loadObjMesh(filepath);
+			m_scene->setLoadedMesh(mesh);		
+		}
+	}
+
 	void EditorLayer::drawMenuBar()
 	{
 		if (ImGui::BeginMenuBar())
@@ -18,13 +28,13 @@ namespace VoxelEditor
 			{
 				if (ImGui::MenuItem("Open", "Ctrl+O"))
 				{ 
-					utils::FileDialog::openFile(".obj");
+					loadModel();
 				}
 
 				ImGui::Separator();
 				if (ImGui::MenuItem("Save", "Ctrl+S"))
 				{
-					utils::FileDialog::saveFile("obj");
+					utils::FileDialog::saveFile(".obj");
 				}
 				ImGui::MenuItem("Save As...");
 				ImGui::Separator();

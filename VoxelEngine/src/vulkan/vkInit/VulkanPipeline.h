@@ -5,7 +5,7 @@
 namespace vkInit
 {
 	const VkRenderPass createRenderPass(
-		const vkInit::VulkanDevice& device, 
+		const VulkanDevice& device, 
 		const VkFormat& swapChainImageFormat, 
 		const VkFormat depthFormat,
 		const VkSampleCountFlagBits& msaaSamples)
@@ -57,7 +57,7 @@ namespace vkInit
 		dependency2.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
 		dependency2.dependencyFlags = 0;
 
-		std::vector<VkAttachmentDescription> attachments = { colorAttachment, depthAttachment, colorAttachment };
+		std::vector<VkAttachmentDescription> attachments = { colorAttachment, depthAttachment, colorAttachmentResolve };
 		std::vector<VkSubpassDescription> subpasses = { subpass };
 		std::vector<VkSubpassDependency> dependencies = { dependency1, dependency2 };
 		VkRenderPassCreateInfo renderPassInfo = renderPassCreateInfo(attachments, subpasses, dependencies);

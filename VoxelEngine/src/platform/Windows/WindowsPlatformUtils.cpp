@@ -12,7 +12,7 @@
 
 namespace utils
 {
-	const char* FileDialog::openFile(const char* filter)
+	string FileDialog::openFile(const char* filter)
 	{
 		OPENFILENAMEA ofn;
 		CHAR szFile[260] = { 0 };
@@ -31,10 +31,10 @@ namespace utils
 		if (GetOpenFileName(&ofn) == TRUE)
 			return ofn.lpstrFile;
 
-		return nullptr;
+		return string();
 
 	}
-	const char* FileDialog::saveFile(const char* filter)
+	string FileDialog::saveFile(const char* filter)
 	{
 		OPENFILENAMEA ofn;
 		CHAR szFile[260] = { 0 };
@@ -56,7 +56,7 @@ namespace utils
 		if (GetSaveFileName(&ofn) == TRUE)
 			return ofn.lpstrFile;
 
-		return nullptr;
+		return string();
 	}
 }
 #endif

@@ -12,6 +12,7 @@ namespace VoxelEditor
 		SceneView m_sceneView;
 		EditorConsole m_console;
 
+		void loadModel();
 		void drawMenuBar();
 		void drawRenderPerformance();
 	public:

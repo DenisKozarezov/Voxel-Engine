@@ -32,6 +32,7 @@ namespace assets
 
         bool isLoaded = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path.c_str());
         VOXEL_CORE_ASSERT(isLoaded, warn + err);
+        VOXEL_CORE_ASSERT(attrib.normals.size() > 0, "there are no 'vn' definitions (for normals) in the .obj file! Check the file format!");
 
         std::unordered_map<Vertex, uint32> uniqueVertices{};
         std::vector<Vertex> vertices;
@@ -41,8 +42,6 @@ namespace assets
         {
             for (const auto& index : shape.mesh.indices)
             {
-                VOXEL_CORE_ASSERT(attrib.normals.size() > 0, "there are no normals in the attribute from the .obj file!");
-
                 glm::vec3 pos =
                 {
                     attrib.vertices[3 * index.vertex_index + 0],

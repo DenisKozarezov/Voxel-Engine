@@ -23,5 +23,6 @@ namespace VoxelEngine::renderer
 	{
 		RenderMode renderMode = RenderMode::Solid;
 		bool showEditorGrid = true;
+		bool showOctree = false;
 	};
 }

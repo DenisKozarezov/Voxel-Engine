@@ -1,12 +1,11 @@
 #include "Scene.h"
 #include <core/voxels/Octree.h>
 #include <assets_management/AssetsProvider.h>
-#include <VModels.h>
+#include <VModel.h>
 #include <components/mesh/MeshPrimitives.h>
 #include <vulkan/vkUtils/VulkanMaterials.h>
 
-#define TEST_INSTANCED_MESH 0
-#define TEST_OCTREE 1
+#define TEST_INSTANCED_MESH 1
 #define TEST_RAYMARCHING 0
 
 namespace VoxelEngine
@@ -26,15 +25,19 @@ namespace VoxelEngine
 		meshes.voxel.vertexBuffer = renderer::VertexBuffer::Allocate(vertices, vertexCount * sizeof(renderer::Vertex));
 		meshes.voxel.indexBuffer = renderer::IndexBuffer::Allocate(indices, indexCount * sizeof(uint32));
 
-		const auto& VModelMesh = VModels::Primitives::Sphere(10);
-		instancesCount = static_cast<uint32>(VModelMesh.size());
+		auto VModelMesh1 = VModel::Sphere(15.0f, { 30, 30, 25 }, { 50, 50, 50 });
+		auto VModelMesh2 = VModel::Torus(15.0f, 10.0f, { 25, 25, 25 }, { 50, 50, 50 });
+		auto VModelMesh3 = VModel::Plane({ 22, 28, 18 }, {22, 27, 22}, { 28, 26, 16 }, { 50, 50, 50 });
+		auto result = VModel::Operations::Sum(VModelMesh2, VModelMesh3);
+		auto points = result.GetPoints();
+		instancesCount = static_cast<uint32>(points.size());
 
 		std::vector<renderer::InstanceData> instanceData;
 		instanceData.reserve(instancesCount);
 		for (size_t i = 0; i < instancesCount; ++i)
 		{
 			instanceData.push_back(renderer::InstanceData{
-				.pos = glm::vec3(VModelMesh[i].x, VModelMesh[i].y, VModelMesh[i].z)
+				.pos = glm::vec3(points[i].x, points[i].y, points[i].z)
 			});
 		}
 		instancedBuffer = renderer::VertexBuffer::Allocate(instanceData.data(), instancesCount * sizeof(renderer::InstanceData));
@@ -126,6 +129,9 @@ namespace VoxelEngine
 			break;
 		}
 		renderer::RenderCommand::drawMeshInstanced(meshes.voxel, instancedBuffer, instancesCount);
+
+		// Show voxel grid
+		utils::Gizmos::drawWireframeCube({ 25, 25, 25 }, { 50, 50, 50 });
 #endif
 
 		if (meshes.loadedModel)
@@ -144,16 +150,17 @@ namespace VoxelEngine
 			}
 			renderer::RenderCommand::drawMeshIndexed(*meshes.loadedModel.get());
 
-#if TEST_OCTREE
-			meshes.svo->traverse([&](OctreeNode* node)
+			if (meshes.svo && renderSettings.showOctree)
 			{
-				if (!node->isLeaf())
-					return;
+				meshes.svo->traverse([&](OctreeNode* node)
+				{
+					if (!node->isLeaf())
+						return;
 
-				glm::vec3 dimensions = node->bounds.max() - node->bounds.min();
-				utils::Gizmos::drawWireframeCube(node->bounds.min() + dimensions * 0.5f, dimensions);
-			});
-#endif
+					glm::vec3 dimensions = node->bounds.max() - node->bounds.min();
+					utils::Gizmos::drawWireframeCube(node->bounds.min() + dimensions * 0.5f, dimensions);
+				});
+			}
 		}
 
 		renderer::Renderer::render();

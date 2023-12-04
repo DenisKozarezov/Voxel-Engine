@@ -13,7 +13,7 @@ namespace VoxelEngine
 	struct MeshesCache
 	{
 		components::mesh::Mesh editorGrid;
-		components::mesh::Mesh* voxel = nullptr;
+		components::mesh::Mesh voxel;
 		Octree* svo = nullptr;
 		SharedRef<components::mesh::Mesh> loadedModel;
 	};

@@ -16,8 +16,8 @@ namespace VoxelEditor
 		static int current_item = 0;
 		ImGui::Combo("##render_modes", &current_item, "Solid\0Wireframe\0Normals\0");
 
-		static bool showGrid;
 		ImGui::Checkbox("Show Editor Grid", &settings.showEditorGrid);
+		ImGui::Checkbox("Show Octree", &settings.showOctree);
 
 		ImGui::EndChild();
 
@@ -44,7 +44,7 @@ namespace VoxelEditor
 
 		ImGui::SameLine();
 		static int cameraSpeed = 5;
-		if (ImGui::SliderInt("Camera Speed", &cameraSpeed, 0, 10, "%d", ImGuiSliderFlags_AlwaysClamp))
+		if (ImGui::SliderInt("Camera Speed", &cameraSpeed, 0, 30, "%d", ImGuiSliderFlags_AlwaysClamp))
 			m_camera->setSpeed(cameraSpeed);
 
 		ImGui::EndChild();

@@ -7,8 +7,8 @@
 vcpkg/bootstrap-vcpkg.bat
 ```
 
-![voxel1](https://github.com/DenisKozarezov/Voxel-Engine/assets/52127090/301c7b5d-30a4-4eef-94cb-e1273f8659c7)
+![image](https://github.com/DenisKozarezov/Voxel-Engine/assets/52127090/b9c2979b-c7bf-4910-8bd8-151295a722ca)
 
-![voxel3](https://github.com/DenisKozarezov/Voxel-Engine/assets/52127090/380f973d-7948-4930-bdc3-22766025f324)
+![image](https://github.com/DenisKozarezov/Voxel-Engine/assets/52127090/072df51d-2cdd-4d91-9748-8dde0ab320b9)
 
-![voxel2](https://github.com/DenisKozarezov/Voxel-Engine/assets/52127090/91cf2e8e-fc31-4a17-8ff3-e8424efffd17)
+![image](https://github.com/DenisKozarezov/Voxel-Engine/assets/52127090/700a2c1d-91cc-4af4-9016-f0a2f4a4ff70)

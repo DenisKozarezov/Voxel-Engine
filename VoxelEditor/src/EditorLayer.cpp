@@ -3,7 +3,7 @@
 namespace VoxelEditor
 {
 	static bool show_demo_window = false;
-	static bool show_performance;
+	static bool show_performance = false;
 
 	EditorLayer::EditorLayer() : Layer("EditorLayer")
 	{
@@ -19,6 +19,15 @@ namespace VoxelEditor
 
 			input::MeshLoadedEvent e = input::MeshLoadedEvent(mesh);
 			input::EventDispatcher::dispatchEvent(e);	
+		}
+	}
+
+	void EditorLayer::saveLayout()
+	{
+		string filepath = utils::FileDialog::saveFile(".ini");
+		if (!filepath.empty())
+		{
+			Application::getImGuiLayer()->saveLayout(filepath);
 		}
 	}
 
@@ -63,6 +72,10 @@ namespace VoxelEditor
 			{
 				if (ImGui::BeginMenu("Layout"))
 				{
+					if (ImGui::MenuItem("Save Layout"))
+					{
+						saveLayout();
+					}
 					ImGui::EndMenu();
 				}
 				ImGui::Separator();
@@ -200,7 +213,8 @@ namespace VoxelEditor
 
 		drawRenderPerformance();
 
-		ImGui::Begin("Palette");
+		ImGui::Begin("Add Primitives");
+		m_primitivesPanel.onImGuiRender();
 		ImGui::End();
 
 		ImGui::Begin("Inspector");

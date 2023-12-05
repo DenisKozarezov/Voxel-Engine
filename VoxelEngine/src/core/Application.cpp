@@ -1,10 +1,12 @@
 #include "Application.h"
+#include "input/events/EventDispatcher.h"
+#include "renderer/Renderer.h"
 #include <core/utils/EnumUtils.h>
 
 namespace VoxelEngine
 {
 	Application* Application::s_instance = 0;
-	static renderer::ImGuiLayer* s_imguiLayer = nullptr;
+	renderer::ImGuiLayer* Application::s_imguiLayer = nullptr;
 
 	Application::Application(const ApplicationSpecification& spec) : m_specification(spec)
 	{

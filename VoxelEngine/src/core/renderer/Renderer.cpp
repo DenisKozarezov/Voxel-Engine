@@ -12,9 +12,9 @@ namespace VoxelEngine::renderer
     }
     const RenderPerformanceStats& Renderer::getStats()
     {
-        auto& app = Application::getInstance();
-        s_renderPerformanceStats.deltaTime = app.getDeltaTime();
-        s_renderPerformanceStats.fps = app.getFPS();
+        auto* app = Application::getInstance();
+        s_renderPerformanceStats.deltaTime = app->getDeltaTime();
+        s_renderPerformanceStats.fps = app->getFPS();
         s_renderPerformanceStats.frameStats = vulkan::getFrameStats();
         return s_renderPerformanceStats;
     }

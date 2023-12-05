@@ -1,6 +1,5 @@
 #pragma once
 #include <pch.h>
-#include <mutex>
 #include <core/Log.h>
 #include "EventHandler.h"
 

@@ -10,8 +10,8 @@ namespace VoxelEngine::renderer
 		std::deque<Layer*> m_layers;
 		uint32 m_layerInsertIndex = 0;
 	public:
-		LayerStack() = default;
-		~LayerStack() = default;
+		LayerStack() noexcept = default;
+		~LayerStack() noexcept = default;
 
 		void pushLayer(Layer* layer);
 		void pushOverlay(Layer* overlay);

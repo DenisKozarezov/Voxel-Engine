@@ -3,8 +3,6 @@
 
 namespace VoxelEditor
 {
-	using namespace VoxelEngine;
-
 	class SceneView final
 	{
 	private:

@@ -1,6 +1,7 @@
 #pragma once
 #include "SceneView.h"
 #include "EditorConsole.h"
+#include "PrimitivesPanel.h"
 
 namespace VoxelEditor
 {
@@ -10,8 +11,10 @@ namespace VoxelEditor
 		SharedRef<Scene> m_scene;
 		SceneView m_sceneView;
 		EditorConsole m_console;
+		PrimitivesPanel m_primitivesPanel;
 
 		void loadModel();
+		void saveLayout();
 		void drawMenuBar();
 		void drawRenderPerformance();
 	public:

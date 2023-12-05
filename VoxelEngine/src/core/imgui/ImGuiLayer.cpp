@@ -26,6 +26,11 @@ namespace VoxelEngine::renderer
 		}
 	}
 
+	void ImGuiLayer::saveLayout(const string& filepath)
+	{
+		ImGui::SaveIniSettingsToDisk(filepath.c_str());
+	}
+
 	void ImGuiLayer::onAttach()
 	{
 		IMGUI_CHECKVERSION();

@@ -3,7 +3,7 @@
 // ----------- Internal modules -----------
 #include <core/Application.h>
 #include <core/input/events/KeyboardEvent.h>
-#include <core/imgui/ImGuiUtils.h>
+#include <core/imgui/ImGuiLayer.h>
 #include <core/scene/Scene.h>
 #include <core/utils/EnumUtils.h>
 #include <core/utils/PlatformUtils.h>
@@ -15,3 +15,5 @@
 #include <components/camera/EditorCameraController.h>
 
 #include <version.h>
+
+using namespace VoxelEngine;

@@ -13,7 +13,7 @@ namespace VoxelEditor
 		void drawRenderModes();
 		void drawCameraModes();
 	public:
-		UniqueRef<VoxelEngine::components::camera::EditorCameraController> m_camera;
+		UniqueRef<components::camera::EditorCameraController> m_camera;
 
 		SceneView();
 		~SceneView() noexcept = default;

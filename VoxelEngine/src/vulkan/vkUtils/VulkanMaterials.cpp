@@ -78,7 +78,7 @@ namespace vkUtils
 			VkResult err = vkCreatePipelineLayout(device.logicalDevice, &pipelineInfo.pipelineLayoutInfo, nullptr, &defaultMaterialLayout);
 			VK_CHECK(err, "failed to create pipeline layout!");
 
-			VulkanShader shader = VulkanShader(device.logicalDevice, ASSET_PATH("shaders/default_shader.glsl"));
+			VulkanShader shader = VulkanShader(device.logicalDevice, SHADERS_PATH("default_shader.glsl"));
 			pipelineInfo.shaderStages = shader.getStages().data();
 			pipelineInfo.stagesCount = static_cast<uint32>(shader.getStages().size());
 			pipelineInfo.rasterizer->polygonMode = VK_POLYGON_MODE_FILL;
@@ -94,7 +94,7 @@ namespace vkUtils
 			VK_CHECK(err, "failed to create pipeline layout!");
 
 			VkPipeline linesPipeline;
-			VulkanShader shader = VulkanShader(device.logicalDevice, ASSET_PATH("shaders/default_shader.glsl"));
+			VulkanShader shader = VulkanShader(device.logicalDevice, SHADERS_PATH("default_shader.glsl"));
 			pipelineInfo.shaderStages = shader.getStages().data();
 			pipelineInfo.stagesCount = static_cast<uint32>(shader.getStages().size());
 			pipelineInfo.rasterizer->polygonMode = VK_POLYGON_MODE_LINE;
@@ -119,7 +119,7 @@ namespace vkUtils
 			VkResult err = vkCreatePipelineLayout(device.logicalDevice, &pipelineInfo.pipelineLayoutInfo, nullptr, &solidMaterialLayout);
 			VK_CHECK(err, "failed to create pipeline layout!");
 
-			VulkanShader shader = VulkanShader(device.logicalDevice, ASSET_PATH("shaders/solid_shader.glsl"));
+			VulkanShader shader = VulkanShader(device.logicalDevice, SHADERS_PATH("solid_shader.glsl"));
 			pipelineInfo.shaderStages = shader.getStages().data();
 			pipelineInfo.stagesCount = static_cast<uint32>(shader.getStages().size());
 			pipelineInfo.rasterizer->polygonMode = VK_POLYGON_MODE_FILL;
@@ -144,7 +144,7 @@ namespace vkUtils
 			VkResult err = vkCreatePipelineLayout(device.logicalDevice, &pipelineInfo.pipelineLayoutInfo, nullptr, &solidMaterialLayout);
 			VK_CHECK(err, "failed to create pipeline layout!");
 			
-			VulkanShader shader = VulkanShader(device.logicalDevice, ASSET_PATH("shaders/solid_instanced_shader.glsl"));
+			VulkanShader shader = VulkanShader(device.logicalDevice, SHADERS_PATH("solid_instanced_shader.glsl"));
 			pipelineInfo.shaderStages = shader.getStages().data();
 			pipelineInfo.stagesCount = static_cast<uint32>(shader.getStages().size());
 			pipelineInfo.rasterizer->polygonMode = VK_POLYGON_MODE_FILL;
@@ -168,7 +168,7 @@ namespace vkUtils
 			VkResult err = vkCreatePipelineLayout(device.logicalDevice, &pipelineInfo.pipelineLayoutInfo, nullptr, &normalsMaterialLayout);
 			VK_CHECK(err, "failed to create pipeline layout!");
 
-			VulkanShader shader = VulkanShader(device.logicalDevice, ASSET_PATH("shaders/normals_color_shader.glsl"));
+			VulkanShader shader = VulkanShader(device.logicalDevice, SHADERS_PATH("normals_color_shader.glsl"));
 			pipelineInfo.shaderStages = shader.getStages().data();
 			pipelineInfo.stagesCount = static_cast<uint32>(shader.getStages().size());
 			pipelineInfo.flags = VK_PIPELINE_CREATE_DERIVATIVE_BIT;
@@ -193,7 +193,7 @@ namespace vkUtils
 			VkResult err = vkCreatePipelineLayout(device.logicalDevice, &pipelineInfo.pipelineLayoutInfo, nullptr, &normalsMaterialLayout);
 			VK_CHECK(err, "failed to create pipeline layout!");
 
-			VulkanShader shader = VulkanShader(device.logicalDevice, ASSET_PATH("shaders/normals_color_instanced_shader.glsl"));
+			VulkanShader shader = VulkanShader(device.logicalDevice, SHADERS_PATH("normals_color_instanced_shader.glsl"));
 			pipelineInfo.shaderStages = shader.getStages().data();
 			pipelineInfo.stagesCount = static_cast<uint32>(shader.getStages().size());
 			pipelineInfo.flags = VK_PIPELINE_CREATE_DERIVATIVE_BIT;
@@ -216,7 +216,7 @@ namespace vkUtils
 			VkResult err = vkCreatePipelineLayout(device.logicalDevice, &pipelineInfo.pipelineLayoutInfo, nullptr, &wireframeMaterialLayout);
 			VK_CHECK(err, "failed to create pipeline layout!");
 
-			VulkanShader shader = VulkanShader(device.logicalDevice, ASSET_PATH("shaders/wireframe_shader.glsl"));
+			VulkanShader shader = VulkanShader(device.logicalDevice, SHADERS_PATH("wireframe_shader.glsl"));
 			pipelineInfo.shaderStages = shader.getStages().data();
 			pipelineInfo.stagesCount = static_cast<uint32>(shader.getStages().size());
 			pipelineInfo.flags = VK_PIPELINE_CREATE_DERIVATIVE_BIT;
@@ -240,7 +240,7 @@ namespace vkUtils
 			VkResult err = vkCreatePipelineLayout(device.logicalDevice, &pipelineInfo.pipelineLayoutInfo, nullptr, &wireframeMaterialLayout);
 			VK_CHECK(err, "failed to create pipeline layout!");
 
-			VulkanShader shader = VulkanShader(device.logicalDevice, ASSET_PATH("shaders/wireframe_instanced_shader.glsl"));
+			VulkanShader shader = VulkanShader(device.logicalDevice, SHADERS_PATH("wireframe_instanced_shader.glsl"));
 			pipelineInfo.shaderStages = shader.getStages().data();
 			pipelineInfo.stagesCount = static_cast<uint32>(shader.getStages().size());
 			pipelineInfo.basePipelineHandle = wireframe;
@@ -261,7 +261,7 @@ namespace vkUtils
 			VkResult err = vkCreatePipelineLayout(device.logicalDevice, &pipelineInfo.pipelineLayoutInfo, nullptr, &editorGridMaterialLayout);
 			VK_CHECK(err, "failed to create pipeline layout!");
 
-			VulkanShader shader = VulkanShader(device.logicalDevice, ASSET_PATH("shaders/editor/editor_grid_shader.glsl"));
+			VulkanShader shader = VulkanShader(device.logicalDevice, SHADERS_PATH("editor/editor_grid_shader.glsl"));
 			pipelineInfo.shaderStages = shader.getStages().data();
 			pipelineInfo.stagesCount = static_cast<uint32>(shader.getStages().size());
 			pipelineInfo.flags = VK_PIPELINE_CREATE_DERIVATIVE_BIT;
@@ -286,20 +286,14 @@ namespace vkUtils
 
 		// RAYMARCH QUAD
 		{
-			VkPipelineVertexInputStateCreateInfo emptyInputState;
-			emptyInputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-			emptyInputState.vertexAttributeDescriptionCount = 0;
-			emptyInputState.pVertexAttributeDescriptions = nullptr;
-			emptyInputState.vertexBindingDescriptionCount = 0;
-			emptyInputState.pVertexBindingDescriptions = nullptr;
-			emptyInputState.pNext = nullptr;
+			VkPipelineVertexInputStateCreateInfo emptyInputState = vkInit::emptyInputStateCreateInfo();
 			pipelineInfo.vertexInputInfo = &emptyInputState;
 
 			VkPipelineLayout fullscreenQuadMaterialLayout;
 			VkResult err = vkCreatePipelineLayout(device.logicalDevice, &pipelineInfo.pipelineLayoutInfo, nullptr, &fullscreenQuadMaterialLayout);
 			VK_CHECK(err, "failed to create pipeline layout!");
 
-			VulkanShader shader = VulkanShader(device.logicalDevice, ASSET_PATH("shaders/ray_marching/ray_marching_shader.glsl"));
+			VulkanShader shader = VulkanShader(device.logicalDevice, SHADERS_PATH("ray_marching/ray_marching_shader.glsl"));
 			pipelineInfo.shaderStages = shader.getStages().data();
 			pipelineInfo.stagesCount = static_cast<uint32>(shader.getStages().size());
 			pipelineInfo.flags = VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT;

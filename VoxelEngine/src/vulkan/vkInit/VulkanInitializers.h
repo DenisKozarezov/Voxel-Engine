@@ -805,4 +805,16 @@ namespace vkInit
 	}
 
 	const VkPipelineVertexInputStateCreateInfo inputStateCreateInfo(VoxelEngine::renderer::ShaderLayout layout, const uint32& vertexStride = sizeof(VoxelEngine::renderer::Vertex));
+
+	constexpr VkPipelineVertexInputStateCreateInfo emptyInputStateCreateInfo()
+	{
+		VkPipelineVertexInputStateCreateInfo emptyInputState;
+		emptyInputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+		emptyInputState.vertexAttributeDescriptionCount = 0;
+		emptyInputState.pVertexAttributeDescriptions = nullptr;
+		emptyInputState.vertexBindingDescriptionCount = 0;
+		emptyInputState.pVertexBindingDescriptions = nullptr;
+		emptyInputState.pNext = nullptr;
+		return emptyInputState;
+	}
 }

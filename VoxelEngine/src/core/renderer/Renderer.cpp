@@ -3,8 +3,8 @@
 
 namespace VoxelEngine::renderer
 {
-    static RenderPerformanceStats s_renderPerformanceStats;
-    UniqueRef<utils::GizmosAPI> Renderer::s_gizmosAPI = nullptr;
+    RenderPerformanceStats Renderer::s_renderPerformanceStats;
+    utils::GizmosAPI* Renderer::s_gizmosAPI = nullptr;
 
     RenderSettings& Renderer::getRenderSettings()
     {
@@ -28,7 +28,7 @@ namespace VoxelEngine::renderer
                        
         RenderCommand::init(window);
 
-        s_gizmosAPI = utils::GizmosAPI::Create();
+        s_gizmosAPI = utils::GizmosAPI::getInstance();
     }
     void Renderer::preRender(const components::camera::Camera& camera)
     {
@@ -60,7 +60,7 @@ namespace VoxelEngine::renderer
     }
     void Renderer::shutdown()
     {
-        s_gizmosAPI.reset();
+        delete s_gizmosAPI;
         vulkan::cleanup();
     }
 }

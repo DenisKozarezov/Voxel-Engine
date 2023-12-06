@@ -1,38 +1,62 @@
 #pragma once
 #include <glm/vec3.hpp>
 #include <core/Base.h>
+#include <vulkan/vkUtils/VulkanMaterials.h>
 
 namespace utils
 {
-	class Gizmos;
+	struct LineVertex
+	{
+		glm::vec3 pos;
+		glm::vec3 color;
+	};
 
+	struct CircleVertex
+	{
+		glm::vec3 pos;
+		glm::vec3 axis;
+		glm::vec3 color;
+		float radius;
+	};
+
+	struct RenderData
+	{
+		uint32 linesVertexCount = 0;
+		LineVertex* linesPtrStart = nullptr;
+		LineVertex* linesPtrCurrent = nullptr;
+		SharedRef<VoxelEngine::renderer::VertexBuffer> linesBuffer;
+		const vkUtils::VulkanMaterial* linesMaterial = nullptr;
+
+		uint32 circleVertexCount = 0;
+		CircleVertex* circlePtrStart = nullptr;
+		CircleVertex* circlePtrCurrent = nullptr;
+		SharedRef<VoxelEngine::renderer::VertexBuffer> circleBuffer;
+		const vkUtils::VulkanMaterial* circleMaterial = nullptr;
+	};
+
+	class Gizmos;
 	class GizmosAPI
 	{
 	private:
+		RenderData m_renderData;
 		static GizmosAPI* s_instance;
-
-		friend class Gizmos;
 	public:
 		GizmosAPI();
-		virtual ~GizmosAPI() = default;
+		~GizmosAPI();
 
-		virtual void startBatch() = 0;
-		virtual void drawLine(const glm::vec3& point1, const glm::vec3& point2, const glm::vec3& color = glm::vec3(0.0f, 1.0f, 0.0f)) = 0;
-		virtual void drawWireframeCube(const glm::vec3& center, const glm::vec3& size, const glm::vec3& color = glm::vec3(0.0f, 1.0f, 0.0f)) = 0;
-		virtual void drawWireframeCircle(const glm::vec3& center, const float& radius = 1.0f, const glm::vec3& axis = glm::vec3(0.0f, 1.0f, 0.0f)) = 0;
-		virtual void onGizmosDraw() = 0;
-
-		static UniqueRef<GizmosAPI> Create();
+		void startBatch();
+		void drawLine(const glm::vec3& point1, const glm::vec3& point2, const glm::vec3& color = glm::vec3(0.0f, 1.0f, 0.0f));
+		void drawWireframeCube(const glm::vec3& center, const glm::vec3& size, const glm::vec3& color = glm::vec3(0.0f, 1.0f, 0.0f));
+		void drawWireframeCircle(const glm::vec3& center, const float& radius = 1.0f, const glm::vec3& axis = glm::vec3(0.0f, 1.0f, 0.0f), const glm::vec3& color = glm::vec3(0.0f, 1.0f, 0.0f));
+		void onGizmosDraw();
+		static GizmosAPI* getInstance();
 	};
 
-	/*
-		Facade class for debug drawing.
-	*/
-	static class Gizmos
+	class Gizmos
 	{
 	public:
 		static void drawLine(const glm::vec3& point1, const glm::vec3& point2, const glm::vec3& color = glm::vec3(0.0f, 1.0f, 0.0f));
 		static void drawWireframeCube(const glm::vec3& center, const glm::vec3& size, const glm::vec3& color = glm::vec3(0.0f, 1.0f, 0.0f));
-		static void drawWireframeCircle(const glm::vec3& center, const float& radius = 1.0f, const glm::vec3& axis = glm::vec3(0.0f, 1.0f, 0.0f));
+		static void drawWireframeCircle(const glm::vec3& center, const float& radius = 1.0f, const glm::vec3& axis = glm::vec3(0.0f, 1.0f, 0.0f), const glm::vec3& color = glm::vec3(0.0f, 1.0f, 0.0f));
 	};
 }

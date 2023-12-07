@@ -93,7 +93,7 @@ namespace VoxelEditor::gui
 
 	const ImGuiWindowFlags& SceneViewport::flags() const
 	{
-		return ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBackground;
+		return ImGuiWindowFlags_NoCollapse;
 	}
 
 	INLINE void SceneViewport::setClearColor(const glm::vec4& clearColor)
@@ -104,14 +104,11 @@ namespace VoxelEditor::gui
 	void SceneViewport::onBegin()
 	{
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
+		ImGui::SetNextWindowBgAlpha(0.0f);
 	}
 
 	void SceneViewport::onImGuiRender()
 	{
-		ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBackground;
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
-		ImGui::Begin("Viewport", 0, flags);
-
 		m_viewportSize = ImGui::GetContentRegionAvail();
 		ImVec2 vMin = ImGui::GetWindowContentRegionMin();
 		vMin.x += ImGui::GetWindowPos().x;
@@ -131,8 +128,6 @@ namespace VoxelEditor::gui
 		
 		drawRenderModes();
 		drawCameraModes();
-		ImGui::PopStyleVar();
-		ImGui::End();
 	}
 
 	void SceneViewport::onEnd()

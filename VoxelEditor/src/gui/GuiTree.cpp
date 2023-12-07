@@ -30,21 +30,11 @@ namespace VoxelEditor::gui
             );
         }
 	}
-    void GuiTree::registerViewport(SceneViewport* viewport)
+    void GuiTree::registerViewport(const SharedRef<SceneViewport>& viewport)
     {
         m_viewport = viewport;
-        registerWindow(viewport);
+        registerWindow(viewport.get());
     }
-	void GuiTree::unregisterWindow(ImGuiWindow* window)
-	{
-        VOXEL_TRACE("Unregistering an ImGuiWindow with title '{0}'...", window->title());
-
-        const auto i = std::remove(m_windows.begin(), m_windows.end(), window);
-        if (i == m_windows.end())
-            EditorConsole::error("Unable to unregister ImGuiWindow. There is no window with such title '{0}'", window->title());          
-        else 
-            m_windows.erase(i, m_windows.end());
-	}
 	void GuiTree::onImGuiRender()
 	{
         bool windowWantsKeyboard = false;
@@ -52,8 +42,7 @@ namespace VoxelEditor::gui
 
 		for (ImGuiWindow* window : m_windows) 
 		{
-            window->onImGuiRender();
-          /*  if (window->isVisible()) 
+            if (window->isVisible()) 
             {
                 bool toolbarHovered = false;
                 const bool isWindowVisible = window->begin();
@@ -89,7 +78,22 @@ namespace VoxelEditor::gui
                 }
 
                 window->end();
-            }*/
+            }
 		}
 	}
+    GuiTree::~GuiTree() noexcept
+    {
+        const auto it = std::find(m_windows.begin(), m_windows.end(), m_viewport.get());
+        VOXEL_TRACE("Unregistering a viewport with title '{0}'...", (*it)->title());
+        m_viewport.reset();
+        m_windows.erase(it);
+
+        std::for_each(m_windows.begin(),
+            m_windows.end(),
+            [](ImGuiWindow* window) {
+                VOXEL_TRACE("Unregistering an ImGuiWindow with title '{0}'...", window->title());
+                delete window;
+            });
+        m_windows.erase(m_windows.begin(), m_windows.end());
+    }
 }

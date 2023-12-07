@@ -9,7 +9,7 @@ namespace VoxelEditor::gui
 
 	EditorLayer::EditorLayer() : Layer("EditorLayer")
 	{
-		m_guiTree.registerViewport(new SceneViewport("Viewport"));
+		m_guiTree.registerViewport(MakeShared<SceneViewport>("Viewport"));
 		m_guiTree.registerWindow(new EditorConsole("Console"));
 		m_guiTree.registerWindow(new PrimitivesPanel("Add Primitives"));
 		m_guiTree.registerWindow(new PrimitivesPanel("Inspector"));
@@ -160,7 +160,7 @@ namespace VoxelEditor::gui
 	}				  
 	void EditorLayer::onUpdate(const VoxelEngine::Timestep& ts)
 	{
-		auto* viewport = m_guiTree.getViewport();
+		const auto& viewport = m_guiTree.getViewport();
 		viewport->update(ts);
 		m_scene->update(ts, *viewport->m_camera.get());
 	}

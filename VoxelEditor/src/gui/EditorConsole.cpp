@@ -36,12 +36,6 @@ namespace VoxelEditor::gui
     }
     void EditorConsole::onImGuiRender()
 	{
-        if (!m_consoleOpen)
-            return;
-
-        ImGuiWindowFlags flags = ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
-        ImGui::Begin("Console", &m_consoleOpen, flags);
-
         // Options menu
         if (ImGui::BeginPopup("Options"))
         {
@@ -118,7 +112,6 @@ namespace VoxelEditor::gui
             ImGui::SetScrollHereY(1.0f);
 
         ImGui::EndChild();
-        ImGui::End();
 	}
     EditorConsole::~EditorConsole()
     {

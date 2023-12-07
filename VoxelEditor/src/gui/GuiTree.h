@@ -7,17 +7,16 @@ namespace VoxelEditor::gui
 	{
 	private:
 		std::vector<ImGuiWindow*> m_windows;
-		SceneViewport* m_viewport;
+		SharedRef<SceneViewport> m_viewport;
 	public:
 		GuiTree();
 
-		INLINE SceneViewport* getViewport() const { return m_viewport; }
+		INLINE SharedRef<SceneViewport> getViewport() const { return m_viewport; }
 
 		void registerWindow(ImGuiWindow* window);
-		void registerViewport(SceneViewport* viewport);
-		void unregisterWindow(ImGuiWindow* window);
+		void registerViewport(const SharedRef<SceneViewport>& viewport);
 		void onImGuiRender();
 
-		~GuiTree() noexcept = default;
+		~GuiTree() noexcept;
 	};
 }

@@ -1,13 +1,18 @@
 #include "EditorLayer.h"
+#include "gui/EditorConsole.h"
+#include "gui/PrimitivesPanel.h"
 
-namespace VoxelEditor
+namespace VoxelEditor::gui
 {
 	static bool show_demo_window = false;
 	static bool show_performance = false;
 
 	EditorLayer::EditorLayer() : Layer("EditorLayer")
 	{
-		
+		m_guiTree.registerViewport(new SceneViewport("Viewport"));
+		m_guiTree.registerWindow(new EditorConsole("Console"));
+		m_guiTree.registerWindow(new PrimitivesPanel("Add Primitives"));
+		m_guiTree.registerWindow(new PrimitivesPanel("Inspector"));
 	}
 
 	void EditorLayer::loadModel()
@@ -145,9 +150,6 @@ namespace VoxelEditor
 
 	void EditorLayer::onAttach()
 	{				  
-		input::EventDispatcher::registerEvent<input::MouseButtonPressedEvent>(BIND_MEMBER_CALLBACK(&m_sceneView, SceneView::onMousePressed));
-		input::EventDispatcher::registerEvent<input::MouseButtonReleasedEvent>(BIND_MEMBER_CALLBACK(&m_sceneView, SceneView::onMouseReleased));
-
 		m_scene = MakeShared<Scene>();
 
 		EditorConsole::info("Welcome to {0} {1}!", PROJECT_NAME, PROJECT_VERSION);
@@ -158,8 +160,9 @@ namespace VoxelEditor
 	}				  
 	void EditorLayer::onUpdate(const VoxelEngine::Timestep& ts)
 	{
-		m_sceneView.update(ts);
-		m_scene->update(ts, *m_sceneView.m_camera.get());
+		auto* viewport = m_guiTree.getViewport();
+		viewport->update(ts);
+		m_scene->update(ts, *viewport->m_camera.get());
 	}
 	void EditorLayer::onFixedUpdate(const VoxelEngine::Timestep& ts)
 	{
@@ -209,18 +212,8 @@ namespace VoxelEditor
 		style.WindowMinSize.x = minWinSizeX;
 
 		drawMenuBar();
-		m_sceneView.onImGuiRender();
-
+		m_guiTree.onImGuiRender();
 		drawRenderPerformance();
-
-		ImGui::Begin("Add Primitives");
-		m_primitivesPanel.onImGuiRender();
-		ImGui::End();
-
-		ImGui::Begin("Inspector");
-		ImGui::End();
-
-		m_console.render();
 
 		ImGui::End();
 

@@ -1,10 +1,10 @@
 #include "EditorConsole.h"
 
-namespace VoxelEditor
+namespace VoxelEditor::gui
 {
     EditorConsole* EditorConsole::s_instance = 0;
 
-    EditorConsole::EditorConsole()
+    EditorConsole::EditorConsole(const string& title) : ImGuiWindow(title)
     {
         VOXEL_ASSERT(!s_instance, "There is other editor console instance!");
 
@@ -24,13 +24,17 @@ namespace VoxelEditor
             if (m_buffer[old_size] == '\n')
                 m_lineOffsets.push_back(old_size + 1);
     }
+    const ImGuiWindowFlags& EditorConsole::flags() const
+    {
+        return ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
+    }
     void EditorConsole::clear()
     {
         m_buffer.clear();
         m_lineOffsets.clear();
         m_lineOffsets.push_back(0);
     }
-    void EditorConsole::render()
+    void EditorConsole::onImGuiRender()
 	{
         if (!m_consoleOpen)
             return;

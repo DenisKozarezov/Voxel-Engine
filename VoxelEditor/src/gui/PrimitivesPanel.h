@@ -1,19 +1,19 @@
 #pragma once
 #include <VoxelEngine.h>
 
-namespace VoxelEditor
+namespace VoxelEditor::gui
 {
-	class PrimitivesPanel final
+	class PrimitivesPanel : public ImGuiWindow
 	{
 	public:
-		PrimitivesPanel();
+		PrimitivesPanel(const string& title);
 		~PrimitivesPanel() noexcept = default;
 		PrimitivesPanel(PrimitivesPanel const&) noexcept = delete;
 		PrimitivesPanel(PrimitivesPanel&&) noexcept = delete;
 		PrimitivesPanel& operator=(PrimitivesPanel const& rhs) noexcept = delete;
 		PrimitivesPanel& operator=(PrimitivesPanel&& rhs) noexcept = delete;
 
-		void onImGuiRender();
+		void onImGuiRender() override;
 		void update(const Timestep& ts);
 	};
 }

@@ -8,7 +8,7 @@ namespace VoxelEditor
 	public:
 		EditorApplication(const ApplicationSpecification& spec) : Application(spec)
 		{
-			pushLayer(new EditorLayer());
+			pushLayer(new gui::EditorLayer());
 		}
 		EditorApplication(const EditorApplication&) noexcept = delete;
 		EditorApplication(EditorApplication&&) noexcept = delete;

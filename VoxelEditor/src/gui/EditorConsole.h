@@ -1,7 +1,7 @@
 #pragma once
 #include <VoxelEngine.h>
 
-namespace VoxelEditor
+namespace VoxelEditor::gui
 {
 	struct LogEntry
 	{
@@ -40,7 +40,7 @@ namespace VoxelEditor
 		}
 	};
 
-	class EditorConsole
+	class EditorConsole : public ImGuiWindow
 	{
 	private:
 		ImGuiTextBuffer m_buffer;
@@ -52,7 +52,7 @@ namespace VoxelEditor
 
 		void addLog(const char* fmt, ...);
 	public:
-		EditorConsole();
+		EditorConsole(const string& title);
 
 		template <typename... Args>
 		INLINE static void info(std::string_view fmt, Args&&... args)
@@ -69,8 +69,11 @@ namespace VoxelEditor
 		{
 			s_instance->addLog(LogEntry(spdlog::level::err, fmt, std::forward<Args>(args)...).str().c_str());
 		}
+
+		const ImGuiWindowFlags& flags() const override;
+
 		void clear();
-		void render();
+		void onImGuiRender() override;
 
 		~EditorConsole();
 	};

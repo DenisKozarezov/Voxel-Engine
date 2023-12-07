@@ -1,14 +1,16 @@
 #include "PrimitivesPanel.h"
 
-namespace VoxelEditor
+namespace VoxelEditor::gui
 {
-	PrimitivesPanel::PrimitivesPanel()
+	PrimitivesPanel::PrimitivesPanel(const string& title) : ImGuiWindow(title)
 	{
 
 	}
 
-	void PrimitivesPanel::onImGuiRender()
+    void PrimitivesPanel::onImGuiRender()
 	{
+        ImGui::Begin(title().c_str(), 0);
+
         static ImGuiTableFlags flags1 = ImGuiTableFlags_BordersV;
         ImGui::SeparatorText("Mesh");
         if (ImGui::BeginTable("table_padding", 1, flags1))
@@ -24,6 +26,8 @@ namespace VoxelEditor
             }
             ImGui::EndTable();
         }
+
+        ImGui::End();
 	}
 
 	void PrimitivesPanel::update(const Timestep& ts)

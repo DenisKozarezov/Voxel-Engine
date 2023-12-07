@@ -30,9 +30,9 @@ namespace VoxelEngine::components::camera
 		INLINE const glm::mat4 projectionMatrix() const { return m_currentCamera->projectionMatrix(); }
 		INLINE const ProjectionType& projectionType() const & noexcept { return m_projectionType; }
 
-		INLINE void setAspectRatio(const float& aspectRatio) { m_currentCamera->setAspectRatio(aspectRatio); }
-		INLINE void setClips(const float& nearClip, const float& farClip) { m_currentCamera->setClips(nearClip, farClip); }
-		INLINE void setSpeed(const float& speed) { m_currentCamera->setSpeed(speed); }
+		void setAspectRatio(const float& aspectRatio);
+		void setClips(const float& nearClip, const float& farClip);
+		void setSpeed(const float& speed);
 		void switchMode(const ProjectionType& mode);
 		void setMouseDragging(const bool& isDragging);
 
@@ -40,4 +40,17 @@ namespace VoxelEngine::components::camera
 
 		~EditorCameraController();
 	};
+
+	INLINE void EditorCameraController::setAspectRatio(const float& aspectRatio)
+	{
+		m_currentCamera->setAspectRatio(aspectRatio);
+	}
+	INLINE void EditorCameraController::setClips(const float& nearClip, const float& farClip)
+	{
+		m_currentCamera->setClips(nearClip, farClip);
+	}
+	INLINE void EditorCameraController::setSpeed(const float& speed)
+	{
+		m_currentCamera->setSpeed(speed);
+	}
 }

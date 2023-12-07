@@ -23,7 +23,6 @@ namespace VoxelEngine
 		const renderer::mesh::IMaterial* solid;
 		const renderer::mesh::IMaterial* wireframe;
 		const renderer::mesh::IMaterial* normals;
-		const renderer::mesh::IMaterial* raymarchQuad;
 	};
 
 	class Scene

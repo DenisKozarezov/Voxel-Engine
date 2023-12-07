@@ -1,8 +1,8 @@
-#include "SceneView.h"
+#include "SceneViewport.h"
 
-namespace VoxelEditor
+namespace VoxelEditor::gui
 {
-	void SceneView::drawRenderModes()
+	void SceneViewport::drawRenderModes()
 	{
 		auto& settings = renderer::Renderer::getRenderSettings();
 
@@ -23,7 +23,7 @@ namespace VoxelEditor
 
 		settings.renderMode = static_cast<renderer::RenderMode>(current_item);
 	}
-	void SceneView::drawCameraModes()
+	void SceneViewport::drawCameraModes()
 	{
 		ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
 		window_flags |= ImGuiWindowFlags_NoMove;
@@ -50,14 +50,27 @@ namespace VoxelEditor
 		ImGui::EndChild();
 	}
 
-	SceneView::SceneView()
+	SceneViewport::SceneViewport(const string& title) : ImGuiWindow(title)
 	{
 		glm::vec3 cameraPos = { 10.0f, 10.0f, 10.0f };
 
 		m_camera = MakeUnique<components::camera::EditorCameraController>(cameraPos);
+
+		input::EventDispatcher::registerEvent<input::MouseButtonPressedEvent>(BIND_CALLBACK(onMousePressed));
+		input::EventDispatcher::registerEvent<input::MouseButtonReleasedEvent>(BIND_CALLBACK(onMouseReleased));
 	}
 
-	bool SceneView::onMousePressed(const input::MouseButtonPressedEvent& e)
+	INLINE const bool SceneViewport::wantCaptureKeyboard() const
+	{
+		return ImGui::GetCurrentContext()->IO.WantCaptureKeyboard;
+	}
+
+	INLINE const bool SceneViewport::wantCaptureMouse() const
+	{
+		return ImGui::GetCurrentContext()->IO.WantCaptureMouse;
+	}
+
+	bool SceneViewport::onMousePressed(const input::MouseButtonPressedEvent& e)
 	{
 		switch (e.getKeyCode())
 		{
@@ -67,7 +80,7 @@ namespace VoxelEditor
 		}
 		return true;
 	}
-	bool SceneView::onMouseReleased(const input::MouseButtonReleasedEvent& e)
+	bool SceneViewport::onMouseReleased(const input::MouseButtonReleasedEvent& e)
 	{
 		switch (e.getKeyCode())
 		{
@@ -78,7 +91,22 @@ namespace VoxelEditor
 		return true;
 	}
 
-	void SceneView::onImGuiRender()
+	const ImGuiWindowFlags& SceneViewport::flags() const
+	{
+		return ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBackground;
+	}
+
+	INLINE void SceneViewport::setClearColor(const glm::vec4& clearColor)
+	{
+		renderer::RenderCommand::setClearColor(clearColor);
+	}
+
+	void SceneViewport::onBegin()
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
+	}
+
+	void SceneViewport::onImGuiRender()
 	{
 		ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBackground;
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
@@ -103,12 +131,16 @@ namespace VoxelEditor
 		
 		drawRenderModes();
 		drawCameraModes();
-
 		ImGui::PopStyleVar();
 		ImGui::End();
 	}
 
-	void SceneView::update(const Timestep& ts)
+	void SceneViewport::onEnd()
+	{
+		ImGui::PopStyleVar();
+	}
+
+	void SceneViewport::update(const Timestep& ts)
 	{	
 		if (m_viewportFocused)
 		{

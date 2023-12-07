@@ -34,7 +34,6 @@ namespace utils
 		const vkUtils::VulkanMaterial* circleMaterial = nullptr;
 	};
 
-	class Gizmos;
 	class GizmosAPI
 	{
 	private:

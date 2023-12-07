@@ -4,6 +4,7 @@
 #include <core/Application.h>
 #include <core/input/events/KeyboardEvent.h>
 #include <core/imgui/ImGuiLayer.h>
+#include <core/imgui/ImGuiWindow.h>
 #include <core/scene/Scene.h>
 #include <core/utils/EnumUtils.h>
 #include <core/utils/PlatformUtils.h>

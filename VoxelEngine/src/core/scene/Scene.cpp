@@ -5,8 +5,7 @@
 #include <components/mesh/MeshPrimitives.h>
 #include <vulkan/vkUtils/VulkanMaterials.h>
 
-#define TEST_INSTANCED_MESH 1
-#define TEST_RAYMARCHING 0
+#define TEST_INSTANCED_MESH 0
 
 namespace VoxelEngine
 {
@@ -28,8 +27,8 @@ namespace VoxelEngine
 		auto VModelMesh1 = VModel::Sphere(15.0f, { 30, 30, 25 }, { 50, 50, 50 });
 		auto VModelMesh2 = VModel::Torus(15.0f, 10.0f, { 25, 25, 25 }, { 50, 50, 50 });
 		auto VModelMesh3 = VModel::Plane({ 22, 28, 18 }, {22, 27, 22}, { 28, 26, 16 }, { 50, 50, 50 });
-		auto result = VModel::Operations::Sum(VModelMesh2, VModelMesh3);
-		auto points = result.GetPoints();
+		auto result = VModel::Operations::Sum(VModelMesh1, VModelMesh3);
+		auto points = VModelMesh3.GetPoints();
 		instancesCount = static_cast<uint32>(points.size());
 
 		std::vector<renderer::InstanceData> instanceData;
@@ -70,10 +69,6 @@ namespace VoxelEngine
 		materials.wireframe = utils::getMaterial("wireframe_instanced");
 		materials.normals = utils::getMaterial("normals_instanced");
 #endif
-
-#if TEST_RAYMARCHING
-		materials.raymarchQuad = utils::getMaterial("raymarch_quad");
-#endif
 	}
 	Scene::~Scene()
 	{
@@ -105,9 +100,6 @@ namespace VoxelEngine
 	}
 	void Scene::renderScene()
 	{
-#if TEST_RAYMARCHING
-		renderer::RenderCommand::draw(materials.raymarchQuad, 3);
-#endif
 		auto& renderSettings = renderer::Renderer::getRenderSettings();
 		
 		if (renderSettings.showEditorGrid)

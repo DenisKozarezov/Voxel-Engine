@@ -1,13 +1,13 @@
 #include "ImGuiWindow.h"
 
-namespace VoxelEditor
+namespace VoxelEngine
 {
-	ImGuiWindow::ImGuiWindow(const string& title) : m_title(title)
+	ImguiWindow::ImguiWindow(const string& title) : m_title(title)
 	{
 
 	}
 
-	const bool ImGuiWindow::begin()
+	const bool ImguiWindow::begin()
 	{
 		onBegin();
 
@@ -24,14 +24,14 @@ namespace VoxelEditor
 
 		return notCollapsed;
 	}
-	void ImGuiWindow::end()
+	void ImguiWindow::end()
 	{
 		onEnd();
 
 		m_hovered = ImGui::IsWindowHovered();
 		ImGui::End();
 	}
-	void ImGuiWindow::setVisibility(const bool& isVisible)
+	void ImguiWindow::setVisibility(const bool& isVisible)
 	{
 		if (m_visible == isVisible)
 			return;
@@ -39,16 +39,16 @@ namespace VoxelEditor
 		m_visible = isVisible;
 	}
 
-	void ImGuiWindow::setMinSize(const float& minWidth, const float& minHeight)
+	void ImguiWindow::setMinSize(const float& minWidth, const float& minHeight)
 	{
 		m_minSize[0] = minWidth;
 		m_minSize[1] = minHeight;
 	}
-	INLINE void ImGuiWindow::show()
+	INLINE void ImguiWindow::show()
 	{
 		setVisibility(true);
 	}
-	INLINE void ImGuiWindow::hide()
+	INLINE void ImguiWindow::hide()
 	{
 		setVisibility(false);
 	}

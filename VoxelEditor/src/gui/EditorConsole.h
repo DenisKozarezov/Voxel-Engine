@@ -40,7 +40,7 @@ namespace VoxelEditor::gui
 		}
 	};
 
-	class EditorConsole : public ImGuiWindow
+	class EditorConsole : public ImguiWindow
 	{
 	private:
 		ImGuiTextBuffer m_buffer;

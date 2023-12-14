@@ -15,7 +15,6 @@ namespace VoxelEngine
 		components::mesh::Mesh editorGrid;
 		components::mesh::Mesh voxel;
 		Octree* svo = nullptr;
-		SharedRef<components::mesh::Mesh> loadedModel;
 	};
 
 	struct MaterialsCache
@@ -23,6 +22,7 @@ namespace VoxelEngine
 		const renderer::mesh::IMaterial* solid;
 		const renderer::mesh::IMaterial* wireframe;
 		const renderer::mesh::IMaterial* normals;
+		const renderer::mesh::IMaterial* normalsLines;
 	};
 
 	class Scene
@@ -31,6 +31,7 @@ namespace VoxelEngine
 		MeshesCache meshes;
 		MaterialsCache materials;
 		SharedRef<renderer::VertexBuffer> instancedBuffer;
+		std::vector<SharedRef<Mesh>> objects;
 
 		void prepareTestInstancedMesh();
 		void release();
@@ -45,5 +46,8 @@ namespace VoxelEngine
 		bool onMeshLoaded(const input::MeshLoadedEvent& e);
 		void update(const Timestep& ts, components::camera::Camera& camera);
 		void renderScene();
+		
+		void registerMesh(const SharedRef<Mesh>& mesh);
+		void unregisterMesh(const SharedRef<Mesh>& mesh);
 	};
 }

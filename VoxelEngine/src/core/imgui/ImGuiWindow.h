@@ -1,18 +1,23 @@
 #pragma once
-#include <VoxelEngine.h>
+#include <imgui.h>
+#include <core/Base.h>
+#include <core/PrimitiveTypes.h>
+#include <core/input/events/EventDispatcher.h>
 
-namespace VoxelEditor
+namespace VoxelEngine
 {
-	class ImGuiWindow
+	class ImguiWindow
 	{
 	private:
 		bool m_visible = true;
 		bool m_hovered = false;
 		float m_minSize[2] = { 200.0f, 400.0f };
-		float m_maxSize[2] = { 99999.0f, 99999.0f };
+		float m_maxSize[2] = { 1920.0f, 1080.0f };
 		string m_title;
+
+		input::EventDispatcher m_eventDispatcher;
 	public:
-		ImGuiWindow(const string& title = "Window");
+		ImguiWindow(const string& title = "Window");
 
 		INLINE const bool& isVisible() const { return m_visible; }
 		INLINE const bool& isHovered() const { return m_hovered; }
@@ -29,9 +34,40 @@ namespace VoxelEditor
 		void show();
 		void hide();
 
+		template<typename TEvent>
+		void sendEvent(TEvent& e);
+
+		template<typename TEvent, typename TFunc>
+		requires input::is_event_func<TEvent, TFunc>
+		constexpr void subscribeEvent(TFunc callback);
+		
+		template<typename TEvent>
+		requires input::is_event<TEvent>
+		void unsubscribeEvent();
+
 		virtual void onImGuiRender() = 0;
 		virtual void onBegin() { }
 		virtual void onEnd() { }
 		virtual void onToolbar(const bool& hovered) { }
 	};
+
+	template<typename TEvent>
+	INLINE void ImguiWindow::sendEvent(TEvent& e)
+	{
+		m_eventDispatcher.dispatchEvent(e);
+	}
+
+	template<typename TEvent, typename TFunc>
+	requires input::is_event_func<TEvent, TFunc>
+	INLINE constexpr void ImguiWindow::subscribeEvent(TFunc callback)
+	{
+		m_eventDispatcher.registerEvent<TEvent, TFunc>(callback);
+	}
+
+	template<typename TEvent>
+	requires input::is_event<TEvent>
+	INLINE void ImguiWindow::unsubscribeEvent()
+	{
+		m_eventDispatcher.unregisterEvent<TEvent>();
+	}
 }

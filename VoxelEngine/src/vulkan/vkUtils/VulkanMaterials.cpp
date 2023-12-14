@@ -42,9 +42,9 @@ namespace vkUtils
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 	}
 
-	const VulkanMaterial* createMaterial(const VkPipeline& matPipeline, const VkPipelineLayout& matLayout, const string& matName)
+	const VulkanMaterial* createMaterial(const VkPipeline& matPipeline, const VkPipelineLayout& matLayout, const string& matName, const bool& instanced)
 	{
-		vkUtils::VulkanMaterial mat;
+		vkUtils::VulkanMaterial mat{instanced};
 		mat.pipeline = matPipeline;
 		mat.pipelineLayout = matLayout;
 		materials[matName] = mat;
@@ -152,10 +152,10 @@ namespace vkUtils
 			pipelineInfo.flags = VK_PIPELINE_CREATE_DERIVATIVE_BIT;
 			pipelineInfo.basePipelineHandle = solidPipeline;
 			pipelineInfo.build(device.logicalDevice, solidMaterialLayout, pipelineCache, &solidInstancedPipeline);
-			createMaterial(solidInstancedPipeline, solidMaterialLayout, "solid_instanced");
+			createMaterial(solidInstancedPipeline, solidMaterialLayout, "solid_instanced", true);
 		}
 
-		// NORMALS
+		// NORMALS COLOR
 		VkPipeline normals;
 		{
 			VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::inputStateCreateInfo({
@@ -186,7 +186,7 @@ namespace vkUtils
 				{ ShaderDataType::Float3_S32 },			// Position
 				{ ShaderDataType::Float3_S32 },			// Normal,
 				{ ShaderDataType::Float3_S32, true },	// Instanced Position
-				});
+			});
 			pipelineInfo.vertexInputInfo = &vertexInputInfo;
 
 			VkPipelineLayout normalsMaterialLayout;
@@ -201,7 +201,57 @@ namespace vkUtils
 
 			VkPipeline normalsInstanced;
 			pipelineInfo.build(device.logicalDevice, normalsMaterialLayout, pipelineCache, &normalsInstanced);
-			createMaterial(normalsInstanced, normalsMaterialLayout, "normals_instanced");
+			createMaterial(normalsInstanced, normalsMaterialLayout, "normals_instanced", true);
+		}
+
+		// NORMALS LINES
+		VkPipeline normalsLines;
+		{
+			VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::inputStateCreateInfo({
+				{ ShaderDataType::Float3_S32 },			// Position
+				{ ShaderDataType::Float3_S32 },			// Normal
+				});
+			pipelineInfo.vertexInputInfo = &vertexInputInfo;
+
+			VkPipelineLayout normalsMaterialLayout;
+			VkResult err = vkCreatePipelineLayout(device.logicalDevice, &pipelineInfo.pipelineLayoutInfo, nullptr, &normalsMaterialLayout);
+			VK_CHECK(err, "failed to create pipeline layout!");
+
+			VulkanShader shader = VulkanShader(device.logicalDevice, SHADERS_PATH("normals_lines_shader.glsl"));
+			pipelineInfo.shaderStages = shader.getStages().data();
+			pipelineInfo.stagesCount = static_cast<uint32>(shader.getStages().size());
+			pipelineInfo.flags = VK_PIPELINE_CREATE_DERIVATIVE_BIT;
+			pipelineInfo.rasterizer->polygonMode = VK_POLYGON_MODE_LINE;
+			pipelineInfo.inputAssembly->topology = VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
+			pipelineInfo.basePipelineHandle = normals;
+
+			pipelineInfo.build(device.logicalDevice, normalsMaterialLayout, pipelineCache, &normalsLines);
+			createMaterial(normalsLines, normalsMaterialLayout, "normals_lines");
+		}
+
+		// NORMALS LINES INSTANCED
+		{
+			VkPipeline normalsLinesInstanced;
+			VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::inputStateCreateInfo({
+				{ ShaderDataType::Float3_S32 },			// Position
+				{ ShaderDataType::Float3_S32 },			// Normal
+				});
+			pipelineInfo.vertexInputInfo = &vertexInputInfo;
+
+			VkPipelineLayout normalsMaterialLayout;
+			VkResult err = vkCreatePipelineLayout(device.logicalDevice, &pipelineInfo.pipelineLayoutInfo, nullptr, &normalsMaterialLayout);
+			VK_CHECK(err, "failed to create pipeline layout!");
+
+			VulkanShader shader = VulkanShader(device.logicalDevice, SHADERS_PATH("normals_lines_instanced_shader.glsl"));
+			pipelineInfo.shaderStages = shader.getStages().data();
+			pipelineInfo.stagesCount = static_cast<uint32>(shader.getStages().size());
+			pipelineInfo.flags = VK_PIPELINE_CREATE_DERIVATIVE_BIT;
+			pipelineInfo.rasterizer->polygonMode = VK_POLYGON_MODE_LINE;
+			pipelineInfo.inputAssembly->topology = VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
+			pipelineInfo.basePipelineHandle = normalsLines;
+
+			pipelineInfo.build(device.logicalDevice, normalsMaterialLayout, pipelineCache, &normalsLinesInstanced);
+			createMaterial(normalsLinesInstanced, normalsMaterialLayout, "normals_lines_instanced");
 		}
 
 		// WIREFRAME
@@ -245,7 +295,7 @@ namespace vkUtils
 			pipelineInfo.stagesCount = static_cast<uint32>(shader.getStages().size());
 			pipelineInfo.basePipelineHandle = wireframe;
 			pipelineInfo.build(device.logicalDevice, wireframeMaterialLayout, pipelineCache, &wireframeInstanced);
-			createMaterial(wireframeInstanced, wireframeMaterialLayout, "wireframe_instanced");
+			createMaterial(wireframeInstanced, wireframeMaterialLayout, "wireframe_instanced", true);
 		}
 
 		// EDITOR GRID

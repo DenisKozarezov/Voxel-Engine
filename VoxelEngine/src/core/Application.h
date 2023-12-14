@@ -1,5 +1,6 @@
 #pragma once
 #include "input/events/ApplicationEvent.h"
+#include "input/events/EventDispatcher.h"
 #include "LayerStack.h"
 #include "Window.h"
 #include "imgui/ImGuiLayer.h"
@@ -44,6 +45,7 @@ namespace VoxelEngine
 		renderer::LayerStack m_layerStack;
 		bool m_running = false;
 		bool m_minimized = false;
+		input::EventDispatcher m_eventDispatcher;
 
 		uint32 m_frameCounter = 0;
 		uint32 m_lastFPS = 0;
@@ -84,6 +86,6 @@ namespace VoxelEngine
 		void run();
 		void shutdown();
 
-		virtual ~Application() = default;
+		virtual ~Application();
 	};
 }

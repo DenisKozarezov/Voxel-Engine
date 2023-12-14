@@ -3,7 +3,7 @@
 
 namespace VoxelEditor::gui
 {
-	class SceneViewport : public ImGuiWindow
+	class SceneViewport : public ImguiWindow
 	{
 	private:
 		ImVec2 m_viewportSize;

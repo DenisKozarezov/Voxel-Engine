@@ -7,7 +7,7 @@ namespace VoxelEditor::gui
 	{
 		
 	}
-	void GuiTree::registerWindow(ImGuiWindow* window)
+	void GuiTree::registerWindow(ImguiWindow* window)
 	{
         VOXEL_TRACE("Registering an ImGuiWindow with title '{0}'...", window->title());
 
@@ -24,7 +24,7 @@ namespace VoxelEditor::gui
             std::sort(
                 m_windows.begin(),
                 m_windows.end(),
-                [](const ImGuiWindow* lhs, const ImGuiWindow* rhs) {
+                [](const ImguiWindow* lhs, const ImguiWindow* rhs) {
                     return lhs->title() < rhs->title();
                 }
             );
@@ -40,7 +40,7 @@ namespace VoxelEditor::gui
         bool windowWantsKeyboard = false;
         bool windowWantsMouse = false;
 
-		for (ImGuiWindow* window : m_windows) 
+		for (ImguiWindow* window : m_windows)
 		{
             if (window->isVisible()) 
             {
@@ -90,7 +90,7 @@ namespace VoxelEditor::gui
 
         std::for_each(m_windows.begin(),
             m_windows.end(),
-            [](ImGuiWindow* window) {
+            [](ImguiWindow* window) {
                 VOXEL_TRACE("Unregistering an ImGuiWindow with title '{0}'...", window->title());
                 delete window;
             });

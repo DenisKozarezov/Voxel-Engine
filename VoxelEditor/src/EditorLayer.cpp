@@ -20,10 +20,10 @@ namespace VoxelEditor::gui
 		string filepath = utils::FileDialog::openFile(".obj");
 		if (!filepath.empty()) 
 		{
+			EditorConsole::info("Attempting to load a resource '{0}'.", filepath);
 			auto& mesh = assets::AssetsProvider::loadObjMesh(filepath);
-
-			input::MeshLoadedEvent e = input::MeshLoadedEvent(mesh);
-			input::EventDispatcher::dispatchEvent(e);	
+			EditorConsole::warn("Loaded .obj file '{0}' [vertices: {1}; indices: {2}].", filepath, mesh->vertexCount(), mesh->indexCount());
+			m_scene->registerMesh(mesh);
 		}
 	}
 
@@ -222,6 +222,11 @@ namespace VoxelEditor::gui
 	}				  
 	void EditorLayer::onEvent(input::Event& e)
 	{
-		input::EventDispatcher::dispatchEvent(e, std::launch::async);
+		switch (e.eventType())
+		{
+			case input::EventType::MouseButtonPressed: case input::EventType::MouseButtonReleased:
+				m_guiTree.getViewport()->sendEvent(e);
+			break;
+		}
 	}
 }

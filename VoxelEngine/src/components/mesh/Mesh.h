@@ -8,9 +8,12 @@ namespace VoxelEngine::components::mesh
 
 	class IMaterial
 	{
+	private:
+		bool m_instanced;
 	public:
-		IMaterial() noexcept = default;
+		IMaterial(const bool& instanced = false) noexcept : m_instanced(instanced) { }
 
+		INLINE const bool& instanced() const { return m_instanced; }
 		virtual void bind() const = 0;
 
 		virtual ~IMaterial() = default;

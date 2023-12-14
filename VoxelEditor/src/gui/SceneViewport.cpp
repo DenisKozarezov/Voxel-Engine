@@ -9,7 +9,7 @@ namespace VoxelEditor::gui
 		ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
 		window_flags |= ImGuiWindowFlags_NoMove;
 
-		ImGui::BeginChild("##render_mode", { 300, 100 }, false, window_flags);
+		ImGui::BeginChild("##render_mode", { 300, 150 }, false, window_flags);
 	
 		ImGui::Text("Render Mode");
 
@@ -18,6 +18,7 @@ namespace VoxelEditor::gui
 
 		ImGui::Checkbox("Show Editor Grid", &settings.showEditorGrid);
 		ImGui::Checkbox("Show Octree", &settings.showOctree);
+		ImGui::Checkbox("Show Normals Lines", &settings.showNormalsLines);
 
 		ImGui::EndChild();
 
@@ -50,14 +51,13 @@ namespace VoxelEditor::gui
 		ImGui::EndChild();
 	}
 
-	SceneViewport::SceneViewport(const string& title) : ImGuiWindow(title)
+	SceneViewport::SceneViewport(const string& title) : ImguiWindow(title)
 	{
 		glm::vec3 cameraPos = { 10.0f, 10.0f, 10.0f };
 
 		m_camera = MakeUnique<components::camera::EditorCameraController>(cameraPos);
-
-		input::EventDispatcher::registerEvent<input::MouseButtonPressedEvent>(BIND_CALLBACK(onMousePressed));
-		input::EventDispatcher::registerEvent<input::MouseButtonReleasedEvent>(BIND_CALLBACK(onMouseReleased));
+		subscribeEvent<input::MouseButtonPressedEvent>(BIND_CALLBACK(onMousePressed));
+		subscribeEvent<input::MouseButtonReleasedEvent>(BIND_CALLBACK(onMouseReleased));
 	}
 
 	INLINE const bool SceneViewport::wantCaptureKeyboard() const

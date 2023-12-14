@@ -2,7 +2,7 @@
 
 namespace VoxelEditor::gui
 {
-	PrimitivesPanel::PrimitivesPanel(const string& title) : ImGuiWindow(title)
+	PrimitivesPanel::PrimitivesPanel(const string& title) : ImguiWindow(title)
 	{
 
 	}

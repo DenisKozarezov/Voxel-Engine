@@ -3,7 +3,7 @@
 
 namespace VoxelEditor::gui
 {
-	class PrimitivesPanel : public ImGuiWindow
+	class PrimitivesPanel : public ImguiWindow
 	{
 	public:
 		PrimitivesPanel(const string& title);

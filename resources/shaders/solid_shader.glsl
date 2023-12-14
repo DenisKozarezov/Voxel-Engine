@@ -49,7 +49,8 @@ void main() {
     vec3 R = reflect(-L, N);
 
     vec3 specColor = vec3(0.5);
+    vec3 specular = specColor * pow(clamp(dot(R, V), 0.0, 1.0), 10.0);
     vec3 diffuse = objectColor * clamp(dot(L, N), 0.0, 1.0);
     vec3 ambient = objectColor * 0.1;
-    outColor = vec4(diffuse + ambient, 1.0);
+    outColor = vec4(diffuse + ambient + specular, 1.0);	
 }

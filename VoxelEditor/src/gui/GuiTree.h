@@ -15,7 +15,9 @@ namespace VoxelEditor::gui
 
 		void registerWindow(ImguiWindow* window);
 		void registerViewport(const SharedRef<SceneViewport>& viewport);
+		const bool showDockSpace(bool *p_open) const;
 		void onImGuiRender();
+		void onUpdate(const Timestep& ts);
 
 		~GuiTree() noexcept;
 	};

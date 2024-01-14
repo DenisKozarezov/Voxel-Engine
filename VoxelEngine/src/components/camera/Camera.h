@@ -2,7 +2,6 @@
 #include <algorithm>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/ext/matrix_clip_space.hpp>
 #include <core/PrimitiveTypes.h>
 #include <core/Base.h>
 

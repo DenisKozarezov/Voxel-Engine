@@ -101,6 +101,8 @@ namespace VoxelEngine
 		renderScene();
 
 		renderer::Renderer::postRender();
+
+		renderer::Renderer::flushStats();
 	}
 	void Scene::renderScene()
 	{

@@ -75,6 +75,6 @@ namespace VoxelEditor::gui
 		void clear();
 		void onImGuiRender() override;
 
-		~EditorConsole();
+		~EditorConsole() override;
 	};
 }

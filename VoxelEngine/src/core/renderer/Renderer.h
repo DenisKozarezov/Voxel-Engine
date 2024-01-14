@@ -24,6 +24,8 @@ namespace VoxelEngine::renderer
 		static RenderSettings& getRenderSettings();
 		static const RenderPerformanceStats& getStats();
 		static void resetStats();
+		static void flushStats();
+		
 		static void init(const Window& window);
 		static void preRender(const components::camera::Camera& camera);
 		static void render();

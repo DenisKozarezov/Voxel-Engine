@@ -12,16 +12,21 @@ namespace VoxelEngine::renderer
     }
     const RenderPerformanceStats& Renderer::getStats()
     {
-        auto* app = Application::getInstance();
-        s_renderPerformanceStats.deltaTime = app->getDeltaTime();
-        s_renderPerformanceStats.fps = app->getFPS();
-        s_renderPerformanceStats.frameStats = vulkan::getFrameStats();
         return s_renderPerformanceStats;
     }
     void Renderer::resetStats()
     {
         vulkan::resetFrameStats();
     }
+
+    void Renderer::flushStats()
+    {
+        auto* app = Application::getInstance();
+        s_renderPerformanceStats.deltaTime = app->getDeltaTime();
+        s_renderPerformanceStats.fps = app->getFPS();
+        s_renderPerformanceStats.frameStats = vulkan::getFrameStats();
+    }
+
     void Renderer::init(const Window& window)
     {
         VOXEL_CORE_WARN("Renderer initialization.");

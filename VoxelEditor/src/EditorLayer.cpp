@@ -1,18 +1,22 @@
 #include "EditorLayer.h"
 #include "gui/EditorConsole.h"
+#include "gui/PerformanceWindow.h"
+#include "gui/UsefulToolsWindow.h"
 #include "gui/PrimitivesPanel.h"
 
 namespace VoxelEditor::gui
 {
 	static bool show_demo_window = false;
-	static bool show_performance = false;
 
 	EditorLayer::EditorLayer() : Layer("EditorLayer")
 	{
 		m_guiTree.registerViewport(MakeShared<SceneViewport>("Viewport"));
 		m_guiTree.registerWindow(new EditorConsole("Console"));
 		m_guiTree.registerWindow(new PrimitivesPanel("Add Primitives"));
-		m_guiTree.registerWindow(new PrimitivesPanel("Inspector"));
+		m_guiTree.registerWindow(new UsefulToolsWindow("Tools"));
+
+		auto& stats = renderer::Renderer::getStats();
+		m_guiTree.registerWindow(new PerformanceWindow("Performance", stats));
 	}
 
 	void EditorLayer::loadModel()
@@ -20,10 +24,17 @@ namespace VoxelEditor::gui
 		string filepath = utils::FileDialog::openFile(".obj");
 		if (!filepath.empty()) 
 		{
+			if (m_loadedMesh)
+			{
+				EditorConsole::warn("Unregistering loaded mesh...");
+				m_scene->unregisterMesh(m_loadedMesh);
+			}
+
 			EditorConsole::info("Attempting to load a resource '{0}'.", filepath);
 			auto& mesh = assets::AssetsProvider::loadObjMesh(filepath);
 			EditorConsole::warn("Loaded .obj file '{0}' [vertices: {1}; indices: {2}].", filepath, mesh->vertexCount(), mesh->indexCount());
 			m_scene->registerMesh(mesh);
+			m_loadedMesh = mesh;
 		}
 	}
 
@@ -33,6 +44,7 @@ namespace VoxelEditor::gui
 		if (!filepath.empty())
 		{
 			Application::getImGuiLayer()->saveLayout(filepath);
+			EditorConsole::info("ImGui layout saved.");
 		}
 	}
 
@@ -87,12 +99,6 @@ namespace VoxelEditor::gui
 				ImGui::MenuItem("Console");
 				ImGui::MenuItem("Viewport");
 
-				ImGui::Separator();
-				if (ImGui::MenuItem("Performance"))
-				{
-					show_performance = true;
-				}
-
 				ImGui::MenuItem("Editor Settings");
 
 				ImGui::EndMenu();
@@ -107,47 +113,7 @@ namespace VoxelEditor::gui
 			ImGui::EndMenuBar();
 		}
 	}
-	void EditorLayer::drawRenderPerformance()
-	{
-		ImGuiWindowFlags flags = ImGuiWindowFlags_::ImGuiWindowFlags_NoCollapse;
-		if (show_performance && ImGui::Begin("Performance", &show_performance, flags))
-		{
-			auto stats = renderer::Renderer::getStats();
-
-			if (ImGui::CollapsingHeader("Statistics", ImGuiTreeNodeFlags_DefaultOpen))
-			{
-				ImGui::BeginColumns("##statistics", 2);
-				ImGui::Text("Draw Calls: %d", stats.frameStats.drawCalls);
-				ImGui::Text("Triangles: %d", stats.frameStats.triangles);
-				ImGui::Text("Vertices: %d", stats.frameStats.vertices);
-				ImGui::Text("Indices: %d", stats.frameStats.indices);
-				ImGui::Text("Instances: %d", stats.frameStats.instances);
-
-				ImGui::Text("Batches: %d", 0);
-				ImGui::EndColumns();
-
-				ImGui::Separator();
-
-				ImGui::Text("Rendering: %.3f ms/frame (%i FPS)", stats.deltaTime * 1000.0f, stats.fps);
-			}
-
-			if (ImGui::CollapsingHeader("Memory"))
-			{
-				ImGui::Text("Textures Memory: %d MB", 0);
-				ImGui::Text("Voxels Memory: %d MB", 0);
-				
-				ImGui::BeginGroup();
-				ImGui::AlignTextToFramePadding();
-				ImGui::Text("Memory Usage:");
-				ImGui::SameLine();
-				ImGui::ProgressBar(0.6f, ImVec2(0,0), "0 MB / 1000 MB");
-				ImGui::EndGroup();
-			}
-
-			ImGui::End();
-		}
-	}
-
+	
 	void EditorLayer::onAttach()
 	{				  
 		m_scene = MakeShared<Scene>();
@@ -160,8 +126,9 @@ namespace VoxelEditor::gui
 	}				  
 	void EditorLayer::onUpdate(const VoxelEngine::Timestep& ts)
 	{
+		m_guiTree.onUpdate(ts);
+		
 		const auto& viewport = m_guiTree.getViewport();
-		viewport->update(ts);
 		m_scene->update(ts, *viewport->m_camera.get());
 	}
 	void EditorLayer::onFixedUpdate(const VoxelEngine::Timestep& ts)
@@ -170,56 +137,17 @@ namespace VoxelEditor::gui
 	}
 	void EditorLayer::onImGuiRender()
 	{
-		static bool dockspaceOpen = true;
-		static bool opt_fullscreen_persistant = true;
-		static bool opt_fullscreen = true;
-
-		// Full-size
-		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
-		ImGuiWindowFlags flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoBackground;
-		if (opt_fullscreen)
+		static bool show = true;
+		if (m_guiTree.showDockSpace(&show))
 		{
-			ImGuiViewport* viewport = ImGui::GetMainViewport();
-			ImGui::SetNextWindowPos(viewport->Pos);
-			ImGui::SetNextWindowSize(viewport->Size);
-			ImGui::SetNextWindowViewport(viewport->ID);
-			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-			ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-			flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-			flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+			drawMenuBar();
+			m_guiTree.onImGuiRender();		
+			ImGui::End();
 		}
-
-		// When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background and handle the pass-thru hole, so we ask Begin() to not render a background.
-		if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
-			flags |= ImGuiWindowFlags_NoBackground;
-
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-		ImGui::Begin("DockSpace Demo", &dockspaceOpen, flags);
-		ImGui::PopStyleVar();
-
-		if (opt_fullscreen)
-			ImGui::PopStyleVar(2);
-
-		ImGuiIO& io = ImGui::GetIO();
-		ImGuiStyle& style = ImGui::GetStyle();
-		float minWinSizeX = style.WindowMinSize.x;
-		style.WindowMinSize.x = 100.0f;
-		if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
-		{
-			ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
-		}
-		style.WindowMinSize.x = minWinSizeX;
-
-		drawMenuBar();
-		m_guiTree.onImGuiRender();
-		drawRenderPerformance();
-
-		ImGui::End();
-
+		
 		if (show_demo_window)
 			ImGui::ShowDemoWindow(&show_demo_window);
-	}				  
+	}			  
 	void EditorLayer::onEvent(input::Event& e)
 	{
 		switch (e.eventType())

@@ -2,11 +2,13 @@
 #include <imgui.h>
 #include <core/Base.h>
 #include <core/PrimitiveTypes.h>
+#include <core/Timestep.h>
 #include <core/input/events/EventDispatcher.h>
+#include <core/NonCopyable.h>
 
 namespace VoxelEngine
 {
-	class ImguiWindow
+	class ImguiWindow : public NonCopyable
 	{
 	private:
 		bool m_visible = true;
@@ -18,6 +20,7 @@ namespace VoxelEngine
 		input::EventDispatcher m_eventDispatcher;
 	public:
 		ImguiWindow(const string& title = "Window");
+		virtual ~ImguiWindow() = default;
 
 		INLINE const bool& isVisible() const { return m_visible; }
 		INLINE const bool& isHovered() const { return m_hovered; }
@@ -49,6 +52,7 @@ namespace VoxelEngine
 		virtual void onBegin() { }
 		virtual void onEnd() { }
 		virtual void onToolbar(const bool& hovered) { }
+		virtual void update(const Timestep& ts) { }
 	};
 
 	template<typename TEvent>

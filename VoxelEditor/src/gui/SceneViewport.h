@@ -16,11 +16,6 @@ namespace VoxelEditor::gui
 		UniqueRef<components::camera::EditorCameraController> m_camera;
 
 		SceneViewport(const string& title);
-		~SceneViewport() noexcept = default;
-		SceneViewport(SceneViewport const&) noexcept = delete;
-		SceneViewport(SceneViewport&&) noexcept = delete;
-		SceneViewport& operator=(SceneViewport const& rhs) noexcept = delete;
-		SceneViewport& operator=(SceneViewport&& rhs) noexcept = delete;
 
 		INLINE const bool wantCaptureKeyboard() const override;
 		INLINE const bool wantCaptureMouse() const override;
@@ -33,6 +28,6 @@ namespace VoxelEditor::gui
 		void onBegin() override;
 		void onImGuiRender() override;
 		void onEnd() override;
-		void update(const Timestep& ts);
+		void update(const Timestep& ts) override;
 	};
 }

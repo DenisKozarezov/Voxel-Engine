@@ -17,9 +17,6 @@ namespace VoxelEngine::components::camera
 		const float velocity = m_movementSpeed * deltaTime;
 		m_lerpT = std::clamp(m_lerpT + deltaTime, 0.0f, 1.0f);
 
-		if (m_lerpT > 1.0f)
-			m_lerpT = 1.0f;
-
 		glm::vec3 cameraDir;
 
 		switch (direction)

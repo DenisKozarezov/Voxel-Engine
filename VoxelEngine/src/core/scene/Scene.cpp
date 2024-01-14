@@ -5,8 +5,7 @@
 #include <components/mesh/MeshPrimitives.h>
 #include <vulkan/vkUtils/VulkanMaterials.h>
 
-#define TEST_INSTANCED_MESH 1
-#define TEST_RAYMARCHING 0
+#define TEST_INSTANCED_MESH 0
 
 namespace VoxelEngine
 {
@@ -27,8 +26,8 @@ namespace VoxelEngine
 
 		auto VModelMesh1 = VModel::Sphere(15.0f, { 30, 30, 25 }, { 50, 50, 50 });
 		auto VModelMesh2 = VModel::Torus(15.0f, 10.0f, { 25, 25, 25 }, { 50, 50, 50 });
-		auto VModelMesh3 = VModel::Plane({ 22, 28, 18 }, {22, 27, 22}, { 28, 26, 16 }, { 50, 50, 50 });
-		auto result = VModel::Operations::Sum(VModelMesh2, VModelMesh3);
+		auto VModelMesh3 = VModel::Plane({ 22, 28, 18 }, { 22, 27, 22 }, { 28, 26, 16 }, { 50, 50, 50 });
+		auto result = VModel::Operations::Sum(VModelMesh1, VModelMesh3);
 		auto points = result.GetPoints();
 		instancesCount = static_cast<uint32>(points.size());
 
@@ -46,33 +45,37 @@ namespace VoxelEngine
 
 	void Scene::release()
 	{
-		meshes.loadedModel.reset();
+		std::for_each(objects.begin(), objects.end(), [&](SharedRef<Mesh>& mesh) {
+			unregisterMesh(mesh);
+			});
 		delete meshes.svo;
 	}
 	Scene::Scene()
 	{
-		meshes.editorGrid = renderer::mesh::QuadMesh();
+		auto editorGrid = renderer::mesh::QuadMesh();
 
-		auto* vertices = meshes.editorGrid.vertices.data();
-		auto* indices = meshes.editorGrid.indices.data();
-		uint32 vertexCount = meshes.editorGrid.vertexCount();
-		uint32 indexCount = meshes.editorGrid.indexCount();
+		auto* vertices = editorGrid.vertices.data();
+		auto* indices = editorGrid.indices.data();
+		uint32 vertexCount = editorGrid.vertexCount();
+		uint32 indexCount = editorGrid.indexCount();
 
-		meshes.editorGrid.vertexBuffer = VoxelEngine::renderer::VertexBuffer::Allocate(vertices, vertexCount * sizeof(renderer::Vertex));
-		meshes.editorGrid.indexBuffer = VoxelEngine::renderer::IndexBuffer::Allocate(indices, indexCount * sizeof(uint32));
-		meshes.editorGrid.material = utils::getMaterial("editor_grid");	
+		editorGrid.vertexBuffer = VoxelEngine::renderer::VertexBuffer::Allocate(vertices, vertexCount * sizeof(renderer::Vertex));
+		editorGrid.indexBuffer = VoxelEngine::renderer::IndexBuffer::Allocate(indices, indexCount * sizeof(uint32));
+		editorGrid.material = utils::getMaterial("editor_grid");
 
-		input::EventDispatcher::registerEvent<input::MeshLoadedEvent>(BIND_CALLBACK(onMeshLoaded));
+		meshes.editorGrid = std::move(editorGrid);
 
 #if TEST_INSTANCED_MESH
 		prepareTestInstancedMesh();
 		materials.solid = utils::getMaterial("solid_instanced");
 		materials.wireframe = utils::getMaterial("wireframe_instanced");
 		materials.normals = utils::getMaterial("normals_instanced");
-#endif
-
-#if TEST_RAYMARCHING
-		materials.raymarchQuad = utils::getMaterial("raymarch_quad");
+		materials.normals = utils::getMaterial("normals_lines_instanced");
+#else
+		materials.solid = utils::getMaterial("solid");
+		materials.wireframe = utils::getMaterial("wireframe");
+		materials.normals = utils::getMaterial("normals");
+		materials.normalsLines = utils::getMaterial("normals_lines");
 #endif
 	}
 	Scene::~Scene()
@@ -85,11 +88,7 @@ namespace VoxelEngine
 		release();
 
 		auto& mesh = e.getLoadedMesh();
-		meshes.loadedModel = mesh;
 		meshes.svo = new Octree(mesh, 3);
-		materials.solid = utils::getMaterial("solid");
-		materials.wireframe = utils::getMaterial("wireframe");
-		materials.normals = utils::getMaterial("normals");
 		return true;
 	}
 
@@ -102,14 +101,13 @@ namespace VoxelEngine
 		renderScene();
 
 		renderer::Renderer::postRender();
+
+		renderer::Renderer::flushStats();
 	}
 	void Scene::renderScene()
 	{
-#if TEST_RAYMARCHING
-		renderer::RenderCommand::draw(materials.raymarchQuad, 3);
-#endif
 		auto& renderSettings = renderer::Renderer::getRenderSettings();
-		
+
 		if (renderSettings.showEditorGrid)
 		{
 			renderer::RenderCommand::drawMeshIndexed(meshes.editorGrid);
@@ -134,23 +132,35 @@ namespace VoxelEngine
 		utils::Gizmos::drawWireframeCube({ 25, 25, 25 }, { 50, 50, 50 });
 #endif
 
-		if (meshes.loadedModel)
+		if (objects.size() > 0)
 		{
-			switch (renderSettings.renderMode)
+			for (const auto& mesh : objects)
 			{
-			case renderer::Solid:
-				meshes.loadedModel->material = materials.solid;
-				break;
-			case renderer::Wireframe:
-				meshes.loadedModel->material = materials.wireframe;
-				break;
-			case renderer::Normals:
-				meshes.loadedModel->material = materials.normals;
-				break;
-			}
-			renderer::RenderCommand::drawMeshIndexed(*meshes.loadedModel.get());
+				switch (renderSettings.renderMode)
+				{
+				case renderer::Solid:
+					mesh->material = materials.solid;
+					break;
+				case renderer::Wireframe:
+					mesh->material = materials.wireframe;
+					break;
+				case renderer::Normals:
+					mesh->material = materials.normals;
+					break;
+				}
 
-			if (meshes.svo && renderSettings.showOctree)
+				if (!mesh->material->instanced())
+					renderer::RenderCommand::drawMeshIndexed(*mesh.get());
+
+				if (renderSettings.showNormalsLines)
+				{
+					mesh->material = materials.normalsLines;
+					renderer::RenderCommand::drawMeshIndexed(*mesh.get());
+				}
+			}
+
+
+			/*if (meshes.svo && renderSettings.showOctree)
 			{
 				meshes.svo->traverse([&](OctreeNode* node)
 				{
@@ -160,9 +170,33 @@ namespace VoxelEngine
 					glm::vec3 dimensions = node->bounds.max() - node->bounds.min();
 					utils::Gizmos::drawWireframeCube(node->bounds.min() + dimensions * 0.5f, dimensions);
 				});
-			}
+			}*/
 		}
 
 		renderer::Renderer::render();
+	}
+	void Scene::registerMesh(const SharedRef<Mesh>& mesh)
+	{
+		const auto i = std::find(objects.begin(), objects.end(), mesh);
+		if (i != objects.end())
+		{
+			VOXEL_CORE_ERROR("Unable to register a new mesh! There is a duplicate.");
+		}
+		else
+		{
+			objects.emplace_back(mesh);
+		}
+	}
+	void Scene::unregisterMesh(const SharedRef<Mesh>& mesh)
+	{
+		const auto i = std::find(objects.begin(), objects.end(), mesh);
+		if (i == objects.end())
+		{
+			return;
+		}
+		else
+		{
+			objects.erase(i);
+		}
 	}
 }

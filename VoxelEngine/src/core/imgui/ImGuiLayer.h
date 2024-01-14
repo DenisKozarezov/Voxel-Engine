@@ -23,7 +23,8 @@ namespace VoxelEngine::renderer
 		void preRender();
 		void postRender();
 		void setStyle(const ColorStyle& style) const;
-		inline void blockEvents(const bool& block) { m_blockEvents = block; }
+		void saveLayout(const string& filepath);
+		INLINE void blockEvents(const bool& block) { m_blockEvents = block; }
 
 		~ImGuiLayer() = default;
 	};

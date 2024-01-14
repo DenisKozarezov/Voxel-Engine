@@ -2,7 +2,7 @@
 #include "input/events/ApplicationEvent.h"
 #include "input/events/EventDispatcher.h"
 #include "LayerStack.h"
-#include "renderer/Renderer.h"
+#include "Window.h"
 #include "imgui/ImGuiLayer.h"
 
 struct ApplicationCommandLineArgs
@@ -45,6 +45,7 @@ namespace VoxelEngine
 		renderer::LayerStack m_layerStack;
 		bool m_running = false;
 		bool m_minimized = false;
+		input::EventDispatcher m_eventDispatcher;
 
 		uint32 m_frameCounter = 0;
 		uint32 m_lastFPS = 0;
@@ -55,6 +56,7 @@ namespace VoxelEngine
 		static constexpr double fixedDeltaTime = 1 / 60.0f;
 
 		static Application* s_instance;
+		static renderer::ImGuiLayer* s_imguiLayer;
 
 		void setupInputCallbacks();
 		void nextFrame();
@@ -74,7 +76,8 @@ namespace VoxelEngine
 		Application& operator=(Application const& rhs) noexcept = delete;
 		Application& operator=(Application&& rhs) noexcept = delete;
 
-		INLINE static Application& getInstance() { return *s_instance; }
+		INLINE static Application* getInstance() { return s_instance; }
+		INLINE static renderer::ImGuiLayer* getImGuiLayer() { return s_imguiLayer; }
 		INLINE const float& getDeltaTime() const { return m_frameTimer; }
 		INLINE const uint32& getFPS() const { return m_lastFPS; }
 		INLINE const UniqueRef<Window>& getWindow() const { return m_window; }
@@ -83,6 +86,6 @@ namespace VoxelEngine
 		void run();
 		void shutdown();
 
-		virtual ~Application() = default;
+		virtual ~Application();
 	};
 }

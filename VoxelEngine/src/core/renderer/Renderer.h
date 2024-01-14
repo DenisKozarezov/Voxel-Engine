@@ -15,14 +15,17 @@ namespace VoxelEngine::renderer
 		float deltaTime;
 	};
 
-	class Renderer
+	static class Renderer
 	{
 	private:
-		static UniqueRef<utils::GizmosAPI> s_gizmosAPI;
+		static utils::GizmosAPI* s_gizmosAPI;
+		static RenderPerformanceStats s_renderPerformanceStats;
 	public:
 		static RenderSettings& getRenderSettings();
 		static const RenderPerformanceStats& getStats();
 		static void resetStats();
+		static void flushStats();
+		
 		static void init(const Window& window);
 		static void preRender(const components::camera::Camera& camera);
 		static void render();

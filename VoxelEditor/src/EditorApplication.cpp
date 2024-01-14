@@ -3,12 +3,12 @@
 
 namespace VoxelEditor
 {
-	class EditorApplication final : public VoxelEngine::Application
+	class EditorApplication final : public Application
 	{
 	public:
 		EditorApplication(const ApplicationSpecification& spec) : Application(spec)
 		{
-			pushLayer(new EditorLayer());
+			pushLayer(new gui::EditorLayer());
 		}
 		EditorApplication(const EditorApplication&) noexcept = delete;
 		EditorApplication(EditorApplication&&) noexcept = delete;
@@ -16,7 +16,7 @@ namespace VoxelEditor
 	};
 }
 
-UniqueRef<VoxelEngine::Application> CreateApplication(ApplicationCommandLineArgs args)
+UniqueRef<Application> CreateApplication(ApplicationCommandLineArgs args)
 {
 	ApplicationSpecification spec;
 	spec.ApplicationName = PROJECT_NAME;

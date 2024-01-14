@@ -15,6 +15,12 @@ namespace VoxelEngine::renderer
 			if (layoutPath.empty())
 				throw std::exception("Invalid path for ImGui layout!");
 
+			if (!std::filesystem::exists(layoutPath))
+			{
+				string error = "Unable to find an ImGui layout at path: " + layoutPath;
+				throw std::exception(error.c_str());
+			}
+			
 			VOXEL_CORE_TRACE("Loading ImGui layout at path: {0}...", layoutPath);
 			ImGui::LoadIniSettingsFromDisk(layoutPath.c_str());
 		}
@@ -22,8 +28,13 @@ namespace VoxelEngine::renderer
 		{
 			VOXEL_CORE_CRITICAL(e.what());
 			VOXEL_CORE_WARN("Loading ImGui default layout...");
-			ImGui::LoadIniSettingsFromDisk(NULL);
+			ImGui::LoadIniSettingsFromDisk(nullptr);
 		}
+	}
+
+	void ImGuiLayer::saveLayout(const string& filepath)
+	{
+		ImGui::SaveIniSettingsToDisk(filepath.c_str());
 	}
 
 	void ImGuiLayer::onAttach()

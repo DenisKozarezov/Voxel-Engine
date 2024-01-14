@@ -14,7 +14,7 @@ namespace VoxelEngine::renderer
 		VOXEL_CORE_ASSERT(x >= 0 && y >= 0, "invalid viewport size!");
 		s_renderer->setViewport(x, y, width, height);
 	}
-	void RenderCommand::setClearColor(const glm::vec4 color)
+	void RenderCommand::setClearColor(const glm::vec4& color)
 	{
 		s_renderer->setClearColor(color);
 	}

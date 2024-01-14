@@ -1,17 +1,17 @@
 #pragma once
-#include "SceneView.h"
-#include "EditorConsole.h"
+#include "gui/GuiTree.h"
 
-namespace VoxelEditor
+namespace VoxelEditor::gui
 {
 	class EditorLayer : public renderer::Layer
 	{
 	private:
+		GuiTree m_guiTree;
+		SharedRef<components::mesh::Mesh> m_loadedMesh;
 		SharedRef<Scene> m_scene;
-		SceneView m_sceneView;
-		EditorConsole m_console;
 
 		void loadModel();
+		void saveLayout();
 		void drawMenuBar();
 		void drawRenderPerformance();
 	public:

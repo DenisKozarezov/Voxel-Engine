@@ -1,10 +1,12 @@
 #include "Application.h"
+#include "input/events/EventDispatcher.h"
+#include "renderer/Renderer.h"
 #include <core/utils/EnumUtils.h>
 
 namespace VoxelEngine
 {
 	Application* Application::s_instance = 0;
-	static renderer::ImGuiLayer* s_imguiLayer = nullptr;
+	renderer::ImGuiLayer* Application::s_imguiLayer = nullptr;
 
 	Application::Application(const ApplicationSpecification& spec) : m_specification(spec)
 	{
@@ -77,10 +79,16 @@ namespace VoxelEngine
 		renderer::Renderer::shutdown();
 	}
 
+	Application::~Application()
+	{
+		m_eventDispatcher.unregisterEvent<input::WindowCloseEvent>();
+		m_eventDispatcher.unregisterEvent<input::WindowResizeEvent>();
+	}
+
 	void Application::setupInputCallbacks()
 	{
-		input::EventDispatcher::registerEvent<input::WindowCloseEvent>(BIND_CALLBACK(onWindowClose));
-		input::EventDispatcher::registerEvent<input::WindowResizeEvent>(BIND_CALLBACK(onWindowResize));
+		m_eventDispatcher.registerEvent<input::WindowCloseEvent>(BIND_CALLBACK(onWindowClose));
+		m_eventDispatcher.registerEvent<input::WindowResizeEvent>(BIND_CALLBACK(onWindowResize));
 	}
 	void Application::nextFrame()
 	{
@@ -123,7 +131,7 @@ namespace VoxelEngine
 	}
 	void Application::onEvent(input::Event& e)
 	{
-		input::EventDispatcher::dispatchEvent(e, std::launch::async);
+		m_eventDispatcher.dispatchEvent(e, std::launch::async);
 		m_layerStack.onEvent(e);
 	}
 	bool Application::onWindowClose(const input::WindowCloseEvent& e)

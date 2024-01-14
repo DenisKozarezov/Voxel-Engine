@@ -1,5 +1,6 @@
 #pragma once
 #include <core/utils/ShaderLexer.h>
+#include <vulkan/vulkan.h>
 
 namespace vkUtils
 {

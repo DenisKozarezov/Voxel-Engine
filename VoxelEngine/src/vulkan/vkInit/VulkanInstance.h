@@ -1,7 +1,5 @@
 #pragma once
 #include <GLFW/glfw3.h>
-#include <sstream>
-#include <vector>
 #include <version.h>
 #include "../vkUtils/VulkanValidation.h"
 

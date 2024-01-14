@@ -2,7 +2,6 @@
 #include <algorithm>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/ext/matrix_clip_space.hpp>
 #include <core/PrimitiveTypes.h>
 #include <core/Base.h>
 
@@ -41,14 +40,31 @@ namespace VoxelEngine::components::camera
 		virtual INLINE const glm::mat4 viewMatrix() const = 0;
 		virtual INLINE const glm::mat4 projectionMatrix() const = 0;
 
-		INLINE void setAspectRatio(const float& aspectRatio) { m_aspectRatio = aspectRatio; }
-		INLINE void setPosition(const glm::vec3& position) { m_position = position; }
-		INLINE void setClips(const float& nearClip, const float& farClip) { m_nearClip = nearClip, m_farClip = farClip; }
-		INLINE void setSpeed(const float& speed) { m_movementSpeed = speed; }
+		INLINE void setAspectRatio(const float& aspectRatio);
+		INLINE void setPosition(const glm::vec3& position);
+		INLINE void setClips(const float& nearClip, const float& farClip);
+		INLINE void setSpeed(const float& speed);
 
 		virtual void processKeyboard(const CameraMovement& direction, const float& deltaTime) = 0;
 		virtual void processMouse(const float& xOffset, const float& yOffset, const bool& constrainPitch = true) = 0;
 	
 		virtual ~Camera() noexcept = default;
 	};
+
+	INLINE void Camera::setAspectRatio(const float& aspectRatio)
+	{
+		m_aspectRatio = aspectRatio;
+	}
+	INLINE void Camera::setPosition(const glm::vec3& position)
+	{
+		m_position = position;
+	}
+	INLINE void Camera::setClips(const float& nearClip, const float& farClip)
+	{
+		m_nearClip = nearClip, m_farClip = farClip;
+	}
+	INLINE void Camera::setSpeed(const float& speed)
+	{
+		m_movementSpeed = speed;
+	}
 }

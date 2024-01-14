@@ -3,8 +3,8 @@
 
 namespace VoxelEngine::renderer
 {
-    static RenderPerformanceStats s_renderPerformanceStats;
-    UniqueRef<utils::GizmosAPI> Renderer::s_gizmosAPI = nullptr;
+    RenderPerformanceStats Renderer::s_renderPerformanceStats;
+    utils::GizmosAPI* Renderer::s_gizmosAPI = nullptr;
 
     RenderSettings& Renderer::getRenderSettings()
     {
@@ -12,23 +12,28 @@ namespace VoxelEngine::renderer
     }
     const RenderPerformanceStats& Renderer::getStats()
     {
-        auto& app = Application::getInstance();
-        s_renderPerformanceStats.deltaTime = app.getDeltaTime();
-        s_renderPerformanceStats.fps = app.getFPS();
-        s_renderPerformanceStats.frameStats = vulkan::getFrameStats();
         return s_renderPerformanceStats;
     }
     void Renderer::resetStats()
     {
         vulkan::resetFrameStats();
     }
+
+    void Renderer::flushStats()
+    {
+        auto* app = Application::getInstance();
+        s_renderPerformanceStats.deltaTime = app->getDeltaTime();
+        s_renderPerformanceStats.fps = app->getFPS();
+        s_renderPerformanceStats.frameStats = vulkan::getFrameStats();
+    }
+
     void Renderer::init(const Window& window)
     {
         VOXEL_CORE_WARN("Renderer initialization.");
                        
         RenderCommand::init(window);
 
-        s_gizmosAPI = utils::GizmosAPI::Create();
+        s_gizmosAPI = utils::GizmosAPI::getInstance();
     }
     void Renderer::preRender(const components::camera::Camera& camera)
     {
@@ -60,7 +65,7 @@ namespace VoxelEngine::renderer
     }
     void Renderer::shutdown()
     {
-        s_gizmosAPI.reset();
+        delete s_gizmosAPI;
         vulkan::cleanup();
     }
 }

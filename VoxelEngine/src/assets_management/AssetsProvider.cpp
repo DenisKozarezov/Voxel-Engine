@@ -13,11 +13,10 @@ namespace assets
 
     const TextureData AssetsProvider::loadTexture(const string& path, ImageColorFormat req_comp)
     {
-        TextureData data;
-        
+        TextureData data;        
         data.m_nativePtr = stbi_load(path.c_str(), &data.m_width, &data.m_height, &data.m_texChannels, req_comp);
 
-        VOXEL_CORE_ASSERT(data.isValid(), "failed to load texture image on path '" + path + "'")
+        VOXEL_CORE_ASSERT(data.isValid(), "failed to load texture image on path '" + path + "'");
 
         return data;
     }

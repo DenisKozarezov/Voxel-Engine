@@ -26,6 +26,7 @@
 #include <array>
 #include <initializer_list>
 #include <stdexcept>
+#include <algorithm>
 #include <functional>
 #include <map>
 #include <set>

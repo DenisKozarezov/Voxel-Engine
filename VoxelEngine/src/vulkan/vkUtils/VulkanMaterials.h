@@ -38,7 +38,7 @@ namespace vkUtils
 		VkPipeline pipeline = VK_NULL_HANDLE;
 		VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
 
-		VulkanMaterial() noexcept = default;
+		VulkanMaterial(const bool& instanced = false) noexcept : VoxelEngine::components::mesh::IMaterial(instanced) { }
 		~VulkanMaterial() noexcept = default;
 
 		void bind() const override;
@@ -47,7 +47,7 @@ namespace vkUtils
 
 	using MaterialsCache = std::unordered_map<string, VulkanMaterial>;
 	
-	const VulkanMaterial* createMaterial(const VkPipeline& matPipeline, const VkPipelineLayout& matLayout, const string& matName);
+	const VulkanMaterial* createMaterial(const VkPipeline& matPipeline, const VkPipelineLayout& matLayout, const string& matName, const bool& instanced = false);
 	
 	const VulkanMaterial* getMaterial(const string& matName);
 

@@ -2,7 +2,6 @@
 #include <functional>
 #include <typeinfo>
 #include <future>
-#include <core/Base.h>
 #include <core/input/events/Event.h>
 
 namespace VoxelEngine::input
@@ -16,7 +15,7 @@ namespace VoxelEngine::input
     template<typename T, typename F>
     concept is_event_func = requires(T t, F && f)
     {
-        requires is_event<T> && std::invocable<F>;
+        requires is_event<T> && std::invocable<F&, const T&>;
         { f(t) } -> std::same_as<bool>;
     };
 
@@ -31,14 +30,13 @@ namespace VoxelEngine::input
         virtual INLINE std::future<void> invoke_async(input::Event& arg, const std::launch& launch) = 0;
     };
 
-    template <typename TEvent>
+    template <typename TEvent, typename TFunc>
+    requires is_event_func<TEvent, TFunc>
     class EventHandler : public IEventHandler
     {
     public:
-        using Callback = std::function<bool(TEvent&)>;
-
         EventHandler() noexcept = delete;
-        explicit EventHandler(const Callback& cb) : m_cbFunc(cb) 
+        explicit EventHandler(TFunc cb) : m_cbFunc(cb)
         {
             m_eventType = typeid(TEvent).hash_code();
         }       
@@ -95,6 +93,6 @@ namespace VoxelEngine::input
         }
     private:
         size_t m_eventType;
-        Callback const m_cbFunc;
+        TFunc const m_cbFunc;
     };
 }

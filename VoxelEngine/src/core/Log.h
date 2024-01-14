@@ -1,6 +1,6 @@
 #pragma once
 #include <spdlog/spdlog.h>
-#include <core/PrimitiveTypes.h>
+#include "PrimitiveTypes.h"
 #include "Base.h"
 
 namespace VoxelEngine

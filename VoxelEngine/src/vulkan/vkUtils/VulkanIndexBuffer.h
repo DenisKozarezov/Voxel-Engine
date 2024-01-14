@@ -19,7 +19,7 @@ namespace vkUtils
 		VulkanIndexBuffer(VulkanIndexBuffer&& rhs) noexcept;
 		VulkanIndexBuffer& operator=(const VulkanIndexBuffer& rhs);
 		VulkanIndexBuffer& operator=(VulkanIndexBuffer&& rhs);
-		~VulkanIndexBuffer();
+		~VulkanIndexBuffer() override;
 
 		INLINE operator const VkBuffer&() const & { return m_indexBuffer.buffer; }
 

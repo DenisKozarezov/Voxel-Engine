@@ -75,19 +75,16 @@ namespace VoxelEditor::gui
             ImGui::PopStyleVar(2);
  
         // DockSpace
-        ImGuiIO& io = ImGui::GetIO();
+	    ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+	    ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+	    
+	    ImGuiIO& io = ImGui::GetIO();
 	    ImGuiStyle& style = ImGui::GetStyle();
+	    float minWinSizeX = style.WindowMinSize.x;
 	    style.WindowMinSize.x = 100.0f;
-        if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
-        {
-            ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-            ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
-        }
-        else
-        {
-            //ShowDockingDisabledMessage();
-        }
 
+	    style.WindowMinSize.x = minWinSizeX;
+	    
 	    return begin;
     }
 
@@ -97,8 +94,8 @@ namespace VoxelEditor::gui
         bool windowWantsMouse = false;
 
 		for (ImguiWindow* window : m_windows)
-		{
-            if (window->isVisible()) 
+		{		    
+            if (window->isVisible())
             {
                 bool toolbarHovered = false;
                 const bool isWindowVisible = window->begin();

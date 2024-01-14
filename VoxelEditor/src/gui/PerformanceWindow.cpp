@@ -7,9 +7,14 @@ namespace VoxelEditor::gui
         m_stats = &stats;
     }
 
-    const ImGuiWindowFlags& PerformanceWindow::flags() const
+    const ImGuiWindowFlags PerformanceWindow::flags() const
     {
-        return ImGuiWindowFlags_::ImGuiWindowFlags_NoCollapse;
+        return ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking;
+    }
+
+    void PerformanceWindow::onBegin()
+    {
+        ImGui::SetNextWindowBgAlpha(1.0f);
     }
 
     void PerformanceWindow::onImGuiRender()
@@ -43,7 +48,5 @@ namespace VoxelEditor::gui
             ImGui::ProgressBar(0.6f, ImVec2(0,0), "0 MB / 1000 MB");
             ImGui::EndGroup();
         }
-
-        ImGui::End();
     }
 }

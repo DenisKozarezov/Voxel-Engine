@@ -24,7 +24,7 @@ namespace VoxelEngine::input
             return ss.str();
         }
 
-        ~MouseButtonEvent() noexcept = default;
+        ~MouseButtonEvent() override = default;
     };
 
     class MouseMovedEvent final : public MouseButtonEvent
@@ -48,7 +48,7 @@ namespace VoxelEngine::input
 
         EVENT_CLASS_TYPE(MouseMoved)
 
-        ~MouseMovedEvent() noexcept = default;
+        ~MouseMovedEvent() override = default;
     };
 
     class MouseScrolledEvent final : public MouseButtonEvent
@@ -65,7 +65,7 @@ namespace VoxelEngine::input
 
         EVENT_CLASS_TYPE(MouseScrolled)
 
-        ~MouseScrolledEvent() noexcept = default;
+        ~MouseScrolledEvent() override = default;
     };
 
     class MouseButtonPressedEvent final : public MouseButtonEvent
@@ -76,7 +76,7 @@ namespace VoxelEngine::input
 
         EVENT_CLASS_TYPE(MouseButtonPressed)
 
-        ~MouseButtonPressedEvent() noexcept = default;
+        ~MouseButtonPressedEvent() override = default;
     };
 
     class MouseButtonReleasedEvent final : public MouseButtonEvent
@@ -87,6 +87,6 @@ namespace VoxelEngine::input
 
         EVENT_CLASS_TYPE(MouseButtonReleased)
 
-        ~MouseButtonReleasedEvent() noexcept = default;
+        ~MouseButtonReleasedEvent() override = default;
     };
 }

@@ -121,9 +121,9 @@ namespace VoxelEditor::gui
 		EditorConsole::info("Welcome to {0} {1}!", PROJECT_NAME, PROJECT_VERSION);
 	}				  
 	void EditorLayer::onDetach()
-	{				
+	{
 		
-	}				  
+	}
 	void EditorLayer::onUpdate(const VoxelEngine::Timestep& ts)
 	{
 		m_guiTree.onUpdate(ts);
@@ -141,7 +141,7 @@ namespace VoxelEditor::gui
 		if (m_guiTree.showDockSpace(&show))
 		{
 			drawMenuBar();
-			m_guiTree.onImGuiRender();		
+			m_guiTree.onImGuiRender();
 			ImGui::End();
 		}
 		

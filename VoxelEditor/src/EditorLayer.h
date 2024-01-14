@@ -13,10 +13,9 @@ namespace VoxelEditor::gui
 		void loadModel();
 		void saveLayout();
 		void drawMenuBar();
-		void drawRenderPerformance();
 	public:
 		EditorLayer();
-		~EditorLayer() = default;
+		~EditorLayer() override = default;
 
 		void onAttach() override;
 		void onDetach() override;

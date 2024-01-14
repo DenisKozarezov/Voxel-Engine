@@ -91,7 +91,7 @@ namespace VoxelEditor::gui
 		return true;
 	}
 
-	const ImGuiWindowFlags& SceneViewport::flags() const
+	const ImGuiWindowFlags SceneViewport::flags() const
 	{
 		return ImGuiWindowFlags_NoCollapse;
 	}

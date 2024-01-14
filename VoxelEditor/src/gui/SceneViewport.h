@@ -16,12 +16,13 @@ namespace VoxelEditor::gui
 		UniqueRef<components::camera::EditorCameraController> m_camera;
 
 		SceneViewport(const string& title);
-
+		~SceneViewport() override = default;
+		
 		INLINE const bool wantCaptureKeyboard() const override;
 		INLINE const bool wantCaptureMouse() const override;
 		bool onMousePressed(const input::MouseButtonPressedEvent& e);
 		bool onMouseReleased(const input::MouseButtonReleasedEvent& e);
-		const ImGuiWindowFlags& flags() const override;
+		const ImGuiWindowFlags flags() const override;
 
 		INLINE void setClearColor(const glm::vec4& clearColor);
 

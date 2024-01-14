@@ -7,7 +7,8 @@ namespace VoxelEditor::gui
 	{
 	public:
 		PrimitivesPanel(const string& title);
-
+		~PrimitivesPanel() override = default;
+		
 		void onImGuiRender() override;
 	};
 }

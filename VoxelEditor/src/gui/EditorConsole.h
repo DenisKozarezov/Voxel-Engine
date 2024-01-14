@@ -70,7 +70,7 @@ namespace VoxelEditor::gui
 			s_instance->addLog(LogEntry(spdlog::level::err, fmt, std::forward<Args>(args)...).str().c_str());
 		}
 
-		const ImGuiWindowFlags& flags() const override;
+		const ImGuiWindowFlags flags() const override;
 
 		void clear();
 		void onImGuiRender() override;

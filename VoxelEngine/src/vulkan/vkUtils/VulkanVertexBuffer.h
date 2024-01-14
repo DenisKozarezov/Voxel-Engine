@@ -19,7 +19,7 @@ namespace vkUtils
 		VulkanVertexBuffer(VulkanVertexBuffer&& rhs) noexcept;
 		VulkanVertexBuffer& operator=(const VulkanVertexBuffer& rhs);
 		VulkanVertexBuffer& operator=(VulkanVertexBuffer&& rhs) noexcept;
-		~VulkanVertexBuffer();
+		~VulkanVertexBuffer() override;
 
 		INLINE operator const VkBuffer&() const & { return m_vertexBuffer.buffer; }
 

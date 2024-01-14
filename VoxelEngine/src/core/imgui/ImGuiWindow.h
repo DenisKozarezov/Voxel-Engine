@@ -25,7 +25,7 @@ namespace VoxelEngine
 		INLINE const bool& isVisible() const { return m_visible; }
 		INLINE const bool& isHovered() const { return m_hovered; }
 		INLINE const string& title() const { return m_title; }
-		INLINE virtual const ImGuiWindowFlags& flags() const { return 0; }
+		INLINE virtual const ImGuiWindowFlags flags() const { return 0; }
 		virtual const bool hasToolbar() const { return false; }
 		virtual const bool wantCaptureKeyboard() const { return false; }
 		virtual const bool wantCaptureMouse() const { return false; }

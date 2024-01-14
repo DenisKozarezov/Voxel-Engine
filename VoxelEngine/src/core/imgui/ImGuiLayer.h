@@ -26,6 +26,6 @@ namespace VoxelEngine::renderer
 		void saveLayout(const string& filepath);
 		INLINE void blockEvents(const bool& block) { m_blockEvents = block; }
 
-		~ImGuiLayer() = default;
+		~ImGuiLayer() override = default;
 	};
 }

@@ -7,10 +7,11 @@ namespace VoxelEditor::gui
 	{
 	public:
 		NodeEditor(const string& title);
-
-		const ImGuiWindowFlags& flags() const override;
+		~NodeEditor() override = default;
 		
+		const ImGuiWindowFlags flags() const override;
+		
+		void onBegin() override;
 		void onImGuiRender() override;
-		void update(const Timestep& ts);
 	};
 }

@@ -36,7 +36,7 @@ namespace VoxelEngine::input
 
         EVENT_CLASS_TYPE(KeyPressed)
 
-        ~KeyPressedEvent() noexcept = default;
+        ~KeyPressedEvent() override = default;
     };
 
     class KeyReleasedEvent final : public KeyboardEvent
@@ -47,7 +47,7 @@ namespace VoxelEngine::input
 
         EVENT_CLASS_TYPE(KeyReleased)
 
-        ~KeyReleasedEvent() noexcept = default;
+        ~KeyReleasedEvent() override = default;
     };
 
     class KeyTypedEvent final : public KeyboardEvent
@@ -58,6 +58,6 @@ namespace VoxelEngine::input
 
         EVENT_CLASS_TYPE(KeyTyped)
 
-        ~KeyTypedEvent() noexcept = default;
+        ~KeyTypedEvent() override = default;
     };
 }

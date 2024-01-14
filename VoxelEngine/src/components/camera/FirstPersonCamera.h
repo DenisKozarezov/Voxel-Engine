@@ -21,7 +21,7 @@ namespace VoxelEngine::components::camera
 			const glm::vec3& up = glm::vec3(0.0f, 1.0f, 0.0f),
 			const float& yaw = defaultYaw,
 			const float& pitch = defaultPitch);
-		~FirstPersonCamera() noexcept = default;
+		~FirstPersonCamera() override = default;
 
 		INLINE const glm::mat4 viewMatrix() const override
 		{ 

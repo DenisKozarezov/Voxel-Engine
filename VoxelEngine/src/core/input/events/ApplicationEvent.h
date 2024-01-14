@@ -24,7 +24,7 @@ namespace VoxelEngine::input
         EVENT_CLASS_TYPE(WindowResize)
         EVENT_CLASS_CATEGORY(EventCategoryApplication)
 
-        ~WindowResizeEvent() noexcept = default;
+        ~WindowResizeEvent() override = default;
     };
 
     class WindowCloseEvent final : public Event
@@ -36,7 +36,7 @@ namespace VoxelEngine::input
         EVENT_CLASS_TYPE(WindowClose)
         EVENT_CLASS_CATEGORY(EventCategoryApplication)
 
-        ~WindowCloseEvent() noexcept = default;
+        ~WindowCloseEvent() override = default;
     };
 
     class ApplicationUpdateEvent final : public Event
@@ -47,7 +47,7 @@ namespace VoxelEngine::input
         EVENT_CLASS_TYPE(AppUpdate)
         EVENT_CLASS_CATEGORY(EventCategoryApplication)
 
-        ~ApplicationUpdateEvent() noexcept = default;
+        ~ApplicationUpdateEvent() override = default;
     };
 
     class MeshLoadedEvent final : public Event
@@ -66,6 +66,6 @@ namespace VoxelEngine::input
         EVENT_CLASS_TYPE(MeshLoaded)
         EVENT_CLASS_CATEGORY(EventCategoryApplication)
 
-        ~MeshLoadedEvent() noexcept = default;
+        ~MeshLoadedEvent() override = default;
     };
 }

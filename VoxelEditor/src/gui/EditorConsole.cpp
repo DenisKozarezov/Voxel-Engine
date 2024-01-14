@@ -24,7 +24,7 @@ namespace VoxelEditor::gui
             if (m_buffer[old_size] == '\n')
                 m_lineOffsets.push_back(old_size + 1);
     }
-    const ImGuiWindowFlags& EditorConsole::flags() const
+    const ImGuiWindowFlags EditorConsole::flags() const
     {
         return ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
     }

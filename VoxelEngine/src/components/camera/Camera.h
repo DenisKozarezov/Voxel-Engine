@@ -48,7 +48,7 @@ namespace VoxelEngine::components::camera
 		virtual void processKeyboard(const CameraMovement& direction, const float& deltaTime) = 0;
 		virtual void processMouse(const float& xOffset, const float& yOffset, const bool& constrainPitch = true) = 0;
 	
-		virtual ~Camera() noexcept = default;
+		virtual ~Camera() = default;
 	};
 
 	INLINE void Camera::setAspectRatio(const float& aspectRatio)

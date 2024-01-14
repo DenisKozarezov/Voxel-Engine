@@ -93,7 +93,7 @@ namespace vkUtils
 		shaderc::SpvCompilationResult module = compiler.CompileGlslToSpv(shaderProgram, kind, filepath, options);
 		VOXEL_CORE_ASSERT(module.GetCompilationStatus() == shaderc_compilation_status_success, module.GetErrorMessage());
 
-		VOXEL_CORE_WARN("Shader '{0}' ({1}) compilation time: {2} ms.", filepath, shaderStageString(stage), timer.elapsedTimeInMilliseconds());
+		VOXEL_CORE_WARN("Shader '{0}' ({1}) compilation time: {2} ms.", filepath, shaderStageString(stage), timer.elapsedTimeInMilliseconds<double>());
 
 		return std::vector<uint32>(module.cbegin(), module.cend());
 	}
@@ -186,7 +186,7 @@ namespace vkUtils
 			{
 				createShader(stage, spirv);
 			}
-			VOXEL_CORE_WARN("Shader '{0}' creation time: {1} ms.", filepath, timer.elapsedTimeInMilliseconds());
+			VOXEL_CORE_WARN("Shader '{0}' creation time: {1} ms.", filepath, timer.elapsedTimeInMilliseconds<double>());
 		}
 	}
 	void VulkanShader::unbind() const

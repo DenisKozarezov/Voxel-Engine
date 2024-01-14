@@ -26,7 +26,7 @@ namespace vkUtils
 
 		void unbind() const override;
 
-		~VulkanShader();
+		~VulkanShader() override;
 	};
 }
 

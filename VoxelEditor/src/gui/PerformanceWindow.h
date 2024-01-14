@@ -9,9 +9,11 @@ namespace VoxelEditor::gui
         const renderer::RenderPerformanceStats* m_stats;
     public:
         PerformanceWindow(const string& title, const renderer::RenderPerformanceStats& stats);
-
-        const ImGuiWindowFlags& flags() const override;
+        ~PerformanceWindow() override = default;
         
+        const ImGuiWindowFlags flags() const override;
+
+        void onBegin() override;
         void onImGuiRender() override;
     };
 }

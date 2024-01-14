@@ -39,7 +39,7 @@ namespace vkUtils
 		VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
 
 		VulkanMaterial(const bool& instanced = false) noexcept : VoxelEngine::components::mesh::IMaterial(instanced) { }
-		~VulkanMaterial() noexcept = default;
+		~VulkanMaterial() override = default;
 
 		void bind() const override;
 		void bind(const VkCommandBuffer& commandBuffer, const VkDescriptorSet& descriptorSet) const;

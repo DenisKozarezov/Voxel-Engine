@@ -12,7 +12,7 @@ namespace VoxelEditor
 		}
 		EditorApplication(const EditorApplication&) noexcept = delete;
 		EditorApplication(EditorApplication&&) noexcept = delete;
-		~EditorApplication() noexcept = default;
+		~EditorApplication() override = default;
 	};
 }
 

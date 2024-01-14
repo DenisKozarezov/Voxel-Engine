@@ -7,7 +7,8 @@ namespace VoxelEditor::gui
     {
     public:
         UsefulToolsWindow(const string& title);
-
+        ~UsefulToolsWindow() override = default;
+        
         void onImGuiRender() override;
     };
 }

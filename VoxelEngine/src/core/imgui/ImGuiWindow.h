@@ -22,9 +22,9 @@ namespace VoxelEngine
 		ImguiWindow(const string& title = "Window");
 		virtual ~ImguiWindow() = default;
 
-		INLINE const bool& isVisible() const { return m_visible; }
-		INLINE const bool& isHovered() const { return m_hovered; }
-		INLINE const string& title() const { return m_title; }
+		FORCE_INLINE const bool& isVisible() const { return m_visible; }
+		FORCE_INLINE const bool& isHovered() const { return m_hovered; }
+		FORCE_INLINE const string& title() const { return m_title; }
 		INLINE virtual ImGuiWindowFlags flags() const { return 0; }
 		virtual bool hasToolbar() const { return false; }
 		virtual bool wantCaptureKeyboard() const { return false; }

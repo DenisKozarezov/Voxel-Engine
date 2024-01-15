@@ -16,13 +16,13 @@ namespace vkUtils
 		const utils::lexer::ShaderBinaries compileOrGetVulkanBinaries(const string& filepath, const utils::lexer::ShaderSources& shaderSources);
 		void createCacheDirectoryIfNeeded();
 
-		const VkShaderModule createShaderModule(const std::vector<uint32>& spirv) const;
+		VkShaderModule createShaderModule(const std::vector<uint32>& spirv) const;
 		void createShader(const ShaderStage& stage, const std::vector<uint32>& spirv);
 	public:
 		VulkanShader() noexcept = delete;
 		VulkanShader(const VkDevice& logicalDevice, const char* filepath);
 
-		INLINE std::vector<VkPipelineShaderStageCreateInfo>& getStages() & noexcept { return m_shaderStages; }
+		FORCE_INLINE std::vector<VkPipelineShaderStageCreateInfo>& getStages() & noexcept { return m_shaderStages; }
 
 		void unbind() const override;
 

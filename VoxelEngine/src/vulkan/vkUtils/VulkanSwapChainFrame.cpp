@@ -7,7 +7,7 @@ namespace vkUtils
 	void SwapChainFrame::makeDescriptorResources(const VkPhysicalDeviceLimits& limits)
 	{
 		VkDeviceSize size = sizeof(VoxelEngine::renderer::UniformBufferObject);
-		uniformBuffers.view = vkUtils::memory::createBuffer(
+		uniformBuffers.view = memory::createBuffer(
 			vulkanDevice,
 			size,
 			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
@@ -15,7 +15,7 @@ namespace vkUtils
 		uniformBuffers.view.map();
 
 		size = sizeof(VoxelEngine::renderer::RaymarchData);
-		uniformBuffers.raymarch = vkUtils::memory::createBuffer(
+		uniformBuffers.raymarch = memory::createBuffer(
 			vulkanDevice,
 			size,
 			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);

@@ -113,17 +113,17 @@ namespace VoxelEngine
 
 			auto tEnd = std::chrono::high_resolution_clock::now();
 			auto tDiff = std::chrono::duration<double, std::milli>(tEnd - tStart).count();
-			m_frameTimer = (float)tDiff / 1000.0f;
+			m_frameTimer = tDiff / 1000.0;
 
 			calculateFramerate(tEnd);
 		}
 	}
 	void Application::calculateFramerate(const std::chrono::steady_clock::time_point& tEnd)
 	{
-		float fpsTimer = (float)(std::chrono::duration<double, std::milli>(tEnd - lastTimestamp).count());
-		if (fpsTimer > 1000.0f)
+		double fpsTimer = std::chrono::duration<double, std::milli>(tEnd - lastTimestamp).count();
+		if (fpsTimer > 1000.0)
 		{
-			m_lastFPS = static_cast<uint32>((float)m_frameCounter * (1000.0f / fpsTimer));
+			m_lastFPS = static_cast<uint32>(m_frameCounter * (1000.0 / fpsTimer));
 			m_frameCounter = 0;
 			lastTimestamp = tEnd;
 		}

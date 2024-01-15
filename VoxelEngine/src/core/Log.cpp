@@ -1,5 +1,5 @@
 #include "Log.h"
-#include "spdlog/async.h"
+#include <spdlog/async.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
 namespace VoxelEngine
@@ -13,6 +13,4 @@ namespace VoxelEngine
 		_clientLogger = spdlog::stdout_color_mt<spdlog::async_factory>(editorProject);
 		_clientLogger->set_level(spdlog::level::trace);
 	}
-	INLINE const SharedRef<spdlog::logger>& Log::getCoreLogger() { return _coreLogger; }
-	INLINE const SharedRef<spdlog::logger>& Log::getClientLogger() { return _clientLogger; }
 }

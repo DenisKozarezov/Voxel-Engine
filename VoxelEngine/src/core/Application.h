@@ -49,11 +49,11 @@ namespace VoxelEngine
 
 		uint32 m_frameCounter = 0;
 		uint32 m_lastFPS = 0;
-		float m_accumulator = 0.0f;
-		float m_frameTimer = 1.0f;
+		double m_accumulator = 0.0;
+		double m_frameTimer = 1.0;
 		std::chrono::time_point<std::chrono::high_resolution_clock> lastTimestamp, tPrevEnd;
 
-		static constexpr double fixedDeltaTime = 1 / 60.0f;
+		static constexpr double fixedDeltaTime = 1.0 / 60.0;
 
 		static Application* s_instance;
 		static renderer::ImGuiLayer* s_imguiLayer;

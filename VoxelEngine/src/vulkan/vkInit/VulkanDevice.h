@@ -38,12 +38,12 @@ namespace vkInit
 		void release();
 	};
 
-	INLINE const unsigned int getHardwareConcurrency() noexcept
+	FORCE_INLINE const unsigned int getHardwareConcurrency() noexcept
 	{
 		return std::thread::hardware_concurrency();
 	}
 
-	const bool checkDeviceExtensionSupport(
+	bool checkDeviceExtensionSupport(
 		const VkPhysicalDevice& device,
 		const bool& enableValidation);
 }

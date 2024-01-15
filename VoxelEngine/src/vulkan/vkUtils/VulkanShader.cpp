@@ -143,7 +143,7 @@ namespace vkUtils
 		}
 	}
 
-	const VkShaderModule VulkanShader::createShaderModule(const std::vector<uint32>& spirv) const
+	VkShaderModule VulkanShader::createShaderModule(const std::vector<uint32>& spirv) const
 	{
 		VkShaderModuleCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;

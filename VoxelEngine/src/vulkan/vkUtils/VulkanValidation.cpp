@@ -60,10 +60,10 @@ namespace vkUtils
 		return VK_FALSE;
 	}
 
-	const VkResult createDebugUtilsMessengerEXT(
-		const VkInstance& instance, 
-		const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, 
-		const VkAllocationCallbacks* pAllocator, 
+	VkResult createDebugUtilsMessengerEXT(
+		const VkInstance& instance,
+		const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+		const VkAllocationCallbacks* pAllocator,
 		VkDebugUtilsMessengerEXT* pDebugMessenger)
 	{
 		auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsCallbackEXT");
@@ -73,10 +73,10 @@ namespace vkUtils
 			return VK_ERROR_EXTENSION_NOT_PRESENT;
 	}
 
-	const VkResult createDebugReportMessengerEXT(
-		const VkInstance& instance, 
-		const VkDebugReportCallbackCreateInfoEXT* pCreateInfo, 
-		const VkAllocationCallbacks* pAllocator, 
+	VkResult createDebugReportMessengerEXT(
+		const VkInstance& instance,
+		const VkDebugReportCallbackCreateInfoEXT* pCreateInfo,
+		const VkAllocationCallbacks* pAllocator,
 		VkDebugReportCallbackEXT* pDebugMessenger)
 	{
 		auto func = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugReportCallbackEXT");
@@ -129,7 +129,8 @@ namespace vkUtils
 		createInfo.pUserData = nullptr;
 		return createInfo;
 	}
-	const bool checkValidationLayerSupport()
+
+	bool checkValidationLayerSupport()
 	{
 		uint32_t layerCount;
 		vkEnumerateInstanceLayerProperties(&layerCount, nullptr);

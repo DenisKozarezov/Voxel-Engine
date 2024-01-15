@@ -19,7 +19,7 @@ namespace vulkan
 		void drawMeshIndexed(const components::mesh::Mesh& mesh, uint32 instanceCount = 1, uint32 startIndex = 0, uint32 startInstance = 0) override;
 		void drawMeshIndexed(uint32 indexCount, uint32 instanceCount = 1, uint32 startIndex = 0, uint32 startInstance = 0) override;
 
-		~VulkanRendererAPI() = default;
+		~VulkanRendererAPI() override = default;
 	};
 
 	INLINE void VulkanRendererAPI::drawMesh(const components::mesh::Mesh& mesh)

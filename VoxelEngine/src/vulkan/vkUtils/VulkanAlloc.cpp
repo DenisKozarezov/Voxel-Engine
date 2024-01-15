@@ -4,7 +4,7 @@
 
 namespace vkUtils::memory
 {
-	const uint32 findMemoryType(const vkInit::VulkanDevice& device, const uint32& typeFilter, const VkMemoryPropertyFlags& properties)
+	uint32 findMemoryType(const vkInit::VulkanDevice& device, const uint32& typeFilter, const VkMemoryPropertyFlags& properties)
 	{
 		for (uint32 i = 0; i < device.memoryProperties.memoryTypeCount; ++i)
 		{
@@ -15,7 +15,7 @@ namespace vkUtils::memory
 		}
 		throw std::runtime_error("failed to find suitable memory type!");
 	}
-	const VkDeviceMemory allocateMemory(const vkInit::VulkanDevice& device, const VkMemoryRequirements& requirements, const VkMemoryPropertyFlags& properties)
+	VkDeviceMemory allocateMemory(const vkInit::VulkanDevice& device, const VkMemoryRequirements& requirements, const VkMemoryPropertyFlags& properties)
 	{
 		VkDeviceMemory memory;
 
@@ -29,7 +29,7 @@ namespace vkUtils::memory
 
 		return memory;
 	}
-	const VkCommandBuffer beginSingleTimeCommands(const VkCommandPool& commandPool)
+	VkCommandBuffer beginSingleTimeCommands(const VkCommandPool& commandPool)
 	{
 		VkCommandBuffer commandBuffer = vkUtils::memory::allocateCommandBuffer(commandPool);
 		vkUtils::memory::beginCommand(commandBuffer);

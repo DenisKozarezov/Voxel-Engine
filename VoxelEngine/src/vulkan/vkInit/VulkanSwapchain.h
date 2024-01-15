@@ -109,7 +109,7 @@ namespace vkInit
 		}
 	}
 
-	const SwapChainSupportDetails querySwapChainSupport(const VkPhysicalDevice& device, const VkSurfaceKHR& surface)
+	SwapChainSupportDetails querySwapChainSupport(const VkPhysicalDevice& device, const VkSurfaceKHR& surface)
 	{
 		SwapChainSupportDetails details;
 		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.capabilities);
@@ -134,7 +134,7 @@ namespace vkInit
 		return details;
 	}
 
-	const std::vector<VkImage> getSwapChainImagesKHR(
+	std::vector<VkImage> getSwapChainImagesKHR(
 		const VkDevice& logicalDevice,
 		const VkSwapchainKHR& swapchain,
 		uint32* imageCount)
@@ -202,7 +202,7 @@ namespace vkInit
 		);
 	}
 
-	const SwapChainBundle createSwapChain(
+	SwapChainBundle createSwapChain(
 		const vkInit::VulkanDevice& device,
 		const uint32& width, 
 		const uint32& height,

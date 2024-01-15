@@ -5,7 +5,7 @@
 
 namespace vkUtils
 {
-	constexpr const VkFormat findSupportedFormat(
+	constexpr VkFormat findSupportedFormat(
 		const VkPhysicalDevice& physicalDevice, 
 		const std::vector<VkFormat>& candidates, 
 		const VkImageTiling& tiling, 
@@ -25,7 +25,7 @@ namespace vkUtils
 		throw std::runtime_error("failed to find supported format!");
 	}
 
-	const VkFormat findDepthFormat(const VkPhysicalDevice& physicalDevice)
+	VkFormat findDepthFormat(const VkPhysicalDevice& physicalDevice)
 	{
 		return findSupportedFormat(physicalDevice,
 			{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
@@ -39,7 +39,7 @@ namespace vkUtils
 		return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
 	}
 
-	const VkImage createImage(
+	VkImage createImage(
 		const vkInit::VulkanDevice& device,
 		const uint32& width,
 		const uint32& height,
@@ -78,7 +78,7 @@ namespace vkUtils
 		return image;
 	}
 
-	const VkImageView createImageView(
+	VkImageView createImageView(
 		const VkDevice& logicalDevice,
 		const VkImage& image,
 		const VkFormat& format,
@@ -100,7 +100,7 @@ namespace vkUtils
 		VK_CHECK(err, "failed to create image view!");
 		return imageView;
 	}
-	const VkImageView createImageView(
+	VkImageView createImageView(
 		const VkDevice& logicalDevice,
 		const VkImage& image,
 		const VkFormat& format,
@@ -124,14 +124,14 @@ namespace vkUtils
 		VK_CHECK(err, "failed to create image view!");
 		return imageView;
 	}
-	const VkSampler createTextureSampler(const vkInit::VulkanDevice& device, const VkSamplerCreateInfo& samplerInfo)
+	VkSampler createTextureSampler(const vkInit::VulkanDevice& device, const VkSamplerCreateInfo& samplerInfo)
 	{
 		VkSampler sampler;
 		VkResult err = vkCreateSampler(device.logicalDevice, &samplerInfo, nullptr, &sampler);
 		VK_CHECK(err, "failed to create texture sampler!");
 		return sampler;
 	}
-	const VkSampler createTextureSampler(const vkInit::VulkanDevice& device)
+	VkSampler createTextureSampler(const vkInit::VulkanDevice& device)
 	{
 		VkSamplerCreateInfo samplerInfo = {};
 		samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;

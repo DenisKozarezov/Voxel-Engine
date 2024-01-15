@@ -12,9 +12,8 @@ namespace VoxelEditor::gui
 	public:
 		GuiTree();
 
-		INLINE SharedRef<SceneViewport> getViewport() const { return SharedRef<SceneViewport>(m_viewport); }
-
-		bool isViewportValid() const;
+		FORCE_INLINE SceneViewport* getViewport() const { return m_viewport; }
+		
 		bool showDockSpace(bool *p_open) const;
 		
 		void registerWindow(ImguiWindow* window);

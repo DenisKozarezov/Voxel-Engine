@@ -126,7 +126,20 @@ namespace VoxelEditor::gui
 	}
 	void EditorLayer::onUpdate(const VoxelEngine::Timestep& ts)
 	{
+		renderer::Renderer::resetStats();
+
+		if (const SceneViewport* viewport = m_guiTree.getViewport())
+			renderer::Renderer::preRender(*viewport->getEditorCamera().get());
+		else
+			renderer::Renderer::preRender();
+		
 		m_guiTree.onUpdate(ts);
+
+		renderer::Renderer::render();
+
+		renderer::Renderer::postRender();
+
+		renderer::Renderer::flushStats();
 	}
 	void EditorLayer::onFixedUpdate(const VoxelEngine::Timestep& ts)
 	{

@@ -71,12 +71,7 @@ namespace VoxelEditor::gui
 			delete window;
 		}
 	}
-
-	bool GuiTree::isViewportValid() const
-	{
-		return m_viewport != nullptr;
-	}
-
+	
 	bool GuiTree::showDockSpace(bool* p_open) const
 	{
 		static bool opt_fullscreen_persistant = true;

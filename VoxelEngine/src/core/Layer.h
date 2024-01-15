@@ -23,7 +23,7 @@ namespace VoxelEngine::renderer
 		virtual void onImGuiRender() {}
 		virtual void onEvent(input::Event& event) {}
 
-		INLINE const std::string& getName() { return m_debugName; }
+		FORCE_INLINE const string& getName() const { return m_debugName; }
 
 		virtual ~Layer() = default;
 	};

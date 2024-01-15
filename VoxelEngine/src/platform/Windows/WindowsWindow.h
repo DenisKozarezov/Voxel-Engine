@@ -7,8 +7,8 @@ namespace VoxelEngine
 	class WindowsWindow : public Window
 	{
 	private:
-		virtual void init() override;
-		virtual void shutdown() override;
+		void init() override;
+		void shutdown() override;
 
 		struct WindowsOSData final
 		{
@@ -22,17 +22,17 @@ namespace VoxelEngine
 		WindowsWindow() = default;
 		WindowsWindow(const WindowProperties&);
 
-		INLINE const uint16& getWidth() const noexcept override { return m_windowData.Width; }
-		INLINE const uint16& getHeight() const noexcept override { return m_windowData.Height; }
-		INLINE const void* getNativeWindow() const & noexcept override { return m_window; }
-		INLINE void setEventCallback(const EventCallback& callback) noexcept override
+		FORCE_INLINE const uint16& getWidth() const noexcept override { return m_windowData.Width; }
+		FORCE_INLINE const uint16& getHeight() const noexcept override { return m_windowData.Height; }
+		FORCE_INLINE const void* getNativeWindow() const & noexcept override { return m_window; }
+		FORCE_INLINE void setEventCallback(const EventCallback& callback) noexcept override
 		{
 			m_windowData.EventCallback = callback;
 		}
 		void setMaximized(const bool& isMaximized) override;
 		void onUpdate() override;
 		void waitEvents() const override;
-		~WindowsWindow();
+		~WindowsWindow() override;
 	};
 
 	UniqueRef<Window> Window::Create(const WindowProperties& props)

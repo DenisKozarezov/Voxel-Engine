@@ -47,6 +47,19 @@ namespace VoxelEngine::renderer
         s_gizmosAPI->startBatch();
         vulkan::beginFrame(ubo);
     }
+
+    void Renderer::preRender()
+    {
+        UniformBufferObject ubo =
+        {
+            .view = glm::mat4(0.0f),
+            .proj = glm::mat4(0.0f),
+            .lightPos = glm::vec3(0.0f, 20.0f, 0.0f)
+        };
+        
+        vulkan::beginFrame(ubo);
+    }
+
     void Renderer::render()
     {
         s_gizmosAPI->onGizmosDraw();

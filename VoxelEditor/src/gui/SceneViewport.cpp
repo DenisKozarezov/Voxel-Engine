@@ -62,6 +62,11 @@ namespace VoxelEditor::gui
 		m_scene = scene;
 	}
 
+	SceneViewport::~SceneViewport()
+	{
+		renderer::RenderCommand::setViewport(0.0f, 0.0f, 0.0f, 0.0f);
+	}
+
 	INLINE bool SceneViewport::wantCaptureKeyboard() const
 	{
 		return ImGui::GetCurrentContext()->IO.WantCaptureKeyboard;

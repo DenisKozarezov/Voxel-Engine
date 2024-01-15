@@ -1,5 +1,6 @@
 #include "VulkanDevice.h"
 #include "../vkUtils/VulkanStatistics.h"
+#include "../vkUtils/VulkanValidation.h"
 
 namespace vkInit
 {
@@ -18,7 +19,7 @@ namespace vkInit
 		}
 	}
 
-	const bool checkDeviceExtensionSupport(const VkPhysicalDevice& device, const bool& enableValidation)
+	bool checkDeviceExtensionSupport(const VkPhysicalDevice& device, const bool& enableValidation)
 	{
 		uint32 extensionCount;
 		vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);

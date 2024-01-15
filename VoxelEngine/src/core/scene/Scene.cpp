@@ -47,7 +47,7 @@ namespace VoxelEngine
 	{
 		std::for_each(objects.begin(), objects.end(), [&](SharedRef<Mesh>& mesh) {
 			unregisterMesh(mesh);
-			});
+		});
 		delete meshes.svo;
 	}
 	Scene::Scene()
@@ -94,15 +94,7 @@ namespace VoxelEngine
 
 	void Scene::update(const Timestep& ts, components::camera::Camera& camera)
 	{
-		renderer::Renderer::resetStats();
-
-		renderer::Renderer::preRender(camera);
-
 		renderScene();
-
-		renderer::Renderer::postRender();
-
-		renderer::Renderer::flushStats();
 	}
 	void Scene::renderScene()
 	{
@@ -159,7 +151,6 @@ namespace VoxelEngine
 				}
 			}
 
-
 			/*if (meshes.svo && renderSettings.showOctree)
 			{
 				meshes.svo->traverse([&](OctreeNode* node)
@@ -172,13 +163,11 @@ namespace VoxelEngine
 				});
 			}*/
 		}
-
-		renderer::Renderer::render();
 	}
 	void Scene::registerMesh(const SharedRef<Mesh>& mesh)
 	{
-		const auto i = std::find(objects.begin(), objects.end(), mesh);
-		if (i != objects.end())
+		const auto it = std::find(objects.begin(), objects.end(), mesh);
+		if (it != objects.end())
 		{
 			VOXEL_CORE_ERROR("Unable to register a new mesh! There is a duplicate.");
 		}
@@ -189,14 +178,10 @@ namespace VoxelEngine
 	}
 	void Scene::unregisterMesh(const SharedRef<Mesh>& mesh)
 	{
-		const auto i = std::find(objects.begin(), objects.end(), mesh);
-		if (i == objects.end())
+		const auto it = std::find(objects.begin(), objects.end(), mesh);
+		if (it != objects.end())
 		{
-			return;
-		}
-		else
-		{
-			objects.erase(i);
+			objects.erase(it);
 		}
 	}
 }

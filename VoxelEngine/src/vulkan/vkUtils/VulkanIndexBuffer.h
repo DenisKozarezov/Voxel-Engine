@@ -10,7 +10,7 @@ namespace vkUtils
 		vkInit::VulkanDevice m_device;
 		memory::Buffer m_indexBuffer;
 
-		INLINE void release() override { m_indexBuffer.release(); }
+		FORCE_INLINE void release() override { m_indexBuffer.release(); }
 	public:
 		VulkanIndexBuffer() noexcept = default;
 		VulkanIndexBuffer(const vkInit::VulkanDevice& device, const size_t& bufferSize);

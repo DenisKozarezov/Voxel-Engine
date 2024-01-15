@@ -3,13 +3,13 @@
 
 namespace vkInit
 {
-	const VkCommandPool createCommandPool(const vkInit::VulkanDevice& device, const uint32& queueFamily);
+	VkCommandPool createCommandPool(const vkInit::VulkanDevice& device, const uint32& queueFamily);
 }
 
 namespace vkUtils::memory
 {
-	const VkCommandBuffer allocateCommandBuffer(const VkCommandPool& commandPool);
-	const std::vector<VkCommandBuffer> allocateCommandBuffer(const VkCommandPool& commandPool, const uint32& buffersCount);
+	VkCommandBuffer allocateCommandBuffer(const VkCommandPool& commandPool);
+	std::vector<VkCommandBuffer> allocateCommandBuffer(const VkCommandPool& commandPool, const uint32& buffersCount);
 
 	INLINE void resetCommandBuffer(const VkCommandBuffer& buffer)
 	{

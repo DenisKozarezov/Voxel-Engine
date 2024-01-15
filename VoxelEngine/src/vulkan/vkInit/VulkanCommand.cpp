@@ -5,7 +5,7 @@
 
 namespace vkInit
 {
-	const VkCommandPool createCommandPool(const vkInit::VulkanDevice& device, const uint32& queueFamily)
+	VkCommandPool createCommandPool(const vkInit::VulkanDevice& device, const uint32& queueFamily)
 	{
 		VkCommandPoolCreateInfo poolInfo = vkInit::commandPoolCreateInfo(queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 
@@ -21,7 +21,7 @@ namespace vkInit
 
 namespace vkUtils::memory
 {
-	const VkCommandBuffer allocateCommandBuffer(const VkCommandPool& commandPool)
+	VkCommandBuffer allocateCommandBuffer(const VkCommandPool& commandPool)
 	{
 		VkCommandBufferAllocateInfo allocInfo = {};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -35,7 +35,7 @@ namespace vkUtils::memory
 
 		return commandBuffer;
 	}
-	const std::vector<VkCommandBuffer> allocateCommandBuffer(const VkCommandPool& commandPool, const uint32& buffersCount)
+	std::vector<VkCommandBuffer> allocateCommandBuffer(const VkCommandPool& commandPool, const uint32& buffersCount)
 	{
 		std::vector<VkCommandBuffer> buffers(buffersCount);
 

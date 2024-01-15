@@ -4,7 +4,7 @@
 
 namespace vkInit
 {
-	const VkSemaphore createSemaphore(const vkInit::VulkanDevice& device) 
+	VkSemaphore createSemaphore(const vkInit::VulkanDevice& device) 
 	{
 		VkSemaphoreCreateInfo semaphoreInfo = semaphoreCreateInfo();
 		VkSemaphore semaphore;
@@ -13,7 +13,7 @@ namespace vkInit
 		return semaphore;
 	}
 
-	const VkFence createFence(const vkInit::VulkanDevice& device)
+	VkFence createFence(const vkInit::VulkanDevice& device)
 	{
 		VkFenceCreateInfo fenceInfo = fenceCreateInfo(VK_FENCE_CREATE_SIGNALED_BIT);
 		VkFence fence;

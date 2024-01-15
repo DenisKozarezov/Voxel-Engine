@@ -1,7 +1,6 @@
 #pragma once
-#include <spdlog/spdlog.h>
-#include "PrimitiveTypes.h"
 #include "Base.h"
+#include <spdlog/spdlog.h>
 
 namespace VoxelEngine
 {
@@ -15,8 +14,8 @@ namespace VoxelEngine
 		static constexpr const char* s_logPattern = "[%H:%M:%S.%e] [%l] %n: %v%$";
 
 		static void init(const char* coreProject, const char* editorProject);
-		INLINE static const SharedRef<spdlog::logger>& getCoreLogger();
-		INLINE static const SharedRef<spdlog::logger>& getClientLogger();
+		FORCE_INLINE static const SharedRef<spdlog::logger>& getCoreLogger() { return _coreLogger; }
+		FORCE_INLINE static const SharedRef<spdlog::logger>& getClientLogger() { return _clientLogger; }
 	};
 
 #define FORMATTED_TIME string("{0:") + VoxelEngine::Log::s_timePattern + string("}")

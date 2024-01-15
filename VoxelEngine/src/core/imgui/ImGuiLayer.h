@@ -24,7 +24,7 @@ namespace VoxelEngine::renderer
 		void postRender();
 		void setStyle(const ColorStyle& style) const;
 		void saveLayout(const string& filepath);
-		INLINE void blockEvents(const bool& block) { m_blockEvents = block; }
+		FORCE_INLINE void blockEvents(const bool& block) { m_blockEvents = block; }
 
 		~ImGuiLayer() override = default;
 	};

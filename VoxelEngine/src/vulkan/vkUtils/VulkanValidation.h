@@ -70,16 +70,16 @@ namespace vkUtils
 		const char* pMessage,
 		void* pUserData) noexcept;
 
-	const VkResult createDebugUtilsMessengerEXT(
-		const VkInstance& instance, 
-		const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, 
-		const VkAllocationCallbacks* pAllocator, 
+	VkResult createDebugUtilsMessengerEXT(
+		const VkInstance& instance,
+		const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+		const VkAllocationCallbacks* pAllocator,
 		VkDebugUtilsMessengerEXT* pDebugMessenger);
 
-	const VkResult createDebugReportMessengerEXT(
-		const VkInstance& instance, 
-		const VkDebugReportCallbackCreateInfoEXT* pCreateInfo, 
-		const VkAllocationCallbacks* pAllocator, 
+	VkResult createDebugReportMessengerEXT(
+		const VkInstance& instance,
+		const VkDebugReportCallbackCreateInfoEXT* pCreateInfo,
+		const VkAllocationCallbacks* pAllocator,
 		VkDebugReportCallbackEXT* pDebugMessenger);
 
 	void destroyDebugUtilsMessengerEXT(
@@ -94,6 +94,6 @@ namespace vkUtils
 
 	constexpr VkDebugUtilsMessengerCreateInfoEXT populateDebugUtilsCreateInfo();
 	constexpr VkDebugReportCallbackCreateInfoEXT populateDebugReportCreateInfo();
-	const bool checkValidationLayerSupport();
+	bool checkValidationLayerSupport();
 	void setupDebugReportMessenger(const VkInstance& instance, VkDebugReportCallbackEXT* debugReportFunc);	
 }

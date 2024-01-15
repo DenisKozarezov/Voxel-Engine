@@ -10,8 +10,8 @@ namespace VoxelEditor::gui
     public:
         PerformanceWindow(const string& title, const renderer::RenderPerformanceStats& stats);
         ~PerformanceWindow() override = default;
-        
-        const ImGuiWindowFlags flags() const override;
+
+        ImGuiWindowFlags flags() const override;
 
         void onBegin() override;
         void onImGuiRender() override;

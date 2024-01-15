@@ -6,7 +6,7 @@ namespace VoxelEditor::gui
 	{
 	}
 
-	const ImGuiWindowFlags NodeEditor::flags() const
+	ImGuiWindowFlags NodeEditor::flags() const
 	{
 		return ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
 	}

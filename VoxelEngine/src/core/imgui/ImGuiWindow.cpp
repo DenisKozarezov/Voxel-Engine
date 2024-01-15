@@ -7,7 +7,7 @@ namespace VoxelEngine
 
 	}
 
-	const bool ImguiWindow::begin()
+	bool ImguiWindow::begin()
 	{
 		onBegin();
 

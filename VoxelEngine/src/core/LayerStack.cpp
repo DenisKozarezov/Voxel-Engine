@@ -40,6 +40,7 @@ namespace VoxelEngine::renderer
 			layer->onDetach();
 			delete layer;
 		}
+		m_layers.clear();
 	}
 	void LayerStack::onUpdate(const Timestep& time)
 	{

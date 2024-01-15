@@ -8,8 +8,8 @@ namespace VoxelEditor::gui
 	public:
 		NodeEditor(const string& title);
 		~NodeEditor() override = default;
-		
-		const ImGuiWindowFlags flags() const override;
+
+		ImGuiWindowFlags flags() const override;
 		
 		void onBegin() override;
 		void onImGuiRender() override;

@@ -51,21 +51,23 @@ namespace VoxelEditor::gui
 		ImGui::EndChild();
 	}
 
-	SceneViewport::SceneViewport(const string& title) : ImguiWindow(title)
+	SceneViewport::SceneViewport(const string& title, const SharedRef<Scene>& scene) : ImguiWindow(title)
 	{
 		glm::vec3 cameraPos = { 10.0f, 10.0f, 10.0f };
 
 		m_camera = MakeUnique<components::camera::EditorCameraController>(cameraPos);
 		subscribeEvent<input::MouseButtonPressedEvent>(BIND_CALLBACK(onMousePressed));
 		subscribeEvent<input::MouseButtonReleasedEvent>(BIND_CALLBACK(onMouseReleased));
+
+		m_scene = scene;
 	}
 
-	INLINE const bool SceneViewport::wantCaptureKeyboard() const
+	INLINE bool SceneViewport::wantCaptureKeyboard() const
 	{
 		return ImGui::GetCurrentContext()->IO.WantCaptureKeyboard;
 	}
 
-	INLINE const bool SceneViewport::wantCaptureMouse() const
+	INLINE bool SceneViewport::wantCaptureMouse() const
 	{
 		return ImGui::GetCurrentContext()->IO.WantCaptureMouse;
 	}
@@ -91,7 +93,7 @@ namespace VoxelEditor::gui
 		return true;
 	}
 
-	const ImGuiWindowFlags SceneViewport::flags() const
+	ImGuiWindowFlags SceneViewport::flags() const
 	{
 		return ImGuiWindowFlags_NoCollapse;
 	}
@@ -141,5 +143,6 @@ namespace VoxelEditor::gui
 		{
 			m_camera->update(ts);
 		}
+		m_scene->update(ts, *m_camera.get());
 	}
 }

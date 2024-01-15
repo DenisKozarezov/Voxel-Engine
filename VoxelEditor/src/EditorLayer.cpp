@@ -10,7 +10,9 @@ namespace VoxelEditor::gui
 
 	EditorLayer::EditorLayer() : Layer("EditorLayer")
 	{
-		m_guiTree.registerViewport(MakeShared<SceneViewport>("Viewport"));
+		m_scene = MakeShared<Scene>();
+		
+		m_guiTree.registerViewport(new SceneViewport("Viewport", m_scene));
 		m_guiTree.registerWindow(new EditorConsole("Console"));
 		m_guiTree.registerWindow(new PrimitivesPanel("Add Primitives"));
 		m_guiTree.registerWindow(new UsefulToolsWindow("Tools"));
@@ -116,8 +118,6 @@ namespace VoxelEditor::gui
 	
 	void EditorLayer::onAttach()
 	{				  
-		m_scene = MakeShared<Scene>();
-
 		EditorConsole::info("Welcome to {0} {1}!", PROJECT_NAME, PROJECT_VERSION);
 	}				  
 	void EditorLayer::onDetach()
@@ -127,9 +127,6 @@ namespace VoxelEditor::gui
 	void EditorLayer::onUpdate(const VoxelEngine::Timestep& ts)
 	{
 		m_guiTree.onUpdate(ts);
-		
-		const auto& viewport = m_guiTree.getViewport();
-		m_scene->update(ts, *viewport->m_camera.get());
 	}
 	void EditorLayer::onFixedUpdate(const VoxelEngine::Timestep& ts)
 	{
@@ -152,8 +149,8 @@ namespace VoxelEditor::gui
 	{
 		switch (e.eventType())
 		{
-			case input::EventType::MouseButtonPressed: case input::EventType::MouseButtonReleased:
-				m_guiTree.getViewport()->sendEvent(e);
+		case input::EventType::MouseButtonPressed: case input::EventType::MouseButtonReleased:
+			m_guiTree.sendEvent(e);
 			break;
 		}
 	}

@@ -7,7 +7,7 @@ namespace VoxelEditor::gui
         m_stats = &stats;
     }
 
-    const ImGuiWindowFlags PerformanceWindow::flags() const
+    ImGuiWindowFlags PerformanceWindow::flags() const
     {
         return ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking;
     }

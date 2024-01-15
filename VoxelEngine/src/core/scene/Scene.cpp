@@ -132,7 +132,7 @@ namespace VoxelEngine
 		utils::Gizmos::drawWireframeCube({ 25, 25, 25 }, { 50, 50, 50 });
 #endif
 
-		if (objects.size() > 0)
+		if (!objects.empty())
 		{
 			for (const auto& mesh : objects)
 			{

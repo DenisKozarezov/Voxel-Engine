@@ -9,20 +9,20 @@ namespace VoxelEditor::gui
 		ImVec2 m_viewportSize;
 		bool m_viewportFocused;
 		bool m_viewportHovered;
+		SharedRef<Scene> m_scene;
+		UniqueRef<components::camera::EditorCameraController> m_camera;
 
 		void drawRenderModes();
 		void drawCameraModes();
 	public:
-		UniqueRef<components::camera::EditorCameraController> m_camera;
-
-		SceneViewport(const string& title);
+		SceneViewport(const string& title, const SharedRef<Scene>& scene);
 		~SceneViewport() override = default;
 		
-		INLINE const bool wantCaptureKeyboard() const override;
-		INLINE const bool wantCaptureMouse() const override;
+		INLINE bool wantCaptureKeyboard() const override;
+		INLINE bool wantCaptureMouse() const override;
 		bool onMousePressed(const input::MouseButtonPressedEvent& e);
 		bool onMouseReleased(const input::MouseButtonReleasedEvent& e);
-		const ImGuiWindowFlags flags() const override;
+		ImGuiWindowFlags flags() const override;
 
 		INLINE void setClearColor(const glm::vec4& clearColor);
 

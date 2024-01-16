@@ -5,9 +5,9 @@
 
 namespace vkInit
 {
-	VkCommandPool createCommandPool(const vkInit::VulkanDevice& device, const uint32& queueFamily)
+	VkCommandPool createCommandPool(const VulkanDevice& device, const uint32& queueFamily)
 	{
-		VkCommandPoolCreateInfo poolInfo = vkInit::commandPoolCreateInfo(queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+		const VkCommandPoolCreateInfo poolInfo = commandPoolCreateInfo(queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 
 		VkCommandPool commandPool;
 		VkResult err = vkCreateCommandPool(device.logicalDevice, &poolInfo, nullptr, &commandPool);

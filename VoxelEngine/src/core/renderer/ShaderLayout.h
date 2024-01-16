@@ -70,21 +70,21 @@ namespace VoxelEngine::renderer
 	public:
 		ShaderLayout(std::initializer_list<ShaderLayoutElement> elements);
 
-		INLINE const uint32& stride() const noexcept { return m_stride; }
-		INLINE size_t size() const noexcept { return m_elements.size(); }
-		INLINE std::list<ShaderLayoutElement>::iterator begin() noexcept
+		FORCE_INLINE const uint32& stride() const noexcept { return m_stride; }
+		FORCE_INLINE size_t size() const noexcept { return m_elements.size(); }
+		FORCE_INLINE std::list<ShaderLayoutElement>::iterator begin() noexcept
 		{
 			return m_elements.begin();
 		}
-		INLINE std::list<ShaderLayoutElement>::iterator end() noexcept
+		FORCE_INLINE std::list<ShaderLayoutElement>::iterator end() noexcept
 		{
 			return m_elements.end();
 		}
-		INLINE std::list<ShaderLayoutElement>::const_iterator cbegin() const noexcept
+		FORCE_INLINE std::list<ShaderLayoutElement>::const_iterator cbegin() const noexcept
 		{
 			return m_elements.cbegin();
 		}
-		INLINE std::list<ShaderLayoutElement>::const_iterator cend() const noexcept
+		FORCE_INLINE std::list<ShaderLayoutElement>::const_iterator cend() const noexcept
 		{
 			return m_elements.cend();
 		}

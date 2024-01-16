@@ -16,9 +16,6 @@ namespace VoxelEditor::gui
 		m_guiTree.registerWindow(new EditorConsole("Console"));
 		m_guiTree.registerWindow(new PrimitivesPanel("Add Primitives"));
 		m_guiTree.registerWindow(new UsefulToolsWindow("Tools"));
-
-		auto& stats = renderer::Renderer::getStats();
-		m_guiTree.registerWindow(new PerformanceWindow("Performance", stats));
 	}
 
 	void EditorLayer::loadModel()
@@ -84,7 +81,7 @@ namespace VoxelEditor::gui
 			if (ImGui::BeginMenu("Tools"))
 			{
 				ImGui::MenuItem("Profiler");
-				ImGui::EndMenu();
+				ImGui::EndMenu();				
 			}
 
 			if (ImGui::BeginMenu("Window"))
@@ -100,6 +97,12 @@ namespace VoxelEditor::gui
 				ImGui::Separator();
 				ImGui::MenuItem("Console");
 				ImGui::MenuItem("Viewport");
+				ImGui::Separator();
+				if (ImGui::MenuItem("Performance"))
+				{
+					auto& stats = renderer::Renderer::getStats();
+					m_guiTree.registerWindow(new PerformanceWindow("Performance", stats));
+				}
 
 				ImGui::MenuItem("Editor Settings");
 

@@ -6,6 +6,7 @@
 #include "vkInit/VulkanDescriptors.h"
 #include "vkInit/VulkanCommand.h"
 #include "vkUtils/VulkanMaterials.h"
+#include "vkUtils/VulkanStatistics.h"
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
 
@@ -227,12 +228,10 @@ namespace vulkan
 	}	
 	void recordCommandBuffer(const VkCommandBuffer& commandBuffer)
 	{
-		vkUtils::SwapChainFrame& frame = state.swapChainBundle.frames[CURRENT_FRAME];
-
 		// =================== RENDER WHOLE STUFF HERE ! ===================		
 		ImDrawData* main_draw_data = ImGui::GetDrawData();
 		ImGui_ImplVulkan_RenderDrawData(main_draw_data, commandBuffer);
-
+		
 		vkCmdEndRenderPass(commandBuffer);
 		vkUtils::memory::endCommand(commandBuffer);
 	}
@@ -296,6 +295,7 @@ namespace vulkan
 		clearValues[1].depthStencil = { 1.0f, 0 };
 
 		vkUtils::memory::beginCommand(commandBuffer);
+				
 		VkRenderPassBeginInfo renderPassInfo = vkInit::renderPassBeginInfo(
 			state.renderPass,
 			frame.framebuffer,
@@ -312,13 +312,15 @@ namespace vulkan
 		scissor.offset.x = state.viewportPos.x;
 		scissor.offset.y = state.viewportPos.y;
 		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+		
+		state.vulkanDevice.queryPool->beginQuery(commandBuffer);
 	}
 	void beginFrame(const renderer::UniformBufferObject& ubo)
 	{
 		vkUtils::SwapChainFrame& frame = state.swapChainBundle.frames[CURRENT_FRAME];
 
 		// Stage 1. ACQUIRE IMAGE FROM SWAPCHAIN
-		vkInit::lockFences(state.vulkanDevice, &frame.inFlightFence);
+		lockFences(state.vulkanDevice, &frame.inFlightFence);
 
 		uint32 imageIndex;
 		VkResult result = vkAcquireNextImageKHR(state.vulkanDevice.logicalDevice, state.swapChainBundle.swapchain, UINT64_MAX, frame.imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
@@ -332,12 +334,12 @@ namespace vulkan
 			VOXEL_CORE_ASSERT(result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR, "failed to acquire swap chain image!");
 		}
 
-		vkInit::resetFences(state.vulkanDevice, &frame.inFlightFence);
+		resetFences(state.vulkanDevice, &frame.inFlightFence);
 		vkUtils::memory::resetCommandBuffer(frame.commandBuffer);
 
 		frame.uniformBuffers.view.setData(&ubo, sizeof(ubo));
 
-		renderer::RaymarchData data;
+		renderer::RaymarchData data{};
 		data.resolution = glm::vec2(state.viewportSize.width, state.viewportSize.height);
 		data.mousePos = glm::vec2(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
 		data.voxelSize = 0.5f;
@@ -350,15 +352,18 @@ namespace vulkan
 		vkUtils::SwapChainFrame& frame = state.swapChainBundle.frames[CURRENT_FRAME];
 
 		// Stage 2. GRAPHICS
+		state.vulkanDevice.queryPool->endQuery(frame.commandBuffer);
 		recordCommandBuffer(frame.commandBuffer);
 
 		VkSemaphore signalSemaphores[] = { frame.renderFinishedSemaphore};
 		submitToQueue(state.vulkanDevice.deviceQueues.graphicsQueue, frame.commandBuffer, signalSemaphores);
 
+		state.vulkanDevice.queryPool->getQueryResults();
+		
 		// Stage 3. PRESENT
 		presentFrame(CURRENT_FRAME, signalSemaphores);
-
-		CURRENT_FRAME = (CURRENT_FRAME + 1) % MAX_FRAMES_IN_FLIGHT;
+		
+		CURRENT_FRAME = (CURRENT_FRAME + 1) % MAX_FRAMES_IN_FLIGHT;		
 	}
 
 	void resize(const uint32& width, const uint32& height)
@@ -382,7 +387,7 @@ namespace vulkan
 	}
 	void init()
 	{
-		VkSurfaceKHR surface = makeInstance();
+		const VkSurfaceKHR surface = makeInstance();
 
 		makeDevice(surface);
 
@@ -435,7 +440,7 @@ namespace vulkan
 	{
 		cleanupSwapChain();
 
-		vkUtils::releaseMaterials(state.vulkanDevice);
+		vkUtils::releaseMaterials();
 
 		vkDestroyPipelineLayout(state.vulkanDevice.logicalDevice, state.pipelineLayout, nullptr);
 		vkDestroyPipelineCache(state.vulkanDevice.logicalDevice, state.pipelineCache, nullptr);
@@ -464,6 +469,12 @@ namespace vulkan
 	{
 		return renderFrameStats;
 	}
+
+	const renderer::ShaderStats& getShaderStats()
+	{
+		return state.vulkanDevice.queryPool->getStats();
+	}
+
 	void resetFrameStats()
 	{
 		renderFrameStats.drawCalls = 0;

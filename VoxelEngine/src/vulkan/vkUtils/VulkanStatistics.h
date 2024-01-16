@@ -1,28 +1,25 @@
 #pragma once
 #include <vector>
-#include <core/Base.h>
 #include <core/PrimitiveTypes.h>
 #include <vulkan/vulkan.h>
-
-namespace vkInit
-{
-	struct VulkanDevice;
-}
+#include <core/renderer/RenderSettings.h>
 
 namespace vkUtils
-{	
-	const std::vector<string> pipelineStatNames =
+{
+	class VulkanQueryStatisticsPool
 	{
-		"Input assembly vertex count        ",
-		"Input assembly primitives count    ",
-		"Vertex shader invocations          ",
-		"Clipping stage primitives processed",
-		"Clipping stage primitives output   ",
-		"Fragment shader invocations        "
+	private:
+		VkDevice m_logicalDevice = VK_NULL_HANDLE;
+		VkQueryPool m_pool = VK_NULL_HANDLE;
+		VoxelEngine::renderer::ShaderStats m_stats;
+	public:
+		VulkanQueryStatisticsPool(const VkDevice& logicalDevice);
+		~VulkanQueryStatisticsPool();
+
+		const VoxelEngine::renderer::ShaderStats& getStats() const { return m_stats; } 
+		
+		void getQueryResults();
+		void beginQuery(const VkCommandBuffer& commandBuffer);
+		void endQuery(const VkCommandBuffer& commandBuffer);
 	};
-	INLINE std::vector<uint64> pipelineStats;
-
-	VkQueryPool createQueryPool(const VkDevice& logicalDevice);
-
-	void getQueryResults(const vkInit::VulkanDevice& device);
 }

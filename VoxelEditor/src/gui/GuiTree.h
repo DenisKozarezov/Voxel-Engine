@@ -7,8 +7,7 @@ namespace VoxelEditor::gui
 	{
 	private:
 		std::vector<ImguiWindow*> m_windows;
-		SceneViewport* m_viewport;
-		
+		SceneViewport* m_viewport = nullptr;
 	public:
 		GuiTree();
 

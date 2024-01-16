@@ -3,8 +3,8 @@
 
 namespace vkInit
 {
-	const VkFramebuffer createFramebuffer(
-		const vkInit::VulkanDevice& device,
+	VkFramebuffer createFramebuffer(
+		const VulkanDevice& device,
 		const VkRenderPass& renderPass,
 		const VkExtent2D& swapChainExtent,
 		const std::vector<VkImageView>& attachments)

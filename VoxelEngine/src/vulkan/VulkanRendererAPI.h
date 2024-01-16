@@ -22,11 +22,11 @@ namespace vulkan
 		~VulkanRendererAPI() override = default;
 	};
 
-	INLINE void VulkanRendererAPI::drawMesh(const components::mesh::Mesh& mesh)
+	FORCE_INLINE void VulkanRendererAPI::drawMesh(const components::mesh::Mesh& mesh)
 	{
 		draw(mesh.vertexCount(), 1, 0, 0);
 	}
-	INLINE void VulkanRendererAPI::drawMeshIndexed(const components::mesh::Mesh& mesh, uint32 instanceCount, uint32 startIndex, uint32 startInstance)
+	FORCE_INLINE void VulkanRendererAPI::drawMeshIndexed(const components::mesh::Mesh& mesh, uint32 instanceCount, uint32 startIndex, uint32 startInstance)
 	{
 		drawMeshIndexed(mesh.indexCount(), instanceCount, startIndex, startInstance);
 	}

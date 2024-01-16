@@ -56,21 +56,21 @@ namespace VoxelEngine
 	};
 
 	template<typename TEvent>
-	INLINE void ImguiWindow::sendEvent(TEvent& e)
+	FORCE_INLINE void ImguiWindow::sendEvent(TEvent& e)
 	{
 		m_eventDispatcher.dispatchEvent(e);
 	}
 
 	template<typename TEvent, typename TFunc>
 	requires input::is_event_func<TEvent, TFunc>
-	INLINE constexpr void ImguiWindow::subscribeEvent(TFunc callback)
+	FORCE_INLINE constexpr void ImguiWindow::subscribeEvent(TFunc callback)
 	{
 		m_eventDispatcher.registerEvent<TEvent, TFunc>(callback);
 	}
 
 	template<typename TEvent>
 	requires input::is_event<TEvent>
-	INLINE void ImguiWindow::unsubscribeEvent()
+	FORCE_INLINE void ImguiWindow::unsubscribeEvent()
 	{
 		m_eventDispatcher.unregisterEvent<TEvent>();
 	}

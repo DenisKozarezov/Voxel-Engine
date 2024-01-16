@@ -11,9 +11,9 @@ namespace VoxelEngine::components::mesh
 	private:
 		bool m_instanced;
 	public:
-		IMaterial(const bool& instanced = false) noexcept : m_instanced(instanced) { }
+		IMaterial(const bool& instanced = false) : m_instanced(instanced) { }
 
-		INLINE const bool& instanced() const { return m_instanced; }
+		FORCE_INLINE const bool& instanced() const { return m_instanced; }
 		virtual void bind() const = 0;
 
 		virtual ~IMaterial() = default;
@@ -92,10 +92,10 @@ namespace VoxelEngine::components::mesh
 			return *this;
 		}
 
-		INLINE uint32 indexCount() { return static_cast<uint32>(indices.size()); }
-		INLINE uint32 vertexCount() { return static_cast<uint32>(vertices.size()); }
-		INLINE const uint32 indexCount() const { return static_cast<uint32>(indices.size()); }
-		INLINE const uint32 vertexCount() const { return static_cast<uint32>(vertices.size()); }
+		FORCE_INLINE uint32 indexCount() { return static_cast<uint32>(indices.size()); }
+		FORCE_INLINE uint32 vertexCount() { return static_cast<uint32>(vertices.size()); }
+		FORCE_INLINE const uint32 indexCount() const { return static_cast<uint32>(indices.size()); }
+		FORCE_INLINE const uint32 vertexCount() const { return static_cast<uint32>(vertices.size()); }
 
 		~Mesh()
 		{

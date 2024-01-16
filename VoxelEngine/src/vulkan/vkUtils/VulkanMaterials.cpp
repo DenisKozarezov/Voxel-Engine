@@ -42,22 +42,38 @@ namespace vkUtils
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 	}
 
-	const VulkanMaterial* createMaterial(const VkPipeline& matPipeline, const VkPipelineLayout& matLayout, const string& matName, const bool& instanced)
+	const VulkanMaterial* createMaterial(
+		const VkDevice& logicalDevice,
+		const VkPipeline& matPipeline,
+		const VkPipelineLayout& matLayout,
+		const string& matName,
+		const bool& instanced)
 	{
-		vkUtils::VulkanMaterial mat{instanced};
-		mat.pipeline = matPipeline;
-		mat.pipelineLayout = matLayout;
+		VulkanMaterial* mat = new VulkanMaterial{instanced};
+		mat->logicalDevice = logicalDevice;
+		mat->pipeline = matPipeline;
+		mat->pipelineLayout = matLayout;
 		materials[matName] = mat;
 
 		VOXEL_CORE_TRACE("Building new material '{0}'...", matName);
 
-		return &materials[matName];
+		return materials[matName];
+	}
+
+	void unregisterMaterial(const string& matName)
+	{
+		if (auto* mat = getMaterial(matName))
+		{
+			VOXEL_TRACE("Unregistering material with name '{0}'...", matName);
+			delete mat;
+			materials.erase(matName);
+		}
 	}
 
 	const VulkanMaterial* getMaterial(const string& matName)
 	{
 		VOXEL_CORE_ASSERT(materials.contains(matName), "there is no material with such name " + matName);
-		return &materials[matName];
+		return materials[matName];
 	}
 
 	void makeMaterials(
@@ -84,7 +100,7 @@ namespace vkUtils
 			pipelineInfo.rasterizer->polygonMode = VK_POLYGON_MODE_FILL;
 			pipelineInfo.inputAssembly->topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 			pipelineInfo.build(device.logicalDevice, defaultMaterialLayout, pipelineCache, &defaultPipeline);
-			createMaterial(defaultPipeline, defaultMaterialLayout, "default");
+			createMaterial(device.logicalDevice, defaultPipeline, defaultMaterialLayout, "default");
 		}
 
 		// LINES
@@ -102,7 +118,7 @@ namespace vkUtils
 			pipelineInfo.flags = VK_PIPELINE_CREATE_DERIVATIVE_BIT;
 			pipelineInfo.basePipelineHandle = defaultPipeline;
 			pipelineInfo.build(device.logicalDevice, linesMaterialLayout, pipelineCache, &linesPipeline);
-			createMaterial(linesPipeline, linesMaterialLayout, "lines");
+			createMaterial(device.logicalDevice, linesPipeline, linesMaterialLayout, "lines");
 		}
 
 		// SOLID
@@ -126,7 +142,7 @@ namespace vkUtils
 			pipelineInfo.inputAssembly->topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 			pipelineInfo.flags = VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT;
 			pipelineInfo.build(device.logicalDevice, solidMaterialLayout, pipelineCache, &solidPipeline);
-			createMaterial(solidPipeline, solidMaterialLayout, "solid");
+			createMaterial(device.logicalDevice, solidPipeline, solidMaterialLayout, "solid");
 		}
 
 		// SOLID INSTANCED
@@ -152,7 +168,7 @@ namespace vkUtils
 			pipelineInfo.flags = VK_PIPELINE_CREATE_DERIVATIVE_BIT;
 			pipelineInfo.basePipelineHandle = solidPipeline;
 			pipelineInfo.build(device.logicalDevice, solidMaterialLayout, pipelineCache, &solidInstancedPipeline);
-			createMaterial(solidInstancedPipeline, solidMaterialLayout, "solid_instanced", true);
+			createMaterial(device.logicalDevice, solidInstancedPipeline, solidMaterialLayout, "solid_instanced", true);
 		}
 
 		// NORMALS COLOR
@@ -177,7 +193,7 @@ namespace vkUtils
 			pipelineInfo.basePipelineHandle = solidPipeline;
 
 			pipelineInfo.build(device.logicalDevice, normalsMaterialLayout, pipelineCache, &normals);
-			createMaterial(normals, normalsMaterialLayout, "normals");
+			createMaterial(device.logicalDevice, normals, normalsMaterialLayout, "normals");
 		}
 
 		// NORMALS INSTANCED
@@ -201,7 +217,7 @@ namespace vkUtils
 
 			VkPipeline normalsInstanced;
 			pipelineInfo.build(device.logicalDevice, normalsMaterialLayout, pipelineCache, &normalsInstanced);
-			createMaterial(normalsInstanced, normalsMaterialLayout, "normals_instanced", true);
+			createMaterial(device.logicalDevice, normalsInstanced, normalsMaterialLayout, "normals_instanced", true);
 		}
 
 		// NORMALS LINES
@@ -226,7 +242,7 @@ namespace vkUtils
 			pipelineInfo.basePipelineHandle = normals;
 
 			pipelineInfo.build(device.logicalDevice, normalsMaterialLayout, pipelineCache, &normalsLines);
-			createMaterial(normalsLines, normalsMaterialLayout, "normals_lines");
+			createMaterial(device.logicalDevice, normalsLines, normalsMaterialLayout, "normals_lines");
 		}
 
 		// NORMALS LINES INSTANCED
@@ -251,7 +267,7 @@ namespace vkUtils
 			pipelineInfo.basePipelineHandle = normalsLines;
 
 			pipelineInfo.build(device.logicalDevice, normalsMaterialLayout, pipelineCache, &normalsLinesInstanced);
-			createMaterial(normalsLinesInstanced, normalsMaterialLayout, "normals_lines_instanced");
+			createMaterial(device.logicalDevice, normalsLinesInstanced, normalsMaterialLayout, "normals_lines_instanced");
 		}
 
 		// WIREFRAME
@@ -274,7 +290,7 @@ namespace vkUtils
 			pipelineInfo.inputAssembly->topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 			pipelineInfo.basePipelineHandle = solidInstancedPipeline;
 			pipelineInfo.build(device.logicalDevice, wireframeMaterialLayout, pipelineCache, &wireframe);
-			createMaterial(wireframe, wireframeMaterialLayout, "wireframe");
+			createMaterial(device.logicalDevice, wireframe, wireframeMaterialLayout, "wireframe");
 		}
 
 		// WIREFRAME INSTANCED
@@ -295,7 +311,7 @@ namespace vkUtils
 			pipelineInfo.stagesCount = static_cast<uint32>(shader.getStages().size());
 			pipelineInfo.basePipelineHandle = wireframe;
 			pipelineInfo.build(device.logicalDevice, wireframeMaterialLayout, pipelineCache, &wireframeInstanced);
-			createMaterial(wireframeInstanced, wireframeMaterialLayout, "wireframe_instanced", true);
+			createMaterial(device.logicalDevice, wireframeInstanced, wireframeMaterialLayout, "wireframe_instanced", true);
 		}
 
 		// EDITOR GRID
@@ -331,7 +347,7 @@ namespace vkUtils
 
 			VkPipeline editorGrid;
 			pipelineInfo.build(device.logicalDevice, editorGridMaterialLayout, pipelineCache, &editorGrid);
-			createMaterial(editorGrid, editorGridMaterialLayout, "editor_grid");
+			createMaterial(device.logicalDevice, editorGrid, editorGridMaterialLayout, "editor_grid");
 		}
 
 		// RAYMARCH QUAD
@@ -354,19 +370,18 @@ namespace vkUtils
 
 			VkPipeline raymarchQuad;
 			pipelineInfo.build(device.logicalDevice, fullscreenQuadMaterialLayout, pipelineCache, &raymarchQuad);
-			createMaterial(raymarchQuad, fullscreenQuadMaterialLayout, "raymarch_quad");
+			createMaterial(device.logicalDevice, raymarchQuad, fullscreenQuadMaterialLayout, "raymarch_quad");
 		}
 		VOXEL_CORE_WARN("{0} materials are successfully built.", materials.size());
 	}
 	
-	void releaseMaterials(const vkInit::VulkanDevice& device)
+	void releaseMaterials()
 	{
-		for (const auto& material : materials)
+		while (!materials.empty())
 		{
-			vkDestroyPipeline(device.logicalDevice, material.second.pipeline, nullptr);
-			vkDestroyPipelineLayout(device.logicalDevice, material.second.pipelineLayout, nullptr);
+			const auto& matName = materials.begin()->first;
+			unregisterMaterial(matName);
 		}
-		materials.clear();
 	}
 }
 

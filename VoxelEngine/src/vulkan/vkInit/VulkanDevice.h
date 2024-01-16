@@ -3,6 +3,11 @@
 #include <core/Base.h>
 #include "../vkUtils/VulkanQueueFamilies.h"
 
+namespace vkUtils
+{
+	class VulkanQueryStatisticsPool;
+}
+
 namespace vkInit
 {
 	const std::vector<const char*> deviceExtensions =
@@ -21,7 +26,7 @@ namespace vkInit
 		VkDevice logicalDevice = VK_NULL_HANDLE;
 		VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 		DeviceQueues deviceQueues;
-		VkQueryPool queryPool = VK_NULL_HANDLE;
+		vkUtils::VulkanQueryStatisticsPool* queryPool;
 		VkSurfaceKHR surface = VK_NULL_HANDLE;
 		VkPhysicalDeviceProperties properties;
 		VkPhysicalDeviceFeatures features;

@@ -1,5 +1,6 @@
 #pragma once
 #include <core/PrimitiveTypes.h>
+#include <vector>
 
 namespace VoxelEngine::renderer
 {
@@ -17,6 +18,12 @@ namespace VoxelEngine::renderer
 		uint64 vertices;
 		uint32 indices;
 		uint64 instances;
+	};
+
+	struct ShaderStats
+	{
+		std::vector<string> performanceStrings;
+		std::vector<uint64> performanceStats;
 	};
 
 	struct RenderSettings

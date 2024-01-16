@@ -154,9 +154,9 @@ namespace vkInit
 	{
 		this->surface = surface;
 		setupPhysicalDevice(instance, this);
-		this->logicalDevice = createLogicalDevice(this);
-		this->deviceQueues = getDeviceQueues(this);
-		this->queryPool = vkUtils::createQueryPool(logicalDevice);
+		logicalDevice = createLogicalDevice(this);
+		deviceQueues = getDeviceQueues(this);
+		queryPool = new vkUtils::VulkanQueryStatisticsPool(this->logicalDevice);
 	}
 
 	VulkanDevice::~VulkanDevice()
@@ -165,7 +165,7 @@ namespace vkInit
 	}
 	void VulkanDevice::release()
 	{
-		vkDestroyQueryPool(logicalDevice, queryPool, nullptr);
+		delete queryPool;
 		vkDestroyDevice(logicalDevice, nullptr);
 	}
 }

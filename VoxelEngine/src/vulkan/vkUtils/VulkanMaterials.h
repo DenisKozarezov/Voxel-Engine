@@ -35,19 +35,31 @@ namespace vkUtils
 	class VulkanMaterial : public VoxelEngine::components::mesh::IMaterial
 	{
 	public:
+		VkDevice logicalDevice = VK_NULL_HANDLE;
 		VkPipeline pipeline = VK_NULL_HANDLE;
 		VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
 
-		VulkanMaterial(const bool& instanced = false) noexcept : VoxelEngine::components::mesh::IMaterial(instanced) { }
-		~VulkanMaterial() override = default;
+		VulkanMaterial(const bool& instanced = false) : IMaterial(instanced) { }
+		~VulkanMaterial() override
+		{
+			vkDestroyPipeline(logicalDevice, pipeline, nullptr);
+			vkDestroyPipelineLayout(logicalDevice, pipelineLayout, nullptr);
+		}
 
 		void bind() const override;
 		void bind(const VkCommandBuffer& commandBuffer, const VkDescriptorSet& descriptorSet) const;
 	};
 
-	using MaterialsCache = std::unordered_map<string, VulkanMaterial>;
+	using MaterialsCache = std::unordered_map<string, VulkanMaterial*>;
 	
-	const VulkanMaterial* createMaterial(const VkPipeline& matPipeline, const VkPipelineLayout& matLayout, const string& matName, const bool& instanced = false);
+	const VulkanMaterial* createMaterial(
+		const VkDevice& logicalDevice,
+		const VkPipeline& matPipeline,
+		const VkPipelineLayout& matLayout,
+		const string& matName,
+		const bool& instanced = false);
+	
+	void unregisterMaterial(const string& matName);
 	
 	const VulkanMaterial* getMaterial(const string& matName);
 
@@ -56,7 +68,7 @@ namespace vkUtils
 		const VkPipelineCache& pipelineCache,
 		VulkanPipelineCreateInfo& pipelineInfo);
 	
-	void releaseMaterials(const vkInit::VulkanDevice& device);
+	void releaseMaterials();
 }
 
 namespace utils

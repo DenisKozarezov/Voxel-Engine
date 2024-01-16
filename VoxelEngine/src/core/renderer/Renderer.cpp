@@ -25,6 +25,7 @@ namespace VoxelEngine::renderer
         s_renderPerformanceStats.deltaTime = app->getDeltaTime();
         s_renderPerformanceStats.fps = app->getFPS();
         s_renderPerformanceStats.frameStats = vulkan::getFrameStats();
+        s_renderPerformanceStats.shaderStats = vulkan::getShaderStats();
     }
 
     void Renderer::init(const Window& window)

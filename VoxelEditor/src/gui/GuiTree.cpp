@@ -9,17 +9,20 @@ namespace VoxelEditor::gui
 	}
 	void GuiTree::registerWindow(ImguiWindow* window)
 	{	    
-		VOXEL_TRACE("Registering an ImGuiWindow with title '{0}'...", window->title());
-
 #ifdef VOXEL_RELEASE
-		const auto it = std::find(m_windows.begin(), m_windows.end(), window);
+		const auto it = std::find_if(m_windows.begin(), m_windows.end(), [=](const ImguiWindow* wnd)
+		{
+			return wnd->title() == window->title();
+		});
 		if (it != m_windows.end())
 		{
 			EditorConsole::error("ImGuiWindow with title '{0}' already registered.", window->title());
 		}
 		else
 #endif
-		{            
+		{
+			VOXEL_TRACE("Registering an ImGuiWindow with title '{0}'...", window->title());
+			
 			m_windows.emplace_back(window);
 			std::sort(
 				m_windows.begin(),

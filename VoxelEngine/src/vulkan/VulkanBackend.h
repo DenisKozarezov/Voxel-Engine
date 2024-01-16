@@ -37,6 +37,7 @@ namespace vulkan
 
 	renderer::RenderSettings& getRenderSettings();
 	const renderer::RenderFrameStats& getFrameStats();
+	const renderer::ShaderStats& getShaderStats();
 	void resetFrameStats();
 
 	/// <summary>

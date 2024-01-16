@@ -3,7 +3,7 @@
 
 namespace vkInit
 {
-	VkCommandPool createCommandPool(const vkInit::VulkanDevice& device, const uint32& queueFamily);
+	VkCommandPool createCommandPool(const VulkanDevice& device, const uint32& queueFamily);
 }
 
 namespace vkUtils::memory

@@ -1,5 +1,5 @@
 #include <vulkan/VulkanRendererAPI.h>
-#include <Core/Logging/Log.h>
+#include <Core/Logging/Assert.h>
 
 namespace VoxelEngine::renderer
 {

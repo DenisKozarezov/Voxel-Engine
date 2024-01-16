@@ -5,10 +5,22 @@
 #include <Core/CoreTypes.h>
 #include <core/Base.h>
 
+enum ProjectionType : byte { Perspective, Orthographic, Isometric };
+
+constexpr string projectionTypeString(const ProjectionType& mode)
+{
+	switch (mode)
+	{
+#define STR(x) case ProjectionType::##x: return #x;
+		STR(Perspective);
+		STR(Orthographic);
+#undef STR
+	}
+}
+
 namespace VoxelEngine::components::camera
 {
 	enum class CameraMovement : byte { Forward, Backward, Left, Right };
-	enum ProjectionType : byte { Perspective, Orthographic, Isometric };
 
 	class Camera
 	{

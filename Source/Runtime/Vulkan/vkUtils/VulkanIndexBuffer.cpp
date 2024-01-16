@@ -1,5 +1,6 @@
 #include "VulkanIndexBuffer.h"
 #include "../VulkanBackend.h"
+#include <Core/Logging/Assert.h>
 
 namespace vkUtils
 {

@@ -119,10 +119,7 @@ namespace VoxelEditor::gui
 	    
 		ImGuiIO& io = ImGui::GetIO();
 		ImGuiStyle& style = ImGui::GetStyle();
-		float minWinSizeX = style.WindowMinSize.x;
 		style.WindowMinSize.x = 100.0f;
-
-		style.WindowMinSize.x = minWinSizeX;
 	    
 		return begin;
 	}

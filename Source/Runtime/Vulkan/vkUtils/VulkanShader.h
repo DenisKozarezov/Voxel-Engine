@@ -21,10 +21,8 @@ namespace vkUtils
 		VulkanShader() noexcept = delete;
 		VulkanShader(const VkDevice& logicalDevice, const char* filepath);
 
-		FORCE_INLINE std::vector<VkPipelineShaderStageCreateInfo>& getStages() & noexcept { return m_shaderStages; }
-
-		void unbind() const override;
-
+		__forceinline std::vector<VkPipelineShaderStageCreateInfo>& getStages() & noexcept { return m_shaderStages; }
+		
 		~VulkanShader() override;
 	};
 }

@@ -1,4 +1,5 @@
 #include "ShaderLexer.h"
+#include <Core/Logging/Assert.h>
 
 namespace utils::shaders
 {

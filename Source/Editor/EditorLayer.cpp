@@ -16,7 +16,7 @@ namespace VoxelEditor::gui
 		m_guiTree.registerViewport(new SceneViewport("Viewport", m_scene));
 		m_guiTree.registerWindow(new EditorConsole("Console"));
 		m_guiTree.registerWindow(new PrimitivesPanel("Add Primitives"));
-		m_guiTree.registerWindow(new UsefulToolsWindow("Tools"));
+		m_guiTree.registerWindow(new UsefulToolsWindow("Tools", &m_guiTree));
 	}
 
 	void EditorLayer::loadModel()

@@ -10,7 +10,7 @@ namespace vkUtils
 		vkInit::VulkanDevice m_device;
 		memory::Buffer m_vertexBuffer;
 
-		INLINE void release() override { m_vertexBuffer.release(); }
+		FORCE_INLINE void release() override { m_vertexBuffer.release(); }
 	public:
 		VulkanVertexBuffer() noexcept = default;
 		VulkanVertexBuffer(const vkInit::VulkanDevice& device, const size_t& bufferSize);
@@ -21,7 +21,7 @@ namespace vkUtils
 		VulkanVertexBuffer& operator=(VulkanVertexBuffer&& rhs) noexcept;
 		~VulkanVertexBuffer() override;
 
-		INLINE operator const VkBuffer&() const & { return m_vertexBuffer.buffer; }
+		FORCE_INLINE operator const VkBuffer&() const & { return m_vertexBuffer.buffer; }
 
 		constexpr uint32 size() const override;
 

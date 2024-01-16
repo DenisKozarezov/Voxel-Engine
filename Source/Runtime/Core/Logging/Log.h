@@ -2,6 +2,20 @@
 #include <Core/Base.h>
 #include <spdlog/spdlog.h>
 
+constexpr std::string logLevelString(const spdlog::level::level_enum& level)
+{
+	switch (level)
+	{
+#define STR(x) case spdlog::level::##x: return #x;
+		STR(info);
+		STR(warn);
+		STR(critical);
+		STR(err);
+#undef STR
+	default: return "info";
+	}
+}
+
 namespace VoxelEngine
 {
 	class VOXEL_API Log

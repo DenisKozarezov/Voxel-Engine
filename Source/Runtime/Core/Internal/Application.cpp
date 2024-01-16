@@ -1,6 +1,5 @@
 #include "Application.h"
 #include <InputCore/events/EventDispatcher.h>
-#include <Core/Internal/utils/EnumUtils.h>
 #include <Renderer/Renderer.h>
 
 namespace VoxelEngine
@@ -22,7 +21,7 @@ namespace VoxelEngine
 		setupInputCallbacks();
 
 		std::stringstream name;
-		const char* graphicsSpec = graphicsSpecString(renderer::g_graphicsSpec);
+		string graphicsSpec = graphicsSpecString(renderer::g_graphicsSpec);
 
 		VOXEL_CORE_WARN("Graphics Renderer API: {0}", graphicsSpec);
 

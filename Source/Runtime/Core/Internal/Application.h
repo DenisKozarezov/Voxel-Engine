@@ -4,6 +4,7 @@
 #include "LayerStack.h"
 #include "Window.h"
 #include "imgui/ImGuiLayer.h"
+#include <Core/Logging/Assert.h>
 
 struct ApplicationCommandLineArgs
 {

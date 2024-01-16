@@ -6,7 +6,6 @@
 #include <Core/Internal/imgui/ImGuiLayer.h>
 #include <Core/Internal/imgui/ImGuiWindow.h>
 #include <Core/Internal/scene/Scene.h>
-#include <Core/Internal/utils/EnumUtils.h>
 #include <Core/Internal/utils/PlatformUtils.h>
 #include <Core/HAL/AssetsManager/AssetsProvider.h>
 

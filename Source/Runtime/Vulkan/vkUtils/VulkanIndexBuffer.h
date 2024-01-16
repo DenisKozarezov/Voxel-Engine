@@ -21,7 +21,7 @@ namespace vkUtils
 		VulkanIndexBuffer& operator=(VulkanIndexBuffer&& rhs);
 		~VulkanIndexBuffer() override;
 
-		INLINE operator const VkBuffer&() const & { return m_indexBuffer.buffer; }
+		FORCE_INLINE operator const VkBuffer&() const & { return m_indexBuffer.buffer; }
 
 		constexpr uint32 size() const override;
 		void bind() override;

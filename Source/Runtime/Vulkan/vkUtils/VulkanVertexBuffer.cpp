@@ -1,5 +1,6 @@
 #include "VulkanVertexBuffer.h"
-#include "vulkan/VulkanBackend.h"
+#include "../VulkanBackend.h"
+#include <Core/Logging/Assert.h>
 
 namespace vkUtils
 {

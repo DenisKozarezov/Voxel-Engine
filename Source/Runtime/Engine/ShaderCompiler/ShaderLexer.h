@@ -1,5 +1,5 @@
 #pragma once
-#include <Core/Internal/utils/EnumUtils.h>
+#include <Renderer/Shader.h>
 
 namespace utils::shaders
 {

@@ -35,12 +35,12 @@ namespace VoxelEditor::gui
 		ImGui::BeginChild("##cameraModes", { 400, 100 }, false, window_flags);
 		ImGui::Text("Camera Mode");
 
-		components::camera::ProjectionType projectionType = m_camera->projectionType();
-		const char* modeStr = projectionTypeString(projectionType);
-		if (ImGui::Button(modeStr))
+		ProjectionType projectionType = m_camera->projectionType();
+		string modeStr = projectionTypeString(projectionType);
+		if (ImGui::Button(modeStr.c_str()))
 		{
 			int modeInt = (static_cast<int>(projectionType) + 1) % 2;
-			m_camera->switchMode((components::camera::ProjectionType)modeInt);
+			m_camera->switchMode((ProjectionType)modeInt);
 		}
 
 		ImGui::SameLine();

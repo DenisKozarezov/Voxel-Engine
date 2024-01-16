@@ -2,6 +2,7 @@
 #include <shaderc/shaderc.hpp>
 #include <spirv_cross/spirv_cross.hpp>
 #include <Core/HAL/AssetsManager/AssetsProvider.h>
+#include <Core/Logging/Assert.h>
 
 namespace utils::shaders
 {

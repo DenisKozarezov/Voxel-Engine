@@ -122,7 +122,8 @@ namespace vkUtils
 			VOXEL_CORE_WARN("Shader '{0}' creation time: {1} ms.", filepath, timer.elapsedTimeInMilliseconds<double>());
 		}
 	}
-	void VulkanShader::unbind() const
+
+	VulkanShader::~VulkanShader()
 	{
 		for (const VkShaderModule& module : m_shaderModules)
 		{
@@ -131,9 +132,5 @@ namespace vkUtils
 				vkDestroyShaderModule(m_logicalDevice, module, nullptr);
 			}
 		}
-	}
-	VulkanShader::~VulkanShader()
-	{
-		unbind();
 	}
 }

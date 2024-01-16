@@ -6,23 +6,23 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 project(VoxelEngine VERSION 0.0.1)
 
-add_subdirectory(VoxelEngine)
-add_subdirectory(VoxelEditor)
-add_subdirectory(ThirdParty)
+add_subdirectory(Source/Editor)
+add_subdirectory(Source/Runtime)
+add_subdirectory(Source/ThirdParty)
 
 # ================ BUILD DIRECTORIES ================
 set(LIBRARY_OUTPUT_DIR "$<0:>${CMAKE_BINARY_DIR}/bin/$<CONFIG>")
 set(BINARY_OUTPUT_DIR "$<0:>${CMAKE_BINARY_DIR}/bin/$<CONFIG>")
 set(ASSETS_FOLDER "${CMAKE_SOURCE_DIR}/resources")
 
-set_target_properties(VoxelEngine PROPERTIES
-	ARCHIVE_OUTPUT_DIRECTORY ${LIBRARY_OUTPUT_DIR}/VoxelEngine
-	LIBRARY_OUTPUT_DIRECTORY ${LIBRARY_OUTPUT_DIR}/VoxelEngine
-	RUNTIME_OUTPUT_DIRECTORY ${BINARY_OUTPUT_DIR}/VoxelEngine
+set_target_properties(Runtime PROPERTIES
+	ARCHIVE_OUTPUT_DIRECTORY ${LIBRARY_OUTPUT_DIR}/Runtime
+	LIBRARY_OUTPUT_DIRECTORY ${LIBRARY_OUTPUT_DIR}/Runtime
+	RUNTIME_OUTPUT_DIRECTORY ${BINARY_OUTPUT_DIR}/Runtime
 )
-set_target_properties(VoxelEditor PROPERTIES
-	ARCHIVE_OUTPUT_DIRECTORY ${LIBRARY_OUTPUT_DIR}/VoxelEditor
-	LIBRARY_OUTPUT_DIRECTORY ${LIBRARY_OUTPUT_DIR}/VoxelEditor
-	RUNTIME_OUTPUT_DIRECTORY ${BINARY_OUTPUT_DIR}/VoxelEditor
-	EXECUTABLE_OUTPUT_PATH ${BINARY_OUTPUT_DIR}/VoxelEditor
+set_target_properties(Editor PROPERTIES
+	ARCHIVE_OUTPUT_DIRECTORY ${LIBRARY_OUTPUT_DIR}/Editor
+	LIBRARY_OUTPUT_DIRECTORY ${LIBRARY_OUTPUT_DIR}/Editor
+	RUNTIME_OUTPUT_DIRECTORY ${BINARY_OUTPUT_DIR}/Editor
+	EXECUTABLE_OUTPUT_PATH ${BINARY_OUTPUT_DIR}/Editor
 )

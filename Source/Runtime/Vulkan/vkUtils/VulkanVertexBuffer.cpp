@@ -4,18 +4,17 @@
 
 namespace vkUtils
 {
-	VulkanVertexBuffer::VulkanVertexBuffer(const vkInit::VulkanDevice& device, const size_t& bufferSize)
+	VulkanVertexBuffer::VulkanVertexBuffer(const vkInit::VulkanDevice* device, const size_t& bufferSize)
 		: m_device(device)
 	{
 		VOXEL_CORE_ASSERT(bufferSize > 0, "vertex buffer is attempting to allocate zero memory device size!");
-
 		m_vertexBuffer = memory::createBuffer(
 			device,
 			bufferSize,
 			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
 		m_vertexBuffer.map();
 	}
-	VulkanVertexBuffer::VulkanVertexBuffer(const vkInit::VulkanDevice& device, const void* vertices, const size_t& bufferSize)
+	VulkanVertexBuffer::VulkanVertexBuffer(const vkInit::VulkanDevice* device, const void* vertices, const size_t& bufferSize)
 		: m_device(device)
 	{ 
 		VOXEL_CORE_ASSERT(vertices, "vertex buffer is attempting to map empty data!");
@@ -48,7 +47,7 @@ namespace vkUtils
 
 		this->m_vertexBuffer.map();
 	}
-	VulkanVertexBuffer::VulkanVertexBuffer(VulkanVertexBuffer&& rhs) noexcept : m_device(std::move(rhs.m_device))
+	VulkanVertexBuffer::VulkanVertexBuffer(VulkanVertexBuffer&& rhs) noexcept : m_device(rhs.m_device)
 	{
 		std::swap(this->m_vertexBuffer, rhs.m_vertexBuffer);
 	}
@@ -58,7 +57,6 @@ namespace vkUtils
 			return *this;
 
 		release();
-
 		this->m_device = rhs.m_device;
 
 		if (this->m_vertexBuffer.size == 0)
@@ -99,7 +97,7 @@ namespace vkUtils
 	}
 	void VulkanVertexBuffer::bind(const uint32& binding)
 	{
-		VkCommandBuffer commandBuffer = vulkan::getCommandBuffer();
+		const VkCommandBuffer commandBuffer = vulkan::getCommandBuffer();
 		bind(commandBuffer, binding);
 	}
 	void VulkanVertexBuffer::bind(const VkCommandBuffer& commandBuffer, const uint32& binding)

@@ -15,8 +15,8 @@ namespace VoxelEditor::gui
 		
 		bool showDockSpace(bool *p_open) const;
 		
-		void registerWindow(ImguiWindow* window);
-		void registerViewport(SceneViewport* viewport);
+		bool registerWindow(ImguiWindow* window);
+		bool registerViewport(SceneViewport* viewport);
 		void unregisterWindow(const ImguiWindow* window);
 		void unregisterWindow(std::vector<ImguiWindow*>::iterator it);
 		void onImGuiRender();

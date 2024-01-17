@@ -14,7 +14,7 @@ namespace vkUtils
 	constexpr bool hasStencilComponent(const VkFormat& format);
 
 	VkImage createImage(
-		const vkInit::VulkanDevice& device,
+		const vkInit::VulkanDevice* device,
 		const uint32& width,
 		const uint32& height,
 		const VkFormat& format,

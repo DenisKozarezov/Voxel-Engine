@@ -4,11 +4,10 @@
 
 namespace vkUtils
 {
-	VulkanIndexBuffer::VulkanIndexBuffer(const vkInit::VulkanDevice& device, const size_t& bufferSize)
+	VulkanIndexBuffer::VulkanIndexBuffer(const vkInit::VulkanDevice*  device, const size_t& bufferSize)
 		: m_device(device)
 	{
 		VOXEL_CORE_ASSERT(bufferSize > 0, "index buffer is attempting to allocate zero memory device size!");
-
 		m_indexBuffer = memory::createBuffer(
 			device,
 			bufferSize,
@@ -16,7 +15,7 @@ namespace vkUtils
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 		m_indexBuffer.map();
 	}
-	VulkanIndexBuffer::VulkanIndexBuffer(const vkInit::VulkanDevice& device, const void* indices, const size_t& bufferSize) 
+	VulkanIndexBuffer::VulkanIndexBuffer(const vkInit::VulkanDevice*  device, const void* indices, const size_t& bufferSize) 
 		: m_device(device)
 	{
 		VOXEL_CORE_ASSERT(indices, "index buffer is attempting to map empty data!");
@@ -50,7 +49,7 @@ namespace vkUtils
 		this->m_indexBuffer.map();
 	}
 	VulkanIndexBuffer::VulkanIndexBuffer(VulkanIndexBuffer&& rhs) noexcept
-		: m_device(std::move(rhs.m_device))
+		: m_device(rhs.m_device)
 	{
 		std::swap(this->m_indexBuffer, rhs.m_indexBuffer);
 	}
@@ -95,7 +94,7 @@ namespace vkUtils
 	}
 	void VulkanIndexBuffer::bind()
 	{
-		VkCommandBuffer commandBuffer = vulkan::getCommandBuffer();
+		const VkCommandBuffer commandBuffer = vulkan::getCommandBuffer();
 		vkCmdBindIndexBuffer(commandBuffer, m_indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
 	}
 }

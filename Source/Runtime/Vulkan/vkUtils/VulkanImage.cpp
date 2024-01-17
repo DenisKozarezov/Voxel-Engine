@@ -40,7 +40,7 @@ namespace vkUtils
 	}
 
 	VkImage createImage(
-		const vkInit::VulkanDevice& device,
+		const vkInit::VulkanDevice* device,
 		const uint32& width,
 		const uint32& height,
 		const VkFormat& format,
@@ -66,15 +66,15 @@ namespace vkUtils
 		imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
 		VkImage image;
-		VkResult err = vkCreateImage(device.logicalDevice, &imageInfo, nullptr, &image);
+		VkResult err = vkCreateImage(device->logicalDevice, &imageInfo, nullptr, &image);
 		VK_CHECK(err, "failed to create image!");
 
 		VkMemoryRequirements memRequirements;
-		vkGetImageMemoryRequirements(device.logicalDevice, image, &memRequirements);
+		vkGetImageMemoryRequirements(device->logicalDevice, image, &memRequirements);
 
 		imageMemory = memory::allocateMemory(device, memRequirements, properties);
 
-		vkBindImageMemory(device.logicalDevice, image, imageMemory, 0);
+		vkBindImageMemory(device->logicalDevice, image, imageMemory, 0);
 		return image;
 	}
 

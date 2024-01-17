@@ -1,5 +1,5 @@
 #pragma once
-#include <Vulkan/vkInit/VulkanDevice.h>
+#include <vulkan/vulkan.h>
 #include <Core/HAL/AssetsManager/AssetsProvider.h>
 
 namespace vkUtils
@@ -64,7 +64,7 @@ namespace vkUtils
 	const VulkanMaterial* getMaterial(const string& matName);
 
 	void makeMaterials(
-		const vkInit::VulkanDevice& device,
+		const VkDevice& device,
 		const VkPipelineCache& pipelineCache,
 		VulkanPipelineCreateInfo& pipelineInfo);
 	

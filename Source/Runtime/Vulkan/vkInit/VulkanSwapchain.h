@@ -147,7 +147,7 @@ namespace vkInit
 	}
 
 	void createDepthResources(
-		const vkInit::VulkanDevice& device,
+		const vkInit::VulkanDevice* device,
 		const uint32& width,
 		const uint32& height,
 		const VkSampleCountFlagBits& msaaSamples,
@@ -156,7 +156,7 @@ namespace vkInit
 		VkImageView& depthImageView,
 		VkDeviceMemory& depthImageMemory)
 	{
-		depthFormat = vkUtils::findDepthFormat(device.physicalDevice);
+		depthFormat = vkUtils::findDepthFormat(device->physicalDevice);
 		depthImage = vkUtils::createImage(
 			device,
 			width, height,
@@ -168,14 +168,14 @@ namespace vkInit
 			depthImageMemory);
 
 		depthImageView = vkUtils::createImageView(
-			device.logicalDevice,
+			device->logicalDevice,
 			depthImage,
 			depthFormat,
 			VK_IMAGE_ASPECT_DEPTH_BIT);
 	}
 	
 	void createColorResources(
-		const vkInit::VulkanDevice& device,
+		const vkInit::VulkanDevice* device,
 		const uint32& width,
 		const uint32& height,
 		const VkSampleCountFlagBits& msaaSamples, 
@@ -195,7 +195,7 @@ namespace vkInit
 			colorImageMemory);
 
 		colorImageView = vkUtils::createImageView(
-			device.logicalDevice,
+			device->logicalDevice,
 			colorImage,
 			colorFormat,
 			VK_IMAGE_ASPECT_COLOR_BIT
@@ -203,12 +203,12 @@ namespace vkInit
 	}
 
 	SwapChainBundle createSwapChain(
-		const vkInit::VulkanDevice& device,
+		const vkInit::VulkanDevice* device,
 		const uint32& width, 
 		const uint32& height,
 		const VkSampleCountFlagBits& msaaSamples)
 	{
-		SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device.physicalDevice, device.surface);
+		SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device->physicalDevice, device->surface);
 		VkSurfaceFormatKHR surfaceFormat = chooseSwapChainSurfaceFormat(swapChainSupport.formats);
 		VkPresentModeKHR presentMode = chooseSwapChainPresentMode(swapChainSupport.presentModes);
 		VkExtent2D extent = chooseSwapChainExtent(width, height, swapChainSupport.capabilities);
@@ -217,7 +217,7 @@ namespace vkInit
 
 		VkSwapchainCreateInfoKHR createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-		createInfo.surface = device.surface;
+		createInfo.surface = device->surface;
 		createInfo.minImageCount = imageCount;
 		createInfo.imageFormat = surfaceFormat.format;
 		createInfo.imageColorSpace = surfaceFormat.colorSpace;
@@ -230,7 +230,7 @@ namespace vkInit
 		createInfo.clipped = VK_TRUE;
 		createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-		vkUtils::QueueFamilyIndices indices = device.queueFamilyIndices;
+		vkUtils::QueueFamilyIndices indices = device->queueFamilyIndices;
 		uint32 queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
 		if (indices.graphicsFamily != indices.presentFamily)
@@ -248,7 +248,7 @@ namespace vkInit
 
 		SwapChainBundle bundle;
 		VkSwapchainKHR swapchain;
-		VkResult err = vkCreateSwapchainKHR(device.logicalDevice, &createInfo, nullptr, &swapchain);
+		VkResult err = vkCreateSwapchainKHR(device->logicalDevice, &createInfo, nullptr, &swapchain);
 		VK_CHECK(err, "failed to create swap chain!");
 
 		bundle.swapchain = swapchain;
@@ -273,7 +273,7 @@ namespace vkInit
 			bundle.depthImageView,
 			bundle.depthImageMemory);		
 
-		std::vector<VkImage> images = getSwapChainImagesKHR(device.logicalDevice, bundle.swapchain, &imageCount);
+		std::vector<VkImage> images = getSwapChainImagesKHR(device->logicalDevice, bundle.swapchain, &imageCount);
 		bundle.frames.resize(images.size());
 		for (size_t i = 0; i < images.size(); ++i) 
 		{
@@ -285,7 +285,7 @@ namespace vkInit
 				VK_COMPONENT_SWIZZLE_IDENTITY
 			};
 			bundle.frames[i].image = images[i];
-			bundle.frames[i].imageView = vkUtils::createImageView(device.logicalDevice, images[i], bundle.format, components);
+			bundle.frames[i].imageView = vkUtils::createImageView(device->logicalDevice, images[i], bundle.format, components);
 		}
 
 		VOXEL_CORE_TRACE("Vulkan swap chain created.");

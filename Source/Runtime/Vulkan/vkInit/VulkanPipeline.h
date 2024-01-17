@@ -5,7 +5,7 @@
 namespace vkInit
 {
 	const VkRenderPass createRenderPass(
-		const VulkanDevice& device, 
+		const VkDevice& device, 
 		const VkFormat& swapChainImageFormat, 
 		const VkFormat depthFormat,
 		const VkSampleCountFlagBits& msaaSamples)
@@ -63,7 +63,7 @@ namespace vkInit
 		VkRenderPassCreateInfo renderPassInfo = renderPassCreateInfo(attachments, subpasses, dependencies);
 
 		VkRenderPass renderPass;
-		VkResult err = vkCreateRenderPass(device.logicalDevice, &renderPassInfo, nullptr, &renderPass);
+		VkResult err = vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass);
 		VK_CHECK(err, "failed to create render pass!");
 
 		VOXEL_CORE_TRACE("Vulkan render pass created.");

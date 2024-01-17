@@ -27,7 +27,7 @@ namespace vkInit
 		std::vector<VkExtensionProperties> availableExtensions(extensionCount);
 		vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
 
-		if (enableValidation && availableExtensions.size() > 0)
+		if (enableValidation && !availableExtensions.empty())
 		{
 			std::stringstream ss;
 			for (const VkExtensionProperties& extension : availableExtensions)
@@ -45,9 +45,9 @@ namespace vkInit
 		return requiredExtensions.empty();
 	}
 	
-	const bool isDeviceSuitable(const VkPhysicalDevice& device, const vkUtils::QueueFamilyIndices& queueFamilyIndices)
+	bool isDeviceSuitable(const VkPhysicalDevice& device, const vkUtils::QueueFamilyIndices& queueFamilyIndices)
 	{
-		bool extensionsSupported = checkDeviceExtensionSupport(device, vkUtils::_enableValidationLayers);
+		const bool extensionsSupported = checkDeviceExtensionSupport(device, vkUtils::_enableValidationLayers);
 
 		VkPhysicalDeviceFeatures supportedFeatures;
 		vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
@@ -105,8 +105,8 @@ namespace vkInit
 		VOXEL_CORE_ASSERT(vulkanDevice->physicalDevice, "failed to create logical device!");
 
 		float queuePriority = 1.0f;
-		uint32 graphicsFamilyIndex = vulkanDevice->queueFamilyIndices.graphicsFamily.value();
-		uint32 presentFamilyIndex = vulkanDevice->queueFamilyIndices.presentFamily.value();
+		const uint32 graphicsFamilyIndex = vulkanDevice->queueFamilyIndices.graphicsFamily.value();
+
 		VkDeviceQueueCreateInfo queueCreateInfo = {};
 		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 		queueCreateInfo.queueFamilyIndex = graphicsFamilyIndex;
@@ -151,8 +151,8 @@ namespace vkInit
 	}
 	
 	VulkanDevice::VulkanDevice(const VkInstance& instance, const VkSurfaceKHR& surface)
+		: surface(surface)
 	{
-		this->surface = surface;
 		setupPhysicalDevice(instance, this);
 		logicalDevice = createLogicalDevice(this);
 		deviceQueues = getDeviceQueues(this);
@@ -160,10 +160,6 @@ namespace vkInit
 	}
 
 	VulkanDevice::~VulkanDevice()
-	{
-		
-	}
-	void VulkanDevice::release()
 	{
 		delete queryPool;
 		vkDestroyDevice(logicalDevice, nullptr);

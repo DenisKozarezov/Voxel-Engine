@@ -7,7 +7,7 @@ namespace VoxelEditor::gui
 	{
 		
 	}
-	void GuiTree::registerWindow(ImguiWindow* window)
+	bool GuiTree::registerWindow(ImguiWindow* window)
 	{	    
 #ifdef VOXEL_RELEASE
 		const auto it = std::find_if(m_windows.begin(), m_windows.end(), [=](const ImguiWindow* wnd)
@@ -17,6 +17,7 @@ namespace VoxelEditor::gui
 		if (it != m_windows.end())
 		{
 			EditorConsole::error("ImGuiWindow with title '{0}' already registered.", window->title());
+			return false;
 		}
 		else
 #endif
@@ -31,12 +32,17 @@ namespace VoxelEditor::gui
 					return lhs->title() < rhs->title();
 				}
 			);
+			return true;
 		}
 	}
-	void GuiTree::registerViewport(SceneViewport* viewport)
+	bool GuiTree::registerViewport(SceneViewport* viewport)
 	{
-		m_viewport = viewport;
-		registerWindow(viewport);
+		const bool isRegistered = registerWindow(viewport);
+		if (isRegistered)
+		{
+			m_viewport = viewport;
+		}
+		return isRegistered;
 	}
 
 	void GuiTree::unregisterWindow(const ImguiWindow* window)

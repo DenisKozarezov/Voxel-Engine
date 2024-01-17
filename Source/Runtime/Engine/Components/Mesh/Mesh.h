@@ -24,11 +24,8 @@ namespace VoxelEngine::components::mesh
 	private:
 		void release()
 		{
-			if (vertexBuffer)
-				vertexBuffer->release();
-
-			if (indexBuffer)
-				indexBuffer->release();
+			vertexBuffer = nullptr;
+			indexBuffer = nullptr;
 		}
 	public:
 		std::vector<Vertex> vertices;
@@ -45,8 +42,8 @@ namespace VoxelEngine::components::mesh
 		}
 		Mesh(const Vertex* vertices, uint32 vertexCount, const uint32* indices, uint32 indexCount)
 		{
-			std::copy(vertices, vertices + vertexCount, std::back_inserter(this->vertices));
-			std::copy(indices, indices + indexCount, std::back_inserter(this->indices));
+			std::copy_n(vertices, vertexCount, std::back_inserter(this->vertices));
+			std::copy_n(indices, indexCount, std::back_inserter(this->indices));
 		}
 		Mesh(const Mesh& rhs) : Mesh(rhs.vertices, rhs.indices)
 		{
@@ -94,8 +91,8 @@ namespace VoxelEngine::components::mesh
 
 		FORCE_INLINE uint32 indexCount() { return static_cast<uint32>(indices.size()); }
 		FORCE_INLINE uint32 vertexCount() { return static_cast<uint32>(vertices.size()); }
-		FORCE_INLINE const uint32 indexCount() const { return static_cast<uint32>(indices.size()); }
-		FORCE_INLINE const uint32 vertexCount() const { return static_cast<uint32>(vertices.size()); }
+		FORCE_INLINE uint32 indexCount() const { return static_cast<uint32>(indices.size()); }
+		FORCE_INLINE uint32 vertexCount() const { return static_cast<uint32>(vertices.size()); }
 
 		~Mesh()
 		{

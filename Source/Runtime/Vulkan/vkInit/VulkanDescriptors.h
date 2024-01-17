@@ -5,8 +5,6 @@
 
 namespace vkInit
 {
-	struct VulkanDevice;
-	
 	struct DescriptorSetLayoutInputBundle
 	{
 		int count = 0;
@@ -16,12 +14,12 @@ namespace vkInit
 		std::vector<VkShaderStageFlags> stages;
 	};
 
-	VkDescriptorSetLayout createDescriptorSetLayout(const VulkanDevice& device, const DescriptorSetLayoutInputBundle& bindings);
+	VkDescriptorSetLayout createDescriptorSetLayout(const VkDevice& device, const DescriptorSetLayoutInputBundle& bindings);
 
-	VkDescriptorPool createDescriptorPool(const VulkanDevice& device);
+	VkDescriptorPool createDescriptorPool(const VkDevice& device);
 
 	VkDescriptorSet allocateDescriptorSet(
-		const VulkanDevice& device,
+		const VkDevice& device,
 		const VkDescriptorPool& descriptorPool,
 		const VkDescriptorSetLayout& descriptorSetLayout);
 }

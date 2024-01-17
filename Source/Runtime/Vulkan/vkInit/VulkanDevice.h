@@ -38,12 +38,11 @@ namespace vkInit
 
 		VulkanDevice() noexcept = default;
 		explicit VulkanDevice(const VkInstance& instance, const VkSurfaceKHR& surface);
+		
 		~VulkanDevice();
-
-		void release();
 	};
 
-	FORCE_INLINE const unsigned int getHardwareConcurrency() noexcept
+	FORCE_INLINE unsigned int getHardwareConcurrency() noexcept
 	{
 		return std::thread::hardware_concurrency();
 	}

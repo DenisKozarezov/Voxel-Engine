@@ -96,8 +96,16 @@ namespace VoxelEditor::gui
 					ImGui::EndMenu();
 				}
 				ImGui::Separator();
-				ImGui::MenuItem("Console");
-				ImGui::MenuItem("Viewport");
+				if (ImGui::MenuItem("Console"))
+				{
+					m_guiTree.registerWindow(new EditorConsole("Console"));
+				}
+				
+				if (ImGui::MenuItem("Viewport"))
+				{
+					m_guiTree.registerViewport(new SceneViewport("Viewport", m_scene));
+				}
+				
 				ImGui::Separator();
 				if (ImGui::MenuItem("Performance"))
 				{

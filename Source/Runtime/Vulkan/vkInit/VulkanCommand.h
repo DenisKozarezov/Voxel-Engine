@@ -1,9 +1,12 @@
 #pragma once
-#include <vulkan/vkInit/VulkanDevice.h>
+#include <vector>
+#include <Core/Base.h>
+#include <Core/CoreTypes.h>
+#include <vulkan/vulkan.h>
 
 namespace vkInit
 {
-	VkCommandPool createCommandPool(const VulkanDevice& device, const uint32& queueFamily);
+	VkCommandPool createCommandPool(const VkDevice& device, const uint32& queueFamily);
 }
 
 namespace vkUtils::memory
@@ -17,12 +20,12 @@ namespace vkUtils::memory
 	}
 	void beginCommand(const VkCommandBuffer& buffer);
 	void endCommand(const VkCommandBuffer& buffer);
-	INLINE void releaseCommandBuffer(const vkInit::VulkanDevice& device, const VkCommandBuffer& buffer, const VkCommandPool& commandPool)
+	INLINE void releaseCommandBuffer(const VkDevice& device, const VkCommandBuffer& buffer, const VkCommandPool& commandPool)
 	{
-		vkFreeCommandBuffers(device.logicalDevice, commandPool, 1, &buffer);
+		vkFreeCommandBuffers(device, commandPool, 1, &buffer);
 	}
-	INLINE void releaseCommandBuffer(const vkInit::VulkanDevice& device, const std::vector<VkCommandBuffer>& buffers, const VkCommandPool& commandPool)
+	INLINE void releaseCommandBuffer(const VkDevice& device, const std::vector<VkCommandBuffer>& buffers, const VkCommandPool& commandPool)
 	{
-		vkFreeCommandBuffers(device.logicalDevice, commandPool, static_cast<uint32>(buffers.size()), buffers.data());
+		vkFreeCommandBuffers(device, commandPool, static_cast<uint32>(buffers.size()), buffers.data());
 	}
 }

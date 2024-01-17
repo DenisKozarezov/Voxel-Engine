@@ -39,16 +39,16 @@ namespace vkUtils
 			0,
 			&uniformBuffers.raymarch.descriptor);*/
 
-		vkUpdateDescriptorSets(vulkanDevice.logicalDevice, static_cast<uint32>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+		vkUpdateDescriptorSets(vulkanDevice->logicalDevice, static_cast<uint32>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}
 
 	void SwapChainFrame::release()
 	{
-		vkDestroyImageView(vulkanDevice.logicalDevice, imageView, nullptr);
-		vkDestroyFramebuffer(vulkanDevice.logicalDevice, framebuffer, nullptr);
-		vkDestroyFence(vulkanDevice.logicalDevice, inFlightFence, nullptr);
-		vkDestroySemaphore(vulkanDevice.logicalDevice, imageAvailableSemaphore, nullptr);
-		vkDestroySemaphore(vulkanDevice.logicalDevice, renderFinishedSemaphore, nullptr);
+		vkDestroyImageView(vulkanDevice->logicalDevice, imageView, nullptr);
+		vkDestroyFramebuffer(vulkanDevice->logicalDevice, framebuffer, nullptr);
+		vkDestroyFence(vulkanDevice->logicalDevice, inFlightFence, nullptr);
+		vkDestroySemaphore(vulkanDevice->logicalDevice, imageAvailableSemaphore, nullptr);
+		vkDestroySemaphore(vulkanDevice->logicalDevice, renderFinishedSemaphore, nullptr);
 
 		uniformBuffers.view.release();
 		uniformBuffers.raymarch.release();

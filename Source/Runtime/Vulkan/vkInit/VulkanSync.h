@@ -4,31 +4,31 @@
 
 namespace vkInit
 {
-	VkSemaphore createSemaphore(const vkInit::VulkanDevice& device) 
+	VkSemaphore createSemaphore(const VkDevice& device) 
 	{
 		VkSemaphoreCreateInfo semaphoreInfo = semaphoreCreateInfo();
 		VkSemaphore semaphore;
-		VkResult err = vkCreateSemaphore(device.logicalDevice, &semaphoreInfo, nullptr, &semaphore);
+		VkResult err = vkCreateSemaphore(device, &semaphoreInfo, nullptr, &semaphore);
 		VK_CHECK(err, "failed to create semaphore!");
 		return semaphore;
 	}
 
-	VkFence createFence(const vkInit::VulkanDevice& device)
+	VkFence createFence(const VkDevice& device)
 	{
 		VkFenceCreateInfo fenceInfo = fenceCreateInfo(VK_FENCE_CREATE_SIGNALED_BIT);
 		VkFence fence;
-		VkResult err = vkCreateFence(device.logicalDevice, &fenceInfo, nullptr, &fence);
+		VkResult err = vkCreateFence(device, &fenceInfo, nullptr, &fence);
 		VK_CHECK(err, "failed to create fence!");
 		return fence;
 	}
 
-	INLINE void lockFences(const vkInit::VulkanDevice& device, const VkFence* fences, const uint32& fenceCount = 1)
+	INLINE void lockFences(const VkDevice& device, const VkFence* fences, const uint32& fenceCount = 1)
 	{
-		vkWaitForFences(device.logicalDevice, fenceCount, fences, VK_TRUE, UINT64_MAX);
+		vkWaitForFences(device, fenceCount, fences, VK_TRUE, UINT64_MAX);
 	}
 
-	INLINE void resetFences(const vkInit::VulkanDevice& device, const VkFence* fences, const uint32& fenceCount = 1)
+	INLINE void resetFences(const VkDevice& device, const VkFence* fences, const uint32& fenceCount = 1)
 	{
-		vkResetFences(device.logicalDevice, fenceCount, fences);
+		vkResetFences(device, fenceCount, fences);
 	}
 }

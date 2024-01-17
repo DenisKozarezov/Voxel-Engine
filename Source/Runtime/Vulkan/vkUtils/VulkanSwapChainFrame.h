@@ -13,7 +13,7 @@ namespace vkUtils
 	struct SwapChainFrame
 	{
 	public:
-		vkInit::VulkanDevice vulkanDevice;
+		const vkInit::VulkanDevice* vulkanDevice = nullptr;
 
 		VkImage image;
 		VkImageView imageView;

@@ -7,8 +7,8 @@ namespace VoxelEditor::gui
 	{
 	private:
 		ImVec2 m_viewportSize;
-		bool m_viewportFocused;
-		bool m_viewportHovered;
+		bool m_viewportFocused = true;
+		bool m_viewportHovered = false;
 		SharedRef<Scene> m_scene;
 		SharedRef<components::camera::EditorCameraController> m_camera;
 

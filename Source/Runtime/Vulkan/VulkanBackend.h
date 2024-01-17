@@ -15,7 +15,7 @@ namespace vulkan
 	using namespace VoxelEngine;
 	namespace mesh = components::mesh;
 
-	const VkSurfaceKHR makeInstance();
+	VkSurfaceKHR makeInstance();
 	void makeDevice(const VkSurfaceKHR& surface);
 	void makeSwapChain();
 	void makeFramebuffers();
@@ -52,7 +52,7 @@ namespace vulkan
 	/// Returns the vulkan device currently in use.
 	/// </summary>
 	/// <returns></returns>
-	const vkInit::VulkanDevice& getDevice();
+	const vkInit::VulkanDevice* getDevice();
 
 	/// <summary>
 	/// Returns the command buffer used in this frame in flight.

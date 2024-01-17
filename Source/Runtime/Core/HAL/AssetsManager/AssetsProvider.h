@@ -10,7 +10,7 @@
 
 const string g_environmentPathCache = std::filesystem::current_path().string() + PATH_SEPARATOR;
 
-#define RESOURCES_FOLDER_NAME "resources"
+#define RESOURCES_FOLDER_NAME "Resources"
 #define RESOURCES_DIR RESOURCES_FOLDER_NAME PATH_SEPARATOR
 #define ASSET_PATH(path) RESOURCES_DIR path
 #define ASSET_ABSOLUTE_PATH(relativePath) g_environmentPathCache + ASSET_PATH(relativePath)

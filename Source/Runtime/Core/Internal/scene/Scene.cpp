@@ -56,8 +56,8 @@ namespace VoxelEngine
 
 		auto* vertices = editorGrid.vertices.data();
 		auto* indices = editorGrid.indices.data();
-		uint32 vertexCount = editorGrid.vertexCount();
-		uint32 indexCount = editorGrid.indexCount();
+		const uint32 vertexCount = editorGrid.vertexCount();
+		const uint32 indexCount = editorGrid.indexCount();
 
 		editorGrid.vertexBuffer = VoxelEngine::renderer::VertexBuffer::Allocate(vertices, vertexCount * sizeof(renderer::Vertex));
 		editorGrid.indexBuffer = VoxelEngine::renderer::IndexBuffer::Allocate(indices, indexCount * sizeof(uint32));

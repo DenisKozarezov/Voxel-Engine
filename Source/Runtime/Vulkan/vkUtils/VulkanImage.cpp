@@ -82,7 +82,7 @@ namespace vkUtils
 		const VkDevice& logicalDevice,
 		const VkImage& image,
 		const VkFormat& format,
-		const VkImageAspectFlags aspectFlags)
+		VkImageAspectFlags aspectFlags)
 	{
 		VkImageViewCreateInfo viewInfo = {};
 		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -105,7 +105,7 @@ namespace vkUtils
 		const VkImage& image,
 		const VkFormat& format,
 		const VkComponentMapping& components,
-		const VkImageAspectFlags aspectFlags)
+		VkImageAspectFlags aspectFlags)
 	{
 		VkImageViewCreateInfo viewInfo = {};
 		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -157,13 +157,13 @@ namespace vkUtils
 	}
 
 	void setImageLayout(
-		VkCommandBuffer cmdbuffer,
-		VkImage image,
-		VkImageLayout oldImageLayout,
-		VkImageLayout newImageLayout,
-		VkImageSubresourceRange subresourceRange,
-		VkPipelineStageFlags srcStageMask,
-		VkPipelineStageFlags dstStageMask)
+		const VkCommandBuffer& cmdbuffer,
+		const VkImage& image,
+		const VkImageLayout& oldImageLayout,
+		const VkImageLayout& newImageLayout,
+		const VkImageSubresourceRange& subresourceRange,
+		const VkPipelineStageFlags& srcStageMask,
+		const VkPipelineStageFlags& dstStageMask)
 	{
 		VkImageMemoryBarrier imageMemoryBarrier = vkInit::imageMemoryBarrier();
 		imageMemoryBarrier.oldLayout = oldImageLayout;
@@ -244,13 +244,13 @@ namespace vkUtils
 	}
 
 	void setImageLayout(
-		VkCommandBuffer cmdbuffer,
-		VkImage image,
-		VkImageAspectFlags aspectMask,
-		VkImageLayout oldImageLayout,
-		VkImageLayout newImageLayout,
-		VkPipelineStageFlags srcStageMask,
-		VkPipelineStageFlags dstStageMask)
+		const VkCommandBuffer& cmdbuffer,
+		const VkImage& image,
+		const VkImageAspectFlags& aspectMask,
+		const VkImageLayout& oldImageLayout,
+		const VkImageLayout& newImageLayout,
+		const VkPipelineStageFlags& srcStageMask,
+		const VkPipelineStageFlags& dstStageMask)
 	{
 		VkImageSubresourceRange subresourceRange = {};
 		subresourceRange.aspectMask = aspectMask;

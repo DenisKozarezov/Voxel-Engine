@@ -11,7 +11,7 @@ namespace vkUtils
 		std::optional<uint32> presentFamily;
 		std::optional<uint32> computeFamily;
 
-		constexpr bool isComplete() const noexcept
+		[[nodiscard]] constexpr bool isComplete() const noexcept
 		{
 			return graphicsFamily.has_value() && presentFamily.has_value();
 		}

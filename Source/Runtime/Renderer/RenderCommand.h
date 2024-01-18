@@ -17,11 +17,11 @@ namespace VoxelEngine::renderer
 		static void draw(const mesh::IMaterial* material, uint32 vertexCount, uint32 instanceCount = 1, uint32 startVertex = 0, uint32 startInstance = 0);
 		static void drawMesh(const mesh::Mesh& mesh);
 		static void drawMeshIndexed(const mesh::Mesh& mesh, uint32 instanceCount = 1, uint32 startInstance = 0);
-		static void drawMeshIndexed(const mesh::Mesh& mesh, const SharedRef<renderer::IndexBuffer>& indexBuffer, uint32 indexCount, uint32 instanceCount = 1, uint32 startInstance = 0);
-		static void drawMeshInstanced(const mesh::Mesh& mesh, const SharedRef<renderer::VertexBuffer>& instancedBuffer, uint32 instanceCount = 1, uint32 startInstance = 0);
+		static void drawMeshIndexed(const mesh::Mesh& mesh, const SharedRef<IndexBuffer>& indexBuffer, uint32 indexCount, uint32 instanceCount = 1, uint32 startInstance = 0);
+		static void drawMeshInstanced(const mesh::Mesh& mesh, const SharedRef<VertexBuffer>& instancedBuffer, uint32 instanceCount = 1, uint32 startInstance = 0);
 	};
 
-	INLINE void RenderCommand::drawMeshIndexed(const mesh::Mesh& mesh, uint32 instanceCount, uint32 startInstance)
+	FORCE_INLINE void RenderCommand::drawMeshIndexed(const mesh::Mesh& mesh, uint32 instanceCount, uint32 startInstance)
 	{
 		drawMeshIndexed(mesh, mesh.indexBuffer, mesh.indexCount(), instanceCount, startInstance);
 	}

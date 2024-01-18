@@ -23,16 +23,16 @@ namespace VoxelEditor::gui
         {
             ImGui::BeginColumns("##statistics", 2);
             ImGui::Text("Draw Calls: %d", m_stats->frameStats.drawCalls);
-            ImGui::Text("Triangles: %d", m_stats->frameStats.triangles);
-            ImGui::Text("Vertices: %d", m_stats->frameStats.vertices);
+            ImGui::Text("Triangles: %llu", m_stats->frameStats.triangles);
+            ImGui::Text("Vertices: %llu", m_stats->frameStats.vertices);
             ImGui::Text("Indices: %d", m_stats->frameStats.indices);
-            ImGui::Text("Instances: %d", m_stats->frameStats.instances);
+            ImGui::Text("Instances: %llu", m_stats->frameStats.instances);
             ImGui::Text("Batches: %d", 0);
             
             ImGui::NextColumn();
             for (int i = 0; i < m_stats->shaderStats.performanceStrings.size(); ++i)
             {
-                ImGui::Text("%s: %d", m_stats->shaderStats.performanceStrings[i].c_str(), m_stats->shaderStats.performanceStats[i]);
+                ImGui::Text("%s: %llu", m_stats->shaderStats.performanceStrings[i].c_str(), m_stats->shaderStats.performanceStats[i]);
             }
             
             ImGui::EndColumns();

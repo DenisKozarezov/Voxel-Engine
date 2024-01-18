@@ -28,6 +28,7 @@ constexpr string shaderStageString(const ShaderStage& stage)
 		STR(Geometry);
 		STR(Compute);
 #undef STR
+		default: return "None";
 	}
 }
 
@@ -44,6 +45,7 @@ namespace VoxelEngine::renderer
 		
 		static string readFile(const string& filename);
 		static std::vector<uint32> readBinary(const string& filename);
+		static void createCachedBinaryFile(const string& cachedPath, const uint32* bytes, const size_t& size);
 
 		virtual ~Shader() = default;
 	};

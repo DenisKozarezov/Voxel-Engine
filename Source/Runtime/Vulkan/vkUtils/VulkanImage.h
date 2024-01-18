@@ -1,5 +1,12 @@
 #pragma once
-#include <vulkan/vkInit/VulkanDevice.h>
+#include <vector>
+#include <vulkan/vulkan.h>
+#include <Core/CoreTypes.h>
+
+namespace vkInit
+{
+	struct VulkanDevice;
+}
 
 namespace vkUtils
 {
@@ -28,34 +35,34 @@ namespace vkUtils
 		const VkDevice& logicalDevice,
 		const VkImage& image,
 		const VkFormat& format,
-		const VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT);
+		VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT);
 
 	VkImageView createImageView(
 		const VkDevice& logicalDevice,
 		const VkImage& image,
 		const VkFormat& format,
 		const VkComponentMapping& components,
-		const VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT);
+		VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_COLOR_BIT);
 
 	VkSampler createTextureSampler(const vkInit::VulkanDevice& device, const VkSamplerCreateInfo& samplerInfo);
 
 	VkSampler createTextureSampler(const vkInit::VulkanDevice& device);
 
 	void setImageLayout(
-		VkCommandBuffer cmdbuffer,
-		VkImage image,
-		VkImageLayout oldImageLayout,
-		VkImageLayout newImageLayout,
-		VkImageSubresourceRange subresourceRange,
-		VkPipelineStageFlags srcStageMask,
-		VkPipelineStageFlags dstStageMask);
+		const VkCommandBuffer& cmdbuffer,
+		const VkImage& image,
+		const VkImageLayout& oldImageLayout,
+		const VkImageLayout& newImageLayout,
+		const VkImageSubresourceRange& subresourceRange,
+		const VkPipelineStageFlags& srcStageMask,
+		const VkPipelineStageFlags& dstStageMask);
 
 	void setImageLayout(
-		VkCommandBuffer cmdbuffer,
-		VkImage image,
-		VkImageAspectFlags aspectMask,
-		VkImageLayout oldImageLayout,
-		VkImageLayout newImageLayout,
-		VkPipelineStageFlags srcStageMask,
-		VkPipelineStageFlags dstStageMask);
+		const VkCommandBuffer& cmdbuffer,
+		const VkImage& image,
+		const VkImageAspectFlags& aspectMask,
+		const VkImageLayout& oldImageLayout,
+		const VkImageLayout& newImageLayout,
+		const VkPipelineStageFlags& srcStageMask,
+		const VkPipelineStageFlags& dstStageMask);
 }

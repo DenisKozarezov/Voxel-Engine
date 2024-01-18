@@ -29,35 +29,32 @@ namespace vkUtils
 
 	const utils::shaders::ShaderBinaries VulkanShader::compileOrGetVulkanBinaries(const string& filepath, const utils::shaders::ShaderSources& shaderSources)
 	{
-		std::filesystem::path cacheDirectory = getCacheDirectory();
+		const std::filesystem::path cacheDirectory = getCacheDirectory();
 
 		utils::shaders::ShaderBinaries shaderBinaries;
 		for (const auto& [stage, source] : shaderSources)
 		{
-			std::filesystem::path shaderFilePath = filepath;
-			std::filesystem::path cachedPath = cacheDirectory / (shaderFilePath.filename().string() + shaderStageCachedVulkanFileExtension(stage));
+			const std::filesystem::path shaderFilePath = filepath;
+			const std::filesystem::path cachedPath = cacheDirectory / (shaderFilePath.filename().string() + shaderStageCachedVulkanFileExtension(stage));
 
+			const string shaderStageStr = shaderStageString(stage);
+			
 			if (std::filesystem::exists(cachedPath))
 			{
 				shaderBinaries[stage] = readBinary(cachedPath.string());
-				VOXEL_CORE_WARN("Shader '{0}' ({1}) is found in cache.", filepath, shaderStageString(stage));
+				VOXEL_CORE_WARN("Shader '{0}' ({1}) is found in cache.", filepath, shaderStageStr);
 			}
 			else
 			{
-				VOXEL_CORE_WARN("Shader '{0}' not found in cache. Compiling to SPIR-V...", filepath, shaderStageString(stage));
+				VOXEL_CORE_WARN("Shader '{0}' ({1}) not found in cache. Compiling to SPIR-V...", filepath, shaderStageStr);
 
 				VoxelEngine::Timer timer;
 				utils::shaders::ShaderCompiler compiler;
 				shaderBinaries[stage] = compiler.compileToSpirv(source, filepath.c_str(), stage);
-				VOXEL_CORE_WARN("Shader '{0}' ({1}) compilation time: {2} ms.", filepath, shaderStageString(stage), timer.elapsedTimeInMilliseconds<double>());
-				
-				std::ofstream out(cachedPath, std::ios::out | std::ios::binary);
-				VOXEL_CORE_ASSERT(out.is_open(), "failed to write cache binary file at path " + cachedPath.string());
+				VOXEL_CORE_WARN("Shader '{0}' ({1}) compilation time: {2} ms.", filepath, shaderStageStr, timer.elapsedTimeInMilliseconds<double>());
 
 				size_t size = shaderBinaries[stage].size() * sizeof(uint32);
-				out.write((char*)shaderBinaries[stage].data(), size);
-				out.flush();
-				out.close();
+				createCachedBinaryFile(cachedPath.string(), shaderBinaries[stage].data(), size);
 			}
 		}
 

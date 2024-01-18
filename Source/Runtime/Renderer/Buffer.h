@@ -10,7 +10,7 @@ namespace VoxelEngine::renderer
 		VertexBuffer() noexcept = default;
 		virtual ~VertexBuffer() = default;
 
-		virtual constexpr uint32 size() const = 0;
+		[[nodiscard]] virtual constexpr uint32 size() const = 0;
 
 		virtual void setData(const void* data, const uint32& size) = 0;
 		virtual void bind(const uint32& binding = 0) = 0;
@@ -26,7 +26,7 @@ namespace VoxelEngine::renderer
 		IndexBuffer() noexcept = default;
 		virtual ~IndexBuffer() = default;
 
-		virtual constexpr uint32 size() const = 0;
+		[[nodiscard]] virtual constexpr uint32 size() const = 0;
 		virtual void bind() = 0;
 		virtual void release() = 0;
 

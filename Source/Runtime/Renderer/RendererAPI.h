@@ -20,8 +20,8 @@ constexpr string graphicsSpecString(const GraphicsSpec& spec)
 		STR(OpenGL);
 		STR(DirectX12);
 #undef STR
-	default: return "UNKNOWN_RENDERER_SPEC";
 	}
+	return "UNKNOWN_RENDERER_SPEC";
 }
 
 namespace VoxelEngine::renderer

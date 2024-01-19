@@ -4,7 +4,7 @@
 namespace VoxelEngine
 {
 	constexpr Octree::Octree() : Octree(Box(), 1) { }
-	Octree::Octree(const SharedRef<components::mesh::Mesh>& mesh, int maxDepth)
+	Octree::Octree(const TSharedPtr<components::mesh::Mesh>& mesh, int maxDepth)
 		: m_maxDepth(maxDepth)
 	{
 		VOXEL_CORE_ASSERT(maxDepth > 0, "Octree's max depth must be greater than zero!");
@@ -27,7 +27,7 @@ namespace VoxelEngine
 	}
 
 	const std::vector<glm::vec3> Octree::getMeshPointsInBox(
-		const SharedRef<components::mesh::Mesh>& mesh,
+		const TSharedPtr<components::mesh::Mesh>& mesh,
 		const Box& bounds)
 	{
 		std::vector<glm::vec3> result;
@@ -58,7 +58,7 @@ namespace VoxelEngine
 		octant[7] = (currentNode->children[7] != nullptr) ? currentNode->children[7]->bounds : Box({ min.x, center.y, center.z },	{ center.x, max.y, max.z });
 		return octant;
 	}
-	Box Octree::meshBounds(const SharedRef<components::mesh::Mesh>& mesh)
+	Box Octree::meshBounds(const TSharedPtr<components::mesh::Mesh>& mesh)
 	{
 		if (mesh->vertexCount() == 0)
 			return Box();
@@ -74,7 +74,7 @@ namespace VoxelEngine
 		}
 		return Box(min, max);
 	}
-	void Octree::subdivide(const SharedRef<components::mesh::Mesh>& mesh, OctreeNode* node, int level)
+	void Octree::subdivide(const TSharedPtr<components::mesh::Mesh>& mesh, OctreeNode* node, int level)
 	{
 		++level;
 

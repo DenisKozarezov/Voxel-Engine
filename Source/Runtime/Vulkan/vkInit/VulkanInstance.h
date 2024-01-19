@@ -25,7 +25,7 @@ namespace vkInit
 				{
 					ss << '\t' << extensionName << '\n';
 				}
-				VOXEL_CORE_TRACE("Device extensions to be requested:\n" + ss.str());
+				RUNTIME_TRACE("Device extensions to be requested:\n" + ss.str());
 			}
 		}
 		return extensions;
@@ -70,7 +70,7 @@ namespace vkInit
 		VkResult err = vkCreateInstance(&createInfo, nullptr, &instance);
 		VK_CHECK(err, "failed to create instance!");
 
-		VOXEL_CORE_TRACE("Vulkan instance created.");
+		RUNTIME_TRACE("Vulkan instance created.");
 
 		return instance;
 	}
@@ -84,7 +84,7 @@ namespace vkInit
 		VkResult err = glfwCreateWindowSurface(instance, nativePtr, nullptr, &surface);
 		VK_CHECK(err, "failed to create window surface!");
 
-		VOXEL_CORE_TRACE("Vulkan surface created.");
+		RUNTIME_TRACE("Vulkan surface created.");
 
 		return surface;
 	}

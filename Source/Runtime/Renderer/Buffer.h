@@ -1,6 +1,6 @@
 #pragma once
 #include <Core/CoreTypes.h>
-#include <Core/Base.h>
+#include <Core/CoreDefines.h>
 
 namespace VoxelEngine::renderer
 {
@@ -16,8 +16,8 @@ namespace VoxelEngine::renderer
 		virtual void bind(const uint32& binding = 0) = 0;
 		virtual void release() = 0;
 
-		static SharedRef<VertexBuffer> Allocate(const uint32& size);
-		static SharedRef<VertexBuffer> Allocate(const void* vertices, const uint32& size);
+		static TSharedPtr<VertexBuffer> Allocate(const uint32& size);
+		static TSharedPtr<VertexBuffer> Allocate(const void* vertices, const uint32& size);
 	};
 
 	class IndexBuffer
@@ -30,7 +30,7 @@ namespace VoxelEngine::renderer
 		virtual void bind() = 0;
 		virtual void release() = 0;
 
-		static SharedRef<IndexBuffer> Allocate(const uint32& size);
-		static SharedRef<IndexBuffer> Allocate(const void* indices, const uint32& size);
+		static TSharedPtr<IndexBuffer> Allocate(const uint32& size);
+		static TSharedPtr<IndexBuffer> Allocate(const void* indices, const uint32& size);
 	};
 }

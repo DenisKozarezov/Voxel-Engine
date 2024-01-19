@@ -35,7 +35,7 @@ namespace VoxelEngine
 		~WindowsWindow() override;
 	};
 
-	UniqueRef<Window> Window::Create(const WindowProperties& props)
+	TUniquePtr<Window> Window::Create(const WindowProperties& props)
 	{
 		return MakeUnique<WindowsWindow>(props);
 	}

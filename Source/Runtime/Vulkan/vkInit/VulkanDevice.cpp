@@ -34,7 +34,7 @@ namespace vkInit
 			{
 				ss << '\t' << extension.extensionName << '\n';
 			}
-			VOXEL_CORE_TRACE("Device available extensions:\n" + ss.str());
+			RUNTIME_TRACE("Device available extensions:\n" + ss.str());
 		}
 
 		std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
@@ -89,11 +89,11 @@ namespace vkInit
 				vulkanDevice->physicalDevice = physicalDevice;
 				vulkanDevice->memoryProperties = memProperties;
 
-				VOXEL_CORE_TRACE("Physical device candidate: {0}.", deviceProperties.deviceName);
-				VOXEL_CORE_TRACE("Device vendor ID: {0}.", deviceProperties.vendorID);
-				VOXEL_CORE_TRACE("Device type: {0}.", physicalDeviceTypeString(deviceProperties.deviceType));
-				VOXEL_CORE_TRACE("Device ID: {0}.", deviceProperties.deviceID);
-				VOXEL_CORE_TRACE("Device hardware concurrency: {0}.", getHardwareConcurrency());
+				RUNTIME_TRACE("Physical device candidate: {0}.", deviceProperties.deviceName);
+				RUNTIME_TRACE("Device vendor ID: {0}.", deviceProperties.vendorID);
+				RUNTIME_TRACE("Device type: {0}.", physicalDeviceTypeString(deviceProperties.deviceType));
+				RUNTIME_TRACE("Device ID: {0}.", deviceProperties.deviceID);
+				RUNTIME_TRACE("Device hardware concurrency: {0}.", getHardwareConcurrency());
 				return;
 			}
 		}
@@ -141,8 +141,8 @@ namespace vkInit
 	
 	const DeviceQueues getDeviceQueues(const VulkanDevice* device)
 	{
-		VOXEL_CORE_TRACE("Device graphics family: {0}.", device->queueFamilyIndices.graphicsFamily.value());
-		VOXEL_CORE_TRACE("Device present family: {0}.", device->queueFamilyIndices.presentFamily.value());
+		RUNTIME_TRACE("Device graphics family: {0}.", device->queueFamilyIndices.graphicsFamily.value());
+		RUNTIME_TRACE("Device present family: {0}.", device->queueFamilyIndices.presentFamily.value());
 
 		DeviceQueues queues;
 		vkGetDeviceQueue(device->logicalDevice, device->queueFamilyIndices.graphicsFamily.value(), 0, &queues.graphicsQueue);

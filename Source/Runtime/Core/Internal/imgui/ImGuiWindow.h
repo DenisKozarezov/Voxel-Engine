@@ -1,10 +1,10 @@
 #pragma once
 #include <imgui.h>
-#include <Core/Base.h>
+#include <Core/CoreDefines.h>
 #include <Core/CoreTypes.h>
 #include <Core/Internal/Timestep.h>
-#include <InputCore/events/EventDispatcher.h>
 #include <Core/Internal/NonCopyable.h>
+#include <InputCore/events/EventDispatcher.h>
 
 namespace VoxelEngine
 {

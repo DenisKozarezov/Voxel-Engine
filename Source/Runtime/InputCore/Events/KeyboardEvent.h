@@ -14,7 +14,8 @@ namespace VoxelEngine::input
         KeyboardEvent(const KeyCode& key) : m_keyCode(key) { }
 
         INLINE const KeyCode& getKeyCode() const { return m_keyCode; }
-        const string str() const override
+
+        string str() const override
         {
             std::stringstream ss;
             ss << this->getName() << ": " << m_keyCode;

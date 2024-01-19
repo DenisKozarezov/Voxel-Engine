@@ -18,7 +18,7 @@ namespace VoxelEngine
 
 	void WindowsWindow::init()
 	{
-		VOXEL_CORE_INFO("Creating window {0} ({1}, {2})...", m_windowData.Title, m_windowData.Width, m_windowData.Height);
+		RUNTIME_INFO("Creating window {0} ({1}, {2})...", m_windowData.Title, m_windowData.Width, m_windowData.Height);
 
 		if (!s_GLFWInitialized)
 		{

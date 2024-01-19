@@ -1,6 +1,7 @@
 #pragma once
 #include <optional>
 #include <Core/CoreTypes.h>
+#include <Core/CoreDefines.h>
 #include <vulkan/vulkan.hpp>
 
 namespace vkUtils
@@ -11,7 +12,7 @@ namespace vkUtils
 		std::optional<uint32> presentFamily;
 		std::optional<uint32> computeFamily;
 
-		[[nodiscard]] constexpr bool isComplete() const noexcept
+		NODISCARD constexpr bool isComplete() const noexcept
 		{
 			return graphicsFamily.has_value() && presentFamily.has_value();
 		}

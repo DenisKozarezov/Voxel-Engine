@@ -22,7 +22,7 @@ namespace vkInit
 		VkResult err = vkCreateFramebuffer(device, &framebufferInfo, nullptr, &framebuffer);
 		VK_CHECK(err, "failed to create framebuffer!");
 
-		VOXEL_CORE_TRACE("Vulkan framebuffer allocated.");
+		RUNTIME_TRACE("Vulkan framebuffer allocated.");
 
 		return framebuffer;
 	}

@@ -30,8 +30,8 @@ namespace VoxelEngine
 	private:
 		MeshesCache meshes;
 		MaterialsCache materials;
-		SharedRef<renderer::VertexBuffer> instancedBuffer;
-		std::vector<SharedRef<Mesh>> objects;
+		TSharedPtr<renderer::VertexBuffer> instancedBuffer;
+		std::vector<TSharedPtr<Mesh>> objects;
 
 		void prepareTestInstancedMesh();
 		void release();
@@ -47,7 +47,7 @@ namespace VoxelEngine
 		void update(const Timestep& ts, components::camera::Camera& camera);
 		void renderScene();
 		
-		void registerMesh(const SharedRef<Mesh>& mesh);
-		void unregisterMesh(const SharedRef<Mesh>& mesh);
+		void registerMesh(const TSharedPtr<Mesh>& mesh);
+		void unregisterMesh(const TSharedPtr<Mesh>& mesh);
 	};
 }

@@ -288,7 +288,7 @@ namespace vkInit
 			bundle.frames[i].imageView = vkUtils::createImageView(device->logicalDevice, images[i], bundle.format, components);
 		}
 
-		VOXEL_CORE_TRACE("Vulkan swap chain created.");
+		RUNTIME_TRACE("Vulkan swap chain created.");
 
 		return bundle;
 	}

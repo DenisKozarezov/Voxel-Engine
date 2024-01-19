@@ -8,7 +8,7 @@ namespace VoxelEngine::renderer
 	class RenderCommand
 	{
 	private:
-		static UniqueRef<RendererAPI> s_renderer;
+		static TUniquePtr<RendererAPI> s_renderer;
 	public:
 		static void init(const Window& window);
 		static void setViewport(const int32_t& x, const int32_t& y, const uint32& width, const uint32& height);
@@ -17,8 +17,8 @@ namespace VoxelEngine::renderer
 		static void draw(const mesh::IMaterial* material, uint32 vertexCount, uint32 instanceCount = 1, uint32 startVertex = 0, uint32 startInstance = 0);
 		static void drawMesh(const mesh::Mesh& mesh);
 		static void drawMeshIndexed(const mesh::Mesh& mesh, uint32 instanceCount = 1, uint32 startInstance = 0);
-		static void drawMeshIndexed(const mesh::Mesh& mesh, const SharedRef<IndexBuffer>& indexBuffer, uint32 indexCount, uint32 instanceCount = 1, uint32 startInstance = 0);
-		static void drawMeshInstanced(const mesh::Mesh& mesh, const SharedRef<VertexBuffer>& instancedBuffer, uint32 instanceCount = 1, uint32 startInstance = 0);
+		static void drawMeshIndexed(const mesh::Mesh& mesh, const TSharedPtr<IndexBuffer>& indexBuffer, uint32 indexCount, uint32 instanceCount = 1, uint32 startInstance = 0);
+		static void drawMeshInstanced(const mesh::Mesh& mesh, const TSharedPtr<VertexBuffer>& instancedBuffer, uint32 instanceCount = 1, uint32 startInstance = 0);
 	};
 
 	FORCE_INLINE void RenderCommand::drawMeshIndexed(const mesh::Mesh& mesh, uint32 instanceCount, uint32 startInstance)

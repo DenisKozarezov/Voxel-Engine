@@ -37,7 +37,7 @@ constexpr const char* errorString(const VkResult& errorCode)
 	}
 }
 
-#define VK_CHECK(result, msg) if (result != VK_SUCCESS) { VOXEL_CORE_ERROR("[VULKAN] [{0}] {1}", errorString(result), msg); VOXEL_DEBUGBREAK(); }
+#define VK_CHECK(result, msg) if (result != VK_SUCCESS) { RUNTIME_ERROR("[VULKAN] [{0}] {1}", errorString(result), msg); PLATFORM_BREAK(); }
 
 namespace vkUtils
 {

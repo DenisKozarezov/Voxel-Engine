@@ -1,7 +1,7 @@
 #pragma once
-#include <Core/pch.h>
+#include <list>
 #include <Core/CoreTypes.h>
-#include <Core/Base.h>
+#include <Core/CoreDefines.h>
 
 enum class ShaderDataType
 {

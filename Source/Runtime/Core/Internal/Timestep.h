@@ -1,5 +1,5 @@
 #pragma once
-#include <core/Base.h>
+#include <Core/CoreDefines.h>
 
 namespace VoxelEngine
 {

@@ -45,7 +45,7 @@ namespace VoxelEngine
 
 	void Scene::release()
 	{
-		std::for_each(objects.begin(), objects.end(), [&](SharedRef<Mesh>& mesh) {
+		std::for_each(objects.begin(), objects.end(), [&](TSharedPtr<Mesh>& mesh) {
 			unregisterMesh(mesh);
 		});
 		delete meshes.svo;
@@ -164,19 +164,19 @@ namespace VoxelEngine
 			}*/
 		}
 	}
-	void Scene::registerMesh(const SharedRef<Mesh>& mesh)
+	void Scene::registerMesh(const TSharedPtr<Mesh>& mesh)
 	{
 		const auto it = std::find(objects.begin(), objects.end(), mesh);
 		if (it != objects.end())
 		{
-			VOXEL_CORE_ERROR("Unable to register a new mesh! There is a duplicate.");
+			RUNTIME_ERROR("Unable to register a new mesh! There is a duplicate.");
 		}
 		else
 		{
 			objects.emplace_back(mesh);
 		}
 	}
-	void Scene::unregisterMesh(const SharedRef<Mesh>& mesh)
+	void Scene::unregisterMesh(const TSharedPtr<Mesh>& mesh)
 	{
 		const auto it = std::find(objects.begin(), objects.end(), mesh);
 		if (it != objects.end())

@@ -22,7 +22,7 @@ namespace VoxelEditor::gui
 		else
 #endif
 		{
-			VOXEL_TRACE("Registering an ImGuiWindow with title '{0}'...", window->title());
+			EDITOR_TRACE("Registering an ImGuiWindow with title '{0}'...", window->title());
 			
 			m_windows.emplace_back(window);
 			std::sort(
@@ -57,7 +57,7 @@ namespace VoxelEditor::gui
 		}
 		else
 		{
-			VOXEL_TRACE("Unregistering an ImGuiWindow with title '{0}'...", window->title());
+			EDITOR_TRACE("Unregistering an ImGuiWindow with title '{0}'...", window->title());
 			m_windows.erase(it);
 			delete window;
 		}
@@ -74,7 +74,7 @@ namespace VoxelEditor::gui
 		}
 		else
 		{
-			VOXEL_TRACE("Unregistering an ImGuiWindow with title '{0}'...", (*it)->title());
+			EDITOR_TRACE("Unregistering an ImGuiWindow with title '{0}'...", (*it)->title());
 			const ImguiWindow* window = *it;
 			m_windows.erase(it);
 			delete window;

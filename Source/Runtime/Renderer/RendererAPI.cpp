@@ -5,7 +5,7 @@ namespace VoxelEngine::renderer
 {
     static constexpr GraphicsSpec g_graphicsSpec = GraphicsSpec::Vulkan;
 
-    UniqueRef<RendererAPI> RendererAPI::Create()
+    TUniquePtr<RendererAPI> RendererAPI::Create()
     {
         switch (g_graphicsSpec)
         {

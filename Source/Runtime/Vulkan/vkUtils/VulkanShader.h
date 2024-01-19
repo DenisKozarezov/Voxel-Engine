@@ -11,17 +11,16 @@ namespace vkUtils
 		std::vector<VkShaderModule> m_shaderModules = {};
 		std::vector<VkPipelineShaderStageCreateInfo> m_shaderStages = {};
 
-		constexpr const char* shaderStageCachedVulkanFileExtension(const ShaderStage& stage);
+		constexpr string shaderStageCachedVulkanFileExtension(const ShaderStage& stage);
 		const utils::shaders::ShaderBinaries compileOrGetVulkanBinaries(const string& filepath, const utils::shaders::ShaderSources& shaderSources);
-		void createCacheDirectoryIfNeeded();
 
 		VkShaderModule createShaderModule(const std::vector<uint32>& spirv) const;
 		void createShader(const ShaderStage& stage, const std::vector<uint32>& spirv);
 	public:
 		VulkanShader() noexcept = delete;
-		VulkanShader(const VkDevice& logicalDevice, const char* filepath);
+		VulkanShader(const VkDevice& logicalDevice, const string& filepath);
 
-		__forceinline std::vector<VkPipelineShaderStageCreateInfo>& getStages() & noexcept { return m_shaderStages; }
+		FORCE_INLINE std::vector<VkPipelineShaderStageCreateInfo>& getStages() & noexcept { return m_shaderStages; }
 		
 		~VulkanShader() override;
 	};

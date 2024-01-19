@@ -64,7 +64,7 @@ namespace VoxelEngine::components::camera
 			m_currentCamera = new OrthographicCamera(m_lastPosition);
 			break;
 		case ProjectionType::Isometric:
-			VOXEL_WARN("Isometric camera mode is not supported yet!");
+			EDITOR_WARN("Isometric camera mode is not supported yet!");
 			break;
 		}
 	}

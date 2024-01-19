@@ -126,7 +126,7 @@ namespace VoxelEngine::input
                     }
                     catch (const std::exception& e)
                     {
-                        VOXEL_CORE_CRITICAL(e.what());
+                        RUNTIME_CRITICAL(e.what());
                     }
                 }
             }

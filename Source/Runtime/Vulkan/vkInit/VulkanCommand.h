@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include <Core/Base.h>
+#include <Core/CoreDefines.h>
 #include <Core/CoreTypes.h>
 #include <vulkan/vulkan.h>
 

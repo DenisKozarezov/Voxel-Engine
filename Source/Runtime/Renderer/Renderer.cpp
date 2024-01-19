@@ -31,7 +31,7 @@ namespace VoxelEngine::renderer
 
     void Renderer::init(const Window& window)
     {
-        VOXEL_CORE_WARN("Renderer initialization.");
+        RUNTIME_WARN("Renderer initialization.");
                        
         RenderCommand::init(window);
 

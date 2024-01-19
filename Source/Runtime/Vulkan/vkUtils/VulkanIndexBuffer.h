@@ -23,7 +23,7 @@ namespace vkUtils
 
 		FORCE_INLINE operator const VkBuffer&() const & { return m_indexBuffer.buffer; }
 
-		[[nodiscard]] constexpr uint32 size() const override;
+		NODISCARD constexpr uint32 size() const override;
 		
 		void bind() override;
 	};

@@ -7,8 +7,8 @@ namespace VoxelEditor::gui
 	{
 	private:
 		GuiTree m_guiTree;
-		SharedRef<components::mesh::Mesh> m_loadedMesh;
-		SharedRef<Scene> m_scene;
+		TSharedPtr<components::mesh::Mesh> m_loadedMesh;
+		TSharedPtr<Scene> m_scene;
 
 		void loadModel();
 		void saveLayout();

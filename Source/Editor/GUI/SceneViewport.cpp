@@ -51,7 +51,7 @@ namespace VoxelEditor::gui
 		ImGui::EndChild();
 	}
 
-	SceneViewport::SceneViewport(const string& title, const SharedRef<Scene>& scene) : ImguiWindow(title)
+	SceneViewport::SceneViewport(const string& title, const TSharedPtr<Scene>& scene) : ImguiWindow(title)
 	{
 		glm::vec3 cameraPos = { 10.0f, 10.0f, 10.0f };
 

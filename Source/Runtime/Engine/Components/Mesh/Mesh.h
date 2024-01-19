@@ -31,8 +31,8 @@ namespace VoxelEngine::components::mesh
 		std::vector<Vertex> vertices;
 		std::vector<uint32> indices;
 		const IMaterial* material = nullptr;
-		SharedRef<renderer::VertexBuffer> vertexBuffer;
-		SharedRef<renderer::IndexBuffer> indexBuffer;
+		TSharedPtr<renderer::VertexBuffer> vertexBuffer;
+		TSharedPtr<renderer::IndexBuffer> indexBuffer;
 
 		Mesh() noexcept = default;
 		Mesh(const std::vector<Vertex>& vertices, const std::vector<uint32>& indices)

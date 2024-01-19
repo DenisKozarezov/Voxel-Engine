@@ -1,6 +1,5 @@
 ﻿#include "FileManager.h"
 #include <filesystem>
-#include <fstream>
 #include <Core/Logging/Assert.h>
 
 bool FileManager::deleteFile(const string& filepath)
@@ -27,9 +26,9 @@ bool FileManager::directoryExists(const string& directory)
     return std::filesystem::is_directory(directory);
 }
 
-bool FileManager::makeDirectory(const string& path)
+bool FileManager::makeDirectory(const string& directory)
 {
-    return std::filesystem::create_directory(path);
+    return std::filesystem::create_directory(directory);
 }
 
 bool FileManager::deleteDirectory(const string& directory)
@@ -46,7 +45,7 @@ uint64 FileManager::fileSize(const string& filepath)
     return std::filesystem::file_size(filepath);
 }
 
-SharedRef<std::ifstream> FileManager::createFileReader(const string& filepath)
+TSharedPtr<std::ifstream> FileManager::createFileReader(const string& filepath)
 {
     constexpr auto readMode = std::ios::in | std::ios::binary;
     auto stream = std::make_shared<std::ifstream>(filepath, readMode);
@@ -54,7 +53,7 @@ SharedRef<std::ifstream> FileManager::createFileReader(const string& filepath)
     return stream;
 }
 
-SharedRef<std::ofstream> FileManager::createFileWriter(const string& filepath)
+TSharedPtr<std::ofstream> FileManager::createFileWriter(const string& filepath)
 {
     constexpr auto writeMode = std::ios::out | std::ios::binary;
     auto stream = std::make_shared<std::ofstream>(filepath, writeMode);

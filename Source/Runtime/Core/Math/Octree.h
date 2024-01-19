@@ -15,16 +15,16 @@ namespace VoxelEngine
 
 		static constexpr int MIN_SIZE = 1;
 
-		Box meshBounds(const SharedRef<components::mesh::Mesh>& mesh);
+		Box meshBounds(const TSharedPtr<components::mesh::Mesh>& mesh);
 		std::array<Box, 8> getSubdividedOctants(OctreeNode* currentNode);
 		const std::vector<glm::vec3> getMeshPointsInBox(
-			const SharedRef<components::mesh::Mesh>& mesh,
+			const TSharedPtr<components::mesh::Mesh>& mesh,
 			const Box& bounds);
-		void subdivide(const SharedRef<components::mesh::Mesh>& mesh, OctreeNode* node, int level);
+		void subdivide(const TSharedPtr<components::mesh::Mesh>& mesh, OctreeNode* node, int level);
 		void traverse(OctreeNode* root, const std::function<void(OctreeNode*)>& visitor);
 	public:
 		constexpr Octree();
-		Octree(const SharedRef<components::mesh::Mesh>& mesh, int maxDepth);
+		Octree(const TSharedPtr<components::mesh::Mesh>& mesh, int maxDepth);
 		constexpr Octree(Box boundingBox, int maxDepth);
 		~Octree();
 

@@ -23,7 +23,7 @@ namespace vkUtils
 
 		FORCE_INLINE operator const VkBuffer&() const & { return m_vertexBuffer.buffer; }
 
-		[[nodiscard]] constexpr uint32 size() const override;
+		NODISCARD constexpr uint32 size() const override;
 
 		INLINE void setData(const void* data, const uint32& size) override;
 		void bind(const uint32& binding = 0) override;

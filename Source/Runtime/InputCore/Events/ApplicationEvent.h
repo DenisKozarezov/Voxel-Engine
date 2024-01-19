@@ -14,7 +14,8 @@ namespace VoxelEngine::input
 
         INLINE const uint16& getWidth() const { return m_width; }
         INLINE const uint16& getHeight() const { return m_height; }
-        const string str() const override
+
+        string str() const override
         {
             std::stringstream ss;
             ss << "WindowResizeEvent: " << m_width << ", " << m_height;
@@ -53,15 +54,15 @@ namespace VoxelEngine::input
     class MeshLoadedEvent final : public Event
     {
     private:
-        SharedRef<components::mesh::Mesh> m_loadedMesh;
+        TSharedPtr<components::mesh::Mesh> m_loadedMesh;
     public:
-        MeshLoadedEvent(const SharedRef<components::mesh::Mesh>& mesh) noexcept : m_loadedMesh(mesh)
+        MeshLoadedEvent(const TSharedPtr<components::mesh::Mesh>& mesh) noexcept : m_loadedMesh(mesh)
         {
 
         }
         MeshLoadedEvent(const MeshLoadedEvent&) noexcept = delete;
 
-        INLINE const SharedRef<components::mesh::Mesh> getLoadedMesh() const { return m_loadedMesh; }
+        INLINE const TSharedPtr<components::mesh::Mesh> getLoadedMesh() const { return m_loadedMesh; }
 
         EVENT_CLASS_TYPE(MeshLoaded)
         EVENT_CLASS_CATEGORY(EventCategoryApplication)

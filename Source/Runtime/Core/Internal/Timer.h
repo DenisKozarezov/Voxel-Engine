@@ -1,6 +1,6 @@
 #pragma once
 #include <chrono>
-#include <core/Base.h>
+#include <Core/CoreDefines.h>
 
 namespace VoxelEngine
 {

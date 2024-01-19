@@ -16,12 +16,12 @@ namespace VoxelEditor
 	};
 }
 
-UniqueRef<Application> CreateApplication(ApplicationCommandLineArgs args)
+TUniquePtr<Application> CreateApplication(ApplicationCommandLineArgs args)
 {
 	ApplicationSpecification spec;
 	spec.ApplicationName = PROJECT_NAME;
 	spec.Version = string("v") + PROJECT_VERSION;
-	spec.WorkingDirectory = g_environmentPathCache;
+	spec.WorkingDirectory = Paths::launchDir();
 	spec.Maximized = true;
 	spec.CommandLineArgs = args;
 

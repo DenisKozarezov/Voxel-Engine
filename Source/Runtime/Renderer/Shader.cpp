@@ -1,6 +1,4 @@
 #include "Shader.h"
-#include <Core/HAL/AssetsManager/FileManager.h>
-#include <Core/Logging/Assert.h>
 
 namespace VoxelEngine::renderer
 {

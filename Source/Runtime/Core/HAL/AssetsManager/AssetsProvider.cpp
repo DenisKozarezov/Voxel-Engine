@@ -20,14 +20,14 @@ namespace assets
 
         return data;
     }
-    const SharedRef<Mesh> AssetsProvider::loadObjMesh(const string& path)
+    const TSharedPtr<Mesh> AssetsProvider::loadObjMesh(const string& path)
     {
         tinyobj::attrib_t attrib;
         std::vector<tinyobj::shape_t> shapes;
         std::vector<tinyobj::material_t> materials;
         std::string warn, err;
 
-        VOXEL_CORE_TRACE("Loading OBJ mesh at path '{0}'...", path);
+        RUNTIME_TRACE("Loading OBJ mesh at path '{0}'...", path);
 
         bool isLoaded = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path.c_str());
         VOXEL_CORE_ASSERT(isLoaded, warn + err);
@@ -72,9 +72,9 @@ namespace assets
         mesh->vertexBuffer = VoxelEngine::renderer::VertexBuffer::Allocate(vertices.data(), vertexCount * sizeof(Vertex));
         mesh->indexBuffer = VoxelEngine::renderer::IndexBuffer::Allocate(indices.data(), indexCount * sizeof(uint32));
 
-        VOXEL_CORE_TRACE("Finished to load OBJ mesh at path '{0}'.", path);
-        VOXEL_CORE_TRACE("Loaded vertices count: '{0}'.", vertexCount);
-        VOXEL_CORE_TRACE("Loaded indices count: '{0}'.", indexCount);
+        RUNTIME_TRACE("Finished to load OBJ mesh at path '{0}'.", path);
+        RUNTIME_TRACE("Loaded vertices count: '{0}'.", vertexCount);
+        RUNTIME_TRACE("Loaded indices count: '{0}'.", indexCount);
 
         return mesh;
     }

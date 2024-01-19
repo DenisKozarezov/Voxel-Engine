@@ -13,7 +13,7 @@ namespace vkInit
 		VkResult err = vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool);
 		VK_CHECK(err, "failed to create command pool!");
 
-		VOXEL_CORE_TRACE("Vulkan command pool created.")
+		RUNTIME_TRACE("Vulkan command pool created.")
 
 		return commandPool;
 	}

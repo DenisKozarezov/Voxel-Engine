@@ -1,6 +1,6 @@
 #pragma once
 #include <glm/vec3.hpp>
-#include <core/Base.h>
+#include <Core/CoreDefines.h>
 #include <vulkan/vkUtils/VulkanMaterials.h>
 
 namespace utils
@@ -24,13 +24,13 @@ namespace utils
 		uint32 linesVertexCount = 0;
 		LineVertex* linesPtrStart = nullptr;
 		LineVertex* linesPtrCurrent = nullptr;
-		SharedRef<VoxelEngine::renderer::VertexBuffer> linesBuffer;
+		TSharedPtr<VoxelEngine::renderer::VertexBuffer> linesBuffer;
 		const vkUtils::VulkanMaterial* linesMaterial = nullptr;
 
 		uint32 circleVertexCount = 0;
 		CircleVertex* circlePtrStart = nullptr;
 		CircleVertex* circlePtrCurrent = nullptr;
-		SharedRef<VoxelEngine::renderer::VertexBuffer> circleBuffer;
+		TSharedPtr<VoxelEngine::renderer::VertexBuffer> circleBuffer;
 		const vkUtils::VulkanMaterial* circleMaterial = nullptr;
 	};
 

@@ -1,5 +1,5 @@
 #pragma once
-#include <Core/Base.h>
+#include <Core/CoreDefines.h>
 #include <Core/CoreTypes.h>
 #include <sstream>
 
@@ -53,8 +53,8 @@ namespace VoxelEngine::input
 		INLINE virtual const EventType eventType() const = 0;
 		INLINE virtual const string getName() const = 0;
 		virtual const int categoryFlags() const = 0;
-		virtual const string str() const { return getName(); }
-		INLINE const bool hasCategoryFlag(const EventCategory& category) const
+		virtual string str() const { return getName(); }
+		FORCE_INLINE bool hasCategoryFlag(const EventCategory& category) const
 		{
 			return categoryFlags() & category;
 		}
@@ -62,7 +62,7 @@ namespace VoxelEngine::input
 		virtual ~Event() = default;
 	};
 
-	INLINE std::ostream& operator<<(std::ostream& os, const Event& e)
+	FORCE_INLINE std::ostream& operator<<(std::ostream& os, const Event& e)
 	{
 		return os << e.str();
 	}

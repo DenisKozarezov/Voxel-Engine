@@ -8,6 +8,7 @@
 #include <Core/Internal/scene/Scene.h>
 #include <Core/Internal/utils/PlatformUtils.h>
 #include <Core/HAL/AssetsManager/AssetsProvider.h>
+#include <Core/HAL/AssetsManager/Paths.h>
 
 #include <Engine/Components/camera/FirstPersonCamera.h>
 #include <Engine/Components/camera/OrthographicCamera.h>

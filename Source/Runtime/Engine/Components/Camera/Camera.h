@@ -3,7 +3,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <Core/CoreTypes.h>
-#include <core/Base.h>
+#include <Core/CoreDefines.h>
 
 enum ProjectionType : byte { Perspective, Orthographic, Isometric };
 

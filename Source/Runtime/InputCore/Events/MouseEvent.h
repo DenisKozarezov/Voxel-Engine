@@ -17,7 +17,8 @@ namespace VoxelEngine::input
         EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
 
         INLINE const MouseCode& getKeyCode() const { return m_mouseCode; }
-        const string str() const override
+
+        string str() const override
         {
             std::stringstream ss;
             ss << this->getName() << ": " << m_mouseCode;
@@ -39,7 +40,7 @@ namespace VoxelEngine::input
         INLINE const float& getX() const { return m_posX; }
         INLINE const float& getY() const { return m_posY; }
 
-        const string str() const override
+        string str() const override
         {
             std::stringstream ss;
             ss << "MouseMovedEvent: " << m_posX << ", " << m_posY;

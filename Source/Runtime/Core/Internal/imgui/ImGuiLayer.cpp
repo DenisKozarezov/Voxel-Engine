@@ -2,32 +2,32 @@
 #include <Core/Logging/Log.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
-#include <Core/HAL/AssetsManager/AssetsProvider.h>
+#include "Core/HAL/AssetsManager/Paths.h"
 
 namespace VoxelEngine::renderer
 {
-	const string layoutPath = ASSET_ABSOLUTE_PATH("layouts/default.ini");
-
 	void ImGuiLayer::loadLayout()
 	{
+		const string layoutPath = Paths::assetsDir() + "layouts/default.ini";
+		
 		try
 		{
 			if (layoutPath.empty())
 				throw std::exception("Invalid path for ImGui layout!");
 
-			if (!std::filesystem::exists(layoutPath))
+			if (!Paths::fileExists(layoutPath))
 			{
 				string error = "Unable to find an ImGui layout at path: " + layoutPath;
 				throw std::exception(error.c_str());
 			}
 			
-			VOXEL_CORE_TRACE("Loading ImGui layout at path: {0}...", layoutPath);
+			RUNTIME_TRACE("Loading ImGui layout at path: {0}...", layoutPath);
 			ImGui::LoadIniSettingsFromDisk(layoutPath.c_str());
 		}
 		catch (const std::exception& e)
 		{
-			VOXEL_CORE_CRITICAL(e.what());
-			VOXEL_CORE_WARN("Loading ImGui default layout...");
+			RUNTIME_CRITICAL(e.what());
+			RUNTIME_WARN("Loading ImGui default layout...");
 			ImGui::LoadIniSettingsFromDisk(nullptr);
 		}
 	}

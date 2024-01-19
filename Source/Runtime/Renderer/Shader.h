@@ -1,6 +1,7 @@
 #pragma once
-#include <Core/pch.h>
-#include <Core/CoreTypes.h>
+#include <Core/HAL/AssetsManager/Paths.h>
+#include <Core/HAL/AssetsManager/FileManager.h>
+#include <Core/Logging/Assert.h>
 
 enum ShaderStage : byte { None, Vertex, Fragment, Geometry, Compute };
 
@@ -22,13 +23,28 @@ constexpr string shaderStageString(const ShaderStage& stage)
 {
 	switch (stage)
 	{
-#define STR(x) case ShaderStage::##x: return #x;
+#define STR(x) case ShaderStage::##x: return #x
 		STR(Vertex);
 		STR(Fragment);
 		STR(Geometry);
 		STR(Compute);
 #undef STR
 		default: return "None";
+	}
+}
+
+constexpr string getShaderCacheDirectory()
+{
+	return Paths::cacheDir() + "shaders/SPIR-V";
+}
+
+static void createShaderCacheDirectoryIfNeeded()
+{
+	const string cacheDirectory = getShaderCacheDirectory();
+	if (!Paths::directoryExists(cacheDirectory))
+	{
+		RUNTIME_WARN("Shaders cache directory doesn't exists. Creating new folder...");
+		FileManager::makeDirectory(cacheDirectory);
 	}
 }
 

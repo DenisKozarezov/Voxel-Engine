@@ -40,7 +40,7 @@ namespace VoxelEngine
 		virtual void waitEvents() const = 0;
 
 		// Defined in client platforms
-		static UniqueRef<Window> Create(const WindowProperties& props);
+		static TUniquePtr<Window> Create(const WindowProperties& props);
 
 		virtual ~Window() = default;
 	};

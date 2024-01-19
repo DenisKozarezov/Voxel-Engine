@@ -42,7 +42,7 @@ namespace VoxelEngine
 	{
 	private:
 		ApplicationSpecification m_specification;
-		UniqueRef<Window> m_window;
+		TUniquePtr<Window> m_window;
 		renderer::LayerStack m_layerStack;
 		bool m_running = false;
 		bool m_minimized = false;
@@ -81,7 +81,7 @@ namespace VoxelEngine
 		INLINE static renderer::ImGuiLayer* getImGuiLayer() { return s_imguiLayer; }
 		INLINE const float& getDeltaTime() const { return m_frameTimer; }
 		INLINE const uint32& getFPS() const { return m_lastFPS; }
-		INLINE const UniqueRef<Window>& getWindow() const { return m_window; }
+		INLINE const TUniquePtr<Window>& getWindow() const { return m_window; }
 
 		void init();
 		void run();

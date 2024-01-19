@@ -62,7 +62,7 @@ namespace vulkan
 	{
 		state.vulkanDevice = new vkInit::VulkanDevice(state.instance, surface);
 		state.msaaSamples = vkInit::findMaxSamplesCount(state.vulkanDevice->limits);
-		VOXEL_CORE_TRACE("Device max samples count: {0}.", (int)state.msaaSamples);
+		RUNTIME_TRACE("Device max samples count: {0}.", (int)state.msaaSamples);
 	}
 	void makeSwapChain()
 	{
@@ -177,7 +177,7 @@ namespace vulkan
 
 			frame.makeDescriptorResources(device->limits);
 
-			VOXEL_CORE_TRACE("Vulkan frame resources created for frame {0}.", i);
+			RUNTIME_TRACE("Vulkan frame resources created for frame {0}.", i);
 			++i;
 		}
 	}	
@@ -188,7 +188,7 @@ namespace vulkan
 		{
 			frame.commandBuffer = vkUtils::memory::allocateCommandBuffer(state.commandPool);
 			
-			VOXEL_CORE_TRACE("Vulkan command buffer allocated for frame {0}.", i);
+			RUNTIME_TRACE("Vulkan command buffer allocated for frame {0}.", i);
 			++i;
 		}
 	}
@@ -400,7 +400,7 @@ namespace vulkan
 
 		initImGui();
 
-		VOXEL_CORE_TRACE("Vulkan setup ended.");
+		RUNTIME_TRACE("Vulkan setup ended.");
 	}
 	void initImGui()
 	{
@@ -421,7 +421,7 @@ namespace vulkan
 		ImGui_ImplVulkan_Init(&init_info, state.renderPass);
 
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
-		string fontPath = ASSET_PATH("fonts/Roboto-Medium.ttf");
+		const string fontPath = Paths::assetsDir() + "fonts/Roboto-Medium.ttf";
 
 		io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 14.0f);
 		{

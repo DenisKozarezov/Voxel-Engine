@@ -1,8 +1,9 @@
 ﻿#include "ShaderCompiler.h"
 #include <shaderc/shaderc.hpp>
 #include <spirv_cross/spirv_cross.hpp>
-#include <Core/HAL/AssetsManager/AssetsProvider.h>
+#include <Core/HAL/AssetsManager/Paths.h>
 #include <Core/Logging/Assert.h>
+#include <array>
 
 namespace utils::shaders
 {
@@ -14,7 +15,7 @@ namespace utils::shaders
             msg += std::to_string(type);
             msg += static_cast<char>(includeDepth);
 
-            const string name = SHADERS_PATH("include/") + string(requestedSource);
+            const string name = Paths::shaderWorkingDir() + "include/" + string(requestedSource);
             const string contents = VoxelEngine::renderer::Shader::readFile(name);
 
             auto container = new std::array<string, 2>;

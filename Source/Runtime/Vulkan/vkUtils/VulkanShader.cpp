@@ -1,19 +1,15 @@
 #include "VulkanShader.h"
 #include "VulkanValidation.h"
 #include "../vkInit/VulkanInitializers.h"
-
 #include <Core/Internal/Timer.h>
 #include <Engine/ShaderCompiler/ShaderCompiler.h>
-#include <Core/HAL/AssetsManager/AssetsProvider.h>
+
+#include "Core/HAL/AssetsManager/Paths.h"
 
 namespace vkUtils
 {
-	constexpr const char* getCacheDirectory()
-	{
-		return CACHE_PATH("shaders/SPIR-V");
-	}
 
-	constexpr const char* VulkanShader::shaderStageCachedVulkanFileExtension(const ShaderStage& stage)
+	constexpr string VulkanShader::shaderStageCachedVulkanFileExtension(const ShaderStage& stage)
 	{
 		switch (stage)
 		{
@@ -23,13 +19,13 @@ namespace vkUtils
 		case Compute:	return ".cached_vulkan.compute";
 		default:
 			VOXEL_CORE_ASSERT(false, "unknown shader stage!");
-			return nullptr;
+			return "";
 		}
 	}
 
 	const utils::shaders::ShaderBinaries VulkanShader::compileOrGetVulkanBinaries(const string& filepath, const utils::shaders::ShaderSources& shaderSources)
 	{
-		const std::filesystem::path cacheDirectory = getCacheDirectory();
+		const std::filesystem::path cacheDirectory = getShaderCacheDirectory();
 
 		utils::shaders::ShaderBinaries shaderBinaries;
 		for (const auto& [stage, source] : shaderSources)
@@ -39,19 +35,19 @@ namespace vkUtils
 
 			const string shaderStageStr = shaderStageString(stage);
 			
-			if (std::filesystem::exists(cachedPath))
+			if (Paths::fileExists(cachedPath.string()))
 			{
 				shaderBinaries[stage] = readBinary(cachedPath.string());
-				VOXEL_CORE_WARN("Shader '{0}' ({1}) is found in cache.", filepath, shaderStageStr);
+				RUNTIME_WARN("Shader '{0}' ({1}) is found in cache.", filepath, shaderStageStr);
 			}
 			else
 			{
-				VOXEL_CORE_WARN("Shader '{0}' ({1}) not found in cache. Compiling to SPIR-V...", filepath, shaderStageStr);
+				RUNTIME_WARN("Shader '{0}' ({1}) not found in cache. Compiling to SPIR-V...", filepath, shaderStageStr);
 
 				VoxelEngine::Timer timer;
 				utils::shaders::ShaderCompiler compiler;
 				shaderBinaries[stage] = compiler.compileToSpirv(source, filepath.c_str(), stage);
-				VOXEL_CORE_WARN("Shader '{0}' ({1}) compilation time: {2} ms.", filepath, shaderStageStr, timer.elapsedTimeInMilliseconds<double>());
+				RUNTIME_WARN("Shader '{0}' ({1}) compilation time: {2} ms.", filepath, shaderStageStr, timer.elapsedTimeInMilliseconds<double>());
 
 				size_t size = shaderBinaries[stage].size() * sizeof(uint32);
 				createCachedBinaryFile(cachedPath.string(), shaderBinaries[stage].data(), size);
@@ -62,15 +58,6 @@ namespace vkUtils
 			return shaderBinaries;
 		else
 			return utils::shaders::ShaderBinaries(0);
-	}
-	void VulkanShader::createCacheDirectoryIfNeeded()
-	{
-		std::string cacheDirectory = getCacheDirectory();
-		if (!std::filesystem::exists(cacheDirectory))
-		{
-			VOXEL_CORE_WARN("Shaders cache directory doesn't exists. Creating new folder...");
-			std::filesystem::create_directories(cacheDirectory);
-		}
 	}
 
 	VkShaderModule VulkanShader::createShaderModule(const std::vector<uint32>& spirv) const
@@ -87,7 +74,7 @@ namespace vkUtils
 	}
 	void VulkanShader::createShader(const ShaderStage& stage, const std::vector<uint32>& spirv)
 	{
-		VkShaderModule shaderModule = createShaderModule(spirv);
+		const VkShaderModule shaderModule = createShaderModule(spirv);
 		VkPipelineShaderStageCreateInfo stageInfo = {};
 		stageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 		stageInfo.stage = vkInit::shaderStageToVulkanBaseStage(stage);
@@ -97,12 +84,12 @@ namespace vkUtils
 		m_shaderModules.push_back(shaderModule);
 	}
 
-	VulkanShader::VulkanShader(const VkDevice& logicalDevice, const char* filepath)
+	VulkanShader::VulkanShader(const VkDevice& logicalDevice, const string& filepath)
 		: m_logicalDevice(logicalDevice)
 	{
 		VOXEL_ASSERT(filepath, "invalid shader's program file path!");
 
-		createCacheDirectoryIfNeeded();
+		createShaderCacheDirectoryIfNeeded();
 
 		const string& shaderProgram = readFile(filepath);
 		const auto& shaderSources = utils::shaders::analyzeShaderProgram(shaderProgram);
@@ -116,7 +103,7 @@ namespace vkUtils
 			{
 				createShader(stage, spirv);
 			}
-			VOXEL_CORE_WARN("Shader '{0}' creation time: {1} ms.", filepath, timer.elapsedTimeInMilliseconds<double>());
+			RUNTIME_WARN("Shader '{0}' creation time: {1} ms.", filepath, timer.elapsedTimeInMilliseconds<double>());
 		}
 	}
 

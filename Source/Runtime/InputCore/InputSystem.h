@@ -2,7 +2,7 @@
 #include "events/KeyCode.h"
 #include "events/MouseCode.h"
 #include <glm/vec2.hpp>
-#include <core/Base.h>
+#include <Core/CoreDefines.h>
 
 namespace VoxelEngine::input
 {

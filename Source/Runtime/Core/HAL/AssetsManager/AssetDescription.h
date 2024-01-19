@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include <Core/Base.h>
+#include <Core/CoreDefines.h>
 #include <Core/CoreTypes.h>
 
 namespace assets

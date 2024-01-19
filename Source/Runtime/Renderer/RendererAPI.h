@@ -14,7 +14,7 @@ constexpr string graphicsSpecString(const GraphicsSpec& spec)
 {
 	switch (spec)
 	{
-#define STR(x) case GraphicsSpec::##x: return #x;
+#define STR(x) case GraphicsSpec::##x: return #x
 		STR(None);
 		STR(Vulkan);
 		STR(OpenGL);
@@ -48,7 +48,7 @@ namespace VoxelEngine::renderer
 		virtual void drawMeshIndexed(const mesh::Mesh& mesh, uint32 instanceCount = 1, uint32 startIndex = 0, uint32 startInstance = 0) = 0;
 		virtual void drawMeshIndexed(uint32 indexCount, uint32 instanceCount = 1, uint32 startIndex = 0, uint32 startInstance = 0) = 0;
 
-		static UniqueRef<RendererAPI> Create();
+		static TUniquePtr<RendererAPI> Create();
 	};
 
 	extern const GraphicsSpec g_graphicsSpec;

@@ -13,17 +13,17 @@ namespace VoxelEngine
 
 		s_instance = this;
 
-		VOXEL_CORE_WARN("Application Name: {0}", spec.ApplicationName);
-		VOXEL_CORE_WARN("Version: {0}", spec.Version);
-		VOXEL_CORE_WARN("Working Directory: {0}", spec.WorkingDirectory);
-		VOXEL_CORE_WARN("Command Line Args: {0}", spec.CommandLineArgs.str());
+		RUNTIME_WARN("Application Name: {0}", spec.ApplicationName);
+		RUNTIME_WARN("Version: {0}", spec.Version);
+		RUNTIME_WARN("Working Directory: {0}", spec.WorkingDirectory);
+		RUNTIME_WARN("Command Line Args: {0}", spec.CommandLineArgs.str());
 
 		setupInputCallbacks();
 
 		std::stringstream name;
 		string graphicsSpec = graphicsSpecString(renderer::g_graphicsSpec);
 
-		VOXEL_CORE_WARN("Graphics Renderer API: {0}", graphicsSpec);
+		RUNTIME_WARN("Graphics Renderer API: {0}", graphicsSpec);
 
 		name << spec.ApplicationName << " " << spec.Version << " (" << graphicsSpec << ")";
 		m_window = Window::Create({ name.str(), 1920, 1080 });
@@ -48,20 +48,20 @@ namespace VoxelEngine
 	{
 		try
 		{
-			VOXEL_CORE_WARN("Application initialization.");
+			RUNTIME_WARN("Application initialization.");
 			s_imguiLayer = new renderer::ImGuiLayer();
 			pushOverlay(s_imguiLayer);
 			renderer::Renderer::init(*m_window.get());
 		}
 		catch (const std::exception& e)
 		{
-			VOXEL_CORE_CRITICAL(e.what());
-			VOXEL_DEBUGBREAK();
+			RUNTIME_CRITICAL(e.what());
+			PLATFORM_BREAK();
 		}
 	}
 	void Application::run()
 	{
-		VOXEL_CORE_WARN("Running {0}...", m_specification.ApplicationName);
+		RUNTIME_WARN("Running {0}...", m_specification.ApplicationName);
 
 		m_running = true;
 

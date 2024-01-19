@@ -1,6 +1,6 @@
 #pragma once
 #include <Core/pch.h>
-#include <Core/Base.h>
+#include <Core/CoreDefines.h>
 #include "../vkUtils/VulkanQueueFamilies.h"
 
 namespace vkUtils

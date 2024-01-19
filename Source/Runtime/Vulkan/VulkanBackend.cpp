@@ -330,7 +330,7 @@ namespace vulkan
 		}
 		else
 		{
-			VOXEL_CORE_ASSERT(result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR, "failed to acquire swap chain image!");
+			RUNTIME_ASSERT(result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR, "failed to acquire swap chain image!");
 		}
 
 		vkInit::resetFences(state.vulkanDevice->logicalDevice, &frame.inFlightFence);

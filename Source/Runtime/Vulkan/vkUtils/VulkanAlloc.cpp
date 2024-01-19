@@ -38,7 +38,7 @@ namespace vkUtils::memory
 	
 	Buffer createBuffer(const vkInit::VulkanDevice* device, const VkDeviceSize& size, const VkBufferUsageFlags& usage, const VkMemoryPropertyFlags& properties)
 	{
-		VOXEL_CORE_ASSERT(device->physicalDevice && device->logicalDevice, "failed to create buffer!");
+		RUNTIME_ASSERT(device->physicalDevice && device->logicalDevice, "failed to create buffer!");
 
 		VkBufferCreateInfo bufferInfo = {};
 		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;

@@ -66,7 +66,7 @@ namespace vkInit
 		uint32 deviceCount = 0;
 		vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
 
-		VOXEL_CORE_ASSERT(deviceCount != 0, "failed to find GPUs with Vulkan support!");
+		RUNTIME_ASSERT(deviceCount != 0, "failed to find GPUs with Vulkan support!");
 
 		std::vector<VkPhysicalDevice> candidates(deviceCount);
 		vkEnumeratePhysicalDevices(instance, &deviceCount, candidates.data());
@@ -102,7 +102,7 @@ namespace vkInit
 	
 	const VkDevice createLogicalDevice(const VulkanDevice* vulkanDevice)
 	{
-		VOXEL_CORE_ASSERT(vulkanDevice->physicalDevice, "failed to create logical device!");
+		RUNTIME_ASSERT(vulkanDevice->physicalDevice, "failed to create logical device!");
 
 		float queuePriority = 1.0f;
 		const uint32 graphicsFamilyIndex = vulkanDevice->queueFamilyIndices.graphicsFamily.value();

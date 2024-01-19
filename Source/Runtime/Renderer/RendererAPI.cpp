@@ -10,7 +10,7 @@ namespace VoxelEngine::renderer
         switch (g_graphicsSpec)
         {
         case GraphicsSpec::None:
-            VOXEL_CORE_ASSERT(false, "No renderer API selected!");
+            RUNTIME_ASSERT(false, "No renderer API selected!");
             break;
         case GraphicsSpec::Vulkan: 
             return MakeUnique<vulkan::VulkanRendererAPI>();

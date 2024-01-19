@@ -1,6 +1,7 @@
 #pragma once
-#include <GLFW/glfw3.h>
-#include <Core/Internal/Window.h>
+#include <Core/HAL/Platform/Window.h>
+
+class GLFWwindow;
 
 namespace VoxelEngine
 {

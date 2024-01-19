@@ -1,5 +1,5 @@
 #pragma once
-#include <Core/Internal/Window.h>
+#include <Core/HAL/Platform/Window.h>
 #include <Engine/Components/mesh/Mesh.h>
 
 enum class GraphicsSpec : byte

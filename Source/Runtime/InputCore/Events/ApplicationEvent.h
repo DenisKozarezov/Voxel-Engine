@@ -12,8 +12,8 @@ namespace VoxelEngine::input
         WindowResizeEvent(uint16 width, uint16 height) : m_width(width), m_height(height) { }
         WindowResizeEvent(const WindowResizeEvent&) noexcept = delete;
 
-        INLINE const uint16& getWidth() const { return m_width; }
-        INLINE const uint16& getHeight() const { return m_height; }
+        FORCE_INLINE const uint16& getWidth() const { return m_width; }
+        FORCE_INLINE const uint16& getHeight() const { return m_height; }
 
         string str() const override
         {
@@ -62,7 +62,7 @@ namespace VoxelEngine::input
         }
         MeshLoadedEvent(const MeshLoadedEvent&) noexcept = delete;
 
-        INLINE const TSharedPtr<components::mesh::Mesh> getLoadedMesh() const { return m_loadedMesh; }
+        FORCE_INLINE const TSharedPtr<components::mesh::Mesh>& getLoadedMesh() const { return m_loadedMesh; }
 
         EVENT_CLASS_TYPE(MeshLoaded)
         EVENT_CLASS_CATEGORY(EventCategoryApplication)

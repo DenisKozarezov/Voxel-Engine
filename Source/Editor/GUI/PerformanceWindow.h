@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include <Core/CoreMinimal.h>
+#include "ImGuiWindow.h"
 
 namespace VoxelEditor::gui
 {

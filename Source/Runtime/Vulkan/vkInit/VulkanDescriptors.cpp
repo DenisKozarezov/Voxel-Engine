@@ -27,7 +27,7 @@ namespace vkInit
         VkResult err = vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &layout);
         VK_CHECK(err, "failed to create descriptor set layout!");
 
-        RUNTIME_TRACE("Vulkan descriptor set layout created.")
+        RUNTIME_TRACE("Vulkan descriptor set layout created.");
 
         return layout;
     }
@@ -46,7 +46,7 @@ namespace vkInit
         VkResult err = vkCreateDescriptorPool(device, &poolInfo, nullptr, &pool);
         VK_CHECK(err, "failed to create descriptor pool!");
 
-        RUNTIME_TRACE("Vulkan descriptor pool created.")
+        RUNTIME_TRACE("Vulkan descriptor pool created.");
 
         return pool;
     }
@@ -65,7 +65,7 @@ namespace vkInit
         VkResult err = vkAllocateDescriptorSets(device, &allocInfo, &descriptorSet);
         VK_CHECK(err, "failed to allocate descriptor set!");
 
-        RUNTIME_TRACE("Vulkan descriptor set allocated.")
+        RUNTIME_TRACE("Vulkan descriptor set allocated.");
 
         return descriptorSet;
     }

@@ -11,7 +11,7 @@ public:
 	constexpr Box(const glm::vec3& min, const glm::vec3& max)
 		: m_min(min), m_max(max)
 	{
-		VOXEL_ASSERT(min.x < max.x && min.y < max.y, "box's min must be less than max!");
+		EDITOR_ASSERT(min.x < max.x && min.y < max.y, "box's min must be less than max!");
 	}
 	
 	FORCE_INLINE const glm::vec3& min() const { return m_min; }

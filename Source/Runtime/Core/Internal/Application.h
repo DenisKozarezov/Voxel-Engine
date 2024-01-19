@@ -2,9 +2,9 @@
 #include <InputCore/events/ApplicationEvent.h>
 #include <InputCore/events/EventDispatcher.h>
 #include "LayerStack.h"
-#include "Window.h"
 #include "imgui/ImGuiLayer.h"
 #include <Core/Logging/Assert.h>
+#include <Core/HAL/Platform/Window.h>
 
 struct ApplicationCommandLineArgs
 {
@@ -13,7 +13,7 @@ struct ApplicationCommandLineArgs
 
 	constexpr const char* operator[](int index) const
 	{
-		VOXEL_CORE_ASSERT(index < Count, "Invalid index when accessing to command line arguments.");
+		RUNTIME_ASSERT(index < Count, "Invalid index when accessing to command line arguments.");
 		return Args[index];
 	}
 	constexpr string str() const
@@ -77,11 +77,11 @@ namespace VoxelEngine
 		Application& operator=(Application const& rhs) noexcept = delete;
 		Application& operator=(Application&& rhs) noexcept = delete;
 
-		INLINE static Application* getInstance() { return s_instance; }
-		INLINE static renderer::ImGuiLayer* getImGuiLayer() { return s_imguiLayer; }
-		INLINE const float& getDeltaTime() const { return m_frameTimer; }
-		INLINE const uint32& getFPS() const { return m_lastFPS; }
-		INLINE const TUniquePtr<Window>& getWindow() const { return m_window; }
+		FORCE_INLINE static Application* getInstance() { return s_instance; }
+		FORCE_INLINE static renderer::ImGuiLayer* getImGuiLayer() { return s_imguiLayer; }
+		FORCE_INLINE const float& getDeltaTime() const { return m_frameTimer; }
+		FORCE_INLINE const uint32& getFPS() const { return m_lastFPS; }
+		FORCE_INLINE const TUniquePtr<Window>& getWindow() const { return m_window; }
 
 		void init();
 		void run();

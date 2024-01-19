@@ -18,7 +18,7 @@ namespace vkUtils
 		case Geometry:  return ".cached_vulkan.geom";
 		case Compute:	return ".cached_vulkan.compute";
 		default:
-			VOXEL_CORE_ASSERT(false, "unknown shader stage!");
+			RUNTIME_ASSERT(false, "unknown shader stage!");
 			return "";
 		}
 	}
@@ -87,7 +87,7 @@ namespace vkUtils
 	VulkanShader::VulkanShader(const VkDevice& logicalDevice, const string& filepath)
 		: m_logicalDevice(logicalDevice)
 	{
-		VOXEL_ASSERT(filepath, "invalid shader's program file path!");
+		EDITOR_ASSERT(!filepath.empty(), "invalid shader's program file path!");
 
 		createShaderCacheDirectoryIfNeeded();
 

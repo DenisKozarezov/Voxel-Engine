@@ -50,7 +50,7 @@ namespace utils::shaders
         case Geometry:	return shaderc_glsl_geometry_shader;
         case Compute:	return shaderc_glsl_compute_shader;
         }
-        VOXEL_CORE_ASSERT(false, "unknown shader stage!");
+        RUNTIME_ASSERT(false, "unknown shader stage!");
         return (shaderc_shader_kind)0;
     }
     
@@ -67,10 +67,10 @@ namespace utils::shaders
 
         shaderc_shader_kind kind = shaderStageToGlslKind(stage);
         shaderc::PreprocessedSourceCompilationResult preprocess = compiler.PreprocessGlsl(shaderProgram, kind, filepath, options);
-        VOXEL_CORE_ASSERT(preprocess.GetCompilationStatus() == shaderc_compilation_status_success, preprocess.GetErrorMessage());
+        RUNTIME_ASSERT(preprocess.GetCompilationStatus() == shaderc_compilation_status_success, preprocess.GetErrorMessage());
 
         shaderc::SpvCompilationResult module = compiler.CompileGlslToSpv(shaderProgram, kind, filepath, options);
-        VOXEL_CORE_ASSERT(module.GetCompilationStatus() == shaderc_compilation_status_success, module.GetErrorMessage());
+        RUNTIME_ASSERT(module.GetCompilationStatus() == shaderc_compilation_status_success, module.GetErrorMessage());
         
         return std::vector<uint32>(module.cbegin(), module.cend());
     }

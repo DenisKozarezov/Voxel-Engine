@@ -9,7 +9,7 @@ namespace VoxelEngine::renderer
 		handle->seekg(0, std::ios::end);
 		const size_t size = handle->tellg();
 
-		VOXEL_CORE_ASSERT(size >= 0, "failed to read shader source file at path: " + filename);
+		RUNTIME_ASSERT(size >= 0, "failed to read shader source file at path: " + filename);
 
 		string shaderSource;
 		shaderSource.resize(size);
@@ -24,7 +24,7 @@ namespace VoxelEngine::renderer
 		handle->seekg(0, std::ios::end);
 		const size_t size = handle->tellg();
 
-		VOXEL_CORE_ASSERT(size >= 0, "failed to read shader binary file at path: " + filename);
+		RUNTIME_ASSERT(size >= 0, "failed to read shader binary file at path: " + filename);
 
 		std::vector<uint32> shaderSource;
 		shaderSource.resize(size / sizeof(uint32));

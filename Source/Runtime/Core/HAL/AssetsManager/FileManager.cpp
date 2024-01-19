@@ -49,7 +49,7 @@ TSharedPtr<std::ifstream> FileManager::createFileReader(const string& filepath)
 {
     constexpr auto readMode = std::ios::in | std::ios::binary;
     auto stream = std::make_shared<std::ifstream>(filepath, readMode);
-    VOXEL_CORE_ASSERT(stream->is_open(), "Unable to create a file reader!");
+    RUNTIME_ASSERT(stream->is_open(), "Unable to create a file reader!");
     return stream;
 }
 
@@ -57,6 +57,6 @@ TSharedPtr<std::ofstream> FileManager::createFileWriter(const string& filepath)
 {
     constexpr auto writeMode = std::ios::out | std::ios::binary;
     auto stream = std::make_shared<std::ofstream>(filepath, writeMode);
-    VOXEL_CORE_ASSERT(stream->is_open(), "Unable to create a file writer!");    
+    RUNTIME_ASSERT(stream->is_open(), "Unable to create a file writer!");    
     return stream;
 }

@@ -6,7 +6,7 @@ namespace VoxelEditor::gui
 
     EditorConsole::EditorConsole(const string& title) : ImguiWindow(title)
     {
-        VOXEL_ASSERT(!s_instance, "There is other editor console instance!");
+        EDITOR_ASSERT(!s_instance, "There is other editor console instance!");
 
         s_instance = this;
 

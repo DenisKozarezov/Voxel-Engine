@@ -34,7 +34,7 @@ namespace vkInit
 	const VkInstance createInstance(const uint32& vulkanApi)
 	{
 		bool layersSupported = vkUtils::_enableValidationLayers && vkUtils::checkValidationLayerSupport();
-		VOXEL_CORE_ASSERT(layersSupported, "validation layers requested, but not available!");
+		RUNTIME_ASSERT(layersSupported, "validation layers requested, but not available!");
 
 		VkApplicationInfo appInfo = {};
 		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;

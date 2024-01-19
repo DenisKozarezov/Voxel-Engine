@@ -72,7 +72,7 @@ namespace vkUtils
 
 	const VulkanMaterial* getMaterial(const string& matName)
 	{
-		VOXEL_CORE_ASSERT(materials.contains(matName), "there is no material with such name " + matName);
+		RUNTIME_ASSERT(materials.contains(matName), "there is no material with such name " + matName);
 		return materials[matName];
 	}
 

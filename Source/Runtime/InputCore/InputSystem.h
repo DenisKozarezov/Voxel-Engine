@@ -1,6 +1,6 @@
 #pragma once
-#include "events/KeyCode.h"
-#include "events/MouseCode.h"
+#include "Events/KeyCode.h"
+#include "Events/MouseCode.h"
 #include <glm/vec2.hpp>
 #include <Core/CoreDefines.h>
 

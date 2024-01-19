@@ -7,8 +7,8 @@
 #include <GLFW/glfw3native.h>
 
 #include <commdlg.h>
-#include <Core/Internal/utils/PlatformUtils.h>
 #include <Core/Internal/Application.h>
+#include "../PlatformUtils.h"
 
 namespace utils
 {

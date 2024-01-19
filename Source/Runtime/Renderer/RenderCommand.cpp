@@ -11,7 +11,7 @@ namespace VoxelEngine::renderer
 	}
 	void RenderCommand::setViewport(const int32_t& x, const int32_t& y, const uint32& width, const uint32& height)
 	{
-		VOXEL_CORE_ASSERT(x >= 0 && y >= 0, "invalid viewport size!");
+		RUNTIME_ASSERT(x >= 0 && y >= 0, "invalid viewport size!");
 		s_renderer->setViewport(x, y, width, height);
 	}
 	void RenderCommand::setClearColor(const glm::vec4& color)
@@ -20,7 +20,7 @@ namespace VoxelEngine::renderer
 	}
 	void RenderCommand::setLineWidth(const float& width)
 	{
-		VOXEL_CORE_ASSERT(width > 0.0f, "line width must be greater than zero!");
+		RUNTIME_ASSERT(width > 0.0f, "line width must be greater than zero!");
 		s_renderer->setLineWidth(width);
 	}
 	void RenderCommand::draw(const mesh::IMaterial* material, uint32 vertexCount, uint32 instanceCount, uint32 startVertex, uint32 startInstance)
@@ -32,7 +32,7 @@ namespace VoxelEngine::renderer
 	}
 	void RenderCommand::drawMesh(const mesh::Mesh& mesh)
 	{
-		VOXEL_CORE_ASSERT(mesh.vertexBuffer && mesh.vertexBuffer->size() > 0, "can't draw mesh! Vertex buffer is empty!");
+		RUNTIME_ASSERT(mesh.vertexBuffer && mesh.vertexBuffer->size() > 0, "can't draw mesh! Vertex buffer is empty!");
 
 		if (mesh.material)
 			mesh.material->bind();
@@ -42,8 +42,8 @@ namespace VoxelEngine::renderer
 	}
 	void RenderCommand::drawMeshIndexed(const mesh::Mesh& mesh, const TSharedPtr<IndexBuffer>& indexBuffer, uint32 indexCount, uint32 instanceCount, uint32 startInstance)
 	{
-		VOXEL_CORE_ASSERT(mesh.vertexBuffer && mesh.vertexBuffer->size() > 0, "can't draw mesh! Vertex buffer is empty!");
-		VOXEL_CORE_ASSERT(mesh.indexBuffer && indexBuffer->size() > 0, "can't draw mesh! Index buffer is empty!");
+		RUNTIME_ASSERT(mesh.vertexBuffer && mesh.vertexBuffer->size() > 0, "can't draw mesh! Vertex buffer is empty!");
+		RUNTIME_ASSERT(mesh.indexBuffer && indexBuffer->size() > 0, "can't draw mesh! Index buffer is empty!");
 
 		if (mesh.material)
 			mesh.material->bind();

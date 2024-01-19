@@ -9,7 +9,7 @@ namespace VoxelEngine
 
 	Application::Application(const ApplicationSpecification& spec) : m_specification(spec)
 	{
-		VOXEL_CORE_ASSERT(!s_instance, "Application already exists!");
+		RUNTIME_ASSERT(!s_instance, "Application already exists!");
 
 		s_instance = this;
 

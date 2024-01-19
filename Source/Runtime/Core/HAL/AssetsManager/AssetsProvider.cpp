@@ -16,7 +16,7 @@ namespace assets
         TextureData data;        
         data.m_nativePtr = stbi_load(path.c_str(), &data.m_width, &data.m_height, &data.m_texChannels, req_comp);
 
-        VOXEL_CORE_ASSERT(data.isValid(), "failed to load texture image on path '" + path + "'");
+        RUNTIME_ASSERT(data.isValid(), "failed to load texture image on path '" + path + "'");
 
         return data;
     }
@@ -30,8 +30,8 @@ namespace assets
         RUNTIME_TRACE("Loading OBJ mesh at path '{0}'...", path);
 
         bool isLoaded = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path.c_str());
-        VOXEL_CORE_ASSERT(isLoaded, warn + err);
-        VOXEL_CORE_ASSERT(attrib.normals.size() > 0, "there are no 'vn' definitions (for normals) in the .obj file! Check the file format!");
+        RUNTIME_ASSERT(isLoaded, warn + err);
+        RUNTIME_ASSERT(!attrib.normals.empty(), "there are no 'vn' definitions (for normals) in the .obj file! Check the file format!");
 
         std::unordered_map<Vertex, uint32> uniqueVertices{};
         std::vector<Vertex> vertices;

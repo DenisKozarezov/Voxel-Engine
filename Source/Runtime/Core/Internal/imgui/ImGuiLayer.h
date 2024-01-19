@@ -5,7 +5,7 @@
 
 namespace VoxelEngine::renderer
 {
-	class ImGuiLayer : public renderer::Layer
+	class ImGuiLayer : public Layer
 	{
 	private:
 		bool m_blockEvents = true;

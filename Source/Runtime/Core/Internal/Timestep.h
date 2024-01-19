@@ -14,7 +14,7 @@ namespace VoxelEngine
 		constexpr operator float&() { return m_time; }
 		constexpr operator float() const& { return m_time; }
 
-		INLINE float getSeconds() const { return m_time * 0.001f; }
-		INLINE const float& getMilliseconds() const { return m_time; }
+		FORCE_INLINE float getSeconds() const { return m_time * 0.001f; }
+		FORCE_INLINE const float& getMilliseconds() const { return m_time; }
 	};
 }

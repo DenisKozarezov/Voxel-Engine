@@ -3,6 +3,7 @@
 #include <InputCore/events/ApplicationEvent.h>
 #include <InputCore/events/KeyboardEvent.h>
 #include <InputCore/events/MouseEvent.h>
+#include <GLFW/glfw3.h>
 
 namespace VoxelEngine
 {
@@ -23,14 +24,14 @@ namespace VoxelEngine
 		if (!s_GLFWInitialized)
 		{
 			int success = glfwInit();
-			VOXEL_CORE_ASSERT(success, "Unable to initialize GLFW!");
+			RUNTIME_ASSERT(success, "Unable to initialize GLFW!");
 			s_GLFWInitialized = true;
 		}
 
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 		
 		int success = glfwVulkanSupported();
-		VOXEL_CORE_ASSERT(success, "VulkanSDK Not Supported!");
+		RUNTIME_ASSERT(success, "VulkanSDK Not Supported!");
 		
 		m_window = glfwCreateWindow(m_windowData.Width, m_windowData.Height, m_windowData.Title.c_str(), nullptr, nullptr);
 		glfwMakeContextCurrent(m_window);

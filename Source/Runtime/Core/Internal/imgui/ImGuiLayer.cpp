@@ -1,8 +1,8 @@
 #include "ImGuiLayer.h"
 #include <Core/Logging/Log.h>
+#include <Core/HAL/AssetsManager/Paths.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
-#include "Core/HAL/AssetsManager/Paths.h"
 
 namespace VoxelEngine::renderer
 {
@@ -17,7 +17,7 @@ namespace VoxelEngine::renderer
 
 			if (!Paths::fileExists(layoutPath))
 			{
-				string error = "Unable to find an ImGui layout at path: " + layoutPath;
+				const string error = "Unable to find an ImGui layout at path: " + layoutPath;
 				throw std::exception(error.c_str());
 			}
 			

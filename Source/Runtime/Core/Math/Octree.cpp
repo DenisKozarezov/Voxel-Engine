@@ -7,7 +7,7 @@ namespace VoxelEngine
 	Octree::Octree(const TSharedPtr<components::mesh::Mesh>& mesh, int maxDepth)
 		: m_maxDepth(maxDepth)
 	{
-		VOXEL_CORE_ASSERT(maxDepth > 0, "Octree's max depth must be greater than zero!");
+		RUNTIME_ASSERT(maxDepth > 0, "Octree's max depth must be greater than zero!");
 
 		Box boundingBox = meshBounds(mesh);
 		m_root = new OctreeNode(boundingBox);
@@ -16,7 +16,7 @@ namespace VoxelEngine
 	constexpr Octree::Octree(Box boundingBox, int maxDepth)
 		: m_maxDepth(maxDepth)
 	{
-		VOXEL_CORE_ASSERT(maxDepth > 0, "Octree's max depth must be greater than zero!");
+		RUNTIME_ASSERT(maxDepth > 0, "Octree's max depth must be greater than zero!");
 
 		m_root = new OctreeNode(boundingBox);
 	}

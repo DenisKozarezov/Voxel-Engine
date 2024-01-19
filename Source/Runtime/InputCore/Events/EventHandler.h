@@ -2,7 +2,7 @@
 #include <functional>
 #include <typeinfo>
 #include <future>
-#include <InputCore/events/Event.h>
+#include "Event.h"
 
 namespace VoxelEngine::input
 {

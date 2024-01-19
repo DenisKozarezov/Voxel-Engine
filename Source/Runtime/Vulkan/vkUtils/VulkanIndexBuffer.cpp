@@ -7,7 +7,7 @@ namespace vkUtils
 	VulkanIndexBuffer::VulkanIndexBuffer(const vkInit::VulkanDevice*  device, const size_t& bufferSize)
 		: m_device(device)
 	{
-		VOXEL_CORE_ASSERT(bufferSize > 0, "index buffer is attempting to allocate zero memory device size!");
+		RUNTIME_ASSERT(bufferSize > 0, "index buffer is attempting to allocate zero memory device size!");
 		m_indexBuffer = memory::createBuffer(
 			device,
 			bufferSize,
@@ -18,8 +18,8 @@ namespace vkUtils
 	VulkanIndexBuffer::VulkanIndexBuffer(const vkInit::VulkanDevice*  device, const void* indices, const size_t& bufferSize) 
 		: m_device(device)
 	{
-		VOXEL_CORE_ASSERT(indices, "index buffer is attempting to map empty data!");
-		VOXEL_CORE_ASSERT(bufferSize > 0, "index buffer is attempting to allocate zero memory device size!");
+		RUNTIME_ASSERT(indices, "index buffer is attempting to map empty data!");
+		RUNTIME_ASSERT(bufferSize > 0, "index buffer is attempting to allocate zero memory device size!");
 
 		auto stagingBuffer = memory::createBuffer(
 			device,

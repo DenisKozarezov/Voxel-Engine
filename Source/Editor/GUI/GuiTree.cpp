@@ -3,10 +3,6 @@
 
 namespace VoxelEditor::gui
 {
-	GuiTree::GuiTree()
-	{
-		
-	}
 	bool GuiTree::registerWindow(ImguiWindow* window)
 	{	    
 #ifdef VOXEL_RELEASE

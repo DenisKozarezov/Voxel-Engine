@@ -1,49 +1,24 @@
 #pragma once
-#include <vulkan/vulkan.h>
-#include <Core/HAL/AssetsManager/AssetsProvider.h>
+#include <Renderer/IMaterial.h>
+#include "VulkanGraphicsPipelineBuilder.h"
 
 namespace vkUtils
 {
 #define MATERIALS_MAX 20
 
-	struct VulkanPipelineCreateInfo
+	class VulkanMaterial : public VoxelEngine::renderer::IMaterial
 	{
-		VkPipelineCreateFlags flags = VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT;
-		VkPipelineVertexInputStateCreateInfo* vertexInputInfo = nullptr;
-		VkPipelineInputAssemblyStateCreateInfo* inputAssembly = nullptr;
-		VkPipelineViewportStateCreateInfo* viewportState = nullptr;
-		VkPipelineRasterizationStateCreateInfo* rasterizer = nullptr;
-		VkPipelineMultisampleStateCreateInfo* multisampling = nullptr;
-		VkPipelineColorBlendAttachmentState* colorBlendAttachment = nullptr;
-		VkPipelineColorBlendStateCreateInfo* colorBlending = nullptr;
-		VkPipelineDepthStencilStateCreateInfo* depthStencil = nullptr;
-		VkPipelineDynamicStateCreateInfo* dynamicState = nullptr;
-		VkDescriptorSetLayout* descriptorSetLayout = nullptr;
-		VkRenderPass* renderPass = nullptr;
-		VkPipelineShaderStageCreateInfo* shaderStages = nullptr;
-		VkPipeline basePipelineHandle = VK_NULL_HANDLE;
-		VkPipelineLayoutCreateInfo pipelineLayoutInfo;
-		uint32 stagesCount;
-
-		void build(
-			const VkDevice& logicalDevice,
-			const VkPipelineLayout& pipelineLayout,
-			const VkPipelineCache& pipelineCache,
-			VkPipeline* pipeline);
-	};
-
-	class VulkanMaterial : public VoxelEngine::components::mesh::IMaterial
-	{
-	public:
+	private:
 		VkDevice logicalDevice = VK_NULL_HANDLE;
-		VkPipeline pipeline = VK_NULL_HANDLE;
-		VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
-
-		VulkanMaterial(const bool& instanced = false) : IMaterial(instanced) { }
+		vkInit::ShaderPass shaderPass;
+	public:
+		VulkanMaterial(const VkDevice& logicalDevice, const vkInit::ShaderPass& shaderPass,
+			const bool& instanced = false)
+		: IMaterial(instanced), logicalDevice(logicalDevice), shaderPass(shaderPass) { }
 		~VulkanMaterial() override
 		{
-			vkDestroyPipeline(logicalDevice, pipeline, nullptr);
-			vkDestroyPipelineLayout(logicalDevice, pipelineLayout, nullptr);
+			vkDestroyPipeline(logicalDevice, shaderPass.pipeline, nullptr);
+			vkDestroyPipelineLayout(logicalDevice, shaderPass.pipelineLayout, nullptr);
 		}
 
 		void bind() const override;
@@ -54,8 +29,7 @@ namespace vkUtils
 	
 	const VulkanMaterial* createMaterial(
 		const VkDevice& logicalDevice,
-		const VkPipeline& matPipeline,
-		const VkPipelineLayout& matLayout,
+		const vkInit::ShaderPass shaderPass,
 		const string& matName,
 		const bool& instanced = false);
 	
@@ -63,15 +37,12 @@ namespace vkUtils
 	
 	const VulkanMaterial* getMaterial(const string& matName);
 
-	void makeMaterials(
-		const VkDevice& device,
-		const VkPipelineCache& pipelineCache,
-		VulkanPipelineCreateInfo& pipelineInfo);
+	void makeMaterials(const VkDevice& device, vkInit::VulkanGraphicsPipelineBuilder& pipelineInfo);
 	
 	void releaseMaterials();
 }
 
 namespace utils
 {
-	const VoxelEngine::components::mesh::IMaterial* getMaterial(const string& matName);
+	const VoxelEngine::renderer::IMaterial* getMaterial(const string& matName);
 }

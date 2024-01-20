@@ -1,9 +1,9 @@
 #include "Scene.h"
 #include <Core/Math/Octree.h>
 #include <Core/HAL/AssetsManager/AssetsProvider.h>
-#include <VModel.h>
 #include <Engine/Components/mesh/MeshPrimitives.h>
 #include <Vulkan/vkUtils/VulkanMaterials.h>
+#include <VModel.h>
 
 #define TEST_INSTANCED_MESH 0
 
@@ -59,8 +59,8 @@ namespace VoxelEngine
 		const uint32 vertexCount = editorGrid.vertexCount();
 		const uint32 indexCount = editorGrid.indexCount();
 
-		editorGrid.vertexBuffer = VoxelEngine::renderer::VertexBuffer::Allocate(vertices, vertexCount * sizeof(renderer::Vertex));
-		editorGrid.indexBuffer = VoxelEngine::renderer::IndexBuffer::Allocate(indices, indexCount * sizeof(uint32));
+		editorGrid.vertexBuffer = renderer::VertexBuffer::Allocate(vertices, vertexCount * sizeof(renderer::Vertex));
+		editorGrid.indexBuffer = renderer::IndexBuffer::Allocate(indices, indexCount * sizeof(uint32));
 		editorGrid.material = utils::getMaterial("editor_grid");
 
 		meshes.editorGrid = std::move(editorGrid);

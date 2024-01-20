@@ -1,24 +1,12 @@
 #pragma once
 #include <Renderer/Vertex.h>
 #include <Renderer/Buffer.h>
+#include <Renderer/IMaterial.h>
 
 namespace VoxelEngine::components::mesh
 {
 	using Vertex = renderer::Vertex;
-
-	class IMaterial
-	{
-	private:
-		bool m_instanced;
-	public:
-		IMaterial(const bool& instanced = false) : m_instanced(instanced) { }
-
-		FORCE_INLINE const bool& instanced() const { return m_instanced; }
-		virtual void bind() const = 0;
-
-		virtual ~IMaterial() = default;
-	};
-
+	
 	struct Mesh
 	{
 	private:
@@ -30,7 +18,7 @@ namespace VoxelEngine::components::mesh
 	public:
 		std::vector<Vertex> vertices;
 		std::vector<uint32> indices;
-		const IMaterial* material = nullptr;
+		const renderer::IMaterial* material = nullptr;
 		TSharedPtr<renderer::VertexBuffer> vertexBuffer;
 		TSharedPtr<renderer::IndexBuffer> indexBuffer;
 

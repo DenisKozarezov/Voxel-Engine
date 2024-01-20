@@ -30,7 +30,7 @@ namespace std
 {
     template<> struct hash<VoxelEngine::renderer::Vertex>
     {
-        size_t operator()(VoxelEngine::renderer::Vertex const& vertex) const
+        size_t operator()(VoxelEngine::renderer::Vertex const& vertex) const noexcept
         {
             return ((hash<glm::vec3>()(vertex.pos) ^ (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^ (hash<glm::vec3>()(vertex.normal) << 1);
         }

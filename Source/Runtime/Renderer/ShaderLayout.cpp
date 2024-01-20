@@ -33,7 +33,7 @@ namespace VoxelEngine::renderer
 		}
 	}
 	ShaderLayout::ShaderLayout(std::initializer_list<ShaderLayoutElement> elements)
-		: m_elements(std::move(elements)), m_stride(0)
+		: m_stride(0), m_elements(elements)
 	{
 		calculateOffsetsAndStride();
 	}

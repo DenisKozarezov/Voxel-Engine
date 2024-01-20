@@ -23,7 +23,7 @@ namespace vkUtils
 		}
 	}
 
-	const utils::shaders::ShaderBinaries VulkanShader::compileOrGetVulkanBinaries(const string& filepath, const utils::shaders::ShaderSources& shaderSources)
+	utils::shaders::ShaderBinaries VulkanShader::compileOrGetVulkanBinaries(const string& filepath, const utils::shaders::ShaderSources& shaderSources)
 	{
 		const std::filesystem::path cacheDirectory = getShaderCacheDirectory();
 
@@ -81,7 +81,6 @@ namespace vkUtils
 		stageInfo.module = shaderModule;
 		stageInfo.pName = "main";
 		m_shaderStages.push_back(stageInfo);
-		m_shaderModules.push_back(shaderModule);
 	}
 
 	VulkanShader::VulkanShader(const VkDevice& logicalDevice, const string& filepath)
@@ -95,10 +94,9 @@ namespace vkUtils
 		const auto& shaderSources = utils::shaders::analyzeShaderProgram(shaderProgram);
 
 		m_shaderStages.reserve(shaderSources.size());
-		m_shaderModules.reserve(shaderSources.size());
 		const auto& shaderBinaries = compileOrGetVulkanBinaries(filepath, shaderSources);
 		{
-			VoxelEngine::Timer timer;
+			const VoxelEngine::Timer timer;
 			for (const auto& [stage, spirv] : shaderBinaries)
 			{
 				createShader(stage, spirv);
@@ -109,12 +107,13 @@ namespace vkUtils
 
 	VulkanShader::~VulkanShader()
 	{
-		for (const VkShaderModule& module : m_shaderModules)
+		for (const auto& stage : m_shaderStages)
 		{
-			if (module != nullptr)
+			if (stage.module)
 			{
-				vkDestroyShaderModule(m_logicalDevice, module, nullptr);
+				vkDestroyShaderModule(m_logicalDevice, stage.module, nullptr);
 			}
 		}
+		m_shaderStages.clear();
 	}
 }

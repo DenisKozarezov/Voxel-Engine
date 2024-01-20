@@ -14,7 +14,7 @@ namespace assets
         Asset& operator=(const Asset& rhs) = delete;
         Asset& operator=(Asset&& rhs) = delete;
         
-        virtual ~Asset() = default;
+        virtual ~Asset();
 
         FORCE_INLINE const AssetDescription& description() const { return m_assetDesc; }
     };

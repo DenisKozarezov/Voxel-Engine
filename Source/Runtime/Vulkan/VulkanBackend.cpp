@@ -114,11 +114,11 @@ namespace vulkan
 		VkFormat swapChainImageFormat = state.swapChainBundle.format;
 		VkFormat depthFormat = state.swapChainBundle.depthFormat;
 		state.renderPass = vkInit::createRenderPass(state.vulkanDevice->logicalDevice, swapChainImageFormat, depthFormat, state.msaaSamples);
-
+		
 		VkPipelineInputAssemblyStateCreateInfo inputAssembly = vkInit::pipelineInputAssemblyStateCreateInfo(
 			VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
 			VK_FALSE);
-
+		
 		VkPipelineViewportStateCreateInfo viewportState = vkInit::pipelineViewportStateCreateInfo(1, 1);
 
 		VkPipelineRasterizationStateCreateInfo rasterizer = vkInit::pipelineRasterizationStateCreateInfo(
@@ -148,20 +148,20 @@ namespace vulkan
 			VK_DYNAMIC_STATE_LINE_WIDTH
 		};
 		VkPipelineDynamicStateCreateInfo dynamicStateCreateInfo = vkInit::pipelineDynamicStateCreateInfo(dynamicStates);
-
-		vkUtils::VulkanPipelineCreateInfo pipelineInfo;
-		pipelineInfo.inputAssembly = &inputAssembly;
-		pipelineInfo.viewportState = &viewportState;
-		pipelineInfo.rasterizer = &rasterizer;
-		pipelineInfo.multisampling = &multisampling;
-		pipelineInfo.colorBlending = &colorBlending;
-		pipelineInfo.colorBlendAttachment = &colorBlendAttachment;
-		pipelineInfo.depthStencil = &depthStencil;
-		pipelineInfo.dynamicState = &dynamicStateCreateInfo;
-		pipelineInfo.renderPass = &state.renderPass;
-		pipelineInfo.pipelineLayoutInfo = vkInit::pipelineLayoutCreateInfo(&state.descriptorSetLayout);
-
-		vkUtils::makeMaterials(state.vulkanDevice->logicalDevice, state.pipelineCache, pipelineInfo);
+		
+		auto pipelineBuilder = vkInit::VulkanGraphicsPipelineBuilder(state.vulkanDevice->logicalDevice, state.pipelineCache)
+			.setInputAssemblyState(&inputAssembly)
+			.setViewportState(&viewportState)
+			.setRasterizationState(&rasterizer)
+			.setMultisampleState(&multisampling)
+			.setColorBlendState(&colorBlending)
+			.setColorBlendAttachment(&colorBlendAttachment)
+			.setDepthStencilState(&depthStencil)
+			.setDynamicState(&dynamicStateCreateInfo)
+			.setRenderPass(state.renderPass)
+			.setLayout(vkInit::pipelineLayoutCreateInfo(&state.descriptorSetLayout));
+		
+		vkUtils::makeMaterials(state.vulkanDevice->logicalDevice, pipelineBuilder);
 	}
 	void makeFrameResources()
 	{

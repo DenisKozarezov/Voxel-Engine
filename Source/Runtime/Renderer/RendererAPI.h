@@ -21,7 +21,9 @@ constexpr string graphicsSpecString(const GraphicsSpec& spec)
 		STR(DirectX12);
 #undef STR
 	}
-	return "UNKNOWN_RENDERER_SPEC";
+
+	RUNTIME_ASSERT(0, "Unsupported renderer API passed to function.");
+	return "";
 }
 
 namespace VoxelEngine::renderer

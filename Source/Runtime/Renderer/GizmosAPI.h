@@ -1,6 +1,6 @@
 #pragma once
 #include <glm/vec3.hpp>
-#include <Core/CoreDefines.h>
+#include <Renderer/Buffer.h>
 #include <vulkan/vkUtils/VulkanMaterials.h>
 
 namespace utils

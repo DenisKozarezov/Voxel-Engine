@@ -23,7 +23,7 @@ namespace VoxelEngine::renderer
 		RUNTIME_ASSERT(width > 0.0f, "line width must be greater than zero!");
 		s_renderer->setLineWidth(width);
 	}
-	void RenderCommand::draw(const mesh::IMaterial* material, uint32 vertexCount, uint32 instanceCount, uint32 startVertex, uint32 startInstance)
+	void RenderCommand::draw(const IMaterial* material, uint32 vertexCount, uint32 instanceCount, uint32 startVertex, uint32 startInstance)
 	{
 		if (material)
 			material->bind();

@@ -7,8 +7,8 @@
 namespace VoxelEngine
 {
 	class Octree;
-	class renderer::mesh::IMaterial;
-	struct components::mesh::Mesh;
+	class renderer::IMaterial;
+	using Mesh = components::mesh::Mesh;
 
 	struct MeshesCache
 	{
@@ -19,10 +19,10 @@ namespace VoxelEngine
 
 	struct MaterialsCache
 	{
-		const renderer::mesh::IMaterial* solid;
-		const renderer::mesh::IMaterial* wireframe;
-		const renderer::mesh::IMaterial* normals;
-		const renderer::mesh::IMaterial* normalsLines;
+		const renderer::IMaterial* solid;
+		const renderer::IMaterial* wireframe;
+		const renderer::IMaterial* normals;
+		const renderer::IMaterial* normalsLines;
 	};
 
 	class Scene

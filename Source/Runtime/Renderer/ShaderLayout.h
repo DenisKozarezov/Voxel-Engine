@@ -63,7 +63,7 @@ namespace VoxelEngine::renderer
 	struct ShaderLayout
 	{
 	private:
-		uint32 m_stride = 0;
+		uint32 m_stride;
 		std::list<ShaderLayoutElement> m_elements;
 
 		void calculateOffsetsAndStride();

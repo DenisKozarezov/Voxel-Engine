@@ -15,7 +15,8 @@ constexpr ShaderStage shaderStageFromString(const string& type)
 		return Geometry;
 	if (type == "compute")
 		return Compute;
-		
+
+	RUNTIME_ASSERT(0, "Unsupported shader stage passed to function.");
 	return None;
 }
 
@@ -28,12 +29,13 @@ constexpr string shaderStageString(const ShaderStage& stage)
 		STR(Fragment);
 		STR(Geometry);
 		STR(Compute);
-#undef STR
-		default: return "None";
+#undef STR		
 	}
+	RUNTIME_ASSERT(0, "Unsupported shader stage passed to function.");
+	return "";
 }
 
-constexpr string getShaderCacheDirectory()
+static string getShaderCacheDirectory()
 {
 	return Paths::cacheDir() + "shaders/SPIR-V";
 }

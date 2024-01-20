@@ -3,13 +3,13 @@
 
 namespace VoxelEditor::gui
 {
-	class GuiTree
+	class GuiTree : public NonCopyable
 	{
 	private:
 		std::vector<ImguiWindow*> m_windows;
 		SceneViewport* m_viewport = nullptr;
 	public:
-		GuiTree();
+		GuiTree() noexcept = default;
 
 		FORCE_INLINE SceneViewport* getViewport() const { return m_viewport; }
 		

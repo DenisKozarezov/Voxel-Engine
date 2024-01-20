@@ -15,10 +15,13 @@ public:
     // Returns the directory the application was launched from (useful for commandline utilities)
     static string launchDir();
 
+    // Returns the directory where all resources (models, shaders, etc) are stored
     static string assetsDir();
-    
+
+    // Returns the directory where all shaders are stored
     static string shaderWorkingDir();
 
+    // Returns the directory used for storing cached files used by application in runtime
     static string cacheDir();
     
     /**

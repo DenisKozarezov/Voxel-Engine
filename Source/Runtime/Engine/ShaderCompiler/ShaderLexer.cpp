@@ -29,7 +29,7 @@ namespace utils::shaders
 				: source.substr(nextLinePos, pos - nextLinePos);
 		}
 
-		if (sources.size() > 0)
+		if (!sources.empty())
 			return sources;
 		else
 			return ShaderSources(0);

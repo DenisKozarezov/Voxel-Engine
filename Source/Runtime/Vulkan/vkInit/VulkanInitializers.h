@@ -793,7 +793,7 @@ namespace vkInit
 		}
 	}
 	
-	constexpr VkShaderStageFlagBits shaderStageToVulkanBaseStage(byte shaderStage)
+	constexpr VkShaderStageFlagBits shaderStageToVulkanBaseStage(ShaderStage shaderStage)
 	{
 		switch (shaderStage)
 		{
@@ -802,9 +802,11 @@ namespace vkInit
 		case ShaderStage::Geometry: return VK_SHADER_STAGE_GEOMETRY_BIT;
 		case ShaderStage::Compute:	return VK_SHADER_STAGE_COMPUTE_BIT;
 		}
+		RUNTIME_ASSERT(false, "Unsupported shader stage passed to function.")
+		return (VkShaderStageFlagBits)0;
 	}
 
-	const VkPipelineVertexInputStateCreateInfo inputStateCreateInfo(VoxelEngine::renderer::ShaderLayout layout, const uint32& vertexStride = sizeof(VoxelEngine::renderer::Vertex));
+	const VkPipelineVertexInputStateCreateInfo inputStateCreateInfo(VoxelEngine::renderer::ShaderLayout layout, const uint32& vertexStride = sizeof(Vertex));
 
 	constexpr VkPipelineVertexInputStateCreateInfo emptyInputStateCreateInfo()
 	{

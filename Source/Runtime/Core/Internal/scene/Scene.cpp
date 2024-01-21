@@ -1,5 +1,6 @@
 #include "Scene.h"
 #include <Core/Math/Octree.h>
+#include <Renderer/RenderCommand.h>
 #include <Vulkan/vkUtils/VulkanMaterials.h>
 #include <VModel.h>
 

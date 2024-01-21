@@ -2,18 +2,11 @@
 #include <Vulkan/vkUtils/VulkanSwapChainFrame.h>
 #include <Renderer/Renderer.h>
 
-namespace VoxelEngine
-{
-	namespace renderer
-	{
-		struct UniformBufferObject;
-	}
-}
+struct UniformBufferObject;
 
 namespace vulkan
 {
 	using namespace VoxelEngine;
-	namespace mesh = components::mesh;
 
 	VkSurfaceKHR makeInstance();
 	void makeDevice(const VkSurfaceKHR& surface);
@@ -31,7 +24,7 @@ namespace vulkan
 	void cleanupSwapChain();
 	void presentFrame(const uint32& imageIndex, VkSemaphore* signalSemaphores);
 	void prepareFrame();
-	void beginFrame(const renderer::UniformBufferObject& ubo);
+	void beginFrame(const UniformBufferObject& ubo);
 	void endFrame();
 
 	void resize(const uint32& width, const uint32& height);

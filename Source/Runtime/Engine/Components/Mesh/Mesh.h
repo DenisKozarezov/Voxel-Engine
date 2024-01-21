@@ -5,8 +5,6 @@
 
 namespace VoxelEngine::components::mesh
 {
-	using Vertex = renderer::Vertex;
-	
 	struct Mesh
 	{
 	private:		
@@ -31,7 +29,7 @@ namespace VoxelEngine::components::mesh
 			std::copy_n(vertices, vertexCount, std::back_inserter(this->vertices));
 			std::copy_n(indices, indexCount, std::back_inserter(this->indices));
 			
-			vertexBuffer = renderer::VertexBuffer::Allocate(vertices, vertexCount * sizeof(renderer::Vertex));
+			vertexBuffer = renderer::VertexBuffer::Allocate(vertices, vertexCount * sizeof(Vertex));
 			indexBuffer = renderer::IndexBuffer::Allocate(indices, indexCount * sizeof(uint32));
 		}
 		Mesh(const Mesh& rhs) : Mesh(rhs.vertices, rhs.indices) { }

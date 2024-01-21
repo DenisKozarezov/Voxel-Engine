@@ -1,11 +1,15 @@
 #pragma once
 #include "RenderSettings.h"
-#include "RenderCommand.h"
-#include "GizmosAPI.h"
+#include <Core/HAL/Platform/Window.h>
 #include <Engine/Components/camera/Camera.h>
 
-namespace VoxelEngine::renderer
+namespace utils
 {
+	class GizmosAPI;
+}
+
+namespace VoxelEngine::renderer
+{	
 	struct RenderPerformanceStats
 	{
 		RenderFrameStats frameStats;

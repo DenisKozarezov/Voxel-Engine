@@ -45,10 +45,10 @@ namespace utils::shaders
     {
         switch (stage)
         {
-        case Vertex:	return shaderc_glsl_vertex_shader;
-        case Fragment:	return shaderc_glsl_fragment_shader;
-        case Geometry:	return shaderc_glsl_geometry_shader;
-        case Compute:	return shaderc_glsl_compute_shader;
+        case ShaderStage::Vertex:	return shaderc_glsl_vertex_shader;
+        case ShaderStage::Fragment:	return shaderc_glsl_fragment_shader;
+        case ShaderStage::Geometry:	return shaderc_glsl_geometry_shader;
+        case ShaderStage::Compute:	return shaderc_glsl_compute_shader;
         }
         RUNTIME_ASSERT(false, "unknown shader stage!");
         return (shaderc_shader_kind)0;

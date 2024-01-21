@@ -316,7 +316,7 @@ namespace vulkan
 		
 		state.vulkanDevice->queryPool->beginQuery(commandBuffer);
 	}
-	void beginFrame(const renderer::UniformBufferObject& ubo)
+	void beginFrame(const UniformBufferObject& ubo)
 	{
 		const vkUtils::SwapChainFrame& frame = state.swapChainBundle.frames[CURRENT_FRAME];
 
@@ -340,7 +340,7 @@ namespace vulkan
 
 		frame.uniformBuffers.view.setData(&ubo, sizeof(ubo));
 
-		renderer::RaymarchData data{};
+		RaymarchData data{};
 		data.resolution = glm::vec2(state.viewportSize.width, state.viewportSize.height);
 		data.mousePos = glm::vec2(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
 		data.voxelSize = 0.5f;

@@ -3,21 +3,21 @@
 #include <Core/HAL/AssetsManager/FileManager.h>
 #include <Core/Logging/Assert.h>
 
-enum ShaderStage : byte { None, Vertex, Fragment, Geometry, Compute };
+enum class ShaderStage : byte { None, Vertex, Fragment, Geometry, Compute };
 
 constexpr ShaderStage shaderStageFromString(const string& type)
 {
 	if (type == "vertex")
-		return Vertex;
+		return ShaderStage::Vertex;
 	if (type == "fragment")
-		return Fragment;
+		return ShaderStage::Fragment;
 	if (type == "geometry")
-		return Geometry;
+		return ShaderStage::Geometry;
 	if (type == "compute")
-		return Compute;
+		return ShaderStage::Compute;
 
 	RUNTIME_ASSERT(0, "Unsupported shader stage passed to function.");
-	return None;
+	return ShaderStage::None;
 }
 
 constexpr string shaderStageString(const ShaderStage& stage)

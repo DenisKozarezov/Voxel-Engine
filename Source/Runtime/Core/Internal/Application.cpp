@@ -1,6 +1,7 @@
 #include "Application.h"
 #include <InputCore/events/EventDispatcher.h>
 #include <Renderer/Renderer.h>
+#include <Renderer/RendererAPI.h>
 
 namespace VoxelEngine
 {

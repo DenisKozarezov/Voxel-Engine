@@ -21,6 +21,8 @@
 #include <Core/Internal/Timestep.h>
 #include <Core/Internal/NonCopyable.h>
 
+#include <Renderer/RenderCommand.h>
+
 #include <Engine/Components/camera/FirstPersonCamera.h>
 #include <Engine/Components/camera/OrthographicCamera.h>
 #include <Engine/Components/camera/EditorCameraController.h>

@@ -1,6 +1,8 @@
 #include <Vulkan/VulkanBackend.h>
 #include <Core/Internal/Application.h>
 #include "UniformBuffer.h"
+#include "GizmosAPI.h"
+#include "RenderCommand.h"
 
 namespace VoxelEngine::renderer
 {
@@ -39,7 +41,7 @@ namespace VoxelEngine::renderer
     }
     void Renderer::preRender(const components::camera::Camera& camera)
     {
-        UniformBufferObject ubo =
+        const UniformBufferObject ubo =
         {
             .view = camera.viewMatrix(),
             .proj = camera.projectionMatrix(),
@@ -52,7 +54,7 @@ namespace VoxelEngine::renderer
 
     void Renderer::preRender()
     {
-        UniformBufferObject ubo =
+        constexpr UniformBufferObject ubo =
         {
             .view = glm::mat4(0.0f),
             .proj = glm::mat4(0.0f),

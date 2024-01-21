@@ -18,7 +18,7 @@ namespace VoxelEngine::components::mesh
 	struct TriangleMesh : public Mesh
 	{
 	private:
-		static constexpr std::array<renderer::Vertex, 3> vertices =
+		static constexpr std::array<Vertex, 3> vertices =
 		{
 			Vertex({0.0f, -1.0f, 0.0f}),
 			Vertex({1.0f, 1.0f, 0.0f}),
@@ -35,7 +35,7 @@ namespace VoxelEngine::components::mesh
 
 	struct QuadMesh : public Mesh
 	{
-		static constexpr std::array<renderer::Vertex, 4> vertices =
+		static constexpr std::array<Vertex, 4> vertices =
 		{
 			Vertex({-1.0f, -1.0f, 0.0f}),
 			Vertex({1.0f, -1.0f, 0.0f}),
@@ -55,7 +55,7 @@ namespace VoxelEngine::components::mesh
 	{
 		static constexpr float s = 0.5f;
 
-		static constexpr std::array<renderer::Vertex, 24> vertices =
+		static constexpr std::array<Vertex, 24> vertices =
 		{
 			Vertex({-s, -s, s},	{0.0f, 0.0f, 1.0f}),
 			Vertex({s, -s, s},	{0.0f, 0.0f, 1.0f}),
@@ -110,7 +110,7 @@ namespace VoxelEngine::components::mesh
 	private:
 		static constexpr float s = 0.1f;
 
-		static constexpr std::array<renderer::Vertex, 8> vertices =
+		static constexpr std::array<Vertex, 8> vertices =
 		{
 			Vertex({-s,-s, s}),
 			Vertex({ s,-s, s}),

@@ -13,10 +13,10 @@ namespace vkUtils
 	{
 		switch (stage)
 		{
-		case Vertex:    return ".cached_vulkan.vert";
-		case Fragment:  return ".cached_vulkan.frag";
-		case Geometry:  return ".cached_vulkan.geom";
-		case Compute:	return ".cached_vulkan.compute";
+		case ShaderStage::Vertex:    return ".cached_vulkan.vert";
+		case ShaderStage::Fragment:  return ".cached_vulkan.frag";
+		case ShaderStage::Geometry:  return ".cached_vulkan.geom";
+		case ShaderStage::Compute:	return ".cached_vulkan.compute";
 		default:
 			RUNTIME_ASSERT(false, "unknown shader stage!");
 			return "";

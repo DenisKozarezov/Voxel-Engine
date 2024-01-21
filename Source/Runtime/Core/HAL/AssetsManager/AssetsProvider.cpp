@@ -9,8 +9,6 @@
 
 namespace assets
 {
-    using Vertex = VoxelEngine::renderer::Vertex;
-
     const TextureData AssetsProvider::loadTexture(const string& path, ImageColorFormat req_comp)
     {
         TextureData data;        

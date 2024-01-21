@@ -148,6 +148,6 @@ namespace VoxelEditor::gui
 		{
 			m_camera->update(ts);
 		}
-		m_scene->update(ts, *m_camera.get());
+		m_scene->update(ts);
 	}
 }

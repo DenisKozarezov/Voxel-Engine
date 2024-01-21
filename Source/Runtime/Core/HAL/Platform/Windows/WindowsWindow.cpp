@@ -56,7 +56,7 @@ namespace VoxelEngine
 
 		glfwSetKeyCallback(m_window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
 		{
-			uint16 keycode = static_cast<uint16>(key);
+			const uint16 keycode = static_cast<uint16>(key);
 
 			WindowsOSData& data = *(WindowsOSData*)glfwGetWindowUserPointer(window);
 			switch (action)

@@ -27,7 +27,7 @@ namespace assets
 
         RUNTIME_TRACE("Loading OBJ mesh at path '{0}'...", path);
 
-        bool isLoaded = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path.c_str());
+        const bool isLoaded = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path.c_str());
         RUNTIME_ASSERT(isLoaded, warn + err);
         RUNTIME_ASSERT(!attrib.normals.empty(), "there are no 'vn' definitions (for normals) in the .obj file! Check the file format!");
 

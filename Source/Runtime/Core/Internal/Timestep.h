@@ -6,15 +6,15 @@ namespace VoxelEngine
 	class Timestep final
 	{
 	private:
-		float m_time;
+		double m_time;
 	public:
-		Timestep(const float& time) noexcept : m_time(time) { }
+		Timestep(const double& time) noexcept : m_time(time) { }
 		~Timestep() noexcept = default;
 
-		constexpr operator float&() { return m_time; }
-		constexpr operator float() const& { return m_time; }
+		constexpr operator double&() { return m_time; }
+		constexpr operator double() const& { return m_time; }
 
-		FORCE_INLINE float getSeconds() const { return m_time * 0.001f; }
-		FORCE_INLINE const float& getMilliseconds() const { return m_time; }
+		FORCE_INLINE double getSeconds() const { return m_time * 0.001; }
+		FORCE_INLINE const double& getMilliseconds() const { return m_time; }
 	};
 }

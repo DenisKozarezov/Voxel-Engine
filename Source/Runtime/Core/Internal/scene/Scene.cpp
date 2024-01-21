@@ -80,7 +80,7 @@ namespace VoxelEngine
 		return true;
 	}
 
-	void Scene::update(const Timestep& ts, components::camera::Camera& camera)
+	void Scene::update(const Timestep& ts)
 	{
 		renderScene();
 	}

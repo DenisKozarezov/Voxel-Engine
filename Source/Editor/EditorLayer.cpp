@@ -136,7 +136,7 @@ namespace VoxelEditor::gui
 	{
 		
 	}
-	void EditorLayer::onUpdate(const VoxelEngine::Timestep& ts)
+	void EditorLayer::onUpdate(const Timestep& ts)
 	{
 		renderer::Renderer::resetStats();
 
@@ -153,7 +153,7 @@ namespace VoxelEditor::gui
 
 		renderer::Renderer::flushStats();
 	}
-	void EditorLayer::onFixedUpdate(const VoxelEngine::Timestep& ts)
+	void EditorLayer::onFixedUpdate(const Timestep& ts)
 	{
 		
 	}

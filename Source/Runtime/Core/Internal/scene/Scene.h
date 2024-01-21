@@ -45,7 +45,7 @@ namespace VoxelEngine
 		Scene& operator=(Scene&& rhs) noexcept = delete;
 
 		bool onMeshLoaded(const input::MeshLoadedEvent& e);
-		void update(const Timestep& ts, components::camera::Camera& camera);
+		void update(const Timestep& ts);
 		void renderScene();
 		
 		void registerMesh(const TSharedPtr<Mesh>& mesh);

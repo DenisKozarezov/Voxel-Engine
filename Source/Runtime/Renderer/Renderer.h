@@ -20,7 +20,7 @@ namespace VoxelEngine::renderer
 		float deltaTime;
 	};
 
-	static class Renderer
+	class Renderer
 	{
 	private:
 		static utils::GizmosAPI* s_gizmosAPI;

@@ -79,7 +79,7 @@ namespace VoxelEngine
 
 		FORCE_INLINE static Application* getInstance() { return s_instance; }
 		FORCE_INLINE static renderer::ImGuiLayer* getImGuiLayer() { return s_imguiLayer; }
-		FORCE_INLINE const float& getDeltaTime() const { return m_frameTimer; }
+		FORCE_INLINE const double& getDeltaTime() const { return m_frameTimer; }
 		FORCE_INLINE const uint32& getFPS() const { return m_lastFPS; }
 		FORCE_INLINE const TUniquePtr<Window>& getWindow() const { return m_window; }
 

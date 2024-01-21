@@ -9,7 +9,7 @@ namespace VoxelEngine
 	{
 		RUNTIME_ASSERT(maxDepth > 0, "Octree's max depth must be greater than zero!");
 
-		Box boundingBox = meshBounds(mesh);
+		const Box boundingBox = meshBounds(mesh);
 		m_root = new OctreeNode(boundingBox);
 		subdivide(mesh, m_root, 0);
 	}
@@ -26,22 +26,22 @@ namespace VoxelEngine
 		delete m_root;
 	}
 
-	const std::vector<glm::vec3> Octree::getMeshPointsInBox(
+	std::vector<glm::vec3> Octree::getMeshPointsInBox(
 		const TSharedPtr<components::mesh::Mesh>& mesh,
-		const Box& bounds)
+		const Box& bounds) const
 	{
 		std::vector<glm::vec3> result;
-		for (int i = 0; i < mesh->vertexCount(); ++i)
+		for (uint32 i = 0; i < mesh->vertexCount(); ++i)
 		{
-			glm::vec3 pos = mesh->vertices[i].pos;
-			if (bounds.inside(pos))
+			glm::vec3 vertex = mesh->vertices[i].pos;
+			if (bounds.inside(vertex))
 			{
-				result.push_back(pos);
+				result.push_back(vertex);
 			}
 		}
 		return result;
 	}
-	std::array<Box, 8> Octree::getSubdividedOctants(OctreeNode* currentNode)
+	std::array<Box, 8> Octree::getSubdividedOctants(OctreeNode* currentNode) const
 	{
 		glm::vec3 min = currentNode->bounds.min();
 		glm::vec3 max = currentNode->bounds.max();
@@ -58,13 +58,13 @@ namespace VoxelEngine
 		octant[7] = (currentNode->children[7] != nullptr) ? currentNode->children[7]->bounds : Box({ min.x, center.y, center.z },	{ center.x, max.y, max.z });
 		return octant;
 	}
-	Box Octree::meshBounds(const TSharedPtr<components::mesh::Mesh>& mesh)
+	Box Octree::meshBounds(const TSharedPtr<components::mesh::Mesh>& mesh) const
 	{
 		if (mesh->vertexCount() == 0)
 			return Box();
 
-		glm::vec3 min = glm::vec3(std::numeric_limits<float>::max());
-		glm::vec3 max = glm::vec3(-std::numeric_limits<float>::max());
+		auto min = glm::vec3(std::numeric_limits<float>::max());
+		auto max = glm::vec3(-std::numeric_limits<float>::max());
 
 		for (uint32 i = 0; i < mesh->vertexCount(); ++i) 
 		{
@@ -82,7 +82,7 @@ namespace VoxelEngine
 			return;
 
 		node->children.resize(8);
-		std::array<Box, 8> listBox = getSubdividedOctants(node);
+		const std::array<Box, 8> listBox = getSubdividedOctants(node);
 		for (int i = 0; i < 8; ++i)
 		{
 			OctreeNode* child = new OctreeNode(listBox[i]);
@@ -95,7 +95,7 @@ namespace VoxelEngine
 
 			subdivide(mesh, child, level);
 
-			if (child->points.size() > 0)
+			if (!child->points.empty())
 			{
 				++m_voxelCount;			
 				node->children[i] = child;

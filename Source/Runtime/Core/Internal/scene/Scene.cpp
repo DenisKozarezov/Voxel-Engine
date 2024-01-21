@@ -1,7 +1,5 @@
 #include "Scene.h"
 #include <Core/Math/Octree.h>
-#include <Core/HAL/AssetsManager/AssetsProvider.h>
-#include <Engine/Components/mesh/MeshPrimitives.h>
 #include <Vulkan/vkUtils/VulkanMaterials.h>
 #include <VModel.h>
 
@@ -52,18 +50,7 @@ namespace VoxelEngine
 	}
 	Scene::Scene()
 	{
-		auto editorGrid = renderer::mesh::QuadMesh();
-
-		auto* vertices = editorGrid.vertices.data();
-		auto* indices = editorGrid.indices.data();
-		const uint32 vertexCount = editorGrid.vertexCount();
-		const uint32 indexCount = editorGrid.indexCount();
-
-		editorGrid.vertexBuffer = renderer::VertexBuffer::Allocate(vertices, vertexCount * sizeof(renderer::Vertex));
-		editorGrid.indexBuffer = renderer::IndexBuffer::Allocate(indices, indexCount * sizeof(uint32));
-		editorGrid.material = utils::getMaterial("editor_grid");
-
-		meshes.editorGrid = std::move(editorGrid);
+		meshes.editorGrid.material = utils::getMaterial("editor_grid");
 
 #if TEST_INSTANCED_MESH
 		prepareTestInstancedMesh();
@@ -137,7 +124,7 @@ namespace VoxelEngine
 					mesh->material = materials.wireframe;
 					break;
 				case renderer::Normals:
-					mesh->material = materials.normals;
+						mesh->material = materials.normals;
 					break;
 				}
 

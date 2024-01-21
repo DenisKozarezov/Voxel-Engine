@@ -102,7 +102,7 @@ namespace vkUtils
 	}
 	void VulkanVertexBuffer::bind(const VkCommandBuffer& commandBuffer, const uint32& binding)
 	{
-		VkDeviceSize offsets[] = { 0 };
+		const VkDeviceSize offsets[] = { 0 };
 		vkCmdBindVertexBuffers(commandBuffer, binding, 1, &m_vertexBuffer.buffer, offsets);
 	}
 }

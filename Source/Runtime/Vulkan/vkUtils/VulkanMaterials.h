@@ -12,9 +12,8 @@ namespace vkUtils
 		VkDevice logicalDevice = VK_NULL_HANDLE;
 		vkInit::ShaderPass shaderPass;
 	public:
-		VulkanMaterial(const VkDevice& logicalDevice, const vkInit::ShaderPass& shaderPass,
-			const bool& instanced = false)
-		: IMaterial(instanced), logicalDevice(logicalDevice), shaderPass(shaderPass) { }
+		VulkanMaterial(const VkDevice& logicalDevice, const vkInit::ShaderPass& shaderPass, const bool& instanced = false)
+			: IMaterial(instanced), logicalDevice(logicalDevice), shaderPass(shaderPass) { }
 		~VulkanMaterial() override
 		{
 			vkDestroyPipeline(logicalDevice, shaderPass.pipeline, nullptr);
@@ -25,17 +24,13 @@ namespace vkUtils
 		void bind(const VkCommandBuffer& commandBuffer, const VkDescriptorSet& descriptorSet) const;
 	};
 
-	using MaterialsCache = std::unordered_map<string, VulkanMaterial*>;
+	using MaterialsCache = std::unordered_map<string, TSharedPtr<const VoxelEngine::renderer::IMaterial>>;
 	
-	const VulkanMaterial* createMaterial(
+	void createMaterial(
 		const VkDevice& logicalDevice,
 		const vkInit::ShaderPass shaderPass,
 		const string& matName,
 		const bool& instanced = false);
-	
-	void unregisterMaterial(const string& matName);
-	
-	const VulkanMaterial* getMaterial(const string& matName);
 
 	void makeMaterials(const VkDevice& device, vkInit::VulkanGraphicsPipelineBuilder& pipelineInfo);
 	
@@ -44,5 +39,5 @@ namespace vkUtils
 
 namespace utils
 {
-	const VoxelEngine::renderer::IMaterial* getMaterial(const string& matName);
+	const TSharedPtr<const VoxelEngine::renderer::IMaterial>& getMaterial(const string& matName);
 }

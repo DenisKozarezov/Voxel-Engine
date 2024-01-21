@@ -2,6 +2,7 @@
 #include <Renderer/Renderer.h>
 #include <InputCore/events/ApplicationEvent.h>
 #include <InputCore/events/EventDispatcher.h>
+#include <Engine/Components/mesh/MeshPrimitives.h>
 #include "../Timestep.h"
 
 namespace VoxelEngine
@@ -12,17 +13,17 @@ namespace VoxelEngine
 
 	struct MeshesCache
 	{
-		components::mesh::Mesh editorGrid;
+		components::mesh::QuadMesh editorGrid;
 		components::mesh::Mesh voxel;
 		Octree* svo = nullptr;
 	};
 
 	struct MaterialsCache
 	{
-		const renderer::IMaterial* solid;
-		const renderer::IMaterial* wireframe;
-		const renderer::IMaterial* normals;
-		const renderer::IMaterial* normalsLines;
+		TSharedPtr<const renderer::IMaterial> solid;
+		TSharedPtr<const renderer::IMaterial> wireframe;
+		TSharedPtr<const renderer::IMaterial> normals;
+		TSharedPtr<const renderer::IMaterial> normalsLines;
 	};
 
 	class Scene

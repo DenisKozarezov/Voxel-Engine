@@ -27,34 +27,14 @@ namespace vkUtils
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, shaderPass.pipeline);
 	}
 
-	const VulkanMaterial* createMaterial(
+	void createMaterial(
 		const VkDevice& logicalDevice,
 		const vkInit::ShaderPass shaderPass,
 		const string& matName,
 		const bool& instanced)
 	{
-		VulkanMaterial* mat = new VulkanMaterial(logicalDevice, shaderPass, instanced);
-		materials[matName] = mat;
-
+		materials[matName] = MakeShared<const VulkanMaterial>(logicalDevice, shaderPass, instanced);
 		RUNTIME_TRACE("Building new material '{0}'...", matName);
-
-		return materials[matName];
-	}
-
-	void unregisterMaterial(const string& matName)
-	{
-		if (auto* mat = getMaterial(matName))
-		{
-			EDITOR_TRACE("Unregistering material with name '{0}'...", matName);
-			delete mat;
-			materials.erase(matName);
-		}
-	}
-
-	const VulkanMaterial* getMaterial(const string& matName)
-	{
-		RUNTIME_ASSERT(materials.contains(matName), "there is no material with such name " + matName);
-		return materials[matName];
 	}
 
 	void makeMaterials(const VkDevice& device, vkInit::VulkanGraphicsPipelineBuilder& pipelineBuilder)
@@ -374,18 +354,20 @@ namespace vkUtils
 	
 	void releaseMaterials()
 	{
-		while (!materials.empty())
+		for (auto &material : materials)
 		{
-			const auto& matName = materials.begin()->first;
-			unregisterMaterial(matName);
+			EDITOR_TRACE("Unregistering material with name '{0}'...", material.first);
+			material.second = nullptr;			
 		}
+		materials.clear();
 	}
 }
 
 namespace utils
 {
-	const VoxelEngine::renderer::IMaterial* getMaterial(const string& matName)
+	const TSharedPtr<const VoxelEngine::renderer::IMaterial>& getMaterial(const string& matName)
 	{
-		return vkUtils::getMaterial(matName);
+		RUNTIME_ASSERT(vkUtils::materials.contains(matName), "there is no material with such name " + matName);
+		return vkUtils::materials[matName];
 	}
 }

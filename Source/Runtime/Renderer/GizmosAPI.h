@@ -25,13 +25,13 @@ namespace utils
 		LineVertex* linesPtrStart = nullptr;
 		LineVertex* linesPtrCurrent = nullptr;
 		TSharedPtr<VoxelEngine::renderer::VertexBuffer> linesBuffer;
-		const vkUtils::VulkanMaterial* linesMaterial = nullptr;
+		TSharedPtr<const VoxelEngine::renderer::IMaterial> linesMaterial = nullptr;
 
 		uint32 circleVertexCount = 0;
 		CircleVertex* circlePtrStart = nullptr;
 		CircleVertex* circlePtrCurrent = nullptr;
 		TSharedPtr<VoxelEngine::renderer::VertexBuffer> circleBuffer;
-		const vkUtils::VulkanMaterial* circleMaterial = nullptr;
+		TSharedPtr<const VoxelEngine::renderer::IMaterial> circleMaterial = nullptr;
 	};
 
 	class GizmosAPI

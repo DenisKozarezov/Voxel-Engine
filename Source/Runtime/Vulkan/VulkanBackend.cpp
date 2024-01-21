@@ -148,6 +148,8 @@ namespace vulkan
 			VK_DYNAMIC_STATE_LINE_WIDTH
 		};
 		VkPipelineDynamicStateCreateInfo dynamicStateCreateInfo = vkInit::pipelineDynamicStateCreateInfo(dynamicStates);
+
+		VkPipelineLayoutCreateInfo layoutCreateInfo = vkInit::pipelineLayoutCreateInfo(&state.descriptorSetLayout);
 		
 		auto pipelineBuilder = vkInit::VulkanGraphicsPipelineBuilder(state.vulkanDevice->logicalDevice, state.pipelineCache)
 			.setInputAssemblyState(&inputAssembly)
@@ -158,8 +160,8 @@ namespace vulkan
 			.setColorBlendAttachment(&colorBlendAttachment)
 			.setDepthStencilState(&depthStencil)
 			.setDynamicState(&dynamicStateCreateInfo)
-			.setRenderPass(state.renderPass)
-			.setLayout(vkInit::pipelineLayoutCreateInfo(&state.descriptorSetLayout));
+			.setLayout(&layoutCreateInfo)
+			.setRenderPass(state.renderPass);
 		
 		vkUtils::makeMaterials(state.vulkanDevice->logicalDevice, pipelineBuilder);
 	}

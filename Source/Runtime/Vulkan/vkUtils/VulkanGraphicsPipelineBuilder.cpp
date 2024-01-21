@@ -87,7 +87,7 @@ namespace vkInit
         return *this;
     }
 
-    VulkanGraphicsPipelineBuilder& VulkanGraphicsPipelineBuilder::setLayout(VkPipelineLayoutCreateInfo layout)
+    VulkanGraphicsPipelineBuilder& VulkanGraphicsPipelineBuilder::setLayout(const VkPipelineLayoutCreateInfo* layout)
     {
         m_pipelineLayoutInfo = layout;
         return *this;
@@ -120,7 +120,7 @@ namespace vkInit
     ShaderPass VulkanGraphicsPipelineBuilder::build() const
     {
         VkPipelineLayout pipelineLayout;
-        VkResult err = vkCreatePipelineLayout(m_logicalDevice, &m_pipelineLayoutInfo, nullptr, &pipelineLayout);
+        VkResult err = vkCreatePipelineLayout(m_logicalDevice, m_pipelineLayoutInfo, nullptr, &pipelineLayout);
         VK_CHECK(err, "failed to create pipeline layout!");
         
         VkGraphicsPipelineCreateInfo pipelineInfo = vkInit::pipelineCreateInfo();

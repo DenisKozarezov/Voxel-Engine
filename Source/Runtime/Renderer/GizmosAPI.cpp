@@ -17,7 +17,7 @@ namespace utils
 
 	GizmosAPI::GizmosAPI()
 	{
-		m_renderData.linesMaterial = vkUtils::getMaterial("lines");
+		m_renderData.linesMaterial = utils::getMaterial("lines");
 		m_renderData.linesBuffer = VoxelEngine::renderer::VertexBuffer::Allocate(sizeof(LineVertex) * MAX_VERTICES);
 		m_renderData.linesPtrStart = new LineVertex[MAX_VERTICES];
 	}
@@ -87,7 +87,7 @@ namespace utils
 			dataSize = glm::clamp<uint32>(dataSize, 0, MAX_VERTICES * sizeof(LineVertex));
 			m_renderData.linesBuffer->setData(m_renderData.linesPtrStart, dataSize);
 			m_renderData.linesBuffer->bind();
-			VoxelEngine::renderer::RenderCommand::draw(m_renderData.linesMaterial, m_renderData.linesVertexCount, 1, 0);
+			VoxelEngine::renderer::RenderCommand::draw(m_renderData.linesMaterial.get(), m_renderData.linesVertexCount, 1, 0);
 		}
 	}
 

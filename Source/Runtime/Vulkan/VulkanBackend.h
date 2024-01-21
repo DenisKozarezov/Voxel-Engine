@@ -29,9 +29,8 @@ namespace vulkan
 
 	void resize(const uint32& width, const uint32& height);
 	void setClearColor(const glm::vec4 color);
-	void setWindow(const Window& window);
 	void setViewport(const int32_t& x, const int32_t& y, const uint32& width, const uint32& height);
-	void init();
+	void init(const Window& window);
 	void initImGui();	
 	void deviceWaitIdle();
 	void cleanup();

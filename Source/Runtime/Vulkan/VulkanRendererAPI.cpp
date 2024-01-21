@@ -5,8 +5,7 @@ namespace vulkan
 {
 	void VulkanRendererAPI::init(const VoxelEngine::Window& window)
 	{
-		vulkan::setWindow(window);
-		vulkan::init();
+		vulkan::init(window);
 	}
 	void VulkanRendererAPI::setViewport(const uint32& x, const uint32& y, const uint32& width, const uint32& height)
 	{
@@ -22,12 +21,12 @@ namespace vulkan
 	}
 	void VulkanRendererAPI::draw(uint32 vertexCount, uint32 instanceCount, uint32 startVertex, uint32 startInstance)
 	{
-		VkCommandBuffer commandBuffer = vulkan::getCommandBuffer();
+		const VkCommandBuffer commandBuffer = vulkan::getCommandBuffer();
 		vkCmdDraw(commandBuffer, vertexCount, instanceCount, startVertex, startInstance);
 	}
 	void VulkanRendererAPI::drawMeshIndexed(uint32 indexCount, uint32 instanceCount, uint32 startIndex, uint32 startInstance)
 	{
-		VkCommandBuffer commandBuffer = vulkan::getCommandBuffer();
+		const VkCommandBuffer commandBuffer = vulkan::getCommandBuffer();
 		vkCmdDrawIndexed(commandBuffer, indexCount, instanceCount, startIndex, 0, startInstance);
 	}
 }

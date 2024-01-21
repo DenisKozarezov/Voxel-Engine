@@ -6,6 +6,10 @@
 
 #define TEST_INSTANCED_MESH 0
 
+#ifdef TEST_INSTANCED_MESH
+	#include <Renderer/GizmosAPI.h>
+#endif
+
 namespace VoxelEngine
 {
 #if TEST_INSTANCED_MESH
@@ -13,18 +17,8 @@ namespace VoxelEngine
 
 	void Scene::prepareTestInstancedMesh()
 	{
-		meshes.voxel = renderer::mesh::VoxelMesh();
-
-		auto* vertices = meshes.voxel.vertices.data();
-		auto* indices = meshes.voxel.indices.data();
-		uint32 vertexCount = meshes.voxel.vertexCount();
-		uint32 indexCount = meshes.voxel.indexCount();
-
-		meshes.voxel.vertexBuffer = renderer::VertexBuffer::Allocate(vertices, vertexCount * sizeof(renderer::Vertex));
-		meshes.voxel.indexBuffer = renderer::IndexBuffer::Allocate(indices, indexCount * sizeof(uint32));
-
-		auto VModelMesh1 = VModel::Sphere(15.0f, { 30, 30, 25 }, { 50, 50, 50 });
-		auto VModelMesh2 = VModel::Torus(15.0f, 10.0f, { 25, 25, 25 }, { 50, 50, 50 });
+		auto VModelMesh1 = VModel::Sphere(15.0, { 30, 30, 25 }, { 50, 50, 50 });
+		auto VModelMesh2 = VModel::Torus(15.0, 10.0, { 25, 25, 25 }, { 50, 50, 50 });
 		auto VModelMesh3 = VModel::Plane({ 22, 28, 18 }, { 22, 27, 22 }, { 28, 26, 16 }, { 50, 50, 50 });
 		auto result = VModel::Operations::Sum(VModelMesh1, VModelMesh3);
 		auto points = result.GetPoints();
@@ -125,7 +119,7 @@ namespace VoxelEngine
 					mesh->material = materials.wireframe;
 					break;
 				case renderer::Normals:
-						mesh->material = materials.normals;
+					mesh->material = materials.normals;
 					break;
 				}
 

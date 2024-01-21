@@ -375,10 +375,6 @@ namespace vulkan
 	{
 		state.clearColor = { {color[0], color[1], color[2], color[3] }};
 	}
-	void setWindow(const Window& window)
-	{
-		state.window = &window;
-	}
 	void setViewport(const int32_t& x, const int32_t& y, const uint32& width, const uint32& height)
 	{
 		state.viewportPos = VkOffset2D(x, y);
@@ -386,8 +382,10 @@ namespace vulkan
 		if (width > 0 && height > 0)
 			state.viewportSize = VkExtent2D(width, height);
 	}
-	void init()
+	void init(const Window& window)
 	{
+		state.window = &window;
+		
 		const VkSurfaceKHR surface = makeInstance();
 
 		makeDevice(surface);

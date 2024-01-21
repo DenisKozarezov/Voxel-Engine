@@ -14,7 +14,7 @@ namespace VoxelEngine
 	struct MeshesCache
 	{
 		components::mesh::QuadMesh editorGrid;
-		components::mesh::Mesh voxel;
+		components::mesh::VoxelMesh voxel;
 		Octree* svo = nullptr;
 	};
 

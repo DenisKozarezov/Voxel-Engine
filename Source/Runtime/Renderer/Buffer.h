@@ -11,6 +11,7 @@ namespace VoxelEngine::renderer
 		virtual ~VertexBuffer() = default;
 
 		NODISCARD virtual constexpr uint32 size() const = 0;
+		NODISCARD constexpr bool empty() const { return size() == 0; }
 
 		virtual void setData(const void* data, const uint32& size) = 0;
 		virtual void bind(const uint32& binding = 0) = 0;
@@ -27,6 +28,8 @@ namespace VoxelEngine::renderer
 		virtual ~IndexBuffer() = default;
 
 		NODISCARD virtual constexpr uint32 size() const = 0;
+		NODISCARD constexpr bool empty() const { return size() == 0; }
+		
 		virtual void bind() = 0;
 		virtual void release() = 0;
 

@@ -28,4 +28,10 @@ namespace vkUtils::memory
 	{
 		vkFreeCommandBuffers(device, commandPool, static_cast<uint32>(buffers.size()), buffers.data());
 	}
+
+	void endSingleTimeCommands(
+		const VkDevice& device,
+		const VkCommandPool& commandPool,
+		const VkQueue& queue,
+		const VkCommandBuffer& commandBuffer);
 }

@@ -1,45 +1,36 @@
 #include "VulkanInitializers.h"
-#include <Renderer/RendererAPI.h>
+#include <Renderer/RenderingStructs.h>
 
 namespace vkInit
 {
-	std::vector<VkVertexInputAttributeDescription> shaderAttributes;
-	std::vector<VkVertexInputBindingDescription> shaderBindings;
-
-	const VkPipelineVertexInputStateCreateInfo inputStateCreateInfo(VoxelEngine::renderer::ShaderLayout layout, const uint32& vertexStride)
+	VkPipelineVertexInputStateCreateInfo inputStateCreateInfo(const VoxelEngine::renderer::ShaderLayout& layout, const uint32& vertexStride)
 	{
+		static std::vector<VkVertexInputAttributeDescription> shaderAttributes;
+		static std::vector<VkVertexInputBindingDescription> shaderBindings;
+		
 		shaderAttributes.clear();
 		shaderBindings.clear();
 		shaderAttributes.reserve(layout.size());
 
-		uint32 i = 0;
-		uint32 vertexRateStride = 0, instanceRateStride = 0;
-		uint32 vertexRateSize = 0, instanceRateSize = 0;
-		for (auto it = layout.cbegin(); it != layout.cend(); it++, ++i)
+		shaderBindings.push_back(vkInit::vertexInputBindingDescription(VERTEX_BUFFER_BIND_ID, vertexStride, VK_VERTEX_INPUT_RATE_VERTEX));
+		
+		uint32 location = 0;
+		for (auto it = layout.cbegin(); it != layout.cend(); ++it, ++location)
 		{
-			VkFormat format = vkInit::shaderDataTypeToVulkanBaseType(it->m_type);
-			uint32 binding = it->m_instanced ? INSTANCE_BUFFER_BIND_ID : VERTEX_BUFFER_BIND_ID;
-
-			if (it->m_instanced)
+			const VkFormat format = vkInit::shaderDataTypeToVulkanBaseType(it->m_type);
+			const uint32 binding = it->m_instanced ? INSTANCE_BUFFER_BIND_ID : VERTEX_BUFFER_BIND_ID;
+			
+			if (shaderBindings.size() < 2 && it->m_instanced)
 			{
-				instanceRateStride += it->m_offset;
-				instanceRateSize += it->m_size;
-			}
-			else
-			{
-				vertexRateStride += it->m_offset;
-				vertexRateSize += it->m_size;
-			}
-			shaderAttributes.push_back(vkInit::vertexInputAttributeDescription(binding, i, format, it->m_offset));
+				shaderBindings.push_back(vkInit::vertexInputBindingDescription(
+					binding,
+					sizeof(InstanceData),
+					VK_VERTEX_INPUT_RATE_INSTANCE));
+			}			
+			shaderAttributes.push_back(vkInit::vertexInputAttributeDescription(binding, location, format, it->m_offset));
 		}
 
-		shaderBindings =
-		{
-			vkInit::vertexInputBindingDescription(VERTEX_BUFFER_BIND_ID, vertexStride, VK_VERTEX_INPUT_RATE_VERTEX),
-			vkInit::vertexInputBindingDescription(INSTANCE_BUFFER_BIND_ID, sizeof(VoxelEngine::renderer::InstanceData), VK_VERTEX_INPUT_RATE_INSTANCE)
-		};
-
-		VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::pipelineVertexInputStateCreateInfo(
+		const VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::pipelineVertexInputStateCreateInfo(
 			shaderBindings.data(),
 			static_cast<uint32>(shaderBindings.size()),
 			shaderAttributes.data(),

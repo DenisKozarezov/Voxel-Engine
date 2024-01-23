@@ -94,7 +94,7 @@ namespace VoxelEngine
 	{
 		auto tStart = std::chrono::high_resolution_clock::now();
 
-		if (!m_minimized)
+		if (m_window->isMaximized())
 		{
 			s_imguiLayer->preRender();
 			m_layerStack.onImGuiRender();
@@ -141,17 +141,10 @@ namespace VoxelEngine
 	}
 	bool Application::onWindowResize(const input::WindowResizeEvent& e)
 	{
-		uint16 width = e.getWidth();
-		uint16 height = e.getHeight();
+		const uint16 width = e.getWidth();
+		const uint16 height = e.getHeight();
 
 		renderer::Renderer::resize(width, height);
-
-		if (width == 0 || height == 0)
-		{
-			m_minimized = true;
-			return false;
-		}
-		m_minimized = false;
 		return false;
 	}
 }

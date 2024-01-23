@@ -9,17 +9,22 @@ namespace vkInit
 #define VERTEX_BUFFER_BIND_ID 0
 #define INSTANCE_BUFFER_BIND_ID 1
 
-	constexpr VkMemoryAllocateInfo memoryAllocateInfo()
+	constexpr VkMemoryAllocateInfo memoryAllocateInfo(const VkDeviceSize& size, uint32 memoryTypeIndex)
 	{
 		VkMemoryAllocateInfo memAllocInfo{};
 		memAllocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+		memAllocInfo.allocationSize = size;
+		memAllocInfo.memoryTypeIndex = memoryTypeIndex;
 		return memAllocInfo;
 	}
 
-	constexpr VkMappedMemoryRange mappedMemoryRange()
+	constexpr VkMappedMemoryRange mappedMemoryRange(const VkDeviceMemory& memory, const VkDeviceSize& offset, const VkDeviceSize& size)
 	{
 		VkMappedMemoryRange mappedMemoryRange{};
 		mappedMemoryRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
+		mappedMemoryRange.memory = memory;
+		mappedMemoryRange.offset = offset;
+		mappedMemoryRange.size = size;
 		return mappedMemoryRange;
 	}
 
@@ -278,14 +283,7 @@ namespace vkInit
 		rect2D.offset = offset;
 		return rect2D;
 	}
-
-	constexpr VkBufferCreateInfo bufferCreateInfo()
-	{
-		VkBufferCreateInfo bufCreateInfo{};
-		bufCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-		return bufCreateInfo;
-	}
-
+	
 	constexpr VkBufferCreateInfo bufferCreateInfo(
 		VkBufferUsageFlags usage,
 		VkDeviceSize size)
@@ -294,6 +292,7 @@ namespace vkInit
 		bufCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 		bufCreateInfo.usage = usage;
 		bufCreateInfo.size = size;
+		bufCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 		return bufCreateInfo;
 	}
 
@@ -806,11 +805,11 @@ namespace vkInit
 		return (VkShaderStageFlagBits)0;
 	}
 
-	const VkPipelineVertexInputStateCreateInfo inputStateCreateInfo(VoxelEngine::renderer::ShaderLayout layout, const uint32& vertexStride = sizeof(Vertex));
+	VkPipelineVertexInputStateCreateInfo inputStateCreateInfo(const VoxelEngine::renderer::ShaderLayout& layout, const uint32& vertexStride = sizeof(Vertex));
 
 	constexpr VkPipelineVertexInputStateCreateInfo emptyInputStateCreateInfo()
 	{
-		VkPipelineVertexInputStateCreateInfo emptyInputState;
+		VkPipelineVertexInputStateCreateInfo emptyInputState{};
 		emptyInputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 		emptyInputState.vertexAttributeDescriptionCount = 0;
 		emptyInputState.pVertexAttributeDescriptions = nullptr;

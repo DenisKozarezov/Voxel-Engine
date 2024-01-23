@@ -13,6 +13,7 @@ namespace vkInit
 		VkAttachmentDescription colorAttachmentResolve = renderPassColorAttachment(swapChainImageFormat, VK_SAMPLE_COUNT_1_BIT);
 		colorAttachmentResolve.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 		colorAttachmentResolve.samples = VK_SAMPLE_COUNT_1_BIT;
+		colorAttachmentResolve.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
 		VkAttachmentDescription colorAttachment = renderPassColorAttachment(swapChainImageFormat, msaaSamples);
 		colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;

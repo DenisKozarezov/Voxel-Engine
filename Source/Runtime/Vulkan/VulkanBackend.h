@@ -20,14 +20,14 @@ namespace vulkan
 
 	void recreateSwapChain();
 	void recordCommandBuffer(const VkCommandBuffer& commandBuffer);
-	void submitToQueue(const VkQueue& queue, const VkCommandBuffer& commandBuffer, const VkSemaphore* signalSemaphores = nullptr);
+	void submitToQueue(const vkUtils::SwapChainFrame& frame, const VkQueue& queue);
 	void cleanupSwapChain();
-	void presentFrame(const uint32& imageIndex, VkSemaphore* signalSemaphores);
+	void presentFrame(const vkUtils::SwapChainFrame& frame);
 	void prepareFrame();
 	void beginFrame(const UniformBufferObject& ubo);
 	void endFrame();
 
-	void resize(const uint32& width, const uint32& height);
+	void resize(const uint16& width, const uint16& height);
 	void setClearColor(const glm::vec4 color);
 	void setViewport(const int32_t& x, const int32_t& y, const uint32& width, const uint32& height);
 	void init(const Window& window);
@@ -53,19 +53,8 @@ namespace vulkan
 	const VkCommandBuffer& getCommandBuffer();
 
 	const vkUtils::SwapChainFrame& getCurrentFrame();
-
-	/// <summary>
-	/// Returns a pool of commands for subsequent allocation of command buffers.
-	/// </summary>
-	/// <returns></returns>
-	const VkCommandPool& getCommandPool();
-
+	
 	// ==================== MEMORY ALLOC / DEALLOC ====================
 	void copyBuffer(const vkUtils::memory::Buffer& srcBuffer, vkUtils::memory::Buffer& dstBuffer, const VkDeviceSize& size);
-	void endSingleTimeCommands(const VkCommandBuffer& commandBuffer);
-
-	void copyBufferToImage(vkUtils::memory::Buffer buffer, VkImage image, uint32 width, uint32 height);
-	void copyImage(VkCommandPool cmdPool, VkImage srcImageId, VkImage dstImageId, uint32 width, uint32 height);
-	void transitionImageLayout(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout);
 	// ===================================================================
 }

@@ -44,9 +44,9 @@ namespace vkUtils
 #define VK_LAYER_VALIDATION_EXT_NAME "VK_LAYER_KHRONOS_validation"
 
 #ifdef VOXEL_RELEASE
-	constexpr bool _enableValidationLayers = false;
+	#undef ENABLE_VALIDATION_LAYERS
 #else
-	constexpr bool _enableValidationLayers = true;
+	#define ENABLE_VALIDATION_LAYERS
 #endif
 
 	constexpr std::array<const char*, 1> validationLayers =
@@ -95,5 +95,6 @@ namespace vkUtils
 	constexpr VkDebugUtilsMessengerCreateInfoEXT populateDebugUtilsCreateInfo();
 	constexpr VkDebugReportCallbackCreateInfoEXT populateDebugReportCreateInfo();
 	bool checkValidationLayerSupport();
+	void setupDebugUtilsMessenger(const VkInstance& instance, VkDebugUtilsMessengerEXT* debugUtilsFunc);
 	void setupDebugReportMessenger(const VkInstance& instance, VkDebugReportCallbackEXT* debugReportFunc);	
 }

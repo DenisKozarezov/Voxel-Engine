@@ -124,6 +124,7 @@ namespace VoxelEngine
 	}
 	void WindowsWindow::setMaximized(const bool& isMaximized)
 	{
+		m_maximized = isMaximized;
 		if (isMaximized) 
 			glfwMaximizeWindow(m_window);
 	}

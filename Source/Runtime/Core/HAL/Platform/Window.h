@@ -32,6 +32,7 @@ namespace VoxelEngine
 		virtual INLINE const uint16& getWidth() const = 0;
 		virtual INLINE const uint16& getHeight() const = 0;
 		virtual INLINE const void* getNativeWindow() const & noexcept = 0;
+		virtual bool isMaximized() const = 0;
 		virtual void setEventCallback(const EventCallback& callback) noexcept = 0;
 		virtual void setMaximized(const bool& isMaximized) = 0;
 		virtual void init() = 0;

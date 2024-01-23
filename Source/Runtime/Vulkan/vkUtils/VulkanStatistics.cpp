@@ -59,9 +59,13 @@ namespace vkUtils
             VK_QUERY_RESULT_64_BIT);
     }
 
-    void VulkanQueryStatisticsPool::beginQuery(const VkCommandBuffer& commandBuffer)
+    void VulkanQueryStatisticsPool::resetQuery(const VkCommandBuffer& commandBuffer)
     {
         vkCmdResetQueryPool(commandBuffer, m_pool, 0, 1);
+    }
+
+    void VulkanQueryStatisticsPool::beginQuery(const VkCommandBuffer& commandBuffer)
+    {
         vkCmdBeginQuery(commandBuffer, m_pool, 0, 0);
     }
 

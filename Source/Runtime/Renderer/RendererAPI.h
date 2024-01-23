@@ -29,16 +29,11 @@ constexpr string graphicsSpecString(const GraphicsSpec& spec)
 
 namespace VoxelEngine::renderer
 {
-	namespace mesh = components::mesh;
-
-	struct InstanceData
-	{
-		glm::vec3 pos;
-	};
-
 	class RendererAPI
 	{
 	public:
+		using Mesh =  VoxelEngine::components::mesh::Mesh;
+		
 		RendererAPI() noexcept = default;
 		virtual ~RendererAPI() = default;
 
@@ -47,8 +42,8 @@ namespace VoxelEngine::renderer
 		virtual void setClearColor(const glm::vec4 color) = 0;
 		virtual void setLineWidth(const float& width) = 0;
 		virtual void draw(uint32 vertexCount, uint32 instanceCount = 1, uint32 startVertex = 0, uint32 startInstance = 0) = 0;
-		virtual void drawMesh(const mesh::Mesh& mesh) = 0;
-		virtual void drawMeshIndexed(const mesh::Mesh& mesh, uint32 instanceCount = 1, uint32 startIndex = 0, uint32 startInstance = 0) = 0;
+		virtual void drawMesh(const Mesh& mesh) = 0;
+		virtual void drawMeshIndexed(const Mesh& mesh, uint32 instanceCount = 1, uint32 startIndex = 0, uint32 startInstance = 0) = 0;
 		virtual void drawMeshIndexed(uint32 indexCount, uint32 instanceCount = 1, uint32 startIndex = 0, uint32 startInstance = 0) = 0;
 
 		static TUniquePtr<RendererAPI> Create();

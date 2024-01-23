@@ -50,7 +50,7 @@ namespace vkInit
 		}
 	};
 
-	constexpr const VkSampleCountFlagBits findMaxSamplesCount(const VkPhysicalDeviceLimits& limits)
+	constexpr VkSampleCountFlagBits findMaxSamplesCount(const VkPhysicalDeviceLimits& limits)
 	{
 		const VkSampleCountFlags samplesCount = limits.framebufferColorSampleCounts & limits.framebufferDepthSampleCounts;
 
@@ -74,7 +74,7 @@ namespace vkInit
 		return availableFormats[0];
 	}
 
-	constexpr const VkPresentModeKHR chooseSwapChainPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
+	constexpr VkPresentModeKHR chooseSwapChainPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
 	{
 		for (const auto& availablePresentMode : availablePresentModes)
 		{
@@ -86,7 +86,7 @@ namespace vkInit
 		return VK_PRESENT_MODE_FIFO_KHR;
 	}
 
-	constexpr const VkExtent2D chooseSwapChainExtent(
+	constexpr VkExtent2D chooseSwapChainExtent(
 		const uint32& width, 
 		const uint32& height, 
 		const VkSurfaceCapabilitiesKHR& capabilities)
@@ -147,7 +147,7 @@ namespace vkInit
 	}
 
 	void createDepthResources(
-		const vkInit::VulkanDevice* device,
+		const VulkanDevice* device,
 		const uint32& width,
 		const uint32& height,
 		const VkSampleCountFlagBits& msaaSamples,
@@ -175,7 +175,7 @@ namespace vkInit
 	}
 	
 	void createColorResources(
-		const vkInit::VulkanDevice* device,
+		const VulkanDevice* device,
 		const uint32& width,
 		const uint32& height,
 		const VkSampleCountFlagBits& msaaSamples, 
@@ -203,7 +203,7 @@ namespace vkInit
 	}
 
 	SwapChainBundle createSwapChain(
-		const vkInit::VulkanDevice* device,
+		const VulkanDevice* device,
 		const uint32& width, 
 		const uint32& height,
 		const VkSampleCountFlagBits& msaaSamples)

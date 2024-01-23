@@ -9,7 +9,7 @@
 #include "vkUtils/VulkanStatistics.h"
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
-#include <Renderer/UniformBuffer.h>
+#include <Renderer/RenderingStructs.h>
 
 namespace vulkan
 {	
@@ -18,7 +18,7 @@ namespace vulkan
 	struct VulkanState
 	{		
 		// Instance-related variables
-		const VoxelEngine::Window* window;
+		const Window* window;
 		VkInstance instance;
 		VkDebugUtilsMessengerEXT debugUtilsMessenger;
 		VkDebugReportCallbackEXT debugReportMessenger;
@@ -51,6 +51,7 @@ namespace vulkan
 
 	static int MAX_FRAMES_IN_FLIGHT = 3;
 	static uint32 CURRENT_FRAME = 0;
+	static uint32 IMAGE_INDEX = 0;
 		
 	VkSurfaceKHR makeInstance()
 	{
@@ -71,7 +72,7 @@ namespace vulkan
 			state.window->getWidth(), 
 			state.window->getHeight(), 
 			state.msaaSamples);
-
+		
 		MAX_FRAMES_IN_FLIGHT = static_cast<int>(state.swapChainBundle.frames.size());
 
 		for (vkUtils::SwapChainFrame& frame : state.swapChainBundle.frames)
@@ -99,14 +100,9 @@ namespace vulkan
 
 		bindings.indices.push_back(0);
 		bindings.types.push_back(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
-		bindings.stages.push_back(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_GEOMETRY_BIT);
+		bindings.stages.push_back(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_GEOMETRY_BIT);
 		bindings.counts.push_back(1);
-
-	/*	bindings.indices.push_back(0);
-		bindings.types.push_back(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
-		bindings.stages.push_back(VK_SHADER_STAGE_FRAGMENT_BIT);
-		bindings.counts.push_back(1);*/
-
+		
 		state.descriptorSetLayout = vkInit::createDescriptorSetLayout(state.vulkanDevice->logicalDevice, bindings);
 	}
 	void makeGraphicsPipeline()
@@ -229,6 +225,8 @@ namespace vulkan
 	}	
 	void recordCommandBuffer(const VkCommandBuffer& commandBuffer)
 	{
+		state.vulkanDevice->queryPool->endQuery(commandBuffer);
+		
 		// =================== RENDER WHOLE STUFF HERE ! ===================		
 		ImDrawData* main_draw_data = ImGui::GetDrawData();
 		ImGui_ImplVulkan_RenderDrawData(main_draw_data, commandBuffer);
@@ -236,17 +234,15 @@ namespace vulkan
 		vkCmdEndRenderPass(commandBuffer);
 		vkUtils::memory::endCommand(commandBuffer);
 	}
-	void submitToQueue(const VkQueue& queue, const VkCommandBuffer& commandBuffer, const VkSemaphore* signalSemaphores)
+	void submitToQueue(const vkUtils::SwapChainFrame& frame, const VkQueue& queue)
 	{
-		vkUtils::SwapChainFrame& frame = state.swapChainBundle.frames[CURRENT_FRAME];
+		const VkSemaphore waitSemaphores[] = { frame.imageAvailableSemaphore };
+		constexpr VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 
-		VkSemaphore waitSemaphores[] = { frame.imageAvailableSemaphore };
-		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-
-		VkSubmitInfo submitInfo = vkInit::submitInfo(
+		const VkSubmitInfo submitInfo = vkInit::submitInfo(
 			waitSemaphores, 
-			signalSemaphores, 
-			commandBuffer, 
+			&frame.renderFinishedSemaphore, 
+			frame.commandBuffer, 
 			waitStages);	
 
 		VkResult err = vkQueueSubmit(queue, 1, &submitInfo, frame.inFlightFence);
@@ -261,17 +257,16 @@ namespace vulkan
 			vkUtils::memory::releaseCommandBuffer(state.vulkanDevice->logicalDevice, frame.commandBuffer, state.commandPool);
 		}
 	}
-	void presentFrame(const uint32& imageIndex, VkSemaphore* signalSemaphores)
+	void presentFrame(const vkUtils::SwapChainFrame& frame)
 	{
-		VkSwapchainKHR swapChains[] = { state.swapChainBundle.swapchain };
-
 		VkPresentInfoKHR presentInfo = {};
 		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 		presentInfo.waitSemaphoreCount = 1;
-		presentInfo.pWaitSemaphores = signalSemaphores;
+		presentInfo.pWaitSemaphores = &frame.renderFinishedSemaphore;
 		presentInfo.swapchainCount = 1;
-		presentInfo.pSwapchains = swapChains;
-		presentInfo.pImageIndices = &imageIndex;
+		presentInfo.pSwapchains = &state.swapChainBundle.swapchain;
+		presentInfo.pImageIndices = &IMAGE_INDEX;
+		presentInfo.pNext = nullptr;
 
 		VkResult err = vkQueuePresentKHR(state.vulkanDevice->deviceQueues.presentQueue, &presentInfo);
 
@@ -285,36 +280,38 @@ namespace vulkan
 	void prepareFrame()
 	{
 		const vkUtils::SwapChainFrame& frame = state.swapChainBundle.frames[CURRENT_FRAME];
+		const VkFramebuffer framebuffer = state.swapChainBundle.frames[IMAGE_INDEX].framebuffer;
 
 		frame.writeDescriptorSet();
+		
+		vkUtils::memory::beginCommand(frame.commandBuffer);
+		
+		state.vulkanDevice->queryPool->resetQuery(frame.commandBuffer);
 
-		const VkCommandBuffer commandBuffer = frame.commandBuffer;
 		const VkExtent2D swapChainExtent = state.swapChainBundle.extent;
 
 		std::vector<VkClearValue> clearValues(2);
 		clearValues[0].color = state.clearColor;
 		clearValues[1].depthStencil = { 1.0f, 0 };
-
-		vkUtils::memory::beginCommand(commandBuffer);
 				
 		const VkRenderPassBeginInfo renderPassInfo = vkInit::renderPassBeginInfo(
 			state.renderPass,
-			frame.framebuffer,
+			framebuffer,
 			swapChainExtent,
 			clearValues);
-		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		vkCmdBeginRenderPass(frame.commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 		VkViewport viewport = vkInit::viewport(state.viewportSize, 0.0f, 1.0f);
 		viewport.x = static_cast<float>(state.viewportPos.x);
 		viewport.y = static_cast<float>(state.viewportPos.y);
-		vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+		vkCmdSetViewport(frame.commandBuffer, 0, 1, &viewport);
 
 		VkRect2D scissor = vkInit::rect2D(swapChainExtent, { 0, 0 });
 		scissor.offset.x = state.viewportPos.x;
 		scissor.offset.y = state.viewportPos.y;
-		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
-		
-		state.vulkanDevice->queryPool->beginQuery(commandBuffer);
+		vkCmdSetScissor(frame.commandBuffer, 0, 1, &scissor);
+
+		state.vulkanDevice->queryPool->beginQuery(frame.commandBuffer);
 	}
 	void beginFrame(const UniformBufferObject& ubo)
 	{
@@ -322,9 +319,8 @@ namespace vulkan
 
 		// Stage 1. ACQUIRE IMAGE FROM SWAPCHAIN
 		vkInit::lockFences(state.vulkanDevice->logicalDevice, &frame.inFlightFence);
-
-		uint32 imageIndex;
-		VkResult result = vkAcquireNextImageKHR(state.vulkanDevice->logicalDevice, state.swapChainBundle.swapchain, UINT64_MAX, frame.imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+		
+		VkResult result = vkAcquireNextImageKHR(state.vulkanDevice->logicalDevice, state.swapChainBundle.swapchain, UINT64_MAX, frame.imageAvailableSemaphore, VK_NULL_HANDLE, &IMAGE_INDEX);
 		if (result == VK_ERROR_OUT_OF_DATE_KHR)
 		{
 			recreateSwapChain();
@@ -340,12 +336,6 @@ namespace vulkan
 
 		frame.uniformBuffers.view.setData(&ubo, sizeof(ubo));
 
-		RaymarchData data{};
-		data.resolution = glm::vec2(state.viewportSize.width, state.viewportSize.height);
-		data.mousePos = glm::vec2(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
-		data.voxelSize = 0.5f;
-		frame.uniformBuffers.raymarch.setData(&data, sizeof(data));
-
 		prepareFrame();
 	}
 	void endFrame()
@@ -353,21 +343,18 @@ namespace vulkan
 		const vkUtils::SwapChainFrame& frame = state.swapChainBundle.frames[CURRENT_FRAME];
 
 		// Stage 2. GRAPHICS
-		state.vulkanDevice->queryPool->endQuery(frame.commandBuffer);
-		recordCommandBuffer(frame.commandBuffer);
-
-		VkSemaphore signalSemaphores[] = { frame.renderFinishedSemaphore};
-		submitToQueue(state.vulkanDevice->deviceQueues.graphicsQueue, frame.commandBuffer, signalSemaphores);
+		recordCommandBuffer(frame.commandBuffer);		
+		submitToQueue(frame, state.vulkanDevice->deviceQueues.graphicsQueue);
 
 		state.vulkanDevice->queryPool->getQueryResults();
 		
 		// Stage 3. PRESENT
-		presentFrame(CURRENT_FRAME, signalSemaphores);
+		presentFrame(frame);
 		
 		CURRENT_FRAME = (CURRENT_FRAME + 1) % MAX_FRAMES_IN_FLIGHT;		
 	}
 
-	void resize(const uint32& width, const uint32& height)
+	void resize(const uint16& width, const uint16& height)
 	{
 		state.framebufferResized = true;
 	}
@@ -427,7 +414,11 @@ namespace vulkan
 		{
 			const VkCommandBuffer commandBuffer = vkUtils::memory::beginSingleTimeCommands(state.commandPool);
 			ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
-			endSingleTimeCommands(commandBuffer);
+			vkUtils::memory::endSingleTimeCommands(
+				state.vulkanDevice->logicalDevice,
+				state.commandPool,
+				state.vulkanDevice->deviceQueues.graphicsQueue,
+				commandBuffer);
 			ImGui_ImplVulkan_DestroyFontUploadObjects();
 		}
 	}
@@ -452,11 +443,10 @@ namespace vulkan
 
 		delete state.vulkanDevice;
 
-		if (vkUtils::_enableValidationLayers)
-		{
-			vkUtils::destroyDebugReportMessengerEXT(state.instance, state.debugReportMessenger, nullptr);
-		}
-
+#ifdef ENABLE_VALIDATION_LAYERS
+		vkUtils::destroyDebugReportMessengerEXT(state.instance, state.debugReportMessenger, nullptr);
+#endif
+		
 		vkDestroyInstance(state.instance, nullptr);
 	}
 
@@ -491,10 +481,6 @@ namespace vulkan
 	{
 		return state.swapChainBundle.frames[CURRENT_FRAME];
 	}
-	const VkCommandPool& getCommandPool()
-	{
-		return state.commandPool;
-	}
 
 	// ==================== MEMORY ALLOC / DEALLOC ====================
 	void copyBuffer(const vkUtils::memory::Buffer& srcBuffer, vkUtils::memory::Buffer& dstBuffer, const VkDeviceSize& size)
@@ -507,130 +493,11 @@ namespace vulkan
 
 		dstBuffer.size = size;
 
-		endSingleTimeCommands(commandBuffer);
-	}
-	void endSingleTimeCommands(const VkCommandBuffer& commandBuffer)
-	{
-		vkUtils::memory::endCommand(commandBuffer);
-
-		VkSubmitInfo submitInfo = {};
-		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &commandBuffer;
-
-		vkQueueSubmit(state.vulkanDevice->deviceQueues.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-		vkQueueWaitIdle(state.vulkanDevice->deviceQueues.graphicsQueue);
-
-		vkUtils::memory::releaseCommandBuffer(state.vulkanDevice->logicalDevice, commandBuffer, state.commandPool);
-	}
-	
-	void copyBufferToImage(vkUtils::memory::Buffer buffer, VkImage image, uint32 width, uint32 height) 
-	{
-		VkCommandBuffer commandBuffer = vkUtils::memory::beginSingleTimeCommands(state.commandPool);
-
-		VkBufferImageCopy region{};
-		region.bufferOffset = 0;
-		region.bufferRowLength = 0;
-		region.bufferImageHeight = 0;
-		region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		region.imageSubresource.mipLevel = 0;
-		region.imageSubresource.baseArrayLayer = 0;
-		region.imageSubresource.layerCount = 1;
-		region.imageOffset = { 0, 0, 0 };
-		region.imageExtent = {
-			width,
-			height,
-			1
-		};
-
-		vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
-
-		endSingleTimeCommands(commandBuffer);
-	}
-	void copyImage(VkCommandPool cmdPool, VkImage srcImageId, VkImage dstImageId, uint32 width, uint32 height)
-	{
-		VkCommandBuffer cmdBuffer = vkUtils::memory::beginSingleTimeCommands(cmdPool);
-
-		VkImageSubresourceLayers subResource = {};
-		subResource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		subResource.baseArrayLayer = 0;
-		subResource.layerCount = 1;
-		subResource.mipLevel = 0;
-
-		VkImageCopy region{};
-		region.srcOffset = { 0, 0, 0 };
-		region.srcSubresource = subResource;
-		region.dstOffset = { 0, 0, 0 };
-		region.dstSubresource = subResource;
-		region.extent.width = width;
-		region.extent.height = height;
-		region.extent.depth = 1;
-
-		vkCmdCopyImage(
-			cmdBuffer,
-			srcImageId, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-			dstImageId, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-			1, &region);
-
-		vkUtils::memory::endCommand(cmdBuffer);
-
-		VkSubmitInfo submitInfo = {};
-		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &cmdBuffer;
-
-		vkQueueSubmit(state.vulkanDevice->deviceQueues.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-		vkQueueWaitIdle(state.vulkanDevice->deviceQueues.graphicsQueue);
-
-		vkUtils::memory::releaseCommandBuffer(state.vulkanDevice->logicalDevice, cmdBuffer, cmdPool);
-	}
-	void transitionImageLayout(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout) 
-	{
-		const VkCommandBuffer commandBuffer = vkUtils::memory::beginSingleTimeCommands(state.commandPool);
-
-		VkImageMemoryBarrier barrier{};
-		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-		barrier.oldLayout = oldLayout;
-		barrier.newLayout = newLayout;
-		barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-		barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-		barrier.image = image;
-		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		barrier.subresourceRange.baseMipLevel = 0;
-		barrier.subresourceRange.levelCount = 1;
-		barrier.subresourceRange.baseArrayLayer = 0;
-		barrier.subresourceRange.layerCount = 1;
-
-		VkPipelineStageFlags sourceStage;
-		VkPipelineStageFlags destinationStage;
-
-		if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
-			barrier.srcAccessMask = 0;
-			barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-
-			sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-			destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-		}
-		else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
-			barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-			barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-
-			sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-			destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-		}
-		else
-			throw std::invalid_argument("unsupported layout transition!");
-
-		vkCmdPipelineBarrier(
-			commandBuffer,
-			sourceStage, destinationStage,
-			0,
-			0, nullptr,
-			0, nullptr,
-			1, &barrier
-		);
-
-		endSingleTimeCommands(commandBuffer);
+		vkUtils::memory::endSingleTimeCommands(
+			state.vulkanDevice->logicalDevice,
+			state.commandPool,
+			state.vulkanDevice->deviceQueues.graphicsQueue,
+			commandBuffer);
 	}
 	// =============================================================
 }

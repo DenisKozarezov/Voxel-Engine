@@ -56,8 +56,14 @@ namespace VoxelEngine::renderer
 		bool m_instanced;
 		bool m_normalized;
 
-		ShaderLayoutElement() = default;
-		ShaderLayoutElement(ShaderDataType type, bool instanced = false, bool normalized = false);
+		constexpr ShaderLayoutElement() = default;
+		constexpr ShaderLayoutElement(ShaderDataType type, bool instanced = false, bool normalized = false)
+			: m_type(type),
+			m_size(shaderDataTypeSize(type)),
+			m_offset(0),
+			m_instanced(instanced),
+			m_normalized(normalized)
+		{ }
 	};
 
 	struct ShaderLayout

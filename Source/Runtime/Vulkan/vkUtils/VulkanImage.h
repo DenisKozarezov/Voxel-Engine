@@ -1,7 +1,5 @@
 #pragma once
-#include <vector>
-#include <vulkan/vulkan.h>
-#include <Core/CoreTypes.h>
+#include "VulkanAlloc.h"
 
 namespace vkInit
 {
@@ -49,7 +47,7 @@ namespace vkUtils
 	VkSampler createTextureSampler(const vkInit::VulkanDevice& device);
 
 	void setImageLayout(
-		const VkCommandBuffer& cmdbuffer,
+		const VkCommandBuffer& commandBuffer,
 		const VkImage& image,
 		const VkImageLayout& oldImageLayout,
 		const VkImageLayout& newImageLayout,
@@ -58,11 +56,34 @@ namespace vkUtils
 		const VkPipelineStageFlags& dstStageMask);
 
 	void setImageLayout(
-		const VkCommandBuffer& cmdbuffer,
+		const VkCommandBuffer& commandBuffer,
 		const VkImage& image,
 		const VkImageAspectFlags& aspectMask,
 		const VkImageLayout& oldImageLayout,
 		const VkImageLayout& newImageLayout,
 		const VkPipelineStageFlags& srcStageMask,
 		const VkPipelineStageFlags& dstStageMask);
+
+	void copyImage(const VkDevice& device,
+		const VkCommandPool& cmdPool,
+		const VkQueue& queue,
+		const VkImage& srcImageId,
+		const VkImage& dstImageId,
+		const uint32& width,
+		const uint32& height);
+
+	void copyBufferToImage(
+		const VkDevice& device,
+		const VkCommandPool& commandPool,
+		const VkQueue& queue,
+		const memory::Buffer& buffer,
+		const VkImage& image,
+		const uint32& width,
+		const uint32& height);
+	
+	void transitionImageLayout(
+		const VkCommandPool& cmdPool,
+		const VkImage& image,
+		const VkImageLayout& oldLayout,
+		const VkImageLayout& newLayout);
 }

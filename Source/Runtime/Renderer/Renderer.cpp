@@ -1,6 +1,6 @@
 #include <Vulkan/VulkanBackend.h>
 #include <Core/Internal/Application.h>
-#include "UniformBuffer.h"
+#include "RenderingStructs.h"
 #include "GizmosAPI.h"
 #include "RenderCommand.h"
 
@@ -72,7 +72,7 @@ namespace VoxelEngine::renderer
     {
         vulkan::endFrame();
     }
-    void Renderer::resize(const uint32& width, const uint32& height)
+    void Renderer::resize(const uint16& width, const uint16& height)
     {
         vulkan::resize(width, height);
     }

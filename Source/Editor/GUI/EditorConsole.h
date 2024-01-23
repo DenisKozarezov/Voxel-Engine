@@ -24,13 +24,13 @@ namespace VoxelEditor::gui
 
 		LogEntry(const LogEntry& log) noexcept : LogEntry(log.level, log.message) { }
 		
-		LogEntry(LogEntry&& log) noexcept : LogEntry(std::move(log.level), std::move(log.message)) { }
+		LogEntry(LogEntry&& log) noexcept : LogEntry(log.level, std::move(log.message)) { }
 
 		~LogEntry() = default;
 
-		FORCE_INLINE const char* c_str() const
+		FORCE_INLINE string str() const
 		{ 
-			return std::format("{0} [{1}] : {2}\n", time, logLevelString(level), message).c_str();
+			return std::format("{0} [{1}] : {2}\n", time, logLevelString(level), message);
 		}
 	};
 
@@ -51,17 +51,17 @@ namespace VoxelEditor::gui
 		template <typename... Args>
 		FORCE_INLINE static void info(std::string_view fmt, Args&&... args)
 		{
-			s_instance->addLog(LogEntry(spdlog::level::info, fmt, std::forward<Args>(args)...).c_str());
+			s_instance->addLog(LogEntry(spdlog::level::info, fmt, std::forward<Args>(args)...).str().c_str());
 		}
 		template <typename... Args>
 		FORCE_INLINE static void warn(std::string_view fmt, Args&&... args)
 		{
-			s_instance->addLog(LogEntry(spdlog::level::warn, fmt, std::forward<Args>(args)...).c_str());
+			s_instance->addLog(LogEntry(spdlog::level::warn, fmt, std::forward<Args>(args)...).str().c_str());
 		}
 		template <typename... Args>
 		FORCE_INLINE static void error(std::string_view fmt, Args&&... args)
 		{
-			s_instance->addLog(LogEntry(spdlog::level::err, fmt, std::forward<Args>(args)...).c_str());
+			s_instance->addLog(LogEntry(spdlog::level::err, fmt, std::forward<Args>(args)...).str().c_str());
 		}
 
 		ImGuiWindowFlags flags() const override;

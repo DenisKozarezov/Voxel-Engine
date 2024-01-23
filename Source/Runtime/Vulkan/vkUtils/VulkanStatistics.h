@@ -17,6 +17,7 @@ namespace vkUtils
 		const VoxelEngine::renderer::ShaderStats& getStats() const { return m_stats; } 
 		
 		void getQueryResults();
+		void resetQuery(const VkCommandBuffer& commandBuffer);
 		void beginQuery(const VkCommandBuffer& commandBuffer);
 		void endQuery(const VkCommandBuffer& commandBuffer);
 	};

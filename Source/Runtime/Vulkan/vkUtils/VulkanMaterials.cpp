@@ -41,9 +41,8 @@ namespace vkUtils
 	{
 		// DEFAULT
 		VkPipeline defaultPipeline;
-		{
-			VulkanShader shader = VulkanShader(device, Paths::shaderWorkingDir() + "default_shader.glsl");
-			
+		VulkanShader defaultShader = VulkanShader(device, Paths::shaderWorkingDir() + "default_shader.glsl");
+		{			
 			VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::inputStateCreateInfo({
 				{ ShaderDataType::Float3_S32 },			// Position
 				{ ShaderDataType::Float3_S32 }			// Color
@@ -51,7 +50,7 @@ namespace vkUtils
 						
 			pipelineBuilder
 				.setVertexInputState(&vertexInputInfo)
-				.setStages(shader.getStages());
+				.setStages(defaultShader.getStages());
 
 			auto shaderPass = pipelineBuilder.build();
 			defaultPipeline = shaderPass.pipeline;
@@ -60,14 +59,12 @@ namespace vkUtils
 
 		// LINES
 		{
-			VulkanShader shader = VulkanShader(device, Paths::shaderWorkingDir() + "default_shader.glsl");
-
-			VkPipelineRasterizationStateCreateInfo rasterizer = vkInit::pipelineRasterizationStateCreateInfo(
+			constexpr VkPipelineRasterizationStateCreateInfo rasterizer = vkInit::pipelineRasterizationStateCreateInfo(
 				VK_POLYGON_MODE_LINE,
 				VK_CULL_MODE_BACK_BIT,
 				VK_FRONT_FACE_COUNTER_CLOCKWISE);
 
-			VkPipelineInputAssemblyStateCreateInfo inputAssembly = vkInit::pipelineInputAssemblyStateCreateInfo(
+			constexpr VkPipelineInputAssemblyStateCreateInfo inputAssembly = vkInit::pipelineInputAssemblyStateCreateInfo(
 				VK_PRIMITIVE_TOPOLOGY_LINE_LIST,
 				VK_FALSE);
 			
@@ -76,7 +73,7 @@ namespace vkUtils
 				.setBasePipelineHandle(defaultPipeline)
 				.setRasterizationState(&rasterizer)
 				.setInputAssemblyState(&inputAssembly)
-				.setStages(shader.getStages());
+				.setStages(defaultShader.getStages());
 			
 			auto shaderPass = pipelineBuilder.build();
 			createMaterial(device, shaderPass, "lines");
@@ -93,12 +90,12 @@ namespace vkUtils
 				{ ShaderDataType::Float3_S32 },			// Color
 			});
 
-			VkPipelineRasterizationStateCreateInfo rasterizer = vkInit::pipelineRasterizationStateCreateInfo(
+			constexpr VkPipelineRasterizationStateCreateInfo rasterizer = vkInit::pipelineRasterizationStateCreateInfo(
 				VK_POLYGON_MODE_FILL,
 				VK_CULL_MODE_BACK_BIT,
 				VK_FRONT_FACE_COUNTER_CLOCKWISE);
 
-			VkPipelineInputAssemblyStateCreateInfo inputAssembly = vkInit::pipelineInputAssemblyStateCreateInfo(
+			constexpr VkPipelineInputAssemblyStateCreateInfo inputAssembly = vkInit::pipelineInputAssemblyStateCreateInfo(
 				VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
 				VK_FALSE);
 			
@@ -120,14 +117,14 @@ namespace vkUtils
 			VulkanShader shader = VulkanShader(device, Paths::shaderWorkingDir() + "solid_instanced_shader.glsl");
 			
 			VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::inputStateCreateInfo({
-				{ ShaderDataType::Float3_S32 },			// Position
-				{ ShaderDataType::Float3_S32 },			// Normal
-				{ ShaderDataType::Float3_S32 },			// Color
+				{ ShaderDataType::Float3_S32 },				// Position
+				{ ShaderDataType::Float3_S32 },				// Normal
+				{ ShaderDataType::Float3_S32 },				// Color
 				{ ShaderDataType::Float3_S32, true }	// Instanced Position
 			});
 			
 			pipelineBuilder
-				.setFlags(VK_PIPELINE_CREATE_DERIVATIVE_BIT)
+				.setFlags(VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT)
 				.setVertexInputState(&vertexInputInfo)
 				.setBasePipelineHandle(solidPipeline)
 				.setStages(shader.getStages());
@@ -148,7 +145,7 @@ namespace vkUtils
 			});
 			
 			pipelineBuilder
-				.setFlags(VK_PIPELINE_CREATE_DERIVATIVE_BIT)
+				.setFlags(VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT)
 				.setVertexInputState(&vertexInputInfo)
 				.setBasePipelineHandle(solidPipeline)
 				.setStages(shader.getStages());
@@ -158,13 +155,13 @@ namespace vkUtils
 			createMaterial(device, shaderPass, "normals");
 		}
 
-		// NORMALS INSTANCED
+		// NORMALS COLOR INSTANCED
 		{
 			VulkanShader shader = VulkanShader(device, Paths::shaderWorkingDir() + "normals_color_instanced_shader.glsl");
 			
 			VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::inputStateCreateInfo({
-				{ ShaderDataType::Float3_S32 },			// Position
-				{ ShaderDataType::Float3_S32 },			// Normal,
+				{ ShaderDataType::Float3_S32 },				// Position
+				{ ShaderDataType::Float3_S32 },				// Normal,
 				{ ShaderDataType::Float3_S32, true },	// Instanced Position
 			});
 
@@ -186,19 +183,20 @@ namespace vkUtils
 			VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::inputStateCreateInfo({
 				{ ShaderDataType::Float3_S32 },			// Position
 				{ ShaderDataType::Float3_S32 },			// Normal
+				  { ShaderDataType::Float3_S32 },			// Color
 			});
 
-			VkPipelineRasterizationStateCreateInfo rasterizer = vkInit::pipelineRasterizationStateCreateInfo(
+			constexpr VkPipelineRasterizationStateCreateInfo rasterizer = vkInit::pipelineRasterizationStateCreateInfo(
 				VK_POLYGON_MODE_LINE,
 				VK_CULL_MODE_BACK_BIT,
 				VK_FRONT_FACE_COUNTER_CLOCKWISE);
 
-			VkPipelineInputAssemblyStateCreateInfo inputAssembly = vkInit::pipelineInputAssemblyStateCreateInfo(
+			constexpr VkPipelineInputAssemblyStateCreateInfo inputAssembly = vkInit::pipelineInputAssemblyStateCreateInfo(
 				VK_PRIMITIVE_TOPOLOGY_LINE_STRIP,
 				VK_FALSE);
 			
 			pipelineBuilder
-				.setFlags(VK_PIPELINE_CREATE_DERIVATIVE_BIT)
+				.setFlags(VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT)
 				.setVertexInputState(&vertexInputInfo)
 				.setRasterizationState(&rasterizer)
 				.setInputAssemblyState(&inputAssembly)
@@ -215,8 +213,10 @@ namespace vkUtils
 			VulkanShader shader = VulkanShader(device, Paths::shaderWorkingDir() + "normals_lines_instanced_shader.glsl");
 			
 			VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::inputStateCreateInfo({
-				{ ShaderDataType::Float3_S32 },			// Position
-				{ ShaderDataType::Float3_S32 },			// Normal
+				{ ShaderDataType::Float3_S32 },				// Position
+				{ ShaderDataType::Float3_S32 },				// Normal
+				{ ShaderDataType::Float3_S32 },				// Color
+				{ ShaderDataType::Float3_S32, true }	// Instanced Position
 			});
 			
 			pipelineBuilder
@@ -238,17 +238,17 @@ namespace vkUtils
 				{ ShaderDataType::Float3_S32 },			// Position
 			});
 
-			VkPipelineRasterizationStateCreateInfo rasterizer = vkInit::pipelineRasterizationStateCreateInfo(
+			constexpr VkPipelineRasterizationStateCreateInfo rasterizer = vkInit::pipelineRasterizationStateCreateInfo(
 				VK_POLYGON_MODE_LINE,
 				VK_CULL_MODE_BACK_BIT,
 				VK_FRONT_FACE_COUNTER_CLOCKWISE);
 
-			VkPipelineInputAssemblyStateCreateInfo inputAssembly = vkInit::pipelineInputAssemblyStateCreateInfo(
+			constexpr VkPipelineInputAssemblyStateCreateInfo inputAssembly = vkInit::pipelineInputAssemblyStateCreateInfo(
 				VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
 				VK_FALSE);
 			
 			pipelineBuilder
-				.setFlags(VK_PIPELINE_CREATE_DERIVATIVE_BIT)
+				.setFlags(VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT)
 				.setVertexInputState(&vertexInputInfo)
 				.setRasterizationState(&rasterizer)
 				.setInputAssemblyState(&inputAssembly)
@@ -266,7 +266,7 @@ namespace vkUtils
 			
 			VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::inputStateCreateInfo({
 				{ ShaderDataType::Float3_S32 },				// Position
-				{ ShaderDataType::Float3_S32, true}	// Instanced Position
+				{ ShaderDataType::Float3_S32, true }	// Instanced Position
 			});
 
 			pipelineBuilder
@@ -285,16 +285,15 @@ namespace vkUtils
 			
 			VkPipelineVertexInputStateCreateInfo vertexInputInfo = vkInit::inputStateCreateInfo({
 				{ ShaderDataType::Float3_S32 },			// Position
-				{ ShaderDataType::Float3_S32 },			// Normal
-				{ ShaderDataType::Float3_S32 },			// Color
+				{ ShaderDataType::Float3_S32 }			// Normal
 			});
 
-			VkPipelineRasterizationStateCreateInfo rasterizer = vkInit::pipelineRasterizationStateCreateInfo(
+			constexpr VkPipelineRasterizationStateCreateInfo rasterizer = vkInit::pipelineRasterizationStateCreateInfo(
 				VK_POLYGON_MODE_FILL,
 				VK_CULL_MODE_NONE,
 				VK_FRONT_FACE_COUNTER_CLOCKWISE);
 
-			VkPipelineDepthStencilStateCreateInfo depthStencil = vkInit::pipelineDepthStencilStateCreateInfo(
+			constexpr VkPipelineDepthStencilStateCreateInfo depthStencil = vkInit::pipelineDepthStencilStateCreateInfo(
 				VK_TRUE,
 				VK_FALSE,
 				VK_COMPARE_OP_LESS);
@@ -323,32 +322,7 @@ namespace vkUtils
 			auto shaderPass = pipelineBuilder.build();
 			createMaterial(device, shaderPass, "editor_grid");
 		}
-
-		// RAYMARCH QUAD
-		{
-			VulkanShader shader = VulkanShader(device, Paths::shaderWorkingDir() + "ray_marching/ray_marching_shader.glsl");
-			
-			VkPipelineVertexInputStateCreateInfo emptyInputState = vkInit::emptyInputStateCreateInfo();
-
-			VkPipelineRasterizationStateCreateInfo rasterizer = vkInit::pipelineRasterizationStateCreateInfo(
-				VK_POLYGON_MODE_FILL,
-				VK_CULL_MODE_FRONT_BIT,
-				VK_FRONT_FACE_COUNTER_CLOCKWISE);
-
-			VkPipelineInputAssemblyStateCreateInfo inputAssembly = vkInit::pipelineInputAssemblyStateCreateInfo(
-				VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-				VK_FALSE);
-			
-			pipelineBuilder
-				.setFlags(VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT)
-				.setVertexInputState(&emptyInputState)
-				.setRasterizationState(&rasterizer)
-				.setInputAssemblyState(&inputAssembly)
-				.setStages(shader.getStages());
-			
-			auto shaderPass = pipelineBuilder.build();
-			createMaterial(device, shaderPass, "raymarch_quad");
-		}
+		
 		RUNTIME_WARN("{0} materials are successfully built.", materials.size());
 	}
 	

@@ -64,4 +64,23 @@ namespace vkUtils::memory
 		VkResult err = vkEndCommandBuffer(buffer);
 		VK_CHECK(err, "failed to record command buffer!");
 	}
+
+	void endSingleTimeCommands(
+		const VkDevice& device,
+		const VkCommandPool& commandPool,
+		const VkQueue& queue,
+		const VkCommandBuffer& commandBuffer)
+	{
+		endCommand(commandBuffer);
+
+		VkSubmitInfo submitInfo = {};
+		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers = &commandBuffer;
+
+		vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
+		vkQueueWaitIdle(queue);
+
+		releaseCommandBuffer(device, commandBuffer, commandPool);
+	}
 }

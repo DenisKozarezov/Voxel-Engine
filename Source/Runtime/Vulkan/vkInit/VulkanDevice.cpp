@@ -19,7 +19,7 @@ namespace vkInit
 		}
 	}
 
-	bool checkDeviceExtensionSupport(const VkPhysicalDevice& device, const bool& enableValidation)
+	bool checkDeviceExtensionSupport(const VkPhysicalDevice& device)
 	{
 		uint32 extensionCount;
 		vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
@@ -27,7 +27,8 @@ namespace vkInit
 		std::vector<VkExtensionProperties> availableExtensions(extensionCount);
 		vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
 
-		if (enableValidation && !availableExtensions.empty())
+#ifdef ENABLE_VALIDATION_LAYERS
+		if (!availableExtensions.empty())
 		{
 			std::stringstream ss;
 			for (const VkExtensionProperties& extension : availableExtensions)
@@ -36,6 +37,7 @@ namespace vkInit
 			}
 			RUNTIME_TRACE("Device available extensions:\n" + ss.str());
 		}
+#endif
 
 		std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
 		for (const auto& extension : availableExtensions)
@@ -47,7 +49,7 @@ namespace vkInit
 	
 	bool isDeviceSuitable(const VkPhysicalDevice& device, const vkUtils::QueueFamilyIndices& queueFamilyIndices)
 	{
-		const bool extensionsSupported = checkDeviceExtensionSupport(device, vkUtils::_enableValidationLayers);
+		const bool extensionsSupported = checkDeviceExtensionSupport(device);
 
 		VkPhysicalDeviceFeatures supportedFeatures;
 		vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
@@ -100,11 +102,11 @@ namespace vkInit
 		throw std::runtime_error("failed to find a suitable GPU!");
 	}
 	
-	const VkDevice createLogicalDevice(const VulkanDevice* vulkanDevice)
+	VkDevice createLogicalDevice(const VulkanDevice* vulkanDevice)
 	{
 		RUNTIME_ASSERT(vulkanDevice->physicalDevice, "failed to create logical device!");
 
-		float queuePriority = 1.0f;
+		constexpr float queuePriority = 1.0f;
 		const uint32 graphicsFamilyIndex = vulkanDevice->queueFamilyIndices.graphicsFamily.value();
 
 		VkDeviceQueueCreateInfo queueCreateInfo = {};
@@ -117,6 +119,7 @@ namespace vkInit
 		deviceFeatures.samplerAnisotropy = VK_TRUE;
 		deviceFeatures.pipelineStatisticsQuery = VK_TRUE;
 		deviceFeatures.fillModeNonSolid = VK_TRUE;
+		deviceFeatures.geometryShader = VK_TRUE;
 
 		VkDeviceCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -126,13 +129,13 @@ namespace vkInit
 		createInfo.enabledExtensionCount = static_cast<uint32>(deviceExtensions.size());
 		createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
-		if (vkUtils::_enableValidationLayers)
-		{
-			createInfo.enabledLayerCount = static_cast<uint32>(vkUtils::validationLayers.size());
-			createInfo.ppEnabledLayerNames = vkUtils::validationLayers.data();
-		}
-		else createInfo.enabledLayerCount = 0;
-
+#ifdef ENABLE_VALIDATION_LAYERS
+		createInfo.enabledLayerCount = static_cast<uint32>(vkUtils::validationLayers.size());
+		createInfo.ppEnabledLayerNames = vkUtils::validationLayers.data();
+#else
+		createInfo.enabledLayerCount = 0;
+#endif
+		
 		VkDevice device;
 		VkResult err = vkCreateDevice(vulkanDevice->physicalDevice, &createInfo, nullptr, &device);
 		VK_CHECK(err, "failed to create logical device!");

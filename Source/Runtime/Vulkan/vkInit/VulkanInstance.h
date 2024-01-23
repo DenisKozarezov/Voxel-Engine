@@ -13,29 +13,26 @@ namespace vkInit
 
 		std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 		extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
-		if (vkUtils::_enableValidationLayers)
-		{
-			extensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-			extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+		
+#ifdef ENABLE_VALIDATION_LAYERS
+		extensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+		extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
-			if (extensions.size() > 0)
+		if (!extensions.empty())
+		{
+			std::stringstream ss;
+			for (const char* extensionName : extensions)
 			{
-				std::stringstream ss;
-				for (const char* extensionName : extensions)
-				{
-					ss << '\t' << extensionName << '\n';
-				}
-				RUNTIME_TRACE("Device extensions to be requested:\n" + ss.str());
+				ss << '\t' << extensionName << '\n';
 			}
+			RUNTIME_TRACE("Device extensions to be requested:\n" + ss.str());
 		}
+#endif
 		return extensions;
 	}
 
 	const VkInstance createInstance(const uint32& vulkanApi)
 	{
-		bool layersSupported = vkUtils::_enableValidationLayers && vkUtils::checkValidationLayerSupport();
-		RUNTIME_ASSERT(layersSupported, "validation layers requested, but not available!");
-
 		VkApplicationInfo appInfo = {};
 		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 		appInfo.pApplicationName = PROJECT_NAME;
@@ -48,24 +45,23 @@ namespace vkInit
 		createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 		createInfo.pApplicationInfo = &appInfo;
 		createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
-		auto extensions = getRequiredExtensions();
+		const auto extensions = getRequiredExtensions();
 		createInfo.enabledExtensionCount = static_cast<uint32>(extensions.size());
 		createInfo.ppEnabledExtensionNames = extensions.data();
 
-		if (vkUtils::_enableValidationLayers)
-		{
-			createInfo.enabledLayerCount = static_cast<uint32>(vkUtils::validationLayers.size());
-			createInfo.ppEnabledLayerNames = vkUtils::validationLayers.data();
-			VkDebugReportCallbackCreateInfoEXT debugCreateInfo = {};
-			debugCreateInfo = vkUtils::populateDebugReportCreateInfo();
-			createInfo.pNext = (VkDebugReportCallbackCreateInfoEXT*)&debugCreateInfo;
-		}
-		else
-		{
-			createInfo.enabledLayerCount = 0;
-			createInfo.pNext = nullptr;
-		}
+#ifdef ENABLE_VALIDATION_LAYERS
+		const bool layersSupported = vkUtils::checkValidationLayerSupport();
+		RUNTIME_ASSERT(layersSupported, "validation layers requested, but not available!");
 
+		createInfo.enabledLayerCount = static_cast<uint32>(vkUtils::validationLayers.size());
+		createInfo.ppEnabledLayerNames = vkUtils::validationLayers.data();
+		const auto debugCreateInfo = vkUtils::populateDebugReportCreateInfo();
+		createInfo.pNext = (VkDebugReportCallbackCreateInfoEXT*)&debugCreateInfo;
+#else
+		createInfo.enabledLayerCount = 0;
+		createInfo.pNext = nullptr;
+#endif
+		
 		VkInstance instance;
 		VkResult err = vkCreateInstance(&createInfo, nullptr, &instance);
 		VK_CHECK(err, "failed to create instance!");

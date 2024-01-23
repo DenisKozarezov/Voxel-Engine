@@ -36,7 +36,7 @@ namespace VoxelEngine::renderer
 		static void preRender();
 		static void render();
 		static void postRender();
-		static void resize(const uint32& width, const uint32& height);
+		static void resize(const uint16& width, const uint16& height);
 		static void deviceWaitIdle();
 		static void shutdown();
 	};

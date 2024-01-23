@@ -47,7 +47,5 @@ namespace vkInit
 		return std::thread::hardware_concurrency();
 	}
 
-	bool checkDeviceExtensionSupport(
-		const VkPhysicalDevice& device,
-		const bool& enableValidation);
+	bool checkDeviceExtensionSupport(const VkPhysicalDevice& device);
 }

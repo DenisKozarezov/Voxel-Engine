@@ -42,18 +42,18 @@ namespace vkUtils
 		std::stringstream message;
 		message << "[VULKAN] " << pMessage << std::endl;
 
-		switch (objectType)
+		switch (flags)
 		{
-		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
+		case VK_DEBUG_REPORT_INFORMATION_BIT_EXT:
 			RUNTIME_INFO(message.str());
 			break;
-		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
+		case VK_DEBUG_REPORT_DEBUG_BIT_EXT:
 			RUNTIME_TRACE(message.str());
 			break;
-		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+		case VK_DEBUG_REPORT_WARNING_BIT_EXT:
 			RUNTIME_WARN(message.str());
 			break;
-		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+		case VK_DEBUG_REPORT_ERROR_BIT_EXT:
 			RUNTIME_ERROR(message.str());
 			break;
 		}
@@ -113,7 +113,7 @@ namespace vkUtils
 	constexpr VkDebugUtilsMessengerCreateInfoEXT populateDebugUtilsCreateInfo()
 	{
 		VkDebugUtilsMessengerCreateInfoEXT createInfo = {};
-		createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
+		createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
 		createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
 		createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
 		createInfo.pfnUserCallback = &debugUtilsCallback;
@@ -124,7 +124,7 @@ namespace vkUtils
 		VkDebugReportCallbackCreateInfoEXT createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
 		createInfo.pNext = nullptr;
-		createInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT | VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT;
+		createInfo.flags = VK_DEBUG_REPORT_WARNING_BIT_EXT | VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT | VK_DEBUG_REPORT_ERROR_BIT_EXT;
 		createInfo.pfnCallback = &debugReportCallback;
 		createInfo.pUserData = nullptr;
 		return createInfo;
@@ -158,11 +158,25 @@ namespace vkUtils
 		}
 		return true;
 	}
+	void setupDebugUtilsMessenger(const VkInstance& instance, VkDebugUtilsMessengerEXT* debugUtilsFunc)
+	{
+#ifndef ENABLE_VALIDATION_LAYERS
+		return;
+#endif
+		
+		const auto createInfo = populateDebugUtilsCreateInfo();
+		VkResult err = createDebugUtilsMessengerEXT(instance, &createInfo, nullptr, debugUtilsFunc);
+		VK_CHECK(err, "failed to set up debug report messenger!");
+
+		RUNTIME_TRACE("Vulkan debug report messenger set up.");
+	}		
 	void setupDebugReportMessenger(const VkInstance& instance, VkDebugReportCallbackEXT* debugReportFunc)
 	{
-		if (!_enableValidationLayers) return;
-
-		VkDebugReportCallbackCreateInfoEXT createInfo = populateDebugReportCreateInfo();
+#ifndef ENABLE_VALIDATION_LAYERS
+		return;
+#endif
+		
+		const auto createInfo = populateDebugReportCreateInfo();
 		VkResult err = createDebugReportMessengerEXT(instance, &createInfo, nullptr, debugReportFunc);
 		VK_CHECK(err, "failed to set up debug report messenger!");
 

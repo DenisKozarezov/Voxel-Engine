@@ -1,6 +1,7 @@
 #include "VulkanValidation.h"
 #include "../VulkanBackend.h"
 #include "../vkInit/VulkanCommand.h"
+#include "../vkInit/VulkanInitializers.h"
 
 namespace vkUtils::memory
 {
@@ -17,13 +18,10 @@ namespace vkUtils::memory
 	}
 	VkDeviceMemory allocateMemory(const vkInit::VulkanDevice* device, const VkMemoryRequirements& requirements, const VkMemoryPropertyFlags& properties)
 	{
+		const uint32 memoryTypeIndex = findMemoryType(device, requirements.memoryTypeBits, properties);
+		const VkMemoryAllocateInfo allocInfo = vkInit::memoryAllocateInfo(requirements.size, memoryTypeIndex);
+
 		VkDeviceMemory memory;
-
-		VkMemoryAllocateInfo allocInfo = {};
-		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-		allocInfo.allocationSize = requirements.size;
-		allocInfo.memoryTypeIndex = findMemoryType(device, requirements.memoryTypeBits, properties);
-
 		VkResult err = vkAllocateMemory(device->logicalDevice, &allocInfo, nullptr, &memory);
 		VK_CHECK(err, "failed to allocate memory!");
 
@@ -40,11 +38,7 @@ namespace vkUtils::memory
 	{
 		RUNTIME_ASSERT(device->physicalDevice && device->logicalDevice, "failed to create buffer!");
 
-		VkBufferCreateInfo bufferInfo = {};
-		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-		bufferInfo.size = size;
-		bufferInfo.usage = usage;
-		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+		const VkBufferCreateInfo bufferInfo = vkInit::bufferCreateInfo(usage, size);
 
 		VkBuffer buffer;
 		VkResult err = vkCreateBuffer(device->logicalDevice, &bufferInfo, nullptr, &buffer);
@@ -162,11 +156,7 @@ namespace vkUtils::memory
 	}
 	VkResult Buffer::flush(VkDeviceSize size, VkDeviceSize offset) const
 	{
-		VkMappedMemoryRange mappedRange = {};
-		mappedRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
-		mappedRange.memory = bufferMemory;
-		mappedRange.offset = offset;
-		mappedRange.size = size;
+		const VkMappedMemoryRange mappedRange = vkInit::mappedMemoryRange(bufferMemory, offset, size);
 		return vkFlushMappedMemoryRanges(device, 1, &mappedRange);
 	}
 }

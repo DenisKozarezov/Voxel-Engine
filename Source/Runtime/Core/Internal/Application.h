@@ -45,7 +45,6 @@ namespace VoxelEngine
 		TUniquePtr<Window> m_window;
 		renderer::LayerStack m_layerStack;
 		bool m_running = false;
-		bool m_minimized = false;
 		input::EventDispatcher m_eventDispatcher;
 
 		uint32 m_frameCounter = 0;

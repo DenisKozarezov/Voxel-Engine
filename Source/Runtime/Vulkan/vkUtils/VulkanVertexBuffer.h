@@ -26,7 +26,6 @@ namespace vkUtils
 		NODISCARD constexpr uint32 size() const override;
 
 		INLINE void setData(const void* data, const uint32& size) override;
-		void bind(const uint32& binding = 0) override;
-		void bind(const VkCommandBuffer& commandBuffer, const uint32& binding = 0);
+		void bind(const uint32& binding = 0, const uint32& bindingCount = 1) override;
 	};	
 }

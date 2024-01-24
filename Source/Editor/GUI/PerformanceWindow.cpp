@@ -2,7 +2,7 @@
 
 namespace VoxelEditor::gui
 {
-    PerformanceWindow::PerformanceWindow(const string& title, const renderer::RenderPerformanceStats& stats) : ImguiWindow(title)
+    PerformanceWindow::PerformanceWindow(const string& title, const RenderPerformanceStats& stats) : ImguiWindow(title)
     {
         m_stats = &stats;
     }
@@ -25,15 +25,14 @@ namespace VoxelEditor::gui
             ImGui::Text("Draw Calls: %d", m_stats->frameStats.drawCalls);
             ImGui::Text("Triangles: %llu", m_stats->frameStats.triangles);
             ImGui::Text("Vertices: %llu", m_stats->frameStats.vertices);
-            ImGui::Text("Indices: %d", m_stats->frameStats.indices);
-            ImGui::Text("Instances: %llu", m_stats->frameStats.instances);
+            ImGui::Text("Primitives: %llu", m_stats->frameStats.primitives);
             ImGui::Text("Batches: %d", 0);
             
             ImGui::NextColumn();
-            for (int i = 0; i < m_stats->shaderStats.performanceStrings.size(); ++i)
-            {
-                ImGui::Text("%s: %llu", m_stats->shaderStats.performanceStrings[i].c_str(), m_stats->shaderStats.performanceStats[i]);
-            }
+            ImGui::Text("Clipping Primitives: %llu", m_stats->frameStats.clippingPrimitives);
+            ImGui::Text("Clipping Invocations: %llu", m_stats->frameStats.clippingInvocations);
+            ImGui::Text("Vertex Shader Invocations: %llu", m_stats->frameStats.vertexShaderInvocations);
+            ImGui::Text("Fragment Shader Invocations: %llu", m_stats->frameStats.fragmentShaderInvocations);
             
             ImGui::EndColumns();
 

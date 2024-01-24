@@ -1,4 +1,5 @@
 #include "RenderCommand.h"
+#include "Renderer.h"
 #include <Core/Logging/Assert.h>
 
 namespace VoxelEngine::renderer
@@ -29,6 +30,8 @@ namespace VoxelEngine::renderer
 			material->bind();
 
 		s_renderer->draw(vertexCount, instanceCount, startVertex, startInstance);
+
+		Renderer::getStats().frameStats.drawCalls++;
 	}
 	void RenderCommand::drawMesh(const Mesh& mesh)
 	{
@@ -39,6 +42,8 @@ namespace VoxelEngine::renderer
 
 		mesh.vertexBuffer->bind();
 		s_renderer->drawMesh(mesh);
+
+		Renderer::getStats().frameStats.drawCalls++;
 	}
 	void RenderCommand::drawMeshIndexed(const Mesh& mesh, const TSharedPtr<IndexBuffer>& indexBuffer, uint32 indexCount, uint32 instanceCount, uint32 startInstance)
 	{
@@ -51,15 +56,23 @@ namespace VoxelEngine::renderer
 		mesh.vertexBuffer->bind();
 		indexBuffer->bind();
 		s_renderer->drawMeshIndexed(indexCount, instanceCount, 0, startInstance);
+
+		Renderer::getStats().frameStats.drawCalls++;
 	}
 	void RenderCommand::drawMeshInstanced(const Mesh& mesh, const TSharedPtr<VertexBuffer>& instancedBuffer, uint32 instanceCount, uint32 startInstance)
 	{
 		RUNTIME_ASSERT(instancedBuffer && !instancedBuffer->empty(), "can't draw instanced mesh! Instanced buffer is empty!");
+		RUNTIME_ASSERT(mesh.vertexBuffer && !mesh.vertexBuffer->empty(), "can't draw mesh! Vertex buffer is empty!");
+		RUNTIME_ASSERT(mesh.indexBuffer && !mesh.indexBuffer->empty(), "can't draw mesh! Index buffer is empty!");
 		
 		if (mesh.material)
 			mesh.material->bind();
+		
+		instancedBuffer->bind(1);
+		mesh.vertexBuffer->bind();
+		mesh.indexBuffer->bind();
+		s_renderer->drawMeshIndexed(mesh.indexCount(), instanceCount, 0, startInstance);
 
-		instancedBuffer->bind(1, 2);
-		drawMeshIndexed(mesh, instanceCount, startInstance);
+		Renderer::getStats().frameStats.drawCalls++;
 	}
 }

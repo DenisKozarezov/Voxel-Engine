@@ -6,29 +6,31 @@
 
 namespace VoxelEngine::renderer
 {
-    RenderPerformanceStats Renderer::s_renderPerformanceStats;
+    RenderPerformanceStats Renderer::s_renderPerformanceStats{};
+    RenderSettings Renderer::s_renderSettings{};
     utils::GizmosAPI* Renderer::s_gizmosAPI = nullptr;
-
-    RenderSettings& Renderer::getRenderSettings()
-    {
-        return vulkan::getRenderSettings();
-    }
-    const RenderPerformanceStats& Renderer::getStats()
-    {
-        return s_renderPerformanceStats;
-    }
+    
     void Renderer::resetStats()
     {
-        vulkan::resetFrameStats();
+        s_renderPerformanceStats.frameStats.drawCalls = 0;
+        s_renderPerformanceStats.frameStats.triangles = 0;
+        s_renderPerformanceStats.frameStats.vertices = 0;
+        s_renderPerformanceStats.frameStats.primitives = 0;
+        s_renderPerformanceStats.batches = 0;
+        s_renderPerformanceStats.frameStats.clippingPrimitives = 0;
+        s_renderPerformanceStats.frameStats.vertexShaderInvocations = 0;
+        s_renderPerformanceStats.frameStats.fragmentShaderInvocations = 0;
     }
 
     void Renderer::flushStats()
     {
-        auto* app = Application::getInstance();
+        const auto* app = Application::getInstance();
         s_renderPerformanceStats.deltaTime = app->getDeltaTime();
         s_renderPerformanceStats.fps = app->getFPS();
+
+        const uint32 drawCalls = s_renderPerformanceStats.frameStats.drawCalls;
         s_renderPerformanceStats.frameStats = vulkan::getFrameStats();
-        s_renderPerformanceStats.shaderStats = vulkan::getShaderStats();
+        s_renderPerformanceStats.frameStats.drawCalls = drawCalls;
     }
 
     void Renderer::init(const Window& window)
@@ -59,8 +61,7 @@ namespace VoxelEngine::renderer
             .view = glm::mat4(0.0f),
             .proj = glm::mat4(0.0f),
             .lightPos = glm::vec3(0.0f, 20.0f, 0.0f)
-        };
-        
+        };        
         vulkan::beginFrame(ubo);
     }
 

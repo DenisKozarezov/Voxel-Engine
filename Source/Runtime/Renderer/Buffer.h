@@ -14,7 +14,7 @@ namespace VoxelEngine::renderer
 		NODISCARD constexpr bool empty() const { return size() == 0; }
 
 		virtual void setData(const void* data, const uint32& size) = 0;
-		virtual void bind(const uint32& binding = 0, const uint32& bindingCount = 1) = 0;
+		virtual void bind(const uint32& binding = 0) = 0;
 		virtual void release() = 0;
 
 		static TSharedPtr<VertexBuffer> Allocate(const uint32& size);

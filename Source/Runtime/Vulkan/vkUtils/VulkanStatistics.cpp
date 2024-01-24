@@ -6,19 +6,8 @@ namespace vkUtils
     VulkanQueryStatisticsPool::VulkanQueryStatisticsPool(const VkDevice& logicalDevice)
         : m_logicalDevice(logicalDevice)
     {
-        std::vector<string> pipelineStatNames =
-        {
-            "Input assembly vertex count        ",
-            "Input assembly primitives count    ",
-            "Vertex shader invocations          ",
-            "Clipping stage primitives processed",
-            "Clipping stage primitives output   ",
-            "Fragment shader invocations        "
-        };
-        
-        m_stats.performanceStats.resize(pipelineStatNames.size());
-        m_stats.performanceStrings = std::vector(pipelineStatNames.begin(), pipelineStatNames.end());
-        
+        m_statsData.resize(6);
+
         VkQueryPoolCreateInfo queryPoolInfo{};
         queryPoolInfo.sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO;
         queryPoolInfo.queryType = VK_QUERY_TYPE_PIPELINE_STATISTICS;
@@ -40,13 +29,14 @@ namespace vkUtils
 
     VulkanQueryStatisticsPool::~VulkanQueryStatisticsPool()
     {
+        m_statsData.clear();
         vkDestroyQueryPool(m_logicalDevice, m_pool, nullptr);
     }
 
     void VulkanQueryStatisticsPool::getQueryResults()
     {
-        const uint32 dataSize = static_cast<uint32>(m_stats.performanceStats.size()) * sizeof(uint64);
-        const uint32 stride = static_cast<uint32>(m_stats.performanceStrings.size()) * sizeof(uint64);
+        const uint32 dataSize = static_cast<uint32>(m_statsData.size()) * sizeof(uint64);
+        const uint32 stride = static_cast<uint32>(m_statsData.size()) * sizeof(uint64);
         
         vkGetQueryPoolResults(
             m_logicalDevice,
@@ -54,9 +44,17 @@ namespace vkUtils
             0,
             1,
             dataSize,
-            m_stats.performanceStats.data(),
+            m_statsData.data(),
             stride,
-            VK_QUERY_RESULT_64_BIT);
+            VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT);
+
+        m_frameStats.vertices = m_statsData[0];
+        m_frameStats.primitives = m_statsData[1];
+        m_frameStats.vertexShaderInvocations = m_statsData[2];
+        m_frameStats.clippingInvocations = m_statsData[3];
+        m_frameStats.clippingPrimitives = m_statsData[4];
+        m_frameStats.fragmentShaderInvocations = m_statsData[5];
+        m_frameStats.triangles = m_frameStats.vertices / 3;
     }
 
     void VulkanQueryStatisticsPool::resetQuery(const VkCommandBuffer& commandBuffer)

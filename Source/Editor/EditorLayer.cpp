@@ -109,7 +109,7 @@ namespace VoxelEditor::gui
 				ImGui::Separator();
 				if (ImGui::MenuItem("Performance"))
 				{
-					auto& stats = renderer::Renderer::getStats();
+					const auto& stats = renderer::Renderer::getStats();
 					m_guiTree.registerWindow(new PerformanceWindow("Performance", stats));
 				}
 

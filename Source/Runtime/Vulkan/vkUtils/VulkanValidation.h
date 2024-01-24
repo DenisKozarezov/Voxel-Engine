@@ -37,18 +37,18 @@ constexpr const char* errorString(const VkResult& errorCode)
 	}
 }
 
-#define VK_CHECK(result, msg) if (result != VK_SUCCESS) { RUNTIME_ERROR("[VULKAN] [{0}] {1}", errorString(result), msg); PLATFORM_BREAK(); }
-
-namespace vkUtils
-{
-#define VK_LAYER_VALIDATION_EXT_NAME "VK_LAYER_KHRONOS_validation"
-
 #ifdef VOXEL_RELEASE
 	#undef ENABLE_VALIDATION_LAYERS
 #else
 	#define ENABLE_VALIDATION_LAYERS
 #endif
 
+#define VK_CHECK(result, msg) if (result != VK_SUCCESS) { RUNTIME_ERROR("[VULKAN] [{0}] {1}", errorString(result), msg); PLATFORM_BREAK(); }
+
+namespace vkUtils
+{
+#define VK_LAYER_VALIDATION_EXT_NAME "VK_LAYER_KHRONOS_validation"
+	
 	constexpr std::array<const char*, 1> validationLayers =
 	{
 		VK_LAYER_VALIDATION_EXT_NAME

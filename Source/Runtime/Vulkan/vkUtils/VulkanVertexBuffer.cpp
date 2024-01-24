@@ -95,10 +95,10 @@ namespace vkUtils
 	{
 		m_vertexBuffer.setData(data, size);
 	}
-	void VulkanVertexBuffer::bind(const uint32& binding, const uint32& bindingCount)
+	void VulkanVertexBuffer::bind(const uint32& binding)
 	{
 		constexpr VkDeviceSize offsets[] = { 0 };
 		const VkCommandBuffer commandBuffer = vulkan::getCommandBuffer();
-		vkCmdBindVertexBuffers(commandBuffer, binding, bindingCount, &m_vertexBuffer.buffer, offsets);
+		vkCmdBindVertexBuffers(commandBuffer, binding, 1, &m_vertexBuffer.buffer, offsets);
 	}
 }

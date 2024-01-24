@@ -8,6 +8,7 @@
 
 #ifdef TEST_INSTANCED_MESH
 	#include <Renderer/GizmosAPI.h>
+	#include <Renderer/RenderingStructs.h>
 #endif
 
 namespace VoxelEngine
@@ -24,15 +25,15 @@ namespace VoxelEngine
 		auto points = result.GetPoints();
 		instancesCount = static_cast<uint32>(points.size());
 
-		std::vector<renderer::InstanceData> instanceData;
+		std::vector<InstanceData> instanceData;
 		instanceData.reserve(instancesCount);
 		for (size_t i = 0; i < instancesCount; ++i)
 		{
-			instanceData.push_back(renderer::InstanceData{
+			instanceData.push_back(InstanceData{
 				.pos = glm::vec3(points[i].x, points[i].y, points[i].z)
 			});
 		}
-		instancedBuffer = renderer::VertexBuffer::Allocate(instanceData.data(), instancesCount * sizeof(renderer::InstanceData));
+		instancedBuffer = renderer::VertexBuffer::Allocate(instanceData.data(), instancesCount * sizeof(InstanceData));
 	}
 #endif
 
@@ -52,7 +53,7 @@ namespace VoxelEngine
 		materials.solid = utils::getMaterial("solid_instanced");
 		materials.wireframe = utils::getMaterial("wireframe_instanced");
 		materials.normals = utils::getMaterial("normals_instanced");
-		materials.normals = utils::getMaterial("normals_lines_instanced");
+		materials.normalsLines = utils::getMaterial("normals_lines_instanced");
 #else
 		materials.solid = utils::getMaterial("solid");
 		materials.wireframe = utils::getMaterial("wireframe");
@@ -80,7 +81,7 @@ namespace VoxelEngine
 	}
 	void Scene::renderScene()
 	{
-		auto& renderSettings = renderer::Renderer::getRenderSettings();
+		const auto& renderSettings = renderer::Renderer::getRenderSettings();
 
 		if (renderSettings.showEditorGrid)
 		{
@@ -104,6 +105,12 @@ namespace VoxelEngine
 
 		// Show voxel grid
 		utils::Gizmos::drawWireframeCube({ 25, 25, 25 }, { 50, 50, 50 });
+
+		if (renderSettings.showNormalsLines)
+		{
+			meshes.voxel.material = materials.normalsLines;
+			renderer::RenderCommand::drawMeshInstanced(meshes.voxel, instancedBuffer, instancesCount);
+		}
 #endif
 
 		if (!objects.empty())

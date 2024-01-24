@@ -81,6 +81,7 @@ namespace utils
 
 	void GizmosAPI::onGizmosDraw()
 	{
+		VoxelEngine::renderer::RenderCommand::setLineWidth(1.0f);
 		if (m_renderData.linesVertexCount > 0)
 		{
 			uint32 dataSize = (uint32)((uint8*)m_renderData.linesPtrCurrent - (uint8*)m_renderData.linesPtrStart);

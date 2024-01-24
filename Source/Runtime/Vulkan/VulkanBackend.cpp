@@ -47,7 +47,6 @@ namespace vulkan
 	} state;
 
 	renderer::RenderSettings renderSettings;
-	renderer::RenderFrameStats renderFrameStats;
 
 	static int MAX_FRAMES_IN_FLIGHT = 3;
 	static uint32 CURRENT_FRAME = 0;
@@ -227,7 +226,7 @@ namespace vulkan
 	{
 		state.vulkanDevice->queryPool->endQuery(commandBuffer);
 		
-		// =================== RENDER WHOLE STUFF HERE ! ===================		
+		// =================== RENDER UI HERE ! ===================		
 		ImDrawData* main_draw_data = ImGui::GetDrawData();
 		ImGui_ImplVulkan_RenderDrawData(main_draw_data, commandBuffer);
 		
@@ -449,24 +448,10 @@ namespace vulkan
 		
 		vkDestroyInstance(state.instance, nullptr);
 	}
-
-	renderer::RenderSettings& getRenderSettings()
-	{
-		return renderSettings;
-	}
-	const renderer::RenderFrameStats& getFrameStats()
-	{
-		return renderFrameStats;
-	}
-
-	const renderer::ShaderStats& getShaderStats()
+	
+	const RenderFrameStats& getFrameStats()
 	{
 		return state.vulkanDevice->queryPool->getStats();
-	}
-
-	void resetFrameStats()
-	{
-		renderFrameStats.drawCalls = 0;
 	}
 
 	const vkInit::VulkanDevice* getDevice()

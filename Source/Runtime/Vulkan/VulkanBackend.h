@@ -34,11 +34,8 @@ namespace vulkan
 	void initImGui();	
 	void deviceWaitIdle();
 	void cleanup();
-
-	renderer::RenderSettings& getRenderSettings();
-	const renderer::RenderFrameStats& getFrameStats();
-	const renderer::ShaderStats& getShaderStats();
-	void resetFrameStats();
+	
+	const RenderFrameStats& getFrameStats();
 
 	/// <summary>
 	/// Returns the vulkan device currently in use.

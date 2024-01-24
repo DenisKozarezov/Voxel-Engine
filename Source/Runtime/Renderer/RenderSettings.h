@@ -1,6 +1,4 @@
 #pragma once
-#include <Core/CoreTypes.h>
-#include <vector>
 
 namespace VoxelEngine::renderer
 {
@@ -9,21 +7,6 @@ namespace VoxelEngine::renderer
 		Solid,
 		Wireframe,
 		Normals
-	};
-
-	struct RenderFrameStats
-	{
-		uint32 drawCalls;
-		uint64 triangles;
-		uint64 vertices;
-		uint32 indices;
-		uint64 instances;
-	};
-
-	struct ShaderStats
-	{
-		std::vector<string> performanceStrings;
-		std::vector<uint64> performanceStats;
 	};
 
 	struct RenderSettings

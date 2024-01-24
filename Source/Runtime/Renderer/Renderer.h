@@ -8,26 +8,40 @@ namespace utils
 	class GizmosAPI;
 }
 
+struct RenderFrameStats
+{
+	uint32 drawCalls;
+	uint64 triangles;
+	uint64 vertices;
+	uint64 primitives;
+	uint64 clippingPrimitives;
+	uint64 clippingInvocations;
+	uint64 vertexShaderInvocations;
+	uint64 fragmentShaderInvocations;
+};
+
+struct RenderPerformanceStats
+{
+	RenderFrameStats frameStats;
+	uint32 voxels;
+	uint32 batches;
+	uint32 fps;
+	double deltaTime;
+};
+
 namespace VoxelEngine::renderer
 {	
-	struct RenderPerformanceStats
-	{
-		RenderFrameStats frameStats;
-		ShaderStats shaderStats;
-		uint32 voxels;
-		uint32 batches;
-		uint32 fps;
-		float deltaTime;
-	};
-
 	class Renderer
 	{
 	private:
+		friend class RenderCommand;
+		
 		static utils::GizmosAPI* s_gizmosAPI;
 		static RenderPerformanceStats s_renderPerformanceStats;
+		static RenderSettings s_renderSettings;
 	public:
-		static RenderSettings& getRenderSettings();
-		static const RenderPerformanceStats& getStats();
+		FORCE_INLINE static RenderPerformanceStats& getStats() { return s_renderPerformanceStats; }
+		FORCE_INLINE static RenderSettings& getRenderSettings() { return s_renderSettings; }
 		static void resetStats();
 		static void flushStats();
 		

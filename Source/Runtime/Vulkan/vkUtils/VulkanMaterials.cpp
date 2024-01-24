@@ -102,9 +102,9 @@ namespace vkUtils
 			pipelineBuilder
 				.setFlags(VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT)
 				.setVertexInputState(&vertexInputInfo)
-				.setStages(shader.getStages())
 				.setRasterizationState(&rasterizer)
-				.setInputAssemblyState(&inputAssembly);
+				.setInputAssemblyState(&inputAssembly)
+				.setStages(shader.getStages());
 	
 			auto shaderPass = pipelineBuilder.build();
 			solidPipeline = shaderPass.pipeline;

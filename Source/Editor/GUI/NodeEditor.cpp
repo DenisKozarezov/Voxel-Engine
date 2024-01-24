@@ -22,8 +22,7 @@ namespace VoxelEditor::gui
 	}
 	void NodeEditor::onImGuiRender()
 	{
-		const ImVec2 windowPos = ImGui::GetWindowPos();
-		const ImVec2 cursorPos = ImGui::GetMousePos();
-		ImGui::GetWindowDrawList()->AddLine(windowPos, cursorPos, ImGui::ColorConvertFloat4ToU32(ImVec4(1.0f, 0, 0, 1.0f)), 3.0f);
+		ImDrawList* drawList = ImGui::GetWindowDrawList();
+		m_graph.onImGuiRender(drawList);
 	}
 }

@@ -1,6 +1,5 @@
 #pragma once
-#include <vulkan/vkUtils/VulkanAlloc.h>
-#include <Vulkan/vkInit/VulkanDevice.h>
+#include "../vkUtils/VulkanAlloc.h"
 
 namespace vkUtils
 {

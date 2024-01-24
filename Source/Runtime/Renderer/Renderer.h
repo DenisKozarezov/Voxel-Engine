@@ -1,6 +1,5 @@
 #pragma once
 #include "RenderSettings.h"
-#include <Core/HAL/Platform/Window.h>
 #include <Engine/Components/camera/Camera.h>
 
 namespace utils
@@ -28,6 +27,11 @@ struct RenderPerformanceStats
 	uint32 fps;
 	double deltaTime;
 };
+
+namespace VoxelEngine
+{
+	class Window;
+}
 
 namespace VoxelEngine::renderer
 {	

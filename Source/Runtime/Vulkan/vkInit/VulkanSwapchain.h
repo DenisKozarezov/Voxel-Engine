@@ -1,7 +1,6 @@
 #pragma once
 #include <Core/pch.h>
 #include "../vkUtils/VulkanSwapChainFrame.h"
-#include "../vkUtils/VulkanQueueFamilies.h"
 #include "../vkUtils/VulkanImage.h"
 
 namespace vkInit

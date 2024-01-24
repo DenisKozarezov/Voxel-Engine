@@ -10,6 +10,7 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
 #include <Renderer/RenderingStructs.h>
+#include <Core/HAL/Platform/Window.h>
 
 namespace vulkan
 {	

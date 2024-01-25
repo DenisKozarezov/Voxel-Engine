@@ -13,6 +13,7 @@ namespace VoxelEditor::gui
         m_autoScroll = true;
         clear();
     }
+    
     void EditorConsole::addLog(const char* fmt, ...)
     {
         int old_size = m_buffer.size();
@@ -117,5 +118,7 @@ namespace VoxelEditor::gui
     EditorConsole::~EditorConsole()
     {
         clear();
+
+        s_instance = nullptr;
     }
 }

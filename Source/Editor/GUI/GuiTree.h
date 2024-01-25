@@ -3,26 +3,36 @@
 
 namespace VoxelEditor::gui
 {
+	struct window_find_pred
+	{
+		string key;
+		window_find_pred(const string& key): key(key) {}
+		window_find_pred(string&& key): key(std::move(key)) {}
+		
+		bool operator()(TSharedPtr<ImguiWindow>& i) const {
+			return i->title() == key;
+		}
+	};
+	
 	class GuiTree : public NonCopyable
 	{
 	private:
-		std::vector<ImguiWindow*> m_windows;
-		SceneViewport* m_viewport = nullptr;
+		std::vector<TSharedPtr<ImguiWindow>> m_windows;
+		TSharedPtr<SceneViewport> m_viewport = nullptr;
 	public:
 		GuiTree() noexcept = default;
 
-		FORCE_INLINE SceneViewport* getViewport() const { return m_viewport; }
+		FORCE_INLINE TWeakPtr<SceneViewport> getViewport() const { return m_viewport; }
 		
 		bool showDockSpace(bool *p_open) const;
 		
-		bool registerWindow(ImguiWindow* window);
-		bool registerViewport(SceneViewport* viewport);
-		void unregisterWindow(const ImguiWindow* window);
-		void unregisterWindow(std::vector<ImguiWindow*>::iterator it);
+		bool registerWindow(const TSharedPtr<ImguiWindow>& window);
+		bool registerViewport(const TSharedPtr<SceneViewport>& viewport);
+		void unregisterWindow(TSharedPtr<ImguiWindow>& window);
 		void onImGuiRender();
 		void onUpdate(const Timestep& ts);
 		void sendEvent(input::Event& e);
 
-		~GuiTree() noexcept;
+		~GuiTree() = default;
 	};
 }

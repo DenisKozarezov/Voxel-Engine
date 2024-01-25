@@ -3,13 +3,14 @@
 
 namespace VoxelEditor::gui
 {
-	bool GuiTree::registerWindow(ImguiWindow* window)
+	bool GuiTree::registerWindow(const TSharedPtr<ImguiWindow>& window)
 	{	    
 #ifdef VOXEL_RELEASE
-		const auto it = std::find_if(m_windows.begin(), m_windows.end(), [=](const ImguiWindow* wnd)
-		{
-			return wnd->title() == window->title();
-		});
+		const auto it = std::find_if(
+			m_windows.begin(),
+			m_windows.end(),
+			window_find_pred(window->title()));
+
 		if (it != m_windows.end())
 		{
 			EditorConsole::error("ImGuiWindow with title '{0}' already registered.", window->title());
@@ -19,12 +20,12 @@ namespace VoxelEditor::gui
 #endif
 		{
 			EDITOR_TRACE("Registering an ImGuiWindow with title '{0}'...", window->title());
-			
+
 			m_windows.emplace_back(window);
 			return true;
 		}
 	}
-	bool GuiTree::registerViewport(SceneViewport* viewport)
+	bool GuiTree::registerViewport(const TSharedPtr<SceneViewport>& viewport)
 	{
 		const bool isRegistered = registerWindow(viewport);
 		if (isRegistered)
@@ -34,12 +35,16 @@ namespace VoxelEditor::gui
 		return isRegistered;
 	}
 
-	void GuiTree::unregisterWindow(const ImguiWindow* window)
+	void GuiTree::unregisterWindow(TSharedPtr<ImguiWindow>& window)
 	{
 		if (window == m_viewport)
 			m_viewport = nullptr;
-		
-		const auto it = std::find(m_windows.begin(), m_windows.end(), window);
+
+		const auto it = std::remove_if(
+			m_windows.begin(),
+			m_windows.end(),
+			window_find_pred(window->title()));
+
 		if (it == m_windows.end())
 		{
 			EditorConsole::error("There is no ImGuiWindow with such title '{0}'.", window->title());
@@ -47,26 +52,8 @@ namespace VoxelEditor::gui
 		else
 		{
 			EDITOR_TRACE("Unregistering an ImGuiWindow with title '{0}'...", window->title());
-			m_windows.erase(it);
-			delete window;
-		}
-	}
-
-	void GuiTree::unregisterWindow(std::vector<ImguiWindow*>::iterator it)
-	{
-		if (*it == m_viewport)
-			m_viewport = nullptr;
-		
-		if (it == m_windows.end())
-		{
-			EditorConsole::error("Unable to unregister an ImGuiWindow: invalid iterator.");
-		}
-		else
-		{
-			EDITOR_TRACE("Unregistering an ImGuiWindow with title '{0}'...", (*it)->title());
-			const ImguiWindow* window = *it;
-			m_windows.erase(it);
-			delete window;
+			window = nullptr;
+			m_windows.erase(it, m_windows.end());
 		}
 	}
 	
@@ -123,15 +110,15 @@ namespace VoxelEditor::gui
 	{
 		bool windowWantsKeyboard = false;
 		bool windowWantsMouse = false;
-
-		for (ImguiWindow* window : m_windows)
+		
+		for (auto window : m_windows)
 		{
 			if (!window->isVisible())
 			{
 				input::WindowCloseEvent e;
 				window->sendEvent(e);
 				unregisterWindow(window);
-				continue;
+				break;
 			}
 
 			bool toolbarHovered = false;
@@ -173,7 +160,7 @@ namespace VoxelEditor::gui
 
 	void GuiTree::onUpdate(const Timestep& ts)
 	{
-		for (ImguiWindow* window : m_windows)
+		for (const auto& window : m_windows)
 		{
 			window->update(ts);
 		}
@@ -181,18 +168,9 @@ namespace VoxelEditor::gui
 
 	void GuiTree::sendEvent(input::Event& e)
 	{
-		for (ImguiWindow* window : m_windows)
+		for (const auto& window : m_windows)
 		{
 			window->sendEvent(e);
-		}
-	}
-
-	GuiTree::~GuiTree() noexcept
-	{
-		while (!m_windows.empty())
-		{
-			auto it = m_windows.begin();
-			unregisterWindow(it);
 		}
 	}
 }

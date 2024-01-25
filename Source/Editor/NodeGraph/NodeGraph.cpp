@@ -3,6 +3,15 @@
 
 namespace VoxelEditor::nodes
 {
+    NodeGraph::NodeGraph()
+    {
+        
+    }
+
+    NodeGraph::~NodeGraph()
+    {
+    }
+    
     void NodeGraph::drawGrid(ImDrawList* drawList, const float& gridSize)
     {
         const ImU32 gridColor = ImColor(m_canvasProps.colors[ColCanvasLines]);
@@ -20,7 +29,7 @@ namespace VoxelEditor::nodes
             drawList->AddLine(ImVec2(0.0f, y) + pos, ImVec2(size.x, y) + pos, gridColor);
             y += gridSize;
         }
-    }
+    }    
 
     void NodeGraph::onImGuiRender(ImDrawList* drawList)
     {

@@ -13,7 +13,7 @@ namespace VoxelEditor::gui
     {
         if (ImGui::Button("Node Editor"))
         {
-            m_guiTree->registerWindow(new nodes::NodeEditor("Node Editor"));
+            m_guiTree->registerWindow(MakeShared<nodes::NodeEditor>("Node Editor"));
         }
     }
 }

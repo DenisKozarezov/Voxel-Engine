@@ -13,10 +13,10 @@ namespace VoxelEditor::gui
 	{
 		m_scene = MakeShared<Scene>();
 		
-		m_guiTree.registerViewport(new SceneViewport("Viewport", m_scene));
-		m_guiTree.registerWindow(new EditorConsole("Console"));
-		m_guiTree.registerWindow(new PrimitivesPanel("Add Primitives"));
-		m_guiTree.registerWindow(new UsefulToolsWindow("Tools", &m_guiTree));
+		m_guiTree.registerViewport(MakeShared<SceneViewport>("Viewport", m_scene));
+		m_guiTree.registerWindow(MakeShared<EditorConsole>("Console"));
+		m_guiTree.registerWindow(MakeShared<PrimitivesPanel>("Add Primitives"));
+		m_guiTree.registerWindow(MakeShared<UsefulToolsWindow>("Tools", &m_guiTree));
 	}
 
 	void EditorLayer::loadModel()
@@ -98,19 +98,19 @@ namespace VoxelEditor::gui
 				ImGui::Separator();
 				if (ImGui::MenuItem("Console"))
 				{
-					m_guiTree.registerWindow(new EditorConsole("Console"));
+					m_guiTree.registerWindow(MakeShared<EditorConsole>("Console"));
 				}
 				
 				if (ImGui::MenuItem("Viewport"))
 				{
-					m_guiTree.registerViewport(new SceneViewport("Viewport", m_scene));
+					m_guiTree.registerViewport(MakeShared<SceneViewport>("Viewport", m_scene));
 				}
 				
 				ImGui::Separator();
 				if (ImGui::MenuItem("Performance"))
 				{
 					const auto& stats = renderer::Renderer::getStats();
-					m_guiTree.registerWindow(new PerformanceWindow("Performance", stats));
+					m_guiTree.registerWindow(MakeShared<PerformanceWindow>("Performance", stats));
 				}
 
 				ImGui::MenuItem("Editor Settings");
@@ -139,9 +139,10 @@ namespace VoxelEditor::gui
 	void EditorLayer::onUpdate(const Timestep& ts)
 	{
 		renderer::Renderer::resetStats();
-
-		if (const SceneViewport* viewport = m_guiTree.getViewport())
-			renderer::Renderer::preRender(*viewport->getEditorCamera().get());
+		
+		const auto viewport = m_guiTree.getViewport();		
+		if (!m_guiTree.getViewport().expired())
+			renderer::Renderer::preRender(*viewport.lock()->getEditorCamera());
 		else
 			renderer::Renderer::preRender();
 		

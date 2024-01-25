@@ -1,8 +1,10 @@
 ﻿#pragma once
-#include "../NodeEditor.h"
 
 namespace VoxelEditor::nodes
 {
+    class NodeGraph;
+    class NodeEditor;
+
     class ICanvasManipulator
     {
     protected:

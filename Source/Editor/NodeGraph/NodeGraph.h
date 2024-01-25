@@ -1,6 +1,6 @@
 ﻿#pragma once
 #define IMGUI_DEFINE_MATH_OPERATORS
-#include <imgui.h>
+#include "Nodes/NodeBase.h"
 
 namespace VoxelEditor::nodes
 {
@@ -43,11 +43,16 @@ namespace VoxelEditor::nodes
     {
     private:
         CanvasProperties m_canvasProps{};
+        TUniquePtr<NodeBase> m_rootNode = nullptr;
 
         void drawGrid(ImDrawList* drawList, const float& gridSize);
     public:
-        const ImVec2& getOffset() const { return m_canvasProps.offset; }
-        const float& getZoom() const { return m_canvasProps.zoom; }
+        NodeGraph();
+        ~NodeGraph();
+        
+        FORCE_INLINE const ImVec2& getOffset() const { return m_canvasProps.offset; }
+        FORCE_INLINE const float& getZoom() const { return m_canvasProps.zoom; }
+        FORCE_INLINE const ImColor& getStyleColor(CanvasStyleColor style) const { return m_canvasProps.colors[style]; }
         
         void setOffset(const ImVec2& offset) { m_canvasProps.offset = offset; }
         void setZoom(const float& zoom) { m_canvasProps.zoom = zoom; }

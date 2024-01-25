@@ -131,12 +131,12 @@ namespace VoxelEngine
 				}
 
 				if (!mesh->material->instanced())
-					renderer::RenderCommand::drawMeshIndexed(*mesh.get());
+					renderer::RenderCommand::drawMeshIndexed(*mesh);
 
 				if (renderSettings.showNormalsLines)
 				{
 					mesh->material = materials.normalsLines;
-					renderer::RenderCommand::drawMeshIndexed(*mesh.get());
+					renderer::RenderCommand::drawMeshIndexed(*mesh);
 				}
 			}
 

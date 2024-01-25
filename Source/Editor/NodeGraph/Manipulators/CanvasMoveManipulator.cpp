@@ -1,4 +1,5 @@
 ﻿#include "CanvasMoveManipulator.h"
+#include "../NodeEditor.h"
 
 namespace VoxelEditor::nodes
 {

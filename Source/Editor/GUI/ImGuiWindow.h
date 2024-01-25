@@ -26,6 +26,11 @@ namespace VoxelEngine
 		virtual bool wantCaptureKeyboard() const { return false; }
 		virtual bool wantCaptureMouse() const { return false; }
 
+		FORCE_INLINE bool isMouseDown(ImGuiMouseButton mouseButton) const { return ImGui::IsMouseDown(mouseButton); }
+		FORCE_INLINE bool isMouseUp(ImGuiMouseButton mouseButton) const { return ImGui::IsMouseReleased(mouseButton); }
+		FORCE_INLINE bool isMouseClicked(ImGuiMouseButton mouseButton) const { return ImGui::IsMouseClicked(mouseButton); }
+		FORCE_INLINE bool isMouseDragging(ImGuiMouseButton mouseButton) const { return ImGui::IsMouseDragging(mouseButton); }
+		
 		bool begin();
 		void end();
 		void setVisibility(const bool& isVisible);

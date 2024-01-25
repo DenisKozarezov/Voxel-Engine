@@ -8,7 +8,6 @@ namespace VoxelEditor::gui
 	private:
 		ImVec2 m_viewportSize;
 		bool m_viewportFocused = true;
-		bool m_viewportHovered = false;
 		TSharedPtr<Scene> m_scene;
 		TSharedPtr<components::camera::EditorCameraController> m_camera;
 
@@ -20,6 +19,7 @@ namespace VoxelEditor::gui
 		
 		INLINE bool wantCaptureKeyboard() const override;
 		INLINE bool wantCaptureMouse() const override;
+		bool hasToolbar() const override { return true; }
 		bool onMousePressed(const input::MouseButtonPressedEvent& e);
 		bool onMouseReleased(const input::MouseButtonReleasedEvent& e);
 		FORCE_INLINE TSharedPtr<components::camera::EditorCameraController> getEditorCamera() const { return m_camera; }
@@ -30,6 +30,7 @@ namespace VoxelEditor::gui
 		void onBegin() override;
 		void onImGuiRender() override;
 		void onEnd() override;
+		void onToolbar(const bool& hovered) override;
 		void update(const Timestep& ts) override;
 	};
 }

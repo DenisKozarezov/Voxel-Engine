@@ -122,8 +122,7 @@ namespace VoxelEditor::gui
 		vMin.y += ImGui::GetWindowPos().y;
 
 		m_viewportFocused = ImGui::IsWindowFocused();
-		m_viewportHovered = ImGui::IsWindowHovered();
-		if (m_viewportHovered && ImGui::IsMouseDown(ImGuiMouseButton_Right))
+		if (isHovered() && isMouseDown(ImGuiMouseButton_Right))
 		{
 			ImGui::SetWindowFocus();
 		}
@@ -132,14 +131,17 @@ namespace VoxelEditor::gui
 
 		renderer::RenderCommand::setViewport(vMin.x, vMin.y, m_viewportSize.x, m_viewportSize.y);
 		m_camera->setAspectRatio(aspectRatio);
-		
-		drawRenderModes();
-		drawCameraModes();
 	}
 
 	void SceneViewport::onEnd()
 	{
 		ImGui::PopStyleVar();
+	}
+
+	void SceneViewport::onToolbar(const bool& hovered)
+	{
+		drawRenderModes();
+		drawCameraModes();
 	}
 
 	void SceneViewport::update(const Timestep& ts)

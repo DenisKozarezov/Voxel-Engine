@@ -1,13 +1,17 @@
-#pragma once 
-#include "ImGuiWindow.h"
-#include "../NodeGraph/NodeGraph.h"
+#pragma once
+#define IMGUI_DEFINE_MATH_OPERATORS
+#include "NodeGraph.h"
+#include "../GUI/ImGuiWindow.h"
 
-namespace VoxelEditor::gui
+namespace VoxelEditor::nodes
 {
+	class ICanvasManipulator;
+
 	class NodeEditor : public ImguiWindow
 	{
 	private:
-		nodes::NodeGraph m_graph;
+		NodeGraph m_graph;
+		std::vector<TSharedPtr<ICanvasManipulator>> m_manipulators;
 	public:
 		NodeEditor(const string& title);
 		~NodeEditor() override = default;

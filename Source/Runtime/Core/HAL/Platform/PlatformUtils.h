@@ -3,7 +3,7 @@
 
 namespace utils
 {
-	static class FileDialog
+	class FileDialog
 	{
 	public:
 		static string openFile(const char* filter);

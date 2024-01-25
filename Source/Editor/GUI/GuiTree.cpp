@@ -21,13 +21,6 @@ namespace VoxelEditor::gui
 			EDITOR_TRACE("Registering an ImGuiWindow with title '{0}'...", window->title());
 			
 			m_windows.emplace_back(window);
-			std::sort(
-				m_windows.begin(),
-				m_windows.end(),
-				[](const ImguiWindow* lhs, const ImguiWindow* rhs) {
-					return lhs->title() < rhs->title();
-				}
-			);
 			return true;
 		}
 	}

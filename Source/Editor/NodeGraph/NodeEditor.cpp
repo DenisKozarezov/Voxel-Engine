@@ -1,10 +1,13 @@
 #include "NodeEditor.h"
+#include "Manipulators/CanvasMoveManipulator.h"
+#include "Manipulators/CanvasZoomManipulator.h"
 
-namespace VoxelEditor::gui
+namespace VoxelEditor::nodes
 {
 	NodeEditor::NodeEditor(const string& title) : ImguiWindow(title)
 	{
-
+		m_manipulators.push_back(MakeShared<CanvasMoveManipulator>(this));
+		m_manipulators.push_back(MakeShared<CanvasZoomManipulator>(this));
 	}
 
 	ImGuiWindowFlags NodeEditor::flags() const
@@ -23,6 +26,12 @@ namespace VoxelEditor::gui
 	void NodeEditor::onImGuiRender()
 	{
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
+		
+		for (const auto& manipulator : m_manipulators)
+		{
+			manipulator->manipulateGraph(m_graph);
+		}
+		
 		m_graph.onImGuiRender(drawList);
 	}
 }

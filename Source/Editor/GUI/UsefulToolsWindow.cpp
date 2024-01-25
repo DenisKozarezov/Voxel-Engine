@@ -1,6 +1,6 @@
 ﻿#include "UsefulToolsWindow.h"
 #include "GuiTree.h"
-#include "NodeEditor.h"
+#include "../NodeGraph/NodeEditor.h"
 
 namespace VoxelEditor::gui
 {
@@ -13,7 +13,7 @@ namespace VoxelEditor::gui
     {
         if (ImGui::Button("Node Editor"))
         {
-            m_guiTree->registerWindow(new NodeEditor("Node Editor"));
+            m_guiTree->registerWindow(new nodes::NodeEditor("Node Editor"));
         }
     }
 }

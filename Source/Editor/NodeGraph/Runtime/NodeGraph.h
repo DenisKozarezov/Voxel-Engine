@@ -38,14 +38,26 @@ namespace VoxelEditor::nodes
             colors[ColSelectBorder] = style.Colors[ImGuiCol_Border];
         }
     };
-    
+
+    struct CanvasState
+    {
+        TSharedPtr<NodeBase> selectedNode;
+    };
+
+    class NodeDrawer;
     class NodeGraph
     {
     private:
         CanvasProperties m_canvasProps{};
-        TUniquePtr<NodeBase> m_rootNode = nullptr;
+        TSharedPtr<NodeBase> m_rootNode = nullptr;
+        std::vector<TSharedPtr<NodeBase>> m_nodes;
+        TUniquePtr<NodeDrawer> m_nodeDrawer;
 
-        void drawGrid(ImDrawList* drawList, const float& gridSize);
+        void renderGrid(ImDrawList* drawList, const float& gridSize);
+        void renderNodes(ImDrawList* drawList);
+        void beginInputSlot(ImDrawList* drawList, const string& slotTitle);
+        void beginOutputSlot(ImDrawList* drawList);
+        void endSlot();
     public:
         NodeGraph();
         ~NodeGraph();
@@ -54,8 +66,10 @@ namespace VoxelEditor::nodes
         FORCE_INLINE const float& getZoom() const { return m_canvasProps.zoom; }
         FORCE_INLINE const ImColor& getStyleColor(CanvasStyleColor style) const { return m_canvasProps.colors[style]; }
         
-        void setOffset(const ImVec2& offset) { m_canvasProps.offset = offset; }
-        void setZoom(const float& zoom) { m_canvasProps.zoom = zoom; }
+        FORCE_INLINE void setOffset(const ImVec2& offset) { m_canvasProps.offset = offset; }
+        void setZoom(const float& zoom);
+        void addNode(const TSharedPtr<NodeBase>& newNode);
+        void removeNode(const TSharedPtr<NodeBase>& node);
         
         void onImGuiRender(ImDrawList* drawList);
     };

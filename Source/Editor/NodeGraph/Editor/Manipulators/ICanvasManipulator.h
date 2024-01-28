@@ -10,7 +10,7 @@ namespace VoxelEditor::nodes
     protected:
         const NodeEditor* m_editor = nullptr;
     public:
-        ICanvasManipulator() = default;
+        ICanvasManipulator() = delete;
         ICanvasManipulator(const NodeEditor* nodeEditor);
 
         virtual void manipulateGraph(NodeGraph& graph) = 0;

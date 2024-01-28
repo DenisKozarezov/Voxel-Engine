@@ -4,15 +4,18 @@
 
 namespace VoxelEditor::nodes
 {
+    struct CanvasProperties;
+    
     class NodeBase
     {
     private:
+        string m_guid;
         string m_name;
         ImVec2 m_position{};
     public:
         NodeBase() = default;
-        NodeBase(const string& name) : m_name(name) { }
-        NodeBase(string&& name) : m_name(std::move(name)) { }
+        NodeBase(const string& name);
+        NodeBase(string&& name);
 
         FORCE_INLINE const string& name() const { return m_name; }
         FORCE_INLINE const ImVec2& position() const { return m_position; }
@@ -33,6 +36,7 @@ namespace VoxelEditor::nodes
         {
             return !(*this == rhs);
         }
+        
         
         virtual ~NodeBase() = default;
     };

@@ -1,5 +1,5 @@
 ﻿#include "CanvasSelectRectManipulator.h"
-#include "../NodeEditor.h"
+#include <NodeGraph/Editor/NodeEditor.h>
 
 namespace VoxelEditor::nodes
 {

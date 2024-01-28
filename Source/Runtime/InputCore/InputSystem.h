@@ -6,7 +6,7 @@
 
 namespace VoxelEngine::input
 {
-	static class InputSystem
+	class InputSystem
 	{
 	public:
 		static bool isKeyPressed(const KeyCode& key);

@@ -1,7 +1,7 @@
 #pragma once
-#include "NodeGraph.h"
 #include "Manipulators/ICanvasManipulator.h"
-#include "../GUI/ImGuiWindow.h"
+#include <NodeGraph/Runtime/NodeGraph.h>
+#include <GUI/ImGuiWindow.h>
 
 namespace VoxelEditor::nodes
 {

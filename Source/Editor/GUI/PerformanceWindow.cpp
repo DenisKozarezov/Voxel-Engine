@@ -38,7 +38,7 @@ namespace VoxelEditor::gui
 
             ImGui::Separator();
 
-            ImGui::Text("Rendering: %.3f ms/frame (%i FPS)", m_stats->deltaTime * 1000.0f, m_stats->fps);
+            ImGui::Text("Rendering: %.3f ms/frame (%i FPS)", m_stats->deltaTime * 1000.0, m_stats->fps);
         }
 
         if (ImGui::CollapsingHeader("Memory"))

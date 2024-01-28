@@ -28,15 +28,15 @@ namespace VoxelEditor::gui
 	{
 		ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
 		window_flags |= ImGuiWindowFlags_NoMove;
-		ImRect basePos = ImGui::GetCurrentWindow()->WorkRect;
-		ImVec2 pos = { basePos.Min.x + m_viewportSize.x - 400, basePos.Min.y };
+		const ImRect basePos = ImGui::GetCurrentWindow()->WorkRect;
+		const ImVec2 pos = { basePos.Min.x + m_viewportSize.x - 400, basePos.Min.y };
 		ImGui::SetNextWindowPos(pos, ImGuiCond_Always);
 		
 		ImGui::BeginChild("##cameraModes", { 400, 100 }, false, window_flags);
 		ImGui::Text("Camera Mode");
 
-		ProjectionType projectionType = m_camera->projectionType();
-		string modeStr = projectionTypeString(projectionType);
+		const ProjectionType projectionType = m_camera->projectionType();
+		const string modeStr = projectionTypeString(projectionType);
 		if (ImGui::Button(modeStr.c_str()))
 		{
 			int modeInt = (static_cast<int>(projectionType) + 1) % 2;
@@ -55,7 +55,7 @@ namespace VoxelEditor::gui
 	{
 		glm::vec3 cameraPos = { 10.0f, 10.0f, 10.0f };
 
-		m_camera = MakeUnique<components::camera::EditorCameraController>(cameraPos);
+		m_camera = MakeShared<components::camera::EditorCameraController>(cameraPos);
 		subscribeEvent<input::MouseButtonPressedEvent>(BIND_CALLBACK(onMousePressed));
 		subscribeEvent<input::MouseButtonReleasedEvent>(BIND_CALLBACK(onMouseReleased));
 
@@ -124,7 +124,7 @@ namespace VoxelEditor::gui
 		m_viewportFocused = ImGui::IsWindowFocused();
 		if (isHovered() && isMouseDown(ImGuiMouseButton_Right))
 		{
-			ImGui::SetWindowFocus();
+			setFocused();
 		}
 
 		const float aspectRatio = m_viewportSize.x / m_viewportSize.y;
@@ -150,6 +150,10 @@ namespace VoxelEditor::gui
 		{
 			m_camera->update(ts);
 		}
-		m_scene->update(ts);
+
+		if (!m_scene.expired())
+		{
+			m_scene.lock()->update(ts);
+		}
 	}
 }

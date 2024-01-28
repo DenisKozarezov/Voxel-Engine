@@ -30,13 +30,14 @@ namespace VoxelEngine
 		FORCE_INLINE bool isMouseUp(ImGuiMouseButton mouseButton) const { return ImGui::IsMouseReleased(mouseButton); }
 		FORCE_INLINE bool isMouseClicked(ImGuiMouseButton mouseButton) const { return ImGui::IsMouseClicked(mouseButton); }
 		FORCE_INLINE bool isMouseDragging(ImGuiMouseButton mouseButton) const { return ImGui::IsMouseDragging(mouseButton); }
-		
+				
 		bool begin();
 		void end();
 		void setVisibility(const bool& isVisible);
 		void setMinSize(const float& minWidth, const float& minHeight);
-		void show();
-		void hide();
+		FORCE_INLINE void show() { setVisibility(true); }
+		FORCE_INLINE void hide() { setVisibility(false); }
+		FORCE_INLINE void setFocused() const { ImGui::SetWindowFocus(); }
 
 		template<typename TEvent>
 		void sendEvent(TEvent& e);

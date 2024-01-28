@@ -44,12 +44,4 @@ namespace VoxelEngine
 		m_minSize[0] = minWidth;
 		m_minSize[1] = minHeight;
 	}
-	INLINE void ImguiWindow::show()
-	{
-		setVisibility(true);
-	}
-	INLINE void ImguiWindow::hide()
-	{
-		setVisibility(false);
-	}
 }

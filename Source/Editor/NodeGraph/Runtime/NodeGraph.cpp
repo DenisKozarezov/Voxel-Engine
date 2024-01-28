@@ -1,0 +1,132 @@
+﻿#include "NodeGraph.h"
+#include "Nodes/DecoratorNode.h"
+#include <NodeGraph/Editor/Drawers/NodeDrawer.h>
+
+namespace VoxelEditor::nodes
+{
+    NodeGraph::NodeGraph()
+    {
+        m_nodeDrawer = MakeUnique<NodeDrawer>(&m_canvasProps);
+        
+        auto root = MakeShared<DecoratorNode>("Root Node");
+        root->setPosition({0, 0});
+        addNode(root);
+    }
+
+    NodeGraph::~NodeGraph()
+    {
+    }
+    
+    void NodeGraph::renderGrid(ImDrawList* drawList, const float& gridSize)
+    {
+        const ImU32 gridColor = ImColor(m_canvasProps.colors[ColCanvasLines]);
+        const ImVec2 pos = ImGui::GetWindowPos();
+        const ImVec2 size = ImGui::GetWindowSize();
+        
+        for (float x = fmodf(m_canvasProps.offset.x, gridSize); x < size.x;)
+        {
+            drawList->AddLine(ImVec2(x, 0.0f) + pos, ImVec2(x, size.y) + pos, gridColor);
+            x += gridSize;
+        }
+
+        for (float y = fmodf(m_canvasProps.offset.y, gridSize); y < size.y;)
+        {
+            drawList->AddLine(ImVec2(0.0f, y) + pos, ImVec2(size.x, y) + pos, gridColor);
+            y += gridSize;
+        }
+    }
+
+    void NodeGraph::renderNodes(ImDrawList* drawList)
+    {
+        for (auto it = m_nodes.begin(); it != m_nodes.end(); ++it)
+        {
+            auto node = *it;
+            if (m_nodeDrawer->beginNode(drawList, node))
+            {
+                auto* storage = ImGui::GetStateStorage();
+                const float nodeWidth = storage->GetFloat(ImGui::GetID("node-width"));
+                
+                // Draw Node title
+                const ImVec2 titleSize = ImGui::CalcTextSize(node->name().c_str());     
+                ImGui::SetCursorPosX(ImGui::GetCursorPosX() + nodeWidth * 0.5f - titleSize.x * 0.5f);
+                ImGui::TextUnformatted(node->name().c_str());
+
+                storage->SetFloat(ImGui::GetID("node-width"), ImGui::GetItemRectSize().x);
+                
+                m_nodeDrawer->endNode(drawList, node);    
+            }
+        }
+    }
+
+    void NodeGraph::beginInputSlot(ImDrawList* drawList, const string& slotTitle)
+    {        
+        const float circleRadius = 5.f * m_canvasProps.zoom;
+        ImVec2 titleSize = ImGui::CalcTextSize(slotTitle.c_str());
+        ImColor color = m_canvasProps.colors[ColConnection];
+        const auto& style = ImGui::GetStyle();
+        float item_offset_x = style.ItemSpacing.x * m_canvasProps.zoom;
+        
+        ImGui::SetCursorScreenPos(ImGui::GetCursorScreenPos() + ImVec2{item_offset_x, 0.0f});
+        
+        ImRect circle_rect{
+            ImGui::GetCursorScreenPos(),
+            ImGui::GetCursorScreenPos() + ImVec2{circleRadius * 2.0f, circleRadius * 2.0f}
+        };
+        // Vertical-align circle in the middle of the line.
+        float circle_offset_y = titleSize.y * 0.5f - circleRadius;
+        circle_rect.Min.y += circle_offset_y;
+        circle_rect.Max.y += circle_offset_y;
+        drawList->AddCircleFilled(circle_rect.GetCenter(), circleRadius, color);
+
+        ImGui::ItemSize(circle_rect.GetSize());
+        ImGui::ItemAdd(circle_rect, ImGui::GetID(slotTitle.c_str()));
+    }
+
+    void NodeGraph::beginOutputSlot(ImDrawList* drawList)
+    {
+    }
+
+    void NodeGraph::endSlot()
+    {
+    }
+
+    void NodeGraph::setZoom(const float& zoom)
+    {
+        m_canvasProps.zoom = zoom;
+        ImGui::SetWindowFontScale(zoom);
+    }
+
+    void NodeGraph::addNode(const TSharedPtr<NodeBase>& newNode)
+    {
+        if (!m_rootNode)
+            m_rootNode = newNode;
+
+        const auto it = std::find(m_nodes.begin(), m_nodes.end(), newNode);
+        if (it == m_nodes.end())
+        {
+            m_nodes.emplace_back(newNode);
+        }
+    }
+
+    void NodeGraph::removeNode(const TSharedPtr<NodeBase>& node)
+    {
+        if (node == m_rootNode)
+            m_rootNode = nullptr;
+        
+        const auto it = std::find(m_nodes.begin(), m_nodes.end(), node);
+        if (it != m_nodes.end())
+        {
+            m_nodes.erase(it, m_nodes.end());
+        }
+    }
+
+    void NodeGraph::onImGuiRender(ImDrawList* drawList)
+    {
+        const float gridSize = 64.0f *  m_canvasProps.zoom;
+        renderGrid(drawList, gridSize);
+
+        renderNodes(drawList);
+
+        beginInputSlot(drawList, "Some Variable");
+    }
+}

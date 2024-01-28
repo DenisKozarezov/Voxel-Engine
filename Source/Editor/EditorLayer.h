@@ -1,5 +1,5 @@
 #pragma once
-#include "gui/GuiTree.h"
+#include "GUI/GuiTree.h"
 
 namespace VoxelEditor::gui
 {

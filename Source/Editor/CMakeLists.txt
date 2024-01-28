@@ -10,11 +10,14 @@ set_target_properties(${TARGET} PROPERTIES
 
 file(GLOB_RECURSE EDITOR_SOURCE ./*.cpp)
 file(GLOB_RECURSE EDITOR_HEADER ./*.h)
+set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(${PROJECT_NAME} 
 	${EDITOR_SOURCE}
 	${EDITOR_HEADER}
 )
+
+target_include_directories(${PROJECT_NAME} PRIVATE ${SOURCE_DIR})
 
 # link Runtime STATIC library
 target_link_libraries(${PROJECT_NAME} PRIVATE Runtime)

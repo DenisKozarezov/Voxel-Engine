@@ -8,7 +8,7 @@ namespace VoxelEditor::gui
 	private:
 		ImVec2 m_viewportSize;
 		bool m_viewportFocused = true;
-		TSharedPtr<Scene> m_scene;
+		TWeakPtr<Scene> m_scene;
 		TSharedPtr<components::camera::EditorCameraController> m_camera;
 
 		void drawRenderModes();

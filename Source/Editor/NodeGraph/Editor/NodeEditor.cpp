@@ -14,7 +14,12 @@ namespace VoxelEditor::nodes
 
 	ImGuiWindowFlags NodeEditor::flags() const
 	{
-		return ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove;
+		return
+			ImGuiWindowFlags_NoResize			|
+			ImGuiWindowFlags_NoCollapse			|
+			ImGuiWindowFlags_NoMove				|
+			ImGuiWindowFlags_NoScrollbar		|
+			ImGuiWindowFlags_NoScrollWithMouse;
 	}
 
 	void NodeEditor::onBegin()

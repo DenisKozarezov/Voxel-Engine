@@ -1,5 +1,5 @@
 ﻿#include "CanvasZoomManipulator.h"
-#include "../NodeGraph.h"
+#include <NodeGraph/Runtime/NodeGraph.h>
 
 namespace VoxelEditor::nodes
 {

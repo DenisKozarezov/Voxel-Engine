@@ -1,6 +1,6 @@
 ﻿#include "UsefulToolsWindow.h"
 #include "GuiTree.h"
-#include "../NodeGraph/NodeEditor.h"
+#include <NodeGraph/Editor/NodeEditor.h>
 
 namespace VoxelEditor::gui
 {

@@ -11,10 +11,12 @@ constexpr string projectionTypeString(const ProjectionType& mode)
 {
 	switch (mode)
 	{
-#define STR(x) case ProjectionType::##x: return #x;
+#define STR(x) case ProjectionType::##x: return #x
 		STR(Perspective);
 		STR(Orthographic);
 #undef STR
+	default:
+		return "";
 	}
 }
 

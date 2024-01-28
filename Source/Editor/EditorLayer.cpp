@@ -1,8 +1,8 @@
 #include "EditorLayer.h"
-#include "gui/EditorConsole.h"
-#include "gui/PerformanceWindow.h"
-#include "gui/UsefulToolsWindow.h"
-#include "gui/PrimitivesPanel.h"
+#include "GUI/EditorConsole.h"
+#include "GUI/PerformanceWindow.h"
+#include "GUI/UsefulToolsWindow.h"
+#include "GUI/PrimitivesPanel.h"
 #include <Core/version.h>
 
 namespace VoxelEditor::gui

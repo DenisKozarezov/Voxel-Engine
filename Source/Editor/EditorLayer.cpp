@@ -15,7 +15,7 @@ namespace VoxelEditor::gui
 		
 		m_guiTree.registerViewport(MakeShared<SceneViewport>("Viewport", m_scene));
 		m_guiTree.registerWindow(MakeShared<EditorConsole>("Console"));
-		m_guiTree.registerWindow(MakeShared<PrimitivesPanel>("Add Primitives"));
+		m_guiTree.registerWindow(MakeShared<PrimitivesPanel>("Add Primitives", m_scene));
 		m_guiTree.registerWindow(MakeShared<UsefulToolsWindow>("Tools", &m_guiTree));
 	}
 

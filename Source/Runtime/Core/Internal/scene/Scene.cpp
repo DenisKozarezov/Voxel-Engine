@@ -2,12 +2,11 @@
 #include <Core/Math/Octree.h>
 #include <Renderer/RenderCommand.h>
 #include <Vulkan/vkUtils/VulkanMaterials.h>
-#include <Engine/Tests/VModelsTests.h>
+#include <Renderer/GizmosAPI.h>
 
 #define TEST_INSTANCED_MESH 0
 
 #ifdef TEST_INSTANCED_MESH
-	#include <Renderer/GizmosAPI.h>
 	#include <Renderer/RenderingStructs.h>
 #endif
 
@@ -62,10 +61,6 @@ namespace VoxelEngine
 		materials.normals = utils::getMaterial("normals");
 		materials.normalsLines = utils::getMaterial("normals_lines");
 #endif
-		
-		auto mesh = CreateTestHomotopy({200, 200, 200});
-		onMeshLoaded(mesh);
-		registerMesh(mesh);
 	}
 	Scene::~Scene()
 	{

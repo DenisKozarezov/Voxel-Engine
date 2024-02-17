@@ -1,5 +1,6 @@
 #include "GizmosAPI.h"
 #include <Renderer/RenderCommand.h>
+#include <Vulkan/vkUtils/VulkanMaterials.h>
 
 namespace utils
 {

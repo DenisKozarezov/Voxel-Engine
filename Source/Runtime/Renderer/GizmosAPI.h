@@ -1,7 +1,14 @@
 #pragma once
 #include <glm/vec3.hpp>
 #include <Renderer/Buffer.h>
-#include <vulkan/vkUtils/VulkanMaterials.h>
+
+namespace VoxelEngine
+{
+	namespace renderer
+	{
+		class IMaterial;
+	}
+}
 
 namespace utils
 {

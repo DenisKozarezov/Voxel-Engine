@@ -18,11 +18,11 @@ TSharedPtr<VoxelEngine::components::mesh::Mesh> CreateTestPawn(const glm::ivec3 
     return MakeShared<VoxelEngine::components::mesh::Mesh>(vertices, indices);
 }
 
-TSharedPtr<VoxelEngine::components::mesh::Mesh> CreateTestHomotopy(const glm::ivec3 gridSize)
+TSharedPtr<VoxelEngine::components::mesh::Mesh> CreateTestHomotopy(const glm::ivec3 gridSize, const double& t)
 {
     auto model1 = CreateTestSphereModel(40.0, gridSize);
     auto model2 = CreateTestPawnModel(4.0, gridSize);
-    auto homotopy = vmodel::Operations::homotopy(model1, model2, 0.5);
+    auto homotopy = vmodel::Operations::homotopy(model1, model2, t);
     auto points = marching::Mesh::build_mesh_data(homotopy.get_grid(), gridSize, 0.0f, true);
     
     std::vector<Vertex> vertices;

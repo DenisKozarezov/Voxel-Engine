@@ -35,24 +35,24 @@ namespace VoxelEngine::components::camera
 		float m_movementSpeed;
 		float m_mouseSensitivity;
 		float m_zoom;
-		float m_nearClip = 0.1f, m_farClip = 256.0f;
+		float m_nearClip = 0.1f, m_farClip = 512.0f;
 		float m_aspectRatio;
 	public:
 		Camera() noexcept = delete;
 		Camera(const glm::vec3& position = glm::vec3(0.0f, 0.0f, 0.0f)) : 
-			m_position(position), 
-			m_aspectRatio(3.0f / 2),
+			m_position(position),
 			m_movementSpeed(defaultSpeed),
 			m_mouseSensitivity(defaultSensitivity),
-			m_zoom(defaultZoom) { }
+			m_zoom(defaultZoom),
+			m_aspectRatio(3.0f / 2.0f) { }
 		Camera(Camera const&) noexcept = delete;
 		Camera(Camera&&) noexcept = delete;
 		Camera& operator=(Camera const& rhs) noexcept = delete;
 		Camera& operator=(Camera&& rhs) noexcept = delete;
 
-		INLINE const glm::vec3 getPosition() const { return m_position; }
-		virtual INLINE const glm::mat4 viewMatrix() const = 0;
-		virtual INLINE const glm::mat4 projectionMatrix() const = 0;
+		FORCE_INLINE const glm::vec3& getPosition() const { return m_position; }
+		virtual INLINE glm::mat4 viewMatrix() const = 0;
+		virtual INLINE glm::mat4 projectionMatrix() const = 0;
 
 		INLINE void setAspectRatio(const float& aspectRatio);
 		INLINE void setPosition(const glm::vec3& position);

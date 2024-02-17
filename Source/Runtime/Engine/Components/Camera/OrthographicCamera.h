@@ -20,13 +20,13 @@ namespace VoxelEngine::components::camera
 			const glm::vec3& up = glm::vec3(0.0f, 1.0f, 0.0f));
 		~OrthographicCamera() override = default;
 		
-		INLINE const glm::mat4 viewMatrix() const override 
+		FORCE_INLINE glm::mat4 viewMatrix() const override 
 		{ 
 			glm::mat4 transform = glm::translate(glm::mat4(1.0f), m_position) *
 			glm::rotate(glm::mat4(1.0f), glm::radians(defaultPitch), glm::vec3(0, 1, 0));
 			return glm::inverse(transform);
 		}
-		INLINE const glm::mat4 projectionMatrix() const override
+		FORCE_INLINE glm::mat4 projectionMatrix() const override
 		{ 
 			return glm::ortho(-m_aspectRatio, m_aspectRatio, -1.0f, 1.0f, m_nearClip, m_farClip);
 		}

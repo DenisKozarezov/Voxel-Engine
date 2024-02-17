@@ -1,6 +1,6 @@
 ﻿#include "VulkanInstance.h"
+#include <version.h>
 #include <GLFW/glfw3.h>
-#include <Core/version.h>
 #include <Core/HAL/Platform/Window.h>
 #include "../vkUtils/VulkanValidation.h"
 

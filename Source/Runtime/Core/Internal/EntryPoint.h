@@ -1,6 +1,6 @@
 #pragma once
 #include "Application.h"
-#include <Core/version.h>
+#include <version.h>
 
 extern TUniquePtr<VoxelEngine::Application> CreateApplication(ApplicationCommandLineArgs args);
 

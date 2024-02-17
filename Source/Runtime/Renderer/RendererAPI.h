@@ -32,7 +32,7 @@ namespace VoxelEngine::renderer
 	class RendererAPI
 	{
 	public:
-		using Mesh =  VoxelEngine::components::mesh::Mesh;
+		using Mesh =  components::mesh::Mesh;
 		
 		RendererAPI() noexcept = default;
 		virtual ~RendererAPI() = default;

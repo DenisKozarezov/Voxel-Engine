@@ -3,7 +3,7 @@
 #include "GUI/PerformanceWindow.h"
 #include "GUI/UsefulToolsWindow.h"
 #include "GUI/PrimitivesPanel.h"
-#include <Core/version.h>
+#include <version.h>
 
 namespace VoxelEditor::gui
 {
@@ -140,9 +140,8 @@ namespace VoxelEditor::gui
 	{
 		renderer::Renderer::resetStats();
 		
-		const auto viewport = m_guiTree.getViewport();		
-		if (!m_guiTree.getViewport().expired())
-			renderer::Renderer::preRender(*viewport.lock()->getEditorCamera());
+		if (const auto viewport = m_guiTree.getViewport().lock())
+			renderer::Renderer::preRender(*viewport->getEditorCamera());
 		else
 			renderer::Renderer::preRender();
 		

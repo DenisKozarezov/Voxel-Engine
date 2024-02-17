@@ -23,12 +23,12 @@ namespace VoxelEngine::components::camera
 			const glm::vec3& position = glm::vec3(0.0f, 0.0f, 0.0f),
 			const ProjectionType& mode = ProjectionType::Perspective);
 
-		INLINE operator Camera&() { return *m_currentCamera; };
+		FORCE_INLINE operator Camera&() { return *m_currentCamera; }
 
-		INLINE const glm::vec3 getPosition() const { return m_currentCamera->getPosition(); }
-		INLINE const glm::mat4 viewMatrix() const { return m_currentCamera->viewMatrix(); }
-		INLINE const glm::mat4 projectionMatrix() const { return m_currentCamera->projectionMatrix(); }
-		INLINE const ProjectionType& projectionType() const & noexcept { return m_projectionType; }
+		FORCE_INLINE const glm::vec3& getPosition() const { return m_currentCamera->getPosition(); }
+		FORCE_INLINE glm::mat4 viewMatrix() const { return m_currentCamera->viewMatrix(); }
+		FORCE_INLINE glm::mat4 projectionMatrix() const { return m_currentCamera->projectionMatrix(); }
+		FORCE_INLINE const ProjectionType& projectionType() const & noexcept { return m_projectionType; }
 
 		void setAspectRatio(const float& aspectRatio);
 		void setClips(const float& nearClip, const float& farClip);

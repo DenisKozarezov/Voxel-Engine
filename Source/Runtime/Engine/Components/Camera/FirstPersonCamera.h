@@ -23,16 +23,16 @@ namespace VoxelEngine::components::camera
 			const float& pitch = defaultPitch);
 		~FirstPersonCamera() override = default;
 
-		INLINE const glm::mat4 viewMatrix() const override
+		FORCE_INLINE glm::mat4 viewMatrix() const override
 		{ 
 			return glm::lookAt(m_position, m_position + m_front, m_up); 
 		}
-		INLINE const glm::mat4 projectionMatrix() const override 
+		FORCE_INLINE glm::mat4 projectionMatrix() const override 
 		{ 
 			glm::mat4 projection = glm::perspective(glm::radians(FOV), m_aspectRatio, m_nearClip, m_farClip);
 			projection[1][1] *= -1;
 			return projection;
-		};
+		}
 
 		void processKeyboard(const CameraMovement& direction, const float& deltaTime) override;
 		void processMouse(const float& xOffset, const float& yOffset, const bool& constrainPitch = true) override;

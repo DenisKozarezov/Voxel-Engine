@@ -22,6 +22,7 @@
 #include <Core/Internal/NonCopyable.h>
 
 #include <Renderer/RenderCommand.h>
+#include <Renderer/Renderer.h>
 
 #include <Engine/Components/camera/FirstPersonCamera.h>
 #include <Engine/Components/camera/OrthographicCamera.h>

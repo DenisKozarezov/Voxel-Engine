@@ -1,5 +1,4 @@
 #pragma once
-#include <Renderer/Renderer.h>
 #include <InputCore/events/ApplicationEvent.h>
 #include <InputCore/events/EventDispatcher.h>
 #include <Engine/Components/mesh/MeshPrimitives.h>

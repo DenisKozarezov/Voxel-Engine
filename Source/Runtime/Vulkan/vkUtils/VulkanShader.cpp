@@ -2,9 +2,9 @@
 #include "VulkanValidation.h"
 #include "../vkInit/VulkanInitializers.h"
 #include <Core/Internal/Timer.h>
+#include <Core/HAL/AssetsManager/Paths.h>
+#include <Core/HAL/AssetsManager/Assets/ShaderAsset.h>
 #include <Engine/ShaderCompiler/ShaderCompiler.h>
-
-#include "Core/HAL/AssetsManager/Paths.h"
 
 namespace vkUtils
 {
@@ -34,10 +34,13 @@ namespace vkUtils
 			const std::filesystem::path cachedPath = cacheDirectory / (shaderFilePath.filename().string() + shaderStageCachedVulkanFileExtension(stage));
 
 			const string shaderStageStr = shaderStageString(stage);
+			const auto desc = assets::AssetDescription(cachedPath.string());
+			auto asset = assets::ShaderAsset(desc);
+			asset.loadFromFile();
 			
 			if (Paths::fileExists(cachedPath.string()))
 			{
-				shaderBinaries[stage] = readBinary(cachedPath.string());
+				shaderBinaries[stage] = asset.readBinaries();
 				RUNTIME_WARN("Shader '{0}' ({1}) is found in cache.", filepath, shaderStageStr);
 			}
 			else
@@ -86,12 +89,15 @@ namespace vkUtils
 	VulkanShader::VulkanShader(const VkDevice& logicalDevice, const string& filepath)
 		: m_logicalDevice(logicalDevice)
 	{
-		EDITOR_ASSERT(!filepath.empty(), "invalid shader's program file path!");
+		RUNTIME_ASSERT(!filepath.empty(), "invalid shader's program file path!");
 
 		createShaderCacheDirectoryIfNeeded();
 
-		const string& shaderProgram = readFile(filepath);
-		const auto& shaderSources = utils::shaders::analyzeShaderProgram(shaderProgram);
+		const auto desc = assets::AssetDescription(filepath);
+		auto asset = assets::ShaderAsset(desc);
+		asset.loadFromFile();
+		
+		const auto& shaderSources = utils::shaders::analyzeShaderProgram(asset.readProgram());
 
 		m_shaderStages.reserve(shaderSources.size());
 		const auto& shaderBinaries = compileOrGetVulkanBinaries(filepath, shaderSources);

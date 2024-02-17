@@ -61,8 +61,6 @@ namespace VoxelEngine::renderer
 		Shader& operator=(Shader const& rhs) noexcept = delete;
 		Shader& operator=(Shader&& rhs) noexcept = delete;
 		
-		static string readFile(const string& filename);
-		static std::vector<uint32> readBinary(const string& filename);
 		static void createCachedBinaryFile(const string& cachedPath, const uint32* bytes, const size_t& size);
 
 		virtual ~Shader() = default;

@@ -3,6 +3,7 @@
 #include <Renderer/RenderCommand.h>
 #include <Vulkan/vkUtils/VulkanMaterials.h>
 #include <Renderer/GizmosAPI.h>
+#include <Renderer/Renderer.h>
 
 #define TEST_INSTANCED_MESH 0
 

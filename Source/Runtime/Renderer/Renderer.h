@@ -34,7 +34,7 @@ namespace VoxelEngine
 }
 
 namespace VoxelEngine::renderer
-{	
+{
 	class Renderer
 	{
 	private:

@@ -9,6 +9,11 @@ namespace utils::shaders
 {
     class ShaderIncluder : public shaderc::CompileOptions::IncluderInterface
     {
+    private:
+        string m_program;
+    public:
+        ShaderIncluder(const string& program) : m_program(program) { }
+        
         shaderc_include_result* GetInclude(const char* requestedSource, shaderc_include_type type, const char* requestingSource, size_t includeDepth) override
         {
             string msg = string(requestingSource);
@@ -16,11 +21,10 @@ namespace utils::shaders
             msg += static_cast<char>(includeDepth);
 
             const string name = Paths::shaderWorkingDir() + "include/" + string(requestedSource);
-            const string contents = VoxelEngine::renderer::Shader::readFile(name);
 
             auto container = new std::array<string, 2>;
             (*container)[0] = name;
-            (*container)[1] = contents;
+            (*container)[1] = m_program;
 
             auto data = new shaderc_include_result;
 
@@ -60,7 +64,7 @@ namespace utils::shaders
         const shaderc::Compiler compiler;
         shaderc::CompileOptions options;
         options.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_2);
-        options.SetIncluder(std::make_unique<ShaderIncluder>());
+        options.SetIncluder(std::make_unique<ShaderIncluder>(shaderProgram));
         const bool optimize = true;
         if (optimize)
             options.SetOptimizationLevel(shaderc_optimization_level_performance);

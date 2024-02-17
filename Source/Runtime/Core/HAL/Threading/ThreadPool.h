@@ -5,8 +5,8 @@
 #include <mutex>
 #include <condition_variable>
 #include <functional>
-#include <core/PrimitiveTypes.h>
-#include <core/Log.h>
+#include <Core/CoreTypes.h>
+#include <Core/Logging/Log.h>
 
 namespace VoxelEngine::threading
 {
@@ -38,11 +38,11 @@ namespace VoxelEngine::threading
 					task = m_jobQueue.front();
 				}
 
-				VOXEL_CORE_WARN("[THREAD POOL]: Thread worker {0} is running a task...", m_workerId);
+				RUNTIME_WARN("[THREAD POOL]: Thread worker {0} is running a task...", m_workerId);
 
 				task();
 
-				VOXEL_CORE_WARN("[THREAD POOL]: Thread worker {0} finished the task.", m_workerId);
+				RUNTIME_WARN("[THREAD POOL]: Thread worker {0} finished the task.", m_workerId);
 
 				{
 					std::lock_guard<std::mutex> lock(m_queueMutex);
@@ -58,7 +58,7 @@ namespace VoxelEngine::threading
 			this->m_workerId = workerId;
 			m_worker = std::thread(&ThreadWorker::run, this);
 
-			VOXEL_CORE_WARN("[THREAD POOL]: Thread worker {0} created.", workerId);
+			RUNTIME_WARN("[THREAD POOL]: Thread worker {0} created.", workerId);
 		}
 
 		~ThreadWorker()
@@ -73,7 +73,7 @@ namespace VoxelEngine::threading
 				m_worker.join();
 			}
 
-			VOXEL_CORE_WARN("[THREAD POOL]: Thread worker {0} terminated.", m_workerId);
+			RUNTIME_WARN("[THREAD POOL]: Thread worker {0} terminated.", m_workerId);
 		}
 
 		// Add a new task to the thread's queue
@@ -105,10 +105,10 @@ namespace VoxelEngine::threading
 			}
 		}
 	public:
-		std::vector<UniqueRef<ThreadWorker>> threads;
+		std::vector<TUniquePtr<ThreadWorker>> threads;
 
 		ThreadPool() noexcept = delete;
-		ThreadPool(const uint32 workersCount)
+		explicit  ThreadPool(const uint32 workersCount)
 		{
 			setThreadCount(workersCount);
 		}

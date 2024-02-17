@@ -35,3 +35,9 @@ target_compile_definitions(${PROJECT_NAME}
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${SOURCE_DIR})
+
+find_package(glm CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} 
+    PUBLIC
+	glm::glm
+)

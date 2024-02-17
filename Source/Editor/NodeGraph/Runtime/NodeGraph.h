@@ -19,7 +19,6 @@ namespace VoxelEditor::nodes
     
     struct CanvasProperties
     {
-    public:
         float zoom = 1.0f;
         ImVec2 offset{};
         ImColor colors[ColMax];
@@ -43,15 +42,13 @@ namespace VoxelEditor::nodes
     {
         TSharedPtr<NodeBase> selectedNode;
     };
-
-    class NodeDrawer;
+    
     class NodeGraph
     {
     private:
         CanvasProperties m_canvasProps{};
         TSharedPtr<NodeBase> m_rootNode = nullptr;
         std::vector<TSharedPtr<NodeBase>> m_nodes;
-        TUniquePtr<NodeDrawer> m_nodeDrawer;
 
         void renderGrid(ImDrawList* drawList, const float& gridSize);
         void renderNodes(ImDrawList* drawList);
@@ -70,6 +67,7 @@ namespace VoxelEditor::nodes
         void setZoom(const float& zoom);
         void addNode(const TSharedPtr<NodeBase>& newNode);
         void removeNode(const TSharedPtr<NodeBase>& node);
+        void clear();
         
         void onImGuiRender(ImDrawList* drawList);
     };

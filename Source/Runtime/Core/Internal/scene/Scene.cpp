@@ -2,7 +2,7 @@
 #include <Core/Math/Octree.h>
 #include <Renderer/RenderCommand.h>
 #include <Vulkan/vkUtils/VulkanMaterials.h>
-#include <VModel.h>
+#include <Engine/Tests/VModelsTests.h>
 
 #define TEST_INSTANCED_MESH 0
 
@@ -18,11 +18,13 @@ namespace VoxelEngine
 
 	void Scene::prepareTestInstancedMesh()
 	{
-		auto VModelMesh1 = VModel::Sphere(15.0, { 30, 30, 25 }, { 50, 50, 50 });
-		auto VModelMesh2 = VModel::Torus(15.0, 10.0, { 25, 25, 25 }, { 50, 50, 50 });
-		auto VModelMesh3 = VModel::Plane({ 22, 28, 18 }, { 22, 27, 22 }, { 28, 26, 16 }, { 50, 50, 50 });
-		auto result = VModel::Operations::Sum(VModelMesh1, VModelMesh3);
-		auto points = result.GetPoints();
+		const glm::ivec3 areaSize = { 50, 50, 50 };
+		auto VModelMesh1 = vmodel::Sphere(15.0, { 30, 30, 25 }, areaSize);
+		auto VModelMesh2 = vmodel::Torus(15.0, 10.0, { 25, 25, 25 }, areaSize);
+		auto VModelMesh3 = vmodel::Plane({ 22, 28, 18 }, { 22, 27, 22 }, { 28, 26, 16 }, areaSize);
+		auto result = vmodel::Operations::sum(VModelMesh1, VModelMesh3, 1.0);
+		auto points = result.get_points();
+
 		instancesCount = static_cast<uint32>(points.size());
 
 		std::vector<InstanceData> instanceData;
@@ -60,6 +62,10 @@ namespace VoxelEngine
 		materials.normals = utils::getMaterial("normals");
 		materials.normalsLines = utils::getMaterial("normals_lines");
 #endif
+		
+		auto mesh = CreateTestHomotopy({200, 200, 200});
+		onMeshLoaded(mesh);
+		registerMesh(mesh);
 	}
 	Scene::~Scene()
 	{
@@ -140,7 +146,7 @@ namespace VoxelEngine
 				}
 			}
 
-			/*if (meshes.svo && renderSettings.showOctree)
+			if (meshes.svo && renderSettings.showOctree)
 			{
 				meshes.svo->traverse([&](OctreeNode* node)
 				{
@@ -150,7 +156,9 @@ namespace VoxelEngine
 					glm::vec3 dimensions = node->bounds.max() - node->bounds.min();
 					utils::Gizmos::drawWireframeCube(node->bounds.min() + dimensions * 0.5f, dimensions);
 				});
-			}*/
+			}
+
+			utils::Gizmos::drawWireframeCube({100, 100, 100}, {200, 200, 200});
 		}
 	}
 	void Scene::registerMesh(const TSharedPtr<Mesh>& mesh)

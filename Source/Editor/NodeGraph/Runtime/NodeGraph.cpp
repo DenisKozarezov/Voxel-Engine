@@ -6,8 +6,6 @@ namespace VoxelEditor::nodes
 {
     NodeGraph::NodeGraph()
     {
-        m_nodeDrawer = MakeUnique<NodeDrawer>(&m_canvasProps);
-        
         auto root = MakeShared<DecoratorNode>("Root Node");
         root->setPosition({0, 0});
         addNode(root);
@@ -41,7 +39,9 @@ namespace VoxelEditor::nodes
         for (auto it = m_nodes.begin(); it != m_nodes.end(); ++it)
         {
             auto node = *it;
-            if (m_nodeDrawer->beginNode(drawList, node))
+            auto nodeDrawer = NodeDrawer(node, &m_canvasProps);
+            
+            if (nodeDrawer.beginNode(drawList))
             {
                 auto* storage = ImGui::GetStateStorage();
                 const float nodeWidth = storage->GetFloat(ImGui::GetID("node-width"));
@@ -53,7 +53,7 @@ namespace VoxelEditor::nodes
 
                 storage->SetFloat(ImGui::GetID("node-width"), ImGui::GetItemRectSize().x);
                 
-                m_nodeDrawer->endNode(drawList, node);    
+                nodeDrawer.endNode(drawList);    
             }
         }
     }
@@ -64,22 +64,22 @@ namespace VoxelEditor::nodes
         ImVec2 titleSize = ImGui::CalcTextSize(slotTitle.c_str());
         ImColor color = m_canvasProps.colors[ColConnection];
         const auto& style = ImGui::GetStyle();
-        float item_offset_x = style.ItemSpacing.x * m_canvasProps.zoom;
+        float itemOffsetX = style.ItemSpacing.x * m_canvasProps.zoom;
         
-        ImGui::SetCursorScreenPos(ImGui::GetCursorScreenPos() + ImVec2{item_offset_x, 0.0f});
+        ImGui::SetCursorScreenPos(ImGui::GetCursorScreenPos() + ImVec2{itemOffsetX, 0.0f});
         
-        ImRect circle_rect{
+        ImRect circleRect{
             ImGui::GetCursorScreenPos(),
             ImGui::GetCursorScreenPos() + ImVec2{circleRadius * 2.0f, circleRadius * 2.0f}
         };
         // Vertical-align circle in the middle of the line.
-        float circle_offset_y = titleSize.y * 0.5f - circleRadius;
-        circle_rect.Min.y += circle_offset_y;
-        circle_rect.Max.y += circle_offset_y;
-        drawList->AddCircleFilled(circle_rect.GetCenter(), circleRadius, color);
+        float circleOffsetY = titleSize.y * 0.5f - circleRadius;
+        circleRect.Min.y += circleOffsetY;
+        circleRect.Max.y += circleOffsetY;
+        drawList->AddCircleFilled(circleRect.GetCenter(), circleRadius, color);
 
-        ImGui::ItemSize(circle_rect.GetSize());
-        ImGui::ItemAdd(circle_rect, ImGui::GetID(slotTitle.c_str()));
+        ImGui::ItemSize(circleRect.GetSize());
+        ImGui::ItemAdd(circleRect, ImGui::GetID(slotTitle.c_str()));
     }
 
     void NodeGraph::beginOutputSlot(ImDrawList* drawList)
@@ -118,6 +118,15 @@ namespace VoxelEditor::nodes
         {
             m_nodes.erase(it, m_nodes.end());
         }
+    }
+
+    void NodeGraph::clear()
+    {
+        for (size_t i = 0; i < m_nodes.size(); ++i)
+        {
+            m_nodes[i].reset();
+        }
+        m_nodes.clear();
     }
 
     void NodeGraph::onImGuiRender(ImDrawList* drawList)

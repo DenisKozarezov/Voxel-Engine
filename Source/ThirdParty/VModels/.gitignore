@@ -1,3 +1,6 @@
+# Folders
+x64*
+
 # Prerequisites
 *.d
 
@@ -39,3 +42,4 @@
 *.sln
 *.opensdf
 *.vs
+*.vcxproj.user

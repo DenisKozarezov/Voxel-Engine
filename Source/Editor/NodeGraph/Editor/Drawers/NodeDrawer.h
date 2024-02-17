@@ -11,13 +11,15 @@ namespace VoxelEditor::nodes
     class NodeDrawer
     {
     private:
+        const TSharedPtr<NodeBase>& m_node;
         const CanvasProperties* m_canvasProps;
     public:
         NodeDrawer() = delete;
-        NodeDrawer(const CanvasProperties* canvasProps) : m_canvasProps(canvasProps) { }
+        NodeDrawer(const TSharedPtr<NodeBase>& node, const CanvasProperties* canvasProps)
+            : m_node(node), m_canvasProps(canvasProps) { }
         virtual ~NodeDrawer() = default;
         
-        bool beginNode(ImDrawList* drawList, const TSharedPtr<NodeBase>& node);
-        void endNode(ImDrawList* drawList, const TSharedPtr<NodeBase>& node);
+        bool beginNode(ImDrawList* drawList);
+        void endNode(ImDrawList* drawList);
     };
 }

@@ -6,19 +6,19 @@
 
 namespace VoxelEditor::nodes
 {
-    bool NodeDrawer::beginNode(ImDrawList* drawList, const TSharedPtr<NodeBase>& node)
+    bool NodeDrawer::beginNode(ImDrawList* drawList)
     {
         // Create 2 UI layers (one for nodes). Just like layers in Photoshop or Unity. 
         drawList->ChannelsSplit(2);
 
         // Node position relative to the window.
-        ImGui::SetCursorScreenPos(ImGui::GetWindowPos() + node->position() * m_canvasProps->zoom + m_canvasProps->offset);
+        ImGui::SetCursorScreenPos(ImGui::GetWindowPos() + m_node->position() * m_canvasProps->zoom + m_canvasProps->offset);
 
         // Node size
         ImGuiStyle& style = ImGui::GetStyle();
         style.FrameRounding = 1.0f;
 
-        ImGui::PushID(node.get());
+        ImGui::PushID(m_node.get());
         
         ImGui::BeginGroup();
 
@@ -27,7 +27,7 @@ namespace VoxelEditor::nodes
         return true;
     }
 
-    void NodeDrawer::endNode(ImDrawList* drawList, const TSharedPtr<NodeBase>& node)
+    void NodeDrawer::endNode(ImDrawList* drawList)
     {
         ImGui::EndGroup();
 

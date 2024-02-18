@@ -1,4 +1,4 @@
-# Voxel Engine
+# Voxel Engine (Vulkan)
 
 
 # Vcpkg setup

@@ -8,7 +8,6 @@ layout(set = 0, binding = 0) readonly uniform UniformBufferObject {
 
 layout(location = 0) in vec3 inPosition;
 layout(location = 1) in vec3 inNormal;
-layout(location = 2) in vec3 inColor;
 
 layout(location = 1) out vec3 nearPoint;
 layout(location = 2) out vec3 farPoint;
@@ -30,16 +29,16 @@ void main() {
 #type fragment
 #version 450
 
+layout(set = 0, binding = 0) readonly uniform UniformBufferObject {
+    mat4 view;
+    mat4 proj;
+} ubo;
+
 const float near = 0.01;
 const float far = 100;
 layout(location = 1) in vec3 nearPoint;
 layout(location = 2) in vec3 farPoint;
 layout(location = 0) out vec4 outColor;
-
-layout(set = 0, binding = 0) readonly uniform UniformBufferObject {
-    mat4 view;
-    mat4 proj;
-} ubo;
 
 vec4 grid(vec3 fragPos3D, float scale, bool drawAxis)
 {

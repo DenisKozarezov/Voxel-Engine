@@ -1,0 +1,45 @@
+# Folders
+x64*
+
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+*.lib
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Visual Studio clutter
+*.sdf
+*.suo
+*.dir
+*.vcxproj
+*.vcxproj.filters
+*.sln
+*.opensdf
+*.vs
+*.vcxproj.user

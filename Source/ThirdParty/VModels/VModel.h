@@ -1,0 +1,12 @@
+#pragma once
+#include "./Maths/Headers/Model.h"
+#include "./Marching/Headers/Mesh.h"
+#include "./Maths/Headers/Operations.h"
+#include "./Maths/Headers/Models/Plane.h"
+#include "./Maths/Headers/Models/Sphere.h"
+#include "./Maths/Headers/Models/Torus.h"
+#include "./Maths/Headers/Models/Ellipsoid.h"
+#include "./Maths/Headers/Models/Cone.h"
+#include "./Maths/Headers/Models/Cylinder.h"
+#include "./Maths/Headers/Models/DoublePlane.h"
+#include "./Maths/Headers/Models/OneSheetedHyperboloid.h"

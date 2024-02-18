@@ -34,12 +34,12 @@ namespace vkUtils
 			const std::filesystem::path cachedPath = cacheDirectory / (shaderFilePath.filename().string() + shaderStageCachedVulkanFileExtension(stage));
 
 			const string shaderStageStr = shaderStageString(stage);
-			const auto desc = assets::AssetDescription(cachedPath.string());
-			auto asset = assets::ShaderAsset(desc);
-			asset.loadFromFile();
 			
 			if (Paths::fileExists(cachedPath.string()))
 			{
+				const auto desc = assets::AssetDescription(cachedPath.string());
+				auto asset = assets::ShaderAsset(desc);
+				asset.loadFromFile();
 				shaderBinaries[stage] = asset.readBinaries();
 				RUNTIME_WARN("Shader '{0}' ({1}) is found in cache.", filepath, shaderStageStr);
 			}
